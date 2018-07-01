@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "declaration": false,
+    "target": "es6",
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "outDir": "lib",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "paths": {
+      "src": ["./src"]
+    },
+    "allowSyntheticDefaultImports": true,
+    "lib": ["dom", "es6", "es2017", "dom.iterable", "scripthost"]
+  },
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "build"]
+}
