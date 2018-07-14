@@ -158,7 +158,14 @@ export class SwaggerInterface {
     const response = Schema.swaggerSchema2StandardDataType(responseSchema);
 
     const parameters = (inter.parameters || []).map(param => {
-      const { description, items, name, type, schema = {} as Schema, required } = param;
+      const {
+        description,
+        items,
+        name,
+        type,
+        schema = {} as Schema,
+        required
+      } = param;
 
       return new Property({
         in: param.in,
@@ -166,7 +173,7 @@ export class SwaggerInterface {
         name,
         required,
         dataType: Schema.swaggerSchema2StandardDataType({
-          enum: schema.enum,
+          enum: param.enum,
           items,
           type,
           $ref: _.get(schema, "$ref")
@@ -315,7 +322,7 @@ export function transformSwaggerData2Standard(
     let templateName = _.get(defName.match(/«(.+)»/), "[1]");
 
     if (templateName && templateName.match(/List«(.+)»/)) {
-      templateName = _.get(templateName.match(/List«(.+)»/), '[1]');
+      templateName = _.get(templateName.match(/List«(.+)»/), "[1]");
     }
 
     defName = defName.replace(
