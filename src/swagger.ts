@@ -126,7 +126,7 @@ export function fixSwaggerEnum(enumStrs: string[]) {
   let enums = enumStrs as Array<string | number>;
 
   enumStrs.forEach(str => {
-    if (Number.isNaN(Number(str))) {
+    if (!Number.isNaN(Number(str))) {
       enums.push(Number(str));
     }
   });
