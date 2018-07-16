@@ -2,9 +2,19 @@
 # yarn lockfile v1
 
 
+"@types/fs-extra@^5.0.4":
+  version "5.0.4"
+  resolved "http://registry.npm.alibaba-inc.com/@types/fs-extra/download/@types/fs-extra-5.0.4.tgz#b971134d162cc0497d221adde3dbb67502225599"
+  dependencies:
+    "@types/node" "*"
+
 "@types/lodash@^4.14.110":
   version "4.14.110"
   resolved "http://registry.npm.alibaba-inc.com/@types/lodash/download/@types/lodash-4.14.110.tgz#fb07498f84152947f30ea09d89207ca07123461e"
+
+"@types/node@*":
+  version "10.5.2"
+  resolved "http://registry.npm.alibaba-inc.com/@types/node/download/@types/node-10.5.2.tgz#f19f05314d5421fe37e74153254201a7bf00a707"
 
 "@types/node@^10.3.6":
   version "10.3.6"

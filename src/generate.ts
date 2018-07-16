@@ -18,14 +18,15 @@ import { info } from "./debugLog";
 export class CodeGenerator {
   dataSource: StandardDataSource;
 
-  constructor() {}
+  constructor() { }
 
   setDataSource(dataSource: StandardDataSource) {
     this.dataSource = dataSource;
   }
 
+  /** 一般不需要覆盖，获取基类的类型定义代码，一个 namespace */
   getBaseClassInDeclaration() {
-    return ` namespace ${this.dataSource.name || "defs"} {
+    const content = ` namespace ${this.dataSource.name || "defs"} {
       ${this.dataSource.baseClasses
         .map(
           base => `
@@ -37,13 +38,16 @@ export class CodeGenerator {
         .join("\n")}
     }
     `;
+
+    return content;
   }
 
+  /** 获取接口内容的类型定义代码 */
   getInterfaceContentInDeclaration(inter: Interface) {
     return "";
   }
 
-  getInterfaceInDeclaration(inter: Interface) {
+  private getInterfaceInDeclaration(inter: Interface) {
     return `
       /**
         * ${inter.description}
@@ -55,13 +59,14 @@ export class CodeGenerator {
     `;
   }
 
+  /** 获取模块的类型定义代码，一个 namespace ，一般不需要覆盖 */
   getModsDeclaration() {
     const mods = this.dataSource.mods;
 
-    return ` namespace ${this.dataSource.name || "API"} {
+    const content = ` namespace ${this.dataSource.name || "API"} {
         ${mods
-          .map(
-            mod => `
+        .map(
+          mod => `
           /**
            * ${mod.description}
            */
@@ -71,16 +76,20 @@ export class CodeGenerator {
               .join("\n")}
           }
         `
-          )
-          .join("\n\n")}
+        )
+        .join("\n\n")}
       }
     `;
+
+    return content;
   }
 
+  /** 获取公共的类型定义代码 */
   getCommonDeclaration() {
     return "";
   }
 
+  /** 获取总的类型定义代码 */
   getDeclaration() {
     return `
       ${this.getCommonDeclaration()}
@@ -91,7 +100,8 @@ export class CodeGenerator {
     `;
   }
 
-  getIndexTs() {
+  /** 获取接口类和基类的总的 index 入口文件代码 */
+  getIndex() {
     let conclusion = `
       import * as defs from './baseClass';
       import './mods/';
@@ -111,16 +121,17 @@ export class CodeGenerator {
     return conclusion;
   }
 
-  getBaseClassInTs() {
+  /** 获取所有基类的 index 入口文件代码 */
+  getBaseClassesIndex() {
     return `
       ${this.dataSource.baseClasses
         .map(
           base => `
         export class ${base.name} {
           ${base.properties
-            .map(prop => prop.toPropertyCodeWithInitValue())
-            .filter(id => id)
-            .join("\n")}
+              .map(prop => prop.toPropertyCodeWithInitValue())
+              .filter(id => id)
+              .join("\n")}
         }
       `
         )
@@ -128,11 +139,13 @@ export class CodeGenerator {
     `;
   }
 
-  getInterfaceTs(inter: Interface) {
+  /** 获取接口实现内容的代码 */
+  getInterfaceContent(inter: Interface) {
     return ``;
   }
 
-  getModTs(mod: Mod) {
+  /** 获取单个模块的 index 入口文件 */
+  getModIndex(mod: Mod) {
     return `
       /**
        * @description ${mod.description}
@@ -149,7 +162,8 @@ export class CodeGenerator {
     `;
   }
 
-  getModsTs() {
+  /** 获取所有模块的 index 入口文件 */
+  getModsIndex() {
     let conclusion = `
       declare var window;
 
@@ -197,21 +211,21 @@ export class FilesManager {
       const currMod = {};
 
       mod.interfaces.forEach(inter => {
-        currMod[inter.name + ".ts"] = generator.getInterfaceTs.bind(
+        currMod[inter.name + ".ts"] = generator.getInterfaceContent.bind(
           generator,
           inter
         );
-        currMod["index.ts"] = generator.getModTs.bind(generator, mod);
+        currMod["index.ts"] = generator.getModIndex.bind(generator, mod);
       });
       mods[mod.name] = currMod;
 
-      mods["index.ts"] = generator.getModsTs.bind(generator);
+      mods["index.ts"] = generator.getModsIndex.bind(generator);
     });
 
     return {
-      "baseClass.ts": generator.getBaseClassInTs.bind(generator),
+      "baseClass.ts": generator.getBaseClassesIndex.bind(generator),
       mods: mods,
-      "index.ts": generator.getIndexTs.bind(generator),
+      "index.ts": generator.getIndex.bind(generator),
       "api.d.ts": generator.getDeclaration.bind(generator)
     };
   }
@@ -237,10 +251,10 @@ export class FilesManager {
 
     return `
     ${dsNames
-      .map(name => {
-        return `/// <reference path="./${name}/api.d.ts" />`;
-      })
-      .join("\n")}
+        .map(name => {
+          return `/// <reference path="./${name}/api.d.ts" />`;
+        })
+        .join("\n")}
     `;
   }
 
@@ -324,6 +338,7 @@ export class FilesManager {
     files["api.lock"] = this.getLockContent.bind(this);
 
     this.clearPath(this.baseDir);
+    this.created = true;
     await this.generateFiles(files);
   }
 
@@ -333,11 +348,19 @@ export class FilesManager {
     return JSON.stringify(dataSources, null, 2);
   }
 
-  async saveLock() {
-    const files = {};
-    const lockFile = path.join(this.baseDir, "api.lock");
+  /** 区分lock文件是创建的还是认为更改的 */
+  created = false;
 
-    await fs.writeFile(lockFile, this.getLockContent());
+  async saveLock() {
+    const lockFile = path.join(this.baseDir, "api.lock");
+    const newLockContent = this.getLockContent();
+
+    const lockContent = await fs.readFile(lockFile, 'utf8');
+
+    if (lockContent !== newLockContent) {
+      this.created = true;
+      await fs.writeFile(lockFile, newLockContent);
+    }
   }
 
   async generateFiles(files: {}, dir = this.baseDir) {

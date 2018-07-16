@@ -111,11 +111,27 @@ export class Schema {
 
     return new DataType({
       isArr: type === "array",
-      enum: schema.enum,
+      enum: fixSwaggerEnum(schema.enum),
       primitiveType: primitiveType as PrimitiveType,
       reference
     });
   }
+}
+
+export function fixSwaggerEnum(enumStrs: string[]) {
+  if (!enumStrs) {
+    return enumStrs;
+  }
+
+  let enums = enumStrs as Array<string | number>;
+
+  enumStrs.forEach(str => {
+    if (Number.isNaN(Number(str))) {
+      enums.push(Number(str));
+    }
+  });
+
+  return enums;
 }
 
 export class SwaggerInterface {
@@ -188,7 +204,8 @@ export class SwaggerInterface {
       method: inter.method,
       path: inter.path,
       response,
-      parameters
+      /** 后端返回的参数可能重复 */
+      parameters: _.unionBy(parameters, "name")
     });
 
     return standardInterface;
@@ -293,6 +310,7 @@ export function transformSwaggerData2Standard(
     .map(tag => {
       const modInterfaces = allSwaggerInterfaces.filter(inter => {
         return (
+          inter.tags.includes(tag.name) ||
           inter.tags.includes(tag.name.toLowerCase()) ||
           inter.tags.includes(tag.description.toLowerCase()) ||
           inter.tags.includes(toDashCase(tag.description))
@@ -316,7 +334,9 @@ export function transformSwaggerData2Standard(
         name: transformDescription(tag.description)
       });
     })
-    .filter(mod => mod.interfaces.length);
+    .filter(mod => {
+      return mod.interfaces.length;
+    });
 
   const baseClasses = _.map(swagger.definitions, (def, defName) => {
     let templateName = _.get(defName.match(/«(.+)»/), "[1]");
