@@ -8,7 +8,7 @@
  */
 
 import * as _ from "lodash";
-import { StandardDataSource, Interface, Mod } from "./standard";
+import { StandardDataSource, Interface, Mod, BaseClass } from "./standard";
 import { Config } from "./utils";
 import * as fs from "fs-extra";
 import * as path from "path";
@@ -24,15 +24,21 @@ export class CodeGenerator {
     this.dataSource = dataSource;
   }
 
-  /** 一般不需要覆盖，获取基类的类型定义代码，一个 namespace */
-  getBaseClassInDeclaration() {
+  /** 获取某个基类的类型定义代码 */
+  getBaseClassInDeclaration(base: BaseClass) {
+    return `class ${base.name} {
+      ${base.properties.map(prop => prop.toPropertyCode(true)).join("\n")}
+    }
+    `;
+  }
+
+  /** 一般不需要覆盖，获取所有基类的类型定义代码，一个 namespace */
+  getBaseClassesInDeclaration() {
     const content = ` namespace ${this.dataSource.name || "defs"} {
       ${this.dataSource.baseClasses
         .map(
           base => `
-        export class ${base.name} {
-          ${base.properties.map(prop => prop.toPropertyCode()).join("\n")}
-        }
+        export ${this.getBaseClassInDeclaration(base)}
       `
         )
         .join("\n")}
@@ -94,7 +100,7 @@ export class CodeGenerator {
     return `
       ${this.getCommonDeclaration()}
 
-      ${this.getBaseClassInDeclaration()}
+      ${this.getBaseClassesInDeclaration()}
 
       ${this.getModsDeclaration()}
     `;
@@ -263,13 +269,13 @@ export class FilesManager {
 
     this.generators.forEach(generator => {
       const ds = generator.dataSource;
-      let { getBaseClassInDeclaration, getModsDeclaration } = generator;
-      getBaseClassInDeclaration = getBaseClassInDeclaration.bind(generator);
+      let { getBaseClassesInDeclaration, getModsDeclaration } = generator;
+      getBaseClassesInDeclaration = getBaseClassesInDeclaration.bind(generator);
       getModsDeclaration = getModsDeclaration.bind(generator);
 
-      generator.getBaseClassInDeclaration = () => `
+      generator.getBaseClassesInDeclaration = () => `
         declare namespace defs {
-          export ${getBaseClassInDeclaration()}
+          export ${getBaseClassesInDeclaration()}
         }
       `;
       generator.getModsDeclaration = () => `
@@ -318,13 +324,13 @@ export class FilesManager {
       files = this.getSourcesFileStructures() as {};
     } else {
       const generator = this.generators[0];
-      let { getBaseClassInDeclaration, getModsDeclaration } = generator;
+      let { getBaseClassesInDeclaration, getModsDeclaration } = generator;
 
-      getBaseClassInDeclaration = getBaseClassInDeclaration.bind(generator);
+      getBaseClassesInDeclaration = getBaseClassesInDeclaration.bind(generator);
       getModsDeclaration = getModsDeclaration.bind(generator);
 
-      generator.getBaseClassInDeclaration = () => `
-        declare ${getBaseClassInDeclaration()}
+      generator.getBaseClassesInDeclaration = () => `
+        declare ${getBaseClassesInDeclaration()}
       `;
       generator.getModsDeclaration = () => `
         declare ${getModsDeclaration()}
@@ -355,7 +361,7 @@ export class FilesManager {
     const lockFile = path.join(this.baseDir, "api.lock");
     const newLockContent = this.getLockContent();
 
-    const lockContent = await fs.readFile(lockFile, 'utf8');
+    const lockContent = await fs.readFile(lockFile, "utf8");
 
     if (lockContent !== newLockContent) {
       this.created = true;

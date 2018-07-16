@@ -1,5 +1,5 @@
 import { Manager } from "./manage";
-import { Interface, StandardDataSource, Mod, BaseClass } from "./standard";
+import { Interface, StandardDataSource, Mod, BaseClass, Property } from "./standard";
 import { Config, DataSourceConfig, lookForFiles } from "./utils";
 import { CodeGenerator } from "./generate";
 
@@ -12,5 +12,6 @@ export {
   Interface,
   StandardDataSource,
   Mod,
+  Property,
   BaseClass
 };
