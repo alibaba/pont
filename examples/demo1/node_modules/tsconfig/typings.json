@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "strip-bom": "registry:npm/strip-bom#2.0.0+20160211003958",
+    "strip-json-comments": "registry:npm/strip-json-comments#2.0.0+20160211003958"
+  },
+  "globalDevDependencies": {
+    "chai": "registry:dt/chai#3.4.0+20160601211834",
+    "mocha": "registry:dt/mocha#2.2.5+20160720003353",
+    "node": "registry:env/node#6.0.0+20170213133316"
+  }
+}
