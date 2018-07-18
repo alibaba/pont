@@ -14,9 +14,9 @@ import {
   getIdentifierFromUrl,
   transformDescription,
   toDashCase,
-  toDashDefaultCase
-} from "./utils";
-import { userInfo } from "os";
+  toDashDefaultCase,
+  hasChinese
+} from "./utils"; 
 
 export enum SwaggerType {
   integer = "integer",
@@ -332,11 +332,21 @@ export function transformSwaggerData2Standard(
         );
       });
 
-      return new Mod({
-        description: tag.name,
-        interfaces: _.uniqBy(standardInterfaces, "name"),
-        name: transformDescription(tag.description)
-      });
+      // 兼容某些项目把swagger tag的name和description弄反的情况
+      if( hasChinese(tag.name) ){
+        // 当检测到name包含中文的时候，采用description
+        return new Mod({
+          description: tag.name,
+          interfaces: _.uniqBy(standardInterfaces, "name"),
+          name: transformDescription(tag.description)
+        }); 
+      } else {
+        return new Mod({
+          description: tag.description,
+          interfaces: _.uniqBy(standardInterfaces, "name"),
+          name: transformDescription(tag.name)
+        });
+      } 
     })
     .filter(mod => {
       return mod.interfaces.length;
