@@ -4,282 +4,113 @@
       
         declare  namespace defs {
       
-        export class DimConfigBO {
+        export class ApiResponse {
       
-      /** attributeName */
-      attributeName?: string;
+      /** code */
+      code?: number;
 
-      /** attributeNameCn */
-      attributeNameCn?: string;
+      /** message */
+      message?: string;
 
-      /** attributeValue */
-      attributeValue?: string;
-
-      /** attributeValueList */
-      attributeValueList?: any[];
-
-      /** desc */
-      desc?: string;
-
-      /** dimId */
-      dimId?: string;
-
-      /** dimName */
-      dimName?: string;
-
-      /** dimNameCn */
-      dimNameCn?: string;
-
-      /** num */
-      num?: number;
-
-      /** queryWord */
-      queryWord?: string;
-
-      /** taskId */
-      taskId?: string;
-
-      /** userId */
-      userId?: string;
+      /** type */
+      type?: string;
     }
     
       
 
-        export class DingTalkAttributeBO {
+        export class Category {
       
-      /** attributeId */
-      attributeId?: string;
+      /** id */
+      id?: number;
 
-      /** attributeName */
-      attributeName?: string;
-
-      /** attributeNameCn */
-      attributeNameCn?: string;
-
-      /** attributeValue */
-      attributeValue?: string;
-
-      /** dimensionId */
-      dimensionId?: number;
-
-      /** dimensionName */
-      dimensionName?: string;
-
-      /** dimensionNameCn */
-      dimensionNameCn?: string;
+      /** name */
+      name?: string;
     }
     
       
 
-        export class H5DetailDO {
+        export class Order {
       
-      /** attributeName */
-      attributeName?: string;
-
-      /** attributeNameCn */
-      attributeNameCn?: string;
-
-      /** attributeValue */
-      attributeValue?: string;
-
-      /** attributeValueList */
-      attributeValueList?: any[];
-
-      /** configId */
-      configId?: number;
-
-      /** dateRate */
-      dateRate?: string;
-
-      /** derivedIndexId */
-      derivedIndexId?: number;
-
-      /** derivedIndexName */
-      derivedIndexName?: string;
-
-      /** derivedIndexNameCn */
-      derivedIndexNameCn?: string;
-
-      /** derivedIndexNameCnAll */
-      derivedIndexNameCnAll?: string;
-
-      /** dimensionId */
-      dimensionId?: string;
-
-      /** ds */
-      ds?: string;
-
-      /** queryStateCode */
-      queryStateCode?: string;
-
-      /** relativeIndex */
-      relativeIndex?: any[];
-
-      /** sourceTable */
-      sourceTable?: string;
-
-      /** subscribe */
-      subscribe?: boolean;
-
-      /** taskId */
-      taskId?: string;
-
-      /** trendValue */
-      trendValue?: string;
-
-      /** trendValueMap */
-      trendValueMap?: any;
-
-      /** userId */
-      userId?: string;
-
-      /** value */
-      value?: string;
-    }
-    
-      
-
-        export class PreinstallBO {
-      
-      /** desc */
-      desc?: string;
-
-      /** indexNameAllCn */
-      indexNameAllCn?: string;
-
-      /** sql */
-      sql?: string;
-    }
-    
-      
-
-        export class QueryStatusBO {
-      
-      /** attributeValueList */
-      attributeValueList?: any[];
-
-      /** result */
-      result?: string;
-
-      /** schedule */
-      schedule?: string;
-
-      /** status */
-      status?: number;
-    }
-    
-      
-
-        export class SqlConfigBO {
-      
-      /** attributeSelectMap */
-      attributeSelectMap?: any;
-
-      /** attributeString */
-      attributeString?: string;
-
-      /** attributeValue */
-      attributeValue?: string;
-
-      /** bizUnitName */
-      bizUnitName?: string;
-
-      /** conditionMap */
-      conditionMap?: any;
-
-      /** configClass */
-      configClass?: any;
-
-      /** derivedAttributeIndexNameCn */
-      derivedAttributeIndexNameCn?: string;
-
-      /** derivedIndexId */
-      derivedIndexId?: number;
-
-      /** derivedIndexName */
-      derivedIndexName?: string;
-
-      /** derivedIndexNameCn */
-      derivedIndexNameCn?: string;
-
-      /** dimId */
-      dimId?: string;
-
-      /** dimensionName */
-      dimensionName?: string;
-
-      /** ds */
-      ds?: string;
+      /** complete */
+      complete?: boolean;
 
       /** id */
       id?: number;
 
-      /** isSubscription */
-      isSubscription?: string;
+      /** petId */
+      petId?: number;
 
-      /** queryResult */
-      queryResult?: string;
+      /** quantity */
+      quantity?: number;
 
-      /** queryWord */
-      queryWord?: string;
+      /** shipDate */
+      shipDate?: string;
 
-      /** relativeIndexNameCn */
-      relativeIndexNameCn?: string;
-
-      /** sourceLogicTabelName */
-      sourceLogicTabelName?: string;
-
-      /** sql */
-      sql?: string;
-
-      /** startDate */
-      startDate?: string;
-
-      /** taskId */
-      taskId?: string;
-
-      /** timePeriodNameCn */
-      timePeriodNameCn?: string;
-
-      /** type */
-      type?: number;
-
-      /** userId */
-      userId?: string;
+      /** Order Status */
+      status?: 'placed' | 'approved' | 'delivered';
     }
     
       
 
-        export class StaffBO {
+        export class Pet {
       
-      /** sortMethod */
-      sortMethod?: string;
+      /** category */
+      category?: defs.Category;
 
-      /** userId */
-      userId?: number;
+      /** id */
+      id?: number;
 
-      /** userNameCn */
-      userNameCn?: string;
+      /** name */
+      name?: string;
+
+      /** photoUrls */
+      photoUrls?: any[];
+
+      /** pet status in the store */
+      status?: 'available' | 'pending' | 'sold';
+
+      /** tags */
+      tags?: defs.Tag[];
     }
     
       
 
-        export class SystemIndexBO {
+        export class Tag {
       
-      /** attributeValue */
-      attributeValue?: string;
+      /** id */
+      id?: number;
 
-      /** granularity */
-      granularity?: any[];
+      /** name */
+      name?: string;
+    }
+    
+      
 
-      /** indexNameAllCn */
-      indexNameAllCn?: string;
+        export class User {
+      
+      /** email */
+      email?: string;
 
-      /** indexNameCn */
-      indexNameCn?: string;
+      /** firstName */
+      firstName?: string;
 
-      /** sourceTable */
-      sourceTable?: string;
+      /** id */
+      id?: number;
+
+      /** lastName */
+      lastName?: string;
+
+      /** password */
+      password?: string;
+
+      /** phone */
+      phone?: string;
+
+      /** User Status */
+      userStatus?: number;
+
+      /** username */
+      username?: string;
     }
     
       
@@ -291,15 +122,15 @@
         declare  namespace API {
         
           /**
-           * 系统指标（主推指标)）
+           * Everything about your Pets
            */
           export namespace  {
             
       /**
-        * 获取系统指标
-        * /dataphin/assistant/dingtalk/portal/systemindex
+        * Add a new pet to the store
+        * /pet
         */
-      export namespace getSystemIndex {
+      export namespace addPet {
         
       export 
       class Params {
@@ -307,16 +138,16 @@
       }
     ;
 
-      export function request(params: Params): defs.SystemIndexBO
+      export function request(params: Params, bodyParams: defs.Pet): any
     
       }
     
 
       /**
-        * 插入一条指标
-        * /dataphin/assistant/dingtalk/portal/systemindex
+        * Update an existing pet
+        * /pet
         */
-      export namespace insertSystemIndexBO {
+      export namespace updatePet {
         
       export 
       class Params {
@@ -324,79 +155,131 @@
       }
     ;
 
-      export function request(params: Params, bodyParams: defs.SystemIndexBO): number
+      export function request(params: Params, bodyParams: defs.Pet): any
     
       }
     
 
       /**
-        * 更新指标群
-        * /dataphin/assistant/dingtalk/portal/systemindex
+        * Finds Pets by status
+        * /pet/findByStatus
         */
-      export namespace updateSystemIndex {
+      export namespace findPetsByStatus {
         
       export 
       class Params {
         
+      /** Status values that need to be considered for filter */
+      status: any[];
       }
     ;
 
-      export function request(params: Params, bodyParams: any): number
+      export function request(params: Params): defs.Pet[]
     
       }
     
 
       /**
-        * 预览提交
-        * /dataphin/assistant/dingtalk/portal/systemindex/preview
+        * Finds Pets by tags
+        * /pet/findByTags
         */
-      export namespace previewCommit {
+      export namespace findPetsByTags {
         
       export 
       class Params {
         
+      /** Tags to filter by */
+      tags: any[];
       }
     ;
 
-      export function request(params: Params, bodyParams: defs.SystemIndexBO): string
+      export function request(params: Params): defs.Pet[]
     
       }
     
 
       /**
-        * 预览轮询
-        * /dataphin/assistant/dingtalk/portal/systemindex/preview/{taskId}
+        * Find pet by ID
+        * /pet/{petId}
         */
-      export namespace previewResult {
+      export namespace getPetById {
         
       export 
       class Params {
         
-      /** 查询进度及结果的对象体 */
-      taskId: string;
+      /** ID of pet to return */
+      petId: number;
       }
     ;
 
-      export function request(params: Params): defs.QueryStatusBO
+      export function request(params: Params): defs.Pet
     
       }
     
 
       /**
-        * 删除一条指标
-        * /dataphin/assistant/dingtalk/portal/systemindex/{indexNameAllCn}
+        * Updates a pet in the store with form data
+        * /pet/{petId}
         */
-      export namespace deleteSystemIndex {
+      export namespace updatePetWithForm {
         
       export 
       class Params {
         
-      /** indexNameAllCn */
-      indexNameAllCn: string;
+      /** ID of pet that needs to be updated */
+      petId: number;
+      /** Updated name of the pet */
+      name?: string;
+      /** Updated status of the pet */
+      status?: string;
       }
     ;
 
-      export function request(params: Params): number
+      export function request(params: Params): any
+    
+      }
+    
+
+      /**
+        * Deletes a pet
+        * /pet/{petId}
+        */
+      export namespace deletePet {
+        
+      export 
+      class Params {
+        
+      /** api_key */
+      api_key?: string;
+      /** Pet id to delete */
+      petId: number;
+      }
+    ;
+
+      export function request(params: Params): any
+    
+      }
+    
+
+      /**
+        * uploads an image
+        * /pet/{petId}/uploadImage
+        */
+      export namespace uploadFile {
+        
+      export 
+      class Params {
+        
+      /** ID of pet to update */
+      petId: number;
+      /** Additional data to pass to server */
+      additionalMetadata?: string;
+      /** file to upload */
+      file?: File;
+      }
+    ;
+
+      export function request(params: Params): defs.ApiResponse
     
       }
     
@@ -405,15 +288,15 @@
 
 
           /**
-           * 预设指标
+           * Access to Petstore orders
            */
           export namespace  {
             
       /**
-        * 获取所有预设指标
-        * /dataphin/assistant/dingtalk/portal/preinstall
+        * Returns pet inventories by status
+        * /store/inventory
         */
-      export namespace getPreinstallBO {
+      export namespace getInventory {
         
       export 
       class Params {
@@ -421,16 +304,16 @@
       }
     ;
 
-      export function request(params: Params): defs.PreinstallBO
+      export function request(params: Params): any
     
       }
     
 
       /**
-        * 更新一条预设指标
-        * /dataphin/assistant/dingtalk/portal/preinstall
+        * Place an order for a pet
+        * /store/order
         */
-      export namespace updatePreinstallBO {
+      export namespace placeOrder {
         
       export 
       class Params {
@@ -438,43 +321,45 @@
       }
     ;
 
-      export function request(params: Params, bodyParams: defs.PreinstallBO): number
+      export function request(params: Params, bodyParams: defs.Order): defs.Order
     
       }
     
 
       /**
-        * 预设指标提交预览
-        * /dataphin/assistant/dingtalk/portal/preinstall/preview
+        * Find purchase order by ID
+        * /store/order/{orderId}
         */
-      export namespace preinstallCommit {
+      export namespace getOrderById {
         
       export 
       class Params {
         
+      /** ID of pet that needs to be fetched */
+      orderId: number;
       }
     ;
 
-      export function request(params: Params, bodyParams: defs.PreinstallBO): string
+      export function request(params: Params): defs.Order
     
       }
     
 
       /**
-        * 删除某条预设指标
-        * /dataphin/assistant/dingtalk/portal/preinstall/{indexNameAllCn}
+        * Delete purchase order by ID
+        * /store/order/{orderId}
         */
-      export namespace deletePreinstallBO {
+      export namespace deleteOrder {
         
       export 
       class Params {
         
-      /** 指标中文名 */
-      indexNameAllCn: string;
+      /** ID of the order that needs to be deleted */
+      orderId: number;
       }
     ;
 
-      export function request(params: Params): defs.PreinstallBO
+      export function request(params: Params): any
     
       }
     
@@ -483,15 +368,15 @@
 
 
           /**
-           * 核心维度增减
+           * Operations about user
            */
           export namespace  {
             
       /**
-        * 获取核心维度
-        * /dataphin/assistant/dingtalk/portal/dimconfig
+        * Create user
+        * /user
         */
-      export namespace getDimConfigBO {
+      export namespace createUser {
         
       export 
       class Params {
@@ -499,16 +384,16 @@
       }
     ;
 
-      export function request(params: Params): defs.DimConfigBO
+      export function request(params: Params, bodyParams: defs.User): any
     
       }
     
 
       /**
-        * 添加一条核心维度
-        * /dataphin/assistant/dingtalk/portal/dimconfig
+        * Creates list of users with given input array
+        * /user/createWithArray
         */
-      export namespace insertDimConfigBO {
+      export namespace createUsersWithArrayInput {
         
       export 
       class Params {
@@ -516,16 +401,16 @@
       }
     ;
 
-      export function request(params: Params, bodyParams: defs.DimConfigBO): number
+      export function request(params: Params, bodyParams: any): any
     
       }
     
 
       /**
-        * 搜索框来查询维度值
-        * /dataphin/assistant/dingtalk/portal/dimconfig/attribute/commit
+        * Creates list of users with given input array
+        * /user/createWithList
         */
-      export namespace queryAttributeValueCommit {
+      export namespace createUsersWithListInput {
         
       export 
       class Params {
@@ -533,245 +418,102 @@
       }
     ;
 
-      export function request(params: Params, bodyParams: defs.DimConfigBO): string
+      export function request(params: Params, bodyParams: any): any
     
       }
     
 
       /**
-        * 根据维度id去获取属性名称
-        * /dataphin/assistant/dingtalk/portal/dimconfig/attribute/name/{dimensionId}
+        * Logs user into the system
+        * /user/login
         */
-      export namespace getAttributeByDimId {
+      export namespace loginUser {
         
       export 
       class Params {
         
-      /** 维度id */
-      dimensionId: string;
-      }
-    ;
-
-      export function request(params: Params): defs.DingTalkAttributeBO
-    
-      }
-    
-
-      /**
-        * 轮询属性查询结果
-        * /dataphin/assistant/dingtalk/portal/dimconfig/attribute/status/{taskId}
-        */
-      export namespace queryAttributeValue {
-        
-      export 
-      class Params {
-        
-      }
-    ;
-
-      export function request(params: Params, bodyParams: defs.DimConfigBO): defs.QueryStatusBO
-    
-      }
-    
-
-      /**
-        * 根据dimId去删除核心维度配置
-        * /dataphin/assistant/dingtalk/portal/dimconfig/{dimId}
-        */
-      export namespace deleteDimConfigBO {
-        
-      export 
-      class Params {
-        
-      /** 维度id */
-      dimId: string;
-      }
-    ;
-
-      export function request(params: Params): number
-    
-      }
-    
-
-      /**
-        * 搜索框，维度名称搜寻提交
-        * /dataphin/assistant/dingtalk/portal/dimconfig/{dimNameCn}
-        */
-      export namespace searchDimByName {
-        
-      export 
-      class Params {
-        
-      /** 维度名 */
-      dimNameCn: string;
-      }
-    ;
-
-      export function request(params: Params): defs.DimConfigBO
-    
-      }
-    
-          }
-        
-
-
-          /**
-           * h5页面接口
-           */
-          export namespace  {
-            
-      /**
-        * 插入收藏-详情页
-        * /dataphin/assistant/dingtalk/portal/h5/detail
-        */
-      export namespace insertSubBO {
-        
-      export 
-      class Params {
-        
-      }
-    ;
-
-      export function request(params: Params, bodyParams: defs.H5DetailDO): string
-    
-      }
-    
-
-      /**
-        * 取消收藏-详情页
-        * /dataphin/assistant/dingtalk/portal/h5/detail
-        */
-      export namespace delSubBO {
-        
-      export 
-      class Params {
-        
-      }
-    ;
-
-      export function request(params: Params, bodyParams: defs.H5DetailDO): string
-    
-      }
-    
-
-      /**
-        * 详情页信息
-        * /dataphin/assistant/dingtalk/portal/h5/detail/{queryResult}
-        */
-      export namespace getH5Detail {
-        
-      export 
-      class Params {
-        
-      /** 带有userId，date，confgid的字符串，131745u20180703d-492110612c  */
-      queryResult: string;
-      }
-    ;
-
-      export function request(params: Params): defs.H5DetailDO
-    
-      }
-    
-
-      /**
-        * 提交查询
-        * /dataphin/assistant/dingtalk/portal/h5/query
-        */
-      export namespace commitQuery {
-        
-      export 
-      class Params {
-        
-      }
-    ;
-
-      export function request(params: Params, bodyParams: defs.SqlConfigBO): defs.SqlConfigBO
-    
-      }
-    
-
-      /**
-        * 轮询判断
-        * /dataphin/assistant/dingtalk/portal/h5/query/status/
-        */
-      export namespace queryProcess {
-        
-      export 
-      class Params {
-        
-      }
-    ;
-
-      export function request(params: Params, bodyParams: defs.H5DetailDO): defs.SqlConfigBO
-    
-      }
-    
-          }
-        
-
-
-          /**
-           * 值班人员管理
-           */
-          export namespace  {
-            
-      /**
-        * 获取接单人员名单
-        * /dataphin/assistant/dingtalk/portal/staff
-        */
-      export namespace getStaffBO {
-        
-      export 
-      class Params {
-        
-      }
-    ;
-
-      export function request(params: Params): defs.StaffBO
-    
-      }
-    
-
-      /**
-        * 更新接单人员名单
-        * /dataphin/assistant/dingtalk/portal/staff
-        */
-      export namespace updateStaffBO {
-        
-      export 
-      class Params {
-        
-      }
-    ;
-
-      export function request(params: Params, bodyParams: any): number
-    
-      }
-    
-          }
-        
-
-
-          /**
-           * h5及pc端的查询接口
-           */
-          export namespace  {
-            
-      /**
-        * index
-        * /dataphin/assistant/dingtalk/portal/h5/{id}
-        */
-      export namespace index {
-        
-      export 
-      class Params {
-        
-      /** id */
-      id: string;
+      /** The user name for login */
+      username: string;
+      /** The password for login in clear text */
+      password: string;
       }
     ;
 
       export function request(params: Params): string
+    
+      }
+    
+
+      /**
+        * Logs out current logged in user session
+        * /user/logout
+        */
+      export namespace logoutUser {
+        
+      export 
+      class Params {
+        
+      }
+    ;
+
+      export function request(params: Params): any
+    
+      }
+    
+
+      /**
+        * Get user by user name
+        * /user/{username}
+        */
+      export namespace getUserByName {
+        
+      export 
+      class Params {
+        
+      /** The name that needs to be fetched. Use user1 for testing.  */
+      username: string;
+      }
+    ;
+
+      export function request(params: Params): defs.User
+    
+      }
+    
+
+      /**
+        * Updated user
+        * /user/{username}
+        */
+      export namespace updateUser {
+        
+      export 
+      class Params {
+        
+      /** name that need to be updated */
+      username: string;
+      }
+    ;
+
+      export function request(params: Params, bodyParams: defs.User): any
+    
+      }
+    
+
+      /**
+        * Delete user
+        * /user/{username}
+        */
+      export namespace deleteUser {
+        
+      export 
+      class Params {
+        
+      /** The name that needs to be deleted */
+      username: string;
+      }
+    ;
+
+      export function request(params: Params): any
     
       }
     

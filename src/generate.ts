@@ -18,7 +18,7 @@ import { info } from "./debugLog";
 export class CodeGenerator {
   dataSource: StandardDataSource;
 
-  constructor() { }
+  constructor() {}
 
   setDataSource(dataSource: StandardDataSource) {
     this.dataSource = dataSource;
@@ -50,7 +50,19 @@ export class CodeGenerator {
 
   /** 获取接口内容的类型定义代码 */
   getInterfaceContentInDeclaration(inter: Interface) {
-    return "";
+    const bodyParmas = inter.getBodyParamsCode();
+    const requestParams = bodyParmas
+      ? `params: Params, bodyParams: ${bodyParmas}`
+      : `params: Params`;
+
+    return `
+      export ${inter.getParamsCode()}
+
+      export const url: (params: Params) => string;
+      export type Response = ${inter.responseType};
+      export const init: Response;
+      export function request(${requestParams}): Promise<${inter.responseType}>;
+    `;
   }
 
   private getInterfaceInDeclaration(inter: Interface) {
@@ -71,8 +83,8 @@ export class CodeGenerator {
 
     const content = ` namespace ${this.dataSource.name || "API"} {
         ${mods
-        .map(
-          mod => `
+          .map(
+            mod => `
           /**
            * ${mod.description}
            */
@@ -82,8 +94,8 @@ export class CodeGenerator {
               .join("\n")}
           }
         `
-        )
-        .join("\n\n")}
+          )
+          .join("\n\n")}
       }
     `;
 
@@ -135,9 +147,9 @@ export class CodeGenerator {
           base => `
         export class ${base.name} {
           ${base.properties
-              .map(prop => prop.toPropertyCodeWithInitValue())
-              .filter(id => id)
-              .join("\n")}
+            .map(prop => prop.toPropertyCodeWithInitValue())
+            .filter(id => id)
+            .join("\n")}
         }
       `
         )
@@ -147,7 +159,28 @@ export class CodeGenerator {
 
   /** 获取接口实现内容的代码 */
   getInterfaceContent(inter: Interface) {
-    return ``;
+    const bodyParmas = inter.getBodyParamsCode();
+    const requestParams = bodyParmas ? `params, bodyParams` : `params`;
+
+    return `
+    /**
+     * @desc ${inter.description}
+     */
+
+    import * as defs from '../../baseClass';
+    import pontFetch from 'src/utils/pontFetch';
+
+    export ${inter.getParamsCode()}
+    export const init = ${inter.response.initialValue};
+
+    export async function request(${requestParams}) {
+      return pontFetch({
+        url: '${inter.path}',
+        ${bodyParmas ? "params: bodyParams" : "params"},
+        method: '${inter.method}',
+      });
+    }
+   `;
   }
 
   /** 获取单个模块的 index 入口文件 */
@@ -257,10 +290,10 @@ export class FilesManager {
 
     return `
     ${dsNames
-        .map(name => {
-          return `/// <reference path="./${name}/api.d.ts" />`;
-        })
-        .join("\n")}
+      .map(name => {
+        return `/// <reference path="./${name}/api.d.ts" />`;
+      })
+      .join("\n")}
     `;
   }
 

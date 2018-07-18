@@ -23,10 +23,10 @@ export class DataType {
   primitiveType: PrimitiveType;
   isArr: boolean = false;
 
-  customType: string = '';
+  customType: string = "";
 
   // reference may have generic like Pagination<BaseBO>
-  reference: string = '';
+  reference: string = "";
 
   enum: Array<string | number> = [];
 
@@ -82,7 +82,7 @@ export class DataType {
         return `'${str}'`;
       }
 
-      return str + '';
+      return str + "";
     }
 
     if (this.primitiveType) {
@@ -145,14 +145,17 @@ export class Property extends Constructable {
     super(prop);
   }
 
-  toPropertyCode(hasRequired = false) {
+  toPropertyCode(hasRequired = false, optional = false) {
     const dataType = this.dataType;
+    let optionalSignal = hasRequired && optional ? "?" : "";
+
+    if (hasRequired && !this.required) {
+      optionalSignal = "?";
+    }
 
     return `
       /** ${this.description || this.name} */
-      ${this.name}${hasRequired && !this.required ? "?" : ""}: ${
-      this.dataType.type
-      };`;
+      ${this.name}${optionalSignal}: ${this.dataType.type};`;
   }
 
   toPropertyCodeWithInitValue() {
@@ -175,8 +178,8 @@ export class Property extends Constructable {
       typeWithValue = `: ${this.dataType.type}`;
     }
 
-    if (typeWithValue.includes('defs.')) {
-      typeWithValue = typeWithValue.replace(/defs\./g, '');
+    if (typeWithValue.includes("defs.")) {
+      typeWithValue = typeWithValue.replace(/defs\./g, "");
     }
 
     return `
@@ -203,18 +206,21 @@ export class Interface extends Constructable {
     return this.response.type;
   }
 
-  getParamsCode(className = 'Params') {
+  getParamsCode(className = "Params") {
     return `
       class ${className} {
-        ${this.parameters.filter(param => param.in !== 'body').map(param => param.toPropertyCode(true)).join('')}
+        ${this.parameters
+          .filter(param => param.in !== "body")
+          .map(param => param.toPropertyCode(true))
+          .join("")}
       }
-    `
+    `;
   }
 
   getBodyParamsCode() {
-    const bodyParam = this.parameters.find(param => param.in === 'body');
+    const bodyParam = this.parameters.find(param => param.in === "body");
 
-    return bodyParam && bodyParam.dataType.type || '';
+    return (bodyParam && bodyParam.dataType.type) || "";
   }
 
   constructor(inter: Partial<Interface>) {
@@ -304,7 +310,11 @@ export class StandardDataSource {
     );
   }
 
-  constructor(standard: { mods: Mod[]; name: string; baseClasses: BaseClass[] }) {
+  constructor(standard: {
+    mods: Mod[];
+    name: string;
+    baseClasses: BaseClass[];
+  }) {
     this.mods = standard.mods;
     if (standard.name) {
       this.name = standard.name;

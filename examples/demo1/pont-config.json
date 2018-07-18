@@ -1,5 +1,5 @@
 {
-  "originUrl": "https://pre-assistant-dataphin.alibaba-inc.com/v2/api-docs",
+  "originUrl": "https://petstore.swagger.io/v2/swagger.json",
   "outDir": "./src/services",
   "templatePath": "./pontTemplate"
 }

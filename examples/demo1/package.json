@@ -9,6 +9,6 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "pont-engine": "0.1.5"
+    "pont-engine": "0.1.6"
   }
 }

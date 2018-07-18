@@ -151,7 +151,7 @@ export function getDuplicateById<T>(arr: T[], idKey = "name"): null | T {
 }
 
 export function transformCamelCase(name: string) {
-  let words = [] as string[];
+  let words = [name] as string[];
 
   if (name.includes('-')) {
     words = name.split('-');
