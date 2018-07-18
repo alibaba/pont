@@ -1,0 +1,942 @@
+[
+  {
+    "mods": [
+      {
+        "description": "Everything about your Pets",
+        "interfaces": [
+          {
+            "consumes": [
+              "application/json",
+              "application/xml"
+            ],
+            "description": "Add a new pet to the store",
+            "name": "addPet",
+            "method": "post",
+            "path": "/pet",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "body",
+                "description": "Pet object that needs to be added to the store",
+                "name": "body",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "defs.Pet",
+                  "enum": []
+                }
+              }
+            ]
+          },
+          {
+            "consumes": [
+              "application/json",
+              "application/xml"
+            ],
+            "description": "Update an existing pet",
+            "name": "updatePet",
+            "method": "put",
+            "path": "/pet",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "body",
+                "description": "Pet object that needs to be added to the store",
+                "name": "body",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "defs.Pet",
+                  "enum": []
+                }
+              }
+            ]
+          },
+          {
+            "description": "Finds Pets by status",
+            "name": "findPetsByStatus",
+            "method": "get",
+            "path": "/pet/findByStatus",
+            "response": {
+              "isArr": true,
+              "customType": "",
+              "reference": "defs.Pet",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "query",
+                "description": "Status values that need to be considered for filter",
+                "name": "status",
+                "required": true,
+                "dataType": {
+                  "isArr": true,
+                  "customType": "",
+                  "reference": "",
+                  "enum": []
+                }
+              }
+            ]
+          },
+          {
+            "description": "Finds Pets by tags",
+            "name": "findPetsByTags",
+            "method": "get",
+            "path": "/pet/findByTags",
+            "response": {
+              "isArr": true,
+              "customType": "",
+              "reference": "defs.Pet",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "query",
+                "description": "Tags to filter by",
+                "name": "tags",
+                "required": true,
+                "dataType": {
+                  "isArr": true,
+                  "customType": "",
+                  "reference": "",
+                  "enum": []
+                }
+              }
+            ]
+          },
+          {
+            "description": "Find pet by ID",
+            "name": "getPetById",
+            "method": "get",
+            "path": "/pet/{petId}",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "defs.Pet",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "path",
+                "description": "ID of pet to return",
+                "name": "petId",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "number"
+                }
+              }
+            ]
+          },
+          {
+            "consumes": [
+              "application/x-www-form-urlencoded"
+            ],
+            "description": "Updates a pet in the store with form data",
+            "name": "updatePetWithForm",
+            "method": "post",
+            "path": "/pet/{petId}",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "path",
+                "description": "ID of pet that needs to be updated",
+                "name": "petId",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "number"
+                }
+              },
+              {
+                "in": "formData",
+                "description": "Updated name of the pet",
+                "name": "name",
+                "required": false,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "string"
+                }
+              },
+              {
+                "in": "formData",
+                "description": "Updated status of the pet",
+                "name": "status",
+                "required": false,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "string"
+                }
+              }
+            ]
+          },
+          {
+            "description": "Deletes a pet",
+            "name": "deletePet",
+            "method": "delete",
+            "path": "/pet/{petId}",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "header",
+                "name": "api_key",
+                "required": false,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "string"
+                }
+              },
+              {
+                "in": "path",
+                "description": "Pet id to delete",
+                "name": "petId",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "number"
+                }
+              }
+            ]
+          },
+          {
+            "consumes": [
+              "multipart/form-data"
+            ],
+            "description": "uploads an image",
+            "name": "uploadFile",
+            "method": "post",
+            "path": "/pet/{petId}/uploadImage",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "defs.ApiResponse",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "path",
+                "description": "ID of pet to update",
+                "name": "petId",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "number"
+                }
+              },
+              {
+                "in": "formData",
+                "description": "Additional data to pass to server",
+                "name": "additionalMetadata",
+                "required": false,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "string"
+                }
+              },
+              {
+                "in": "formData",
+                "description": "file to upload",
+                "name": "file",
+                "required": false,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "File"
+                }
+              }
+            ]
+          }
+        ],
+        "name": "pet"
+      },
+      {
+        "description": "Access to Petstore orders",
+        "interfaces": [
+          {
+            "description": "Returns pet inventories by status",
+            "name": "getInventory",
+            "method": "get",
+            "path": "/store/inventory",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": []
+          },
+          {
+            "description": "Place an order for a pet",
+            "name": "placeOrder",
+            "method": "post",
+            "path": "/store/order",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "defs.Order",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "body",
+                "description": "order placed for purchasing the pet",
+                "name": "body",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "defs.Order",
+                  "enum": []
+                }
+              }
+            ]
+          },
+          {
+            "description": "Find purchase order by ID",
+            "name": "getOrderById",
+            "method": "get",
+            "path": "/store/order/{orderId}",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "defs.Order",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "path",
+                "description": "ID of pet that needs to be fetched",
+                "name": "orderId",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "number"
+                }
+              }
+            ]
+          },
+          {
+            "description": "Delete purchase order by ID",
+            "name": "deleteOrder",
+            "method": "delete",
+            "path": "/store/order/{orderId}",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "path",
+                "description": "ID of the order that needs to be deleted",
+                "name": "orderId",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "number"
+                }
+              }
+            ]
+          }
+        ],
+        "name": "store"
+      },
+      {
+        "description": "Operations about user",
+        "interfaces": [
+          {
+            "description": "Create user",
+            "name": "createUser",
+            "method": "post",
+            "path": "/user",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "body",
+                "description": "Created user object",
+                "name": "body",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "defs.User",
+                  "enum": []
+                }
+              }
+            ]
+          },
+          {
+            "description": "Creates list of users with given input array",
+            "name": "createUsersWithArrayInput",
+            "method": "post",
+            "path": "/user/createWithArray",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "body",
+                "description": "List of user object",
+                "name": "body",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": []
+                }
+              }
+            ]
+          },
+          {
+            "description": "Creates list of users with given input array",
+            "name": "createUsersWithListInput",
+            "method": "post",
+            "path": "/user/createWithList",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "body",
+                "description": "List of user object",
+                "name": "body",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": []
+                }
+              }
+            ]
+          },
+          {
+            "description": "Logs user into the system",
+            "name": "loginUser",
+            "method": "get",
+            "path": "/user/login",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "parameters": [
+              {
+                "in": "query",
+                "description": "The user name for login",
+                "name": "username",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "string"
+                }
+              },
+              {
+                "in": "query",
+                "description": "The password for login in clear text",
+                "name": "password",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "string"
+                }
+              }
+            ]
+          },
+          {
+            "description": "Logs out current logged in user session",
+            "name": "logoutUser",
+            "method": "get",
+            "path": "/user/logout",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": []
+          },
+          {
+            "description": "Get user by user name",
+            "name": "getUserByName",
+            "method": "get",
+            "path": "/user/{username}",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "defs.User",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "path",
+                "description": "The name that needs to be fetched. Use user1 for testing. ",
+                "name": "username",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "string"
+                }
+              }
+            ]
+          },
+          {
+            "description": "Updated user",
+            "name": "updateUser",
+            "method": "put",
+            "path": "/user/{username}",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "path",
+                "description": "name that need to be updated",
+                "name": "username",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "string"
+                }
+              },
+              {
+                "in": "body",
+                "description": "Updated user object",
+                "name": "body",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "defs.User",
+                  "enum": []
+                }
+              }
+            ]
+          },
+          {
+            "description": "Delete user",
+            "name": "deleteUser",
+            "method": "delete",
+            "path": "/user/{username}",
+            "response": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "parameters": [
+              {
+                "in": "path",
+                "description": "The name that needs to be deleted",
+                "name": "username",
+                "required": true,
+                "dataType": {
+                  "isArr": false,
+                  "customType": "",
+                  "reference": "",
+                  "enum": [],
+                  "primitiveType": "string"
+                }
+              }
+            ]
+          }
+        ],
+        "name": "user"
+      }
+    ],
+    "baseClasses": [
+      {
+        "name": "ApiResponse",
+        "properties": [
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "number"
+            },
+            "name": "code"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "message"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "type"
+          }
+        ]
+      },
+      {
+        "name": "Category",
+        "properties": [
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "number"
+            },
+            "name": "id"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "name"
+          }
+        ]
+      },
+      {
+        "name": "Order",
+        "properties": [
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "boolean"
+            },
+            "name": "complete"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "number"
+            },
+            "name": "id"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "number"
+            },
+            "name": "petId"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "number"
+            },
+            "name": "quantity"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "shipDate"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [
+                "placed",
+                "approved",
+                "delivered"
+              ],
+              "primitiveType": "string"
+            },
+            "name": "status",
+            "description": "Order Status"
+          }
+        ]
+      },
+      {
+        "name": "Pet",
+        "properties": [
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "defs.Category",
+              "enum": []
+            },
+            "name": "category"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "number"
+            },
+            "name": "id"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "name"
+          },
+          {
+            "dataType": {
+              "isArr": true,
+              "customType": "",
+              "reference": "",
+              "enum": []
+            },
+            "name": "photoUrls"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [
+                "available",
+                "pending",
+                "sold"
+              ],
+              "primitiveType": "string"
+            },
+            "name": "status",
+            "description": "pet status in the store"
+          },
+          {
+            "dataType": {
+              "isArr": true,
+              "customType": "",
+              "reference": "defs.Tag",
+              "enum": []
+            },
+            "name": "tags"
+          }
+        ]
+      },
+      {
+        "name": "Tag",
+        "properties": [
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "number"
+            },
+            "name": "id"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "name"
+          }
+        ]
+      },
+      {
+        "name": "User",
+        "properties": [
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "email"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "firstName"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "number"
+            },
+            "name": "id"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "lastName"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "password"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "phone"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "number"
+            },
+            "name": "userStatus",
+            "description": "User Status"
+          },
+          {
+            "dataType": {
+              "isArr": false,
+              "customType": "",
+              "reference": "",
+              "enum": [],
+              "primitiveType": "string"
+            },
+            "name": "username"
+          }
+        ]
+      }
+    ]
+  }
+]

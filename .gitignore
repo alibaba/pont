@@ -8,13 +8,9 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+/examples/demo1/node_modules/
 
 .vscode/
-.chrome/
-.generate_config.json
 
-serviceDefTemplate
-serviceTemplate
-lib
 lib/
 yarn-error.log

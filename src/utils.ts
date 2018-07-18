@@ -150,6 +150,22 @@ export function getDuplicateById<T>(arr: T[], idKey = "name"): null | T {
   return result;
 }
 
+export function transformCamelCase(name: string) {
+  let words = [] as string[];
+
+  if (name.includes('-')) {
+    words = name.split('-');
+  } else if (name.includes(' ')) {
+    words = name.split(' ');
+  }
+
+  const newName = words.map(word => {
+    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+  }).join('');
+
+  return newName.charAt(0).toLowerCase() + newName.slice(1);
+}
+
 export function transformDescription(description: string) {
   const words = description.split(" ").filter(word => word !== "Controller");
 

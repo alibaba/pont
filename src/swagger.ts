@@ -12,11 +12,11 @@ import {
   getMaxSamePath,
   getIdentifierFromOperatorId,
   getIdentifierFromUrl,
-  transformDescription,
+  transformCamelCase,
   toDashCase,
   toDashDefaultCase,
   hasChinese
-} from "./utils"; 
+} from "./utils";
 
 export enum SwaggerType {
   integer = "integer",
@@ -30,13 +30,13 @@ export enum SwaggerType {
 
 export class SwaggerProperty {
   type: SwaggerType;
-  enum?= [] as string[];
-  items?= null as {
+  enum? = [] as string[];
+  items? = null as {
     type?: SwaggerType;
     $ref?: string;
   };
-  $ref?= "";
-  description?= "";
+  $ref? = "";
+  description? = "";
   name: string;
   required: boolean;
 }
@@ -58,7 +58,7 @@ export class SwaggerParameter {
 
   enum: string[];
 
-  items?= null as {
+  items? = null as {
     type?: SwaggerType;
     $ref?: string;
   };
@@ -333,20 +333,20 @@ export function transformSwaggerData2Standard(
       });
 
       // 兼容某些项目把swagger tag的name和description弄反的情况
-      if( hasChinese(tag.name) ){
+      if (hasChinese(tag.name)) {
         // 当检测到name包含中文的时候，采用description
         return new Mod({
           description: tag.name,
           interfaces: _.uniqBy(standardInterfaces, "name"),
-          name: transformDescription(tag.description)
-        }); 
+          name: transformCamelCase(tag.description)
+        });
       } else {
         return new Mod({
           description: tag.description,
           interfaces: _.uniqBy(standardInterfaces, "name"),
-          name: transformDescription(tag.name)
+          name: transformCamelCase(tag.name)
         });
-      } 
+      }
     })
     .filter(mod => {
       return mod.interfaces.length;

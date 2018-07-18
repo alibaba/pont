@@ -1,0 +1,20 @@
+{
+  "compilerOptions": {
+    "module": "commonjs",
+    "noImplicitAny": false,
+    "declaration": false,
+    "target": "es6",
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "outDir": "lib",
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": ".",
+    "allowSyntheticDefaultImports": true,
+    "lib": ["dom", "es6", "es2017", "dom.iterable", "scripthost"]
+  },
+  "include": ["./src/services/index.d.ts", "./src/**/*"],
+  "exclude": ["node_modules"]
+}
