@@ -135,9 +135,9 @@ parse-passwd@^1.0.0:
   version "1.0.0"
   resolved "http://registry.npm.alibaba-inc.com/parse-passwd/download/parse-passwd-1.0.0.tgz#6d5b934a456993b23d37f40a382d6f1666a8e5c6"
 
-pont-engine@0.1.6:
-  version "0.1.6"
-  resolved "http://registry.npm.alibaba-inc.com/pont-engine/download/pont-engine-0.1.6.tgz#aa64207c2bb436ca1cc0382c5924463fff2bdefd"
+pont-engine@0.1.7:
+  version "0.1.7"
+  resolved "http://registry.npm.alibaba-inc.com/pont-engine/download/pont-engine-0.1.7.tgz#cad5dd1318b129781fbd5870a802d0115e28535a"
   dependencies:
     chalk "^2.3.0"
     commander "^2.11.0"

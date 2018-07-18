@@ -58,7 +58,6 @@ export class CodeGenerator {
     return `
       export ${inter.getParamsCode()}
 
-      export const url: (params: Params) => string;
       export type Response = ${inter.responseType};
       export const init: Response;
       export function request(${requestParams}): Promise<${inter.responseType}>;
