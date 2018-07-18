@@ -160,7 +160,7 @@ export function transformCamelCase(name: string) {
   }
 
   const newName = words.map(word => {
-    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
   }).join('');
 
   return newName.charAt(0).toLowerCase() + newName.slice(1);

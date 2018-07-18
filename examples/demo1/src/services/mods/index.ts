@@ -1,11 +1,21 @@
-import * as pet from './pet';
-import * as store from './store';
-import * as user from './user';
 
-declare var window;
+      import * as  from './';
+import * as  from './';
+import * as  from './';
+import * as  from './';
+import * as  from './';
+import * as  from './';
 
-window.API = {
-  pet,
-  store,
-  user,
-};
+      
+      declare var window;
+
+      window.API = {
+        , 
+, 
+, 
+, 
+, 
+
+      };
+    
+    
