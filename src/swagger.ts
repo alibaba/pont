@@ -94,6 +94,10 @@ export class Schema {
       primitiveType = "number";
     }
 
+    if (primitiveType === "file") {
+      primitiveType = "File";
+    }
+
     let reference = transformTemplateName($ref || _.get(items, "$ref", ""))
       .useName;
 
