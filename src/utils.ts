@@ -159,6 +159,10 @@ export function transformCamelCase(name: string) {
     words = name.split(" ");
   } else {
     if (typeof name === "string") {
+      if (name.endsWith('Controller')) {
+        return name.slice(0, name.length - 'Controller'.length);
+      }
+
       return name;
     } else {
       throw new Error("mod name is not a string: " + name);
