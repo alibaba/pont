@@ -152,30 +152,35 @@ export function getDuplicateById<T>(arr: T[], idKey = "name"): null | T {
 
 export function transformCamelCase(name: string) {
   let words = [] as string[];
+  let result = '';
 
-  if (name.includes("-")) {
-    words = name.split("-");
-  } else if (name.includes(" ")) {
-    words = name.split(" ");
+  if (name.includes('-')) {
+    words = name.split('-');
+  } else if (name.includes(' ')) {
+    words = name.split(' ');
   } else {
-    if (typeof name === "string") {
-      if (name.endsWith('Controller')) {
-        return name.slice(0, name.length - 'Controller'.length);
-      }
-
-      return name;
+    if (typeof name === 'string') {
+      result = name;
     } else {
-      throw new Error("mod name is not a string: " + name);
+      throw new Error('mod name is not a string: ' + name);
     }
   }
 
-  const newName = words
-    .map(word => {
-      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-    })
-    .join("");
+  if (words && words.length) {
+    result = words
+      .map(word => {
+        return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+      })
+      .join('');
+  }
 
-  return newName.charAt(0).toLowerCase() + newName.slice(1);
+  result = result.charAt(0).toLowerCase() + result.slice(1);
+
+  if (result.endsWith('Controller')) {
+    result = result.slice(0, result.length - 'Controller'.length);
+  }
+
+  return result;
 }
 
 export function transformDescription(description: string) {
