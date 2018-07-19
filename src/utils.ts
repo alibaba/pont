@@ -10,11 +10,11 @@ import { debug } from "util";
 import { error } from "./debugLog";
 
 export class Config {
-  originUrl?= "";
+  originUrl? = "";
   usingOperationId: boolean;
   taggedByName = true;
   outDir = "service";
-  origins?= [] as Array<{
+  origins? = [] as Array<{
     originUrl: string;
     name: string;
     usingOperationId: boolean;
@@ -151,17 +151,25 @@ export function getDuplicateById<T>(arr: T[], idKey = "name"): null | T {
 }
 
 export function transformCamelCase(name: string) {
-  let words = [name] as string[];
+  let words = [] as string[];
 
-  if (name.includes('-')) {
-    words = name.split('-');
-  } else if (name.includes(' ')) {
-    words = name.split(' ');
+  if (name.includes("-")) {
+    words = name.split("-");
+  } else if (name.includes(" ")) {
+    words = name.split(" ");
+  } else {
+    if (typeof name === "string") {
+      return name;
+    } else {
+      throw new Error("mod name is not a string: " + name);
+    }
   }
 
-  const newName = words.map(word => {
-    return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
-  }).join('');
+  const newName = words
+    .map(word => {
+      return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+    })
+    .join("");
 
   return newName.charAt(0).toLowerCase() + newName.slice(1);
 }
@@ -292,7 +300,10 @@ export async function lookForFiles(
 }
 
 export function toDashCase(name: string) {
-  const dashName = name.split(' ').join('').replace(/[A-Z]/g, p => "-" + p.toLowerCase());
+  const dashName = name
+    .split(" ")
+    .join("")
+    .replace(/[A-Z]/g, p => "-" + p.toLowerCase());
 
   if (dashName.startsWith("-")) {
     return dashName.slice(1);
@@ -302,22 +313,28 @@ export function toDashCase(name: string) {
 }
 
 export function toDashDefaultCase(name: string) {
-  let dashName = name.split(' ').join('').replace(/[A-Z]/g, p => "-" + p.toLowerCase());
+  let dashName = name
+    .split(" ")
+    .join("")
+    .replace(/[A-Z]/g, p => "-" + p.toLowerCase());
 
   if (dashName.startsWith("-")) {
     dashName = dashName.slice(1);
   }
 
-  if (dashName.endsWith('-controller')) {
-    return dashName.slice(0, dashName.length - '-controller'.length);
+  if (dashName.endsWith("-controller")) {
+    return dashName.slice(0, dashName.length - "-controller".length);
   }
 
   return dashName;
 }
 
 /** 正则检测是否包含中文名 */
-export function hasChinese(str: string){
-  return str && str.match(
-    /[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uff1a\uff0c\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]|[\uff01-\uff5e\u3000-\u3009\u2026]/
+export function hasChinese(str: string) {
+  return (
+    str &&
+    str.match(
+      /[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uff1a\uff0c\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]|[\uff01-\uff5e\u3000-\u3009\u2026]/
+    )
   );
 }
