@@ -275,11 +275,28 @@ export function getTemplate(templatePath): typeof CodeGenerator {
 
   const noCacheFix = (Math.random() + "").slice(2, 5);
   const jsName = templatePath + noCacheFix + ".js";
-  fs.writeFileSync(jsName, jsResult.outputText, "utf8");
+  let moduleResule;
 
-  const moduleResule = require(jsName).default;
+  try {
+    // 编译到js
+    fs.writeFileSync(jsName, jsResult.outputText, "utf8");
 
-  fs.removeSync(jsName);
+    // 用 node require 引用编译后的 js 代码
+    moduleResule = require(jsName).default;
+
+    // 删除该文件
+    fs.removeSync(jsName);
+  } catch (e) {
+    // 删除失败，则再删除
+    if (fs.existsSync(jsName)) {
+      fs.removeSync(jsName);
+    }
+
+    // 没有引用，报错
+    if (!moduleResule) {
+      throw new Error(e);
+    }
+  }
 
   return moduleResule;
 }
