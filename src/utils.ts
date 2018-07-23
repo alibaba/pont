@@ -19,6 +19,7 @@ export class Config {
     name: string;
     usingOperationId: boolean;
   }>;
+  usingMultipleOrigins = false;
   templatePath = "serviceTemplate";
   prettierConfig: ResolveConfigOptions;
 
@@ -62,6 +63,7 @@ export class Config {
       usingOperationId: this.usingOperationId,
       taggedByName: this.taggedByName,
       outDir: path.join(configDir, this.outDir),
+      usingMultipleOrigins: this.usingMultipleOrigins,
       templatePath: path.join(configDir, this.templatePath),
       prettierConfig: this.prettierConfig
     };
@@ -88,6 +90,7 @@ export class DataSourceConfig {
   originUrl: string;
   name?: string;
   usingOperationId = false;
+  usingMultipleOrigins = false;
   taggedByName = true;
   templatePath = "serviceTemplate";
   outDir = "src/service";
@@ -152,17 +155,17 @@ export function getDuplicateById<T>(arr: T[], idKey = "name"): null | T {
 
 export function transformCamelCase(name: string) {
   let words = [] as string[];
-  let result = '';
+  let result = "";
 
-  if (name.includes('-')) {
-    words = name.split('-');
-  } else if (name.includes(' ')) {
-    words = name.split(' ');
+  if (name.includes("-")) {
+    words = name.split("-");
+  } else if (name.includes(" ")) {
+    words = name.split(" ");
   } else {
-    if (typeof name === 'string') {
+    if (typeof name === "string") {
       result = name;
     } else {
-      throw new Error('mod name is not a string: ' + name);
+      throw new Error("mod name is not a string: " + name);
     }
   }
 
@@ -171,13 +174,13 @@ export function transformCamelCase(name: string) {
       .map(word => {
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       })
-      .join('');
+      .join("");
   }
 
   result = result.charAt(0).toLowerCase() + result.slice(1);
 
-  if (result.endsWith('Controller')) {
-    result = result.slice(0, result.length - 'Controller'.length);
+  if (result.endsWith("Controller")) {
+    result = result.slice(0, result.length - "Controller".length);
   }
 
   return result;

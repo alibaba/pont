@@ -18,7 +18,7 @@ import { info } from "./debugLog";
 export class CodeGenerator {
   dataSource: StandardDataSource;
 
-  constructor() {}
+  constructor() { }
 
   setDataSource(dataSource: StandardDataSource) {
     this.dataSource = dataSource;
@@ -82,8 +82,8 @@ export class CodeGenerator {
 
     const content = ` namespace ${this.dataSource.name || "API"} {
         ${mods
-          .map(
-            mod => `
+        .map(
+          mod => `
           /**
            * ${mod.description}
            */
@@ -93,8 +93,8 @@ export class CodeGenerator {
               .join("\n")}
           }
         `
-          )
-          .join("\n\n")}
+        )
+        .join("\n\n")}
       }
     `;
 
@@ -130,30 +130,42 @@ export class CodeGenerator {
     // dataSource name means multiple dataSource
     if (this.dataSource.name) {
       conclusion = `
-        export * as defs from './baseClass';
+        import { ${this.dataSource.name} as defs } from './baseClass';
         export { ${this.dataSource.name} } from './mods/';
+        export { defs };
       `;
     }
 
     return conclusion;
   }
 
-  /** 获取所有基类的 index 入口文件代码 */
+  /** 获取所有基类文件代码 */
   getBaseClassesIndex() {
-    return `
-      ${this.dataSource.baseClasses
+    const clsCodes =
+      this.dataSource.baseClasses
         .map(
           base => `
-        export class ${base.name} {
+        class ${base.name} {
           ${base.properties
-            .map(prop => prop.toPropertyCodeWithInitValue())
-            .filter(id => id)
-            .join("\n")}
+              .map(prop => {
+                return prop.toPropertyCodeWithInitValue(base.name);
+              })
+              .filter(id => id)
+              .join("\n")}
         }
       `
-        )
-        .join("\n")}
-    `;
+        );
+
+    if (this.dataSource.name) {
+      return `
+        ${clsCodes.join('\n')}
+        export const ${this.dataSource.name} = {
+          ${this.dataSource.baseClasses.map(bs => bs.justName).join(',\n')}
+        }
+      `
+    }
+
+    return clsCodes.map(cls => `export ${cls}`).join('\n');
   }
 
   /** 获取接口实现内容的代码 */
@@ -235,6 +247,7 @@ export class FilesManager {
   generators: CodeGenerator[];
   baseDir: string;
   report = info;
+  usingMultipleOrigins = false;
 
   constructor(generators: CodeGenerator[], baseDir: string) {
     this.generators = generators;
@@ -274,11 +287,15 @@ export class FilesManager {
     return `
       ${dsNames
         .map(name => {
-          return `import * as ${name} from './${name}/baseClass';`;
+          return `import { defs as ${name}Defs, ${name} } from './${name}';
+          `;
         })
         .join("\n")}
 
       (window as any).defs = {
+        ${dsNames.map(name => `${name}: ${name}Defs,`).join("\n")}
+      };
+      (window as any).API = {
         ${dsNames.join(",\n")}
       };
     `;
@@ -289,10 +306,10 @@ export class FilesManager {
 
     return `
     ${dsNames
-      .map(name => {
-        return `/// <reference path="./${name}/api.d.ts" />`;
-      })
-      .join("\n")}
+        .map(name => {
+          return `/// <reference path="./${name}/api.d.ts" />`;
+        })
+        .join("\n")}
     `;
   }
 
@@ -352,7 +369,7 @@ export class FilesManager {
     const dataSources = this.generators.map(ge => ge.dataSource);
     let files = {};
 
-    if (this.generators.length > 1) {
+    if (this.generators.length > 1 || this.usingMultipleOrigins) {
       files = this.getSourcesFileStructures() as {};
     } else {
       const generator = this.generators[0];

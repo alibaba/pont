@@ -183,6 +183,13 @@ export class Manager {
       });
 
       this.currLocalDataSource = this.allLocalDataSources[0];
+
+      if (this.currConfig.name && this.allLocalDataSources.length > 1) {
+        this.currLocalDataSource = this.allLocalDataSources.find(
+          ds => ds.name === this.currConfig.name
+        );
+      }
+
       this.setFilesManager();
       this.report("本地对象创建成功");
     } catch (e) {
@@ -193,23 +200,23 @@ export class Manager {
   checkDataSource(dataSource: StandardDataSource) {
     const { mods, baseClasses } = dataSource;
 
-    let errorModNames = [] as string[];
-    let errorBaseNames = [] as string[];
+    const errorModNames = [] as string[];
+    const errorBaseNames = [] as string[];
 
     mods.forEach(mod => {
-      if ( hasChinese(mod.name) ) {
+      if (hasChinese(mod.name)) {
         errorModNames.push(mod.name);
       }
     });
 
     baseClasses.forEach(base => {
-      if ( hasChinese(base.name)) {
+      if (hasChinese(base.name)) {
         errorBaseNames.push(base.name);
       }
     });
 
     if (errorBaseNames.length && errorModNames.length) {
-      let errMsg = ["当前数据源有如下项不符合规范，需要后端修改"];
+      const errMsg = ["当前数据源有如下项不符合规范，需要后端修改"];
       errorModNames.forEach(modName =>
         errMsg.push(`模块名${modName}应该改为英文名！`)
       );
@@ -232,7 +239,7 @@ export class Manager {
       this.remoteDataSource = transformSwaggerData2Standard(
         data,
         config.usingOperationId,
-        config.taggedByName
+        config.name
       );
       this.checkDataSource(this.remoteDataSource);
 
@@ -264,6 +271,7 @@ export class Manager {
     });
 
     this.fileManager = new FilesManager(generators, this.currConfig.outDir);
+    this.fileManager.usingMultipleOrigins = this.currConfig.usingMultipleOrigins;
     this.report("文件生成器创建成功！");
     this.fileManager.report = this.report;
   }

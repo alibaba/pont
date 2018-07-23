@@ -74,7 +74,11 @@ export class Schema {
   };
   $ref: string;
 
-  static swaggerSchema2StandardDataType(schema: Schema, templateName = "") {
+  static swaggerSchema2StandardDataType(
+    schema: Schema,
+    templateName = "",
+    originName = ""
+  ) {
     const { items, $ref, type } = schema;
     let primitiveType = schema.type as string;
 
@@ -98,8 +102,10 @@ export class Schema {
       primitiveType = "File";
     }
 
-    let reference = transformTemplateName($ref || _.get(items, "$ref", ""))
-      .useName;
+    let reference = transformTemplateName(
+      $ref || _.get(items, "$ref", ""),
+      originName
+    ).useName;
 
     if (reference === "Model") {
       reference = "";
@@ -108,9 +114,9 @@ export class Schema {
     if (reference && reference === templateName) {
       reference = "T0";
     } else if (reference) {
-      reference = reference.startsWith("defs.")
-        ? reference
-        : "defs." + reference;
+      if (originName && !reference.includes(originName)) {
+        reference = "defs." + originName + "." + reference;
+      }
     }
 
     return new DataType({
@@ -166,7 +172,8 @@ export class SwaggerInterface {
   static transformSwaggerInterface2Standard(
     inter: SwaggerInterface,
     usingOperationId: boolean,
-    samePath: string
+    samePath: string,
+    originName: string
   ) {
     let name = getIdentifierFromOperatorId(inter.operationId);
 
@@ -175,7 +182,11 @@ export class SwaggerInterface {
     }
 
     const responseSchema = _.get(inter, "responses.200.schema", {}) as Schema;
-    const response = Schema.swaggerSchema2StandardDataType(responseSchema);
+    const response = Schema.swaggerSchema2StandardDataType(
+      responseSchema,
+      "",
+      originName
+    );
 
     const parameters = (inter.parameters || []).map(param => {
       const {
@@ -192,12 +203,16 @@ export class SwaggerInterface {
         description,
         name,
         required,
-        dataType: Schema.swaggerSchema2StandardDataType({
-          enum: param.enum,
-          items,
-          type,
-          $ref: _.get(schema, "$ref")
-        } as Schema)
+        dataType: Schema.swaggerSchema2StandardDataType(
+          {
+            enum: param.enum,
+            items,
+            type,
+            $ref: _.get(schema, "$ref")
+          } as Schema,
+          "",
+          originName
+        )
       });
     });
 
@@ -237,7 +252,8 @@ export class SwaggerDataSource {
 }
 
 function transformTemplateName(
-  templateName: string
+  templateName: string,
+  originName: string
 ): { useName: string; declarationName: string } {
   const refName = templateName.replace(/\#\/definitions\/(.+)/, "$1");
 
@@ -258,7 +274,11 @@ function transformTemplateName(
       if (templateName === "List") {
         templateName = "Array";
       } else if (!templateName.startsWith("defs.")) {
-        templateName = "defs." + templateName;
+        if (originName) {
+          templateName = "defs." + originName + "." + templateName;
+        } else {
+          templateName = "defs." + templateName;
+        }
       }
 
       return `${templateName}<${argName
@@ -269,10 +289,13 @@ function transformTemplateName(
           }
 
           if (name.includes("«")) {
-            return transformTemplateName(name).useName;
+            return transformTemplateName(name, originName).useName;
           }
 
           if (!PrimitiveType[name] && name !== "object" && name !== "any") {
+            if (originName) {
+              return "defs." + originName + "." + name;
+            }
             return "defs." + name;
           }
 
@@ -291,7 +314,7 @@ function transformTemplateName(
 export function transformSwaggerData2Standard(
   swagger: SwaggerDataSource,
   usingOperationId = true,
-  taggedByName = true
+  originName = ""
 ) {
   const allSwaggerInterfaces = [] as SwaggerInterface[];
   _.forEach(swagger.paths, (methodInters, path) => {
@@ -328,7 +351,8 @@ export function transformSwaggerData2Standard(
         return SwaggerInterface.transformSwaggerInterface2Standard(
           inter,
           usingOperationId,
-          samePath
+          samePath,
+          originName
         );
       });
 
@@ -381,7 +405,8 @@ export function transformSwaggerData2Standard(
           items,
           type
         } as Schema,
-        templateName
+        templateName,
+        originName
       );
 
       return new Property({

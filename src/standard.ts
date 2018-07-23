@@ -72,6 +72,11 @@ export class DataType {
     }
 
     if (this.reference) {
+      if (this.reference.match(/<.+>/)) {
+        const noTemplateRef = this.reference.replace(/<.+>/, '');
+
+        return `new ${noTemplateRef}()`;
+      }
       return `new ${this.reference}()`;
     }
 
@@ -158,7 +163,7 @@ export class Property extends Constructable {
       ${this.name}${optionalSignal}: ${this.dataType.type};`;
   }
 
-  toPropertyCodeWithInitValue() {
+  toPropertyCodeWithInitValue(baseName = '') {
     const dataType = this.dataType;
     let typeWithValue = `= ${this.dataType.initialValue}`;
 
@@ -179,7 +184,11 @@ export class Property extends Constructable {
     }
 
     if (typeWithValue.includes("defs.")) {
-      typeWithValue = typeWithValue.replace(/defs\./g, "");
+      typeWithValue = typeWithValue.replace(/defs.*\./g, "");
+    }
+
+    if (this.dataType.reference.includes(baseName)) {
+      typeWithValue = `= {}`;
     }
 
     return `
@@ -210,9 +219,9 @@ export class Interface extends Constructable {
     return `
       class ${className} {
         ${this.parameters
-          .filter(param => param.in !== "body")
-          .map(param => param.toPropertyCode(true))
-          .join("")}
+        .filter(param => param.in !== "body")
+        .map(param => param.toPropertyCode(true))
+        .join("")}
       }
     `;
   }
