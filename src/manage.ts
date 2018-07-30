@@ -271,6 +271,7 @@ export class Manager {
     });
 
     this.fileManager = new FilesManager(generators, this.currConfig.outDir);
+    this.fileManager.prettierConfig = this.currConfig.prettierConfig;
     this.fileManager.usingMultipleOrigins = this.currConfig.usingMultipleOrigins;
     this.report("文件生成器创建成功！");
     this.fileManager.report = this.report;

@@ -247,6 +247,7 @@ export class FilesManager {
   generators: CodeGenerator[];
   baseDir: string;
   report = info;
+  prettierConfig: {};
   usingMultipleOrigins = false;
 
   constructor(generators: CodeGenerator[], baseDir: string) {
@@ -346,7 +347,7 @@ export class FilesManager {
   private setFormat(files: {}) {
     _.forEach(files, (value: Function | {}, name: string) => {
       if (typeof value === "function") {
-        files[name] = (content: string) => format(value(content));
+        files[name] = (content: string) => format(value(content), this.prettierConfig);
       }
 
       return this.setFormat(value);
