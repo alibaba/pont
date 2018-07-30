@@ -26,8 +26,7 @@
   "devDependencies": {
     "@types/fs-extra": "^5.0.4",
     "@types/lodash": "^4.14.110",
-    "@types/node": "^10.3.6",
-    "pont-engine": "0.1.7"
+    "@types/node": "^10.3.6"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
