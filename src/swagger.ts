@@ -77,7 +77,8 @@ export class Schema {
   static swaggerSchema2StandardDataType(
     schema: Schema,
     templateName = "",
-    originName = ""
+    originName = "",
+    isResponse = false
   ) {
     const { items, $ref, type } = schema;
     let primitiveType = schema.type as string;
@@ -116,6 +117,8 @@ export class Schema {
     } else if (reference) {
       if (originName && !reference.includes(originName)) {
         reference = "defs." + originName + "." + reference;
+      } else if (isResponse && !reference.startsWith('defs.')) {
+        reference = 'defs.' + reference;
       }
     }
 
@@ -185,7 +188,8 @@ export class SwaggerInterface {
     const response = Schema.swaggerSchema2StandardDataType(
       responseSchema,
       "",
-      originName
+      originName,
+      true
     );
 
     const parameters = (inter.parameters || []).map(param => {
@@ -211,7 +215,8 @@ export class SwaggerInterface {
             $ref: _.get(schema, "$ref")
           } as Schema,
           "",
-          originName
+          originName,
+          param.in === 'body'
         )
       });
     });
