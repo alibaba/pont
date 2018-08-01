@@ -11,7 +11,7 @@ import { info as debugInfo } from "./debugLog";
 export class Manager {
   readonly lockFilename = "api.lock";
 
-  allLocalDataSources: StandardDataSource[];
+  allLocalDataSources: StandardDataSource[] = [];
   allConfigs: DataSourceConfig[];
   remoteDataSource: StandardDataSource;
   currConfig: DataSourceConfig;
@@ -187,7 +187,9 @@ export class Manager {
       if (this.currConfig.name && this.allLocalDataSources.length > 1) {
         this.currLocalDataSource = this.allLocalDataSources.find(
           ds => ds.name === this.currConfig.name
-        );
+        ) || new StandardDataSource({
+          mods: [], name: this.currConfig.name, baseClasses: []
+        });
       }
 
       this.setFilesManager();
