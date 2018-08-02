@@ -51,7 +51,11 @@ export class Manager {
     const remoteDsIndex = this.allLocalDataSources.findIndex(
       ds => ds.name === remoteName
     );
-    this.allLocalDataSources[remoteDsIndex] = this.remoteDataSource;
+    if (remoteDsIndex === -1) {
+      this.allLocalDataSources.push(this.remoteDataSource);
+    } else {
+      this.allLocalDataSources[remoteDsIndex] = this.remoteDataSource;
+    }
     this.currLocalDataSource = this.remoteDataSource;
     this.setFilesManager();
   }
@@ -181,6 +185,15 @@ export class Manager {
       this.allLocalDataSources = localDataObjects.map(ldo => {
         return StandardDataSource.constructorFromLock(ldo);
       });
+      if (this.allLocalDataSources.length < this.allConfigs.length) {
+        this.allConfigs.forEach(config => {
+          if (!this.allLocalDataSources.find(ds => ds.name === config.name)) {
+            this.allLocalDataSources.push(new StandardDataSource({
+              mods: [], name: this.currConfig.name, baseClasses: []
+            }));
+          }
+        });
+      }
 
       this.currLocalDataSource = this.allLocalDataSources[0];
 
