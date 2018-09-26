@@ -1,11 +1,11 @@
-import * as _ from "lodash";
-import { getDuplicateById } from "./utils";
+import * as _ from 'lodash';
+import { getDuplicateById } from './utils';
 
 // primitive type
 export enum PrimitiveType {
-  number = "number",
-  string = "string",
-  boolean = "boolean"
+  number = 'number',
+  string = 'string',
+  boolean = 'boolean'
 }
 
 class Constructable {
@@ -23,10 +23,10 @@ export class DataType {
   primitiveType: PrimitiveType;
   isArr: boolean = false;
 
-  customType: string = "";
+  customType: string = '';
 
   // reference may have generic like Pagination<BaseBO>
-  reference: string = "";
+  reference: string = '';
 
   enum: Array<string | number> = [];
 
@@ -54,21 +54,24 @@ export class DataType {
 
   getEnumType() {
     // NOTE: fix the swagger can only export number bug in swagger transform programe
+    if (!this.enum.length) {
+      return 'string';
+    }
 
     return this.enum
       .map(numOrStr => {
-        if (typeof numOrStr === "string") {
+        if (typeof numOrStr === 'string') {
           return `'${numOrStr}'`;
         }
 
         return numOrStr;
       })
-      .join(" | ");
+      .join(' | ');
   }
 
   get initialValue() {
     if (this.isArr) {
-      return "[]";
+      return '[]';
     }
 
     if (this.reference) {
@@ -83,11 +86,11 @@ export class DataType {
     if (this.enum && this.enum.length) {
       const str = this.enum[0];
 
-      if (typeof str === "string") {
+      if (typeof str === 'string') {
         return `'${str}'`;
       }
 
-      return str + "";
+      return str + '';
     }
 
     if (this.primitiveType) {
@@ -96,11 +99,11 @@ export class DataType {
       }
 
       if (this.primitiveType === PrimitiveType.boolean) {
-        return "false";
+        return 'false';
       }
     }
 
-    return "undefined";
+    return 'undefined';
   }
 
   get type() {
@@ -126,14 +129,14 @@ export class DataType {
         return `${this.primitiveType}[]`;
       }
 
-      return "any[]";
+      return 'any[]';
     }
 
     if (this.enum && this.enum.length) {
       return this.getEnumType();
     }
 
-    return this.primitiveType || "any";
+    return this.primitiveType || 'any';
   }
 }
 
@@ -144,7 +147,7 @@ export class Property extends Constructable {
   name: string;
   required: boolean;
 
-  in: "query" | "body" | "path";
+  in: 'query' | 'body' | 'path';
 
   constructor(prop: Partial<Property>) {
     super(prop);
@@ -152,10 +155,10 @@ export class Property extends Constructable {
 
   toPropertyCode(hasRequired = false, optional = false) {
     const dataType = this.dataType;
-    let optionalSignal = hasRequired && optional ? "?" : "";
+    let optionalSignal = hasRequired && optional ? '?' : '';
 
     if (hasRequired && !this.required) {
-      optionalSignal = "?";
+      optionalSignal = '?';
     }
 
     return `
@@ -168,14 +171,14 @@ export class Property extends Constructable {
     let typeWithValue = `= ${this.dataType.initialValue}`;
 
     if (
-      dataType.type !== "any" &&
-      dataType.type !== "any[]" &&
+      dataType.type !== 'any' &&
+      dataType.type !== 'any[]' &&
       !dataType.isArr
     ) {
       typeWithValue = `= ${dataType.initialValue}`;
 
       if (!this.dataType.initialValue) {
-        return "";
+        return '';
       }
     }
 
@@ -183,8 +186,8 @@ export class Property extends Constructable {
       typeWithValue = `: ${this.dataType.type}`;
     }
 
-    if (typeWithValue.includes("defs.")) {
-      typeWithValue = typeWithValue.replace(/defs.*\./g, "");
+    if (typeWithValue.includes('defs.')) {
+      typeWithValue = typeWithValue.replace(/defs.*\./g, '');
     }
 
     if (this.dataType.reference.includes(baseName)) {
@@ -215,21 +218,21 @@ export class Interface extends Constructable {
     return this.response.type;
   }
 
-  getParamsCode(className = "Params") {
+  getParamsCode(className = 'Params') {
     return `
       class ${className} {
         ${this.parameters
-        .filter(param => param.in !== "body")
-        .map(param => param.toPropertyCode(true))
-        .join("")}
+          .filter(param => param.in !== 'body')
+          .map(param => param.toPropertyCode(true))
+          .join('')}
       }
     `;
   }
 
   getBodyParamsCode() {
-    const bodyParam = this.parameters.find(param => param.in === "body");
+    const bodyParam = this.parameters.find(param => param.in === 'body');
 
-    return (bodyParam && bodyParam.dataType.type) || "";
+    return (bodyParam && bodyParam.dataType.type) || '';
   }
 
   constructor(inter: Partial<Interface>) {
@@ -245,7 +248,7 @@ export class Mod extends Constructable {
   constructor(mod: Partial<Mod>) {
     super(mod);
 
-    this.interfaces = _.orderBy(this.interfaces, "path");
+    this.interfaces = _.orderBy(this.interfaces, 'path');
   }
 }
 
@@ -255,13 +258,13 @@ export class BaseClass extends Constructable {
   properties: Property[];
 
   get justName() {
-    return this.name.replace(/(.+)<.+/, "$1");
+    return this.name.replace(/(.+)<.+/, '$1');
   }
 
   constructor(base: Partial<BaseClass>) {
     super(base);
 
-    this.properties = _.orderBy(this.properties, "name");
+    this.properties = _.orderBy(this.properties, 'name');
   }
 }
 
@@ -271,8 +274,8 @@ export class StandardDataSource {
   public mods: Mod[];
 
   reOrder() {
-    this.baseClasses = _.orderBy(this.baseClasses, "name");
-    this.mods = _.orderBy(this.mods, "name");
+    this.baseClasses = _.orderBy(this.baseClasses, 'name');
+    this.mods = _.orderBy(this.mods, 'name');
   }
 
   // validate the if the dataSource is valid
@@ -291,8 +294,8 @@ export class StandardDataSource {
       }
     });
 
-    const dupMod = getDuplicateById(this.mods, "name");
-    const dupBase = getDuplicateById(this.baseClasses, "name");
+    const dupMod = getDuplicateById(this.mods, 'name');
+    const dupBase = getDuplicateById(this.baseClasses, 'name');
 
     if (dupMod) {
       errors.push(`模块 ${dupMod.name} 重复了。`);
@@ -302,7 +305,7 @@ export class StandardDataSource {
     }
 
     if (errors && errors.length) {
-      throw new Error(errors.join("\n"));
+      throw new Error(errors.join('\n'));
     }
 
     return errors;

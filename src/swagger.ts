@@ -6,8 +6,8 @@ import {
   Mod,
   BaseClass,
   Property
-} from "./standard";
-import * as _ from "lodash";
+} from './standard';
+import * as _ from 'lodash';
 import {
   getMaxSamePath,
   getIdentifierFromOperatorId,
@@ -16,16 +16,16 @@ import {
   toDashCase,
   toDashDefaultCase,
   hasChinese
-} from "./utils";
+} from './utils';
 
 export enum SwaggerType {
-  integer = "integer",
-  string = "string",
-  file = "string",
-  array = "array",
-  number = "number",
-  boolean = "boolean",
-  object = "object"
+  integer = 'integer',
+  string = 'string',
+  file = 'string',
+  array = 'array',
+  number = 'number',
+  boolean = 'boolean',
+  object = 'object'
 }
 
 export class SwaggerProperty {
@@ -35,20 +35,20 @@ export class SwaggerProperty {
     type?: SwaggerType;
     $ref?: string;
   };
-  $ref? = "";
-  description? = "";
+  $ref? = '';
+  description? = '';
   name: string;
   required: boolean;
 }
 
 export class SwaggerParameter {
   /** 字段名 */
-  name = "";
+  name = '';
 
-  in: "query" | "body" | "path";
+  in: 'query' | 'body' | 'path';
 
   /** 描述 */
-  description = "";
+  description = '';
 
   /** 是否必填 */
   required: boolean;
@@ -76,54 +76,54 @@ export class Schema {
 
   static swaggerSchema2StandardDataType(
     schema: Schema,
-    templateName = "",
-    originName = "",
+    templateName = '',
+    originName = '',
     isResponse = false
   ) {
     const { items, $ref, type } = schema;
     let primitiveType = schema.type as string;
 
-    if (type === "array") {
-      primitiveType === _.get(items, "type", "");
+    if (type === 'array') {
+      primitiveType === _.get(items, 'type', '');
 
-      if (primitiveType === "array") {
-        primitiveType = "";
+      if (primitiveType === 'array') {
+        primitiveType = '';
       }
     }
 
-    if (primitiveType === "object") {
-      primitiveType = "";
+    if (primitiveType === 'object') {
+      primitiveType = '';
     }
 
-    if (primitiveType === "integer") {
-      primitiveType = "number";
+    if (primitiveType === 'integer') {
+      primitiveType = 'number';
     }
 
-    if (primitiveType === "file") {
-      primitiveType = "File";
+    if (primitiveType === 'file') {
+      primitiveType = 'File';
     }
 
     let reference = transformTemplateName(
-      $ref || _.get(items, "$ref", ""),
+      $ref || _.get(items, '$ref', ''),
       originName
     ).useName;
 
-    if (reference === "Model") {
-      reference = "";
+    if (reference === 'Model') {
+      reference = '';
     }
 
     if (reference && reference === templateName) {
-      reference = "T0";
+      reference = 'T0';
     } else if (reference) {
       if (originName && !reference.includes(originName)) {
-        reference = "defs." + originName + "." + reference;
+        reference = 'defs.' + originName + '.' + reference;
       } else if (isResponse && !reference.startsWith('defs.')) {
         reference = 'defs.' + reference;
       }
     }
 
     return new DataType({
-      isArr: type === "array",
+      isArr: type === 'array',
       enum: fixSwaggerEnum(schema.enum),
       primitiveType: primitiveType as PrimitiveType,
       reference
@@ -144,7 +144,9 @@ export function fixSwaggerEnum(enumStrs: string[]) {
     }
   });
 
-  return enums;
+  return enums.filter(str => {
+    return String(str).match(/^[0-9a-zA-Z\_\-\$]+$/);
+  });
 }
 
 export class SwaggerInterface {
@@ -152,7 +154,7 @@ export class SwaggerInterface {
 
   parameters = [] as SwaggerParameter[];
 
-  summary = "";
+  summary = '';
 
   description: string;
 
@@ -184,10 +186,10 @@ export class SwaggerInterface {
       name = getIdentifierFromUrl(inter.path, inter.method, samePath);
     }
 
-    const responseSchema = _.get(inter, "responses.200.schema", {}) as Schema;
+    const responseSchema = _.get(inter, 'responses.200.schema', {}) as Schema;
     const response = Schema.swaggerSchema2StandardDataType(
       responseSchema,
-      "",
+      '',
       originName,
       true
     );
@@ -212,9 +214,9 @@ export class SwaggerInterface {
             enum: param.enum,
             items,
             type,
-            $ref: _.get(schema, "$ref")
+            $ref: _.get(schema, '$ref')
           } as Schema,
-          "",
+          '',
           originName,
           param.in === 'body'
         )
@@ -229,7 +231,7 @@ export class SwaggerInterface {
       path: inter.path,
       response,
       /** 后端返回的参数可能重复 */
-      parameters: _.unionBy(parameters, "name")
+      parameters: _.unionBy(parameters, 'name')
     });
 
     return standardInterface;
@@ -260,53 +262,53 @@ function transformTemplateName(
   templateName: string,
   originName: string
 ): { useName: string; declarationName: string } {
-  const refName = templateName.replace(/\#\/definitions\/(.+)/, "$1");
+  const refName = templateName.replace(/\#\/definitions\/(.+)/, '$1');
 
   const declarationName = refName.replace(
     /«(.+)»/g,
     (__, matched) =>
-      "<" +
+      '<' +
       matched
-        .split(",")
-        .map((__, index) => "T" + index)
-        .join(",") +
-      ">"
+        .split(',')
+        .map((__, index) => 'T' + index)
+        .join(',') +
+      '>'
   );
 
   let useName = refName.replace(
     /(.+?)«(.+)»/,
     (__, templateName: string, argName: string) => {
-      if (templateName === "List") {
-        templateName = "Array";
-      } else if (!templateName.startsWith("defs.")) {
+      if (templateName === 'List') {
+        templateName = 'Array';
+      } else if (!templateName.startsWith('defs.')) {
         if (originName) {
-          templateName = "defs." + originName + "." + templateName;
+          templateName = 'defs.' + originName + '.' + templateName;
         } else {
-          templateName = "defs." + templateName;
+          templateName = 'defs.' + templateName;
         }
       }
 
       return `${templateName}<${argName
-        .split(",")
+        .split(',')
         .map(name => {
-          if (name === "long") {
-            return "number";
+          if (name === 'long') {
+            return 'number';
           }
 
-          if (name.includes("«")) {
+          if (name.includes('«')) {
             return transformTemplateName(name, originName).useName;
           }
 
-          if (!PrimitiveType[name] && name !== "object" && name !== "any") {
+          if (!PrimitiveType[name] && name !== 'object' && name !== 'any') {
             if (originName) {
-              return "defs." + originName + "." + name;
+              return 'defs.' + originName + '.' + name;
             }
-            return "defs." + name;
+            return 'defs.' + name;
           }
 
           return name;
         })
-        .join(",")}>`;
+        .join(',')}>`;
     }
   );
 
@@ -319,7 +321,7 @@ function transformTemplateName(
 export function transformSwaggerData2Standard(
   swagger: SwaggerDataSource,
   usingOperationId = true,
-  originName = ""
+  originName = ''
 ) {
   const allSwaggerInterfaces = [] as SwaggerInterface[];
   _.forEach(swagger.paths, (methodInters, path) => {
@@ -366,13 +368,13 @@ export function transformSwaggerData2Standard(
         // 当检测到name包含中文的时候，采用description
         return new Mod({
           description: tag.name,
-          interfaces: _.uniqBy(standardInterfaces, "name"),
+          interfaces: _.uniqBy(standardInterfaces, 'name'),
           name: transformCamelCase(tag.description)
         });
       } else {
         return new Mod({
           description: tag.description,
-          interfaces: _.uniqBy(standardInterfaces, "name"),
+          interfaces: _.uniqBy(standardInterfaces, 'name'),
           name: transformCamelCase(tag.name)
         });
       }
@@ -382,21 +384,21 @@ export function transformSwaggerData2Standard(
     });
 
   const baseClasses = _.map(swagger.definitions, (def, defName) => {
-    let templateName = _.get(defName.match(/«(.+)»/), "[1]");
+    let templateName = _.get(defName.match(/«(.+)»/), '[1]');
 
     if (templateName && templateName.match(/List«(.+)»/)) {
-      templateName = _.get(templateName.match(/List«(.+)»/), "[1]");
+      templateName = _.get(templateName.match(/List«(.+)»/), '[1]');
     }
 
     defName = defName.replace(
       /«(.+)»/g,
       (__, matched) =>
-        "<" +
+        '<' +
         matched
-          .split(",")
-          .map((__, index) => "T" + index)
-          .join(",") +
-        ">"
+          .split(',')
+          .map((__, index) => 'T' + index)
+          .join(',') +
+        '>'
     );
 
     const properties = _.map(def.properties, (prop, propName) => {
@@ -429,8 +431,16 @@ export function transformSwaggerData2Standard(
     });
   });
 
+  baseClasses.sort((pre, next) => {
+    if (pre.justName === next.justName) {
+      return pre.name.length > next.name.length ? -1 : 1;
+    }
+
+    return next.justName > pre.justName ? 1 : -1;
+  });
+
   return new StandardDataSource({
-    baseClasses: _.uniqBy(baseClasses, "name"),
+    baseClasses: _.uniqBy(baseClasses, base => base.justName),
     mods,
     name: swagger.name
   });
