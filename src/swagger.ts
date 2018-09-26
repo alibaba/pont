@@ -448,6 +448,7 @@ export function transformSwaggerData2Standard(
           const ref = dataType.includes('defs.') ? dataType.slice(5) : dataType;
 
           if (
+            ref &&
             !baseClasses.find(
               base => base.name === ref || base.justName === ref
             )

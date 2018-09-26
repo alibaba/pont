@@ -373,6 +373,7 @@ export class StandardDataSource {
                   : dataType;
 
                 if (
+                  ref &&
                   !baseClasses.find(
                     base => base.name === ref || base.justName === ref
                   )
