@@ -439,6 +439,26 @@ export function transformSwaggerData2Standard(
     return next.justName > pre.justName ? 1 : -1;
   });
 
+  // 校验所有接口参数，如果是 body，body 指向的 BO 是否存在
+  mods.forEach(mod => {
+    mod.interfaces.forEach(inter => {
+      inter.parameters.forEach(param => {
+        if (param.in === 'body') {
+          const dataType = param.dataType.reference;
+          const ref = dataType.includes('defs.') ? dataType.slice(5) : dataType;
+
+          if (
+            !baseClasses.find(
+              base => base.name === ref || base.justName === ref
+            )
+          ) {
+            return;
+          }
+        }
+      });
+    });
+  });
+
   return new StandardDataSource({
     baseClasses: _.uniqBy(baseClasses, base => base.justName),
     mods,
