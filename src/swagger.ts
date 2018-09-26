@@ -442,7 +442,7 @@ export function transformSwaggerData2Standard(
   // 校验所有接口参数，如果是 body，body 指向的 BO 是否存在
   mods.forEach(mod => {
     mod.interfaces.forEach(inter => {
-      inter.parameters.forEach(param => {
+      inter.parameters = inter.parameters.filter(param => {
         if (param.in === 'body') {
           const dataType = param.dataType.reference;
           const ref = dataType.includes('defs.') ? dataType.slice(5) : dataType;
@@ -452,9 +452,11 @@ export function transformSwaggerData2Standard(
               base => base.name === ref || base.justName === ref
             )
           ) {
-            return;
+            return false;
           }
         }
+
+        return true;
       });
     });
   });
