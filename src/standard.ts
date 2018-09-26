@@ -151,6 +151,11 @@ export class Property extends Constructable {
 
   constructor(prop: Partial<Property>) {
     super(prop);
+
+    // FIXME: name 可能不合法，这里暂时只判断是否包含 . 。
+    if (this.name.includes('.')) {
+      this.name = this.name.slice(this.name.lastIndexOf('.'));
+    }
   }
 
   toPropertyCode(hasRequired = false, optional = false) {
@@ -351,20 +356,37 @@ export class StandardDataSource {
         return new BaseClass({
           description: base.description,
           name: base.name,
-          properties: props
+          properties: _.unionBy(props, 'name')
         });
       });
       const mods = localDataObject.mods.map(mod => {
         const interfaces = mod.interfaces.map(inter => {
           const response = new DataType(inter.response);
-          const parameters = inter.parameters.map(param => {
-            const dataType = new DataType(param.dataType);
+          const parameters = inter.parameters
+            .map(param => {
+              const dataType = new DataType(param.dataType);
 
-            return new Property({
-              ...param,
-              dataType
-            });
-          });
+              if (param.in === 'body') {
+                const dataType = param.dataType.type;
+                const ref = dataType.includes('defs.')
+                  ? dataType.slice(5)
+                  : dataType;
+
+                if (
+                  !baseClasses.find(
+                    base => base.name === ref || base.justName === ref
+                  )
+                ) {
+                  return;
+                }
+              }
+
+              return new Property({
+                ...param,
+                dataType
+              });
+            })
+            .filter(_.identity);
 
           return new Interface({
             ...inter,
