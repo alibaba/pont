@@ -154,7 +154,7 @@ export class Property extends Constructable {
 
     // FIXME: name 可能不合法，这里暂时只判断是否包含 . 。
     if (this.name.includes('.')) {
-      this.name = this.name.slice(this.name.lastIndexOf('.'));
+      this.name = this.name.slice(this.name.lastIndexOf('.') + 1);
     }
   }
 
@@ -367,7 +367,7 @@ export class StandardDataSource {
               const dataType = new DataType(param.dataType);
 
               if (param.in === 'body') {
-                const dataType = param.dataType.type;
+                const dataType = param.dataType.reference;
                 const ref = dataType.includes('defs.')
                   ? dataType.slice(5)
                   : dataType;
