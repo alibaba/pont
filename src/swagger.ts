@@ -112,8 +112,10 @@ export class Schema {
       reference = '';
     }
 
+    let isTemplateRef = false;
     if (reference && reference === templateName) {
       reference = 'T0';
+      isTemplateRef = true;
     } else if (reference) {
       if (originName && !reference.includes(originName)) {
         reference = 'defs.' + originName + '.' + reference;
@@ -126,7 +128,8 @@ export class Schema {
       isArr: type === 'array',
       enum: fixSwaggerEnum(schema.enum),
       primitiveType: primitiveType as PrimitiveType,
-      reference
+      reference,
+      isTemplateRef
     });
   }
 }
@@ -335,9 +338,9 @@ export function transformSwaggerData2Standard(
   const mods = swagger.tags
     .filter(tag => {
       // ignore un annotation case
-      if (toDashDefaultCase(tag.name) === toDashDefaultCase(tag.description)) {
-        return false;
-      }
+      // if (toDashDefaultCase(tag.name) === toDashDefaultCase(tag.description)) {
+      //   return false;
+      // }
 
       return true;
     })
@@ -396,7 +399,7 @@ export function transformSwaggerData2Standard(
         '<' +
         matched
           .split(',')
-          .map((__, index) => 'T' + index)
+          .map((__, index) => 'T' + index + ' = any')
           .join(',') +
         '>'
     );

@@ -30,6 +30,8 @@ export class DataType {
 
   enum: Array<string | number> = [];
 
+  isTemplateRef = false;
+
   constructor(inter: Partial<DataType>) {
     if (inter.enum) {
       this.enum = inter.enum;
@@ -45,6 +47,10 @@ export class DataType {
     }
     if (inter.primitiveType) {
       this.primitiveType = inter.primitiveType;
+    }
+
+    if (inter.isTemplateRef) {
+      this.isTemplateRef = inter.isTemplateRef;
     }
   }
 
@@ -80,6 +86,11 @@ export class DataType {
 
         return `new ${noTemplateRef}()`;
       }
+
+      if (this.isTemplateRef) {
+        return 'undefined';
+      }
+
       return `new ${this.reference}()`;
     }
 
