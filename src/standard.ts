@@ -118,6 +118,10 @@ export class DataType {
   }
 
   get type() {
+    if (this.reference === 'Array') {
+      this.reference = 'any[]';
+    }
+
     if (this.reference) {
       if (this.isArr) {
         return `${this.reference}[]`;

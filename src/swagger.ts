@@ -112,6 +112,11 @@ export class Schema {
       reference = '';
     }
 
+    if (reference === 'Array') {
+      primitiveType = 'any[]';
+      reference = '';
+    }
+
     let isTemplateRef = false;
     if (reference && reference === templateName) {
       reference = 'T0';
