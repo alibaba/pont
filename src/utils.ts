@@ -1,26 +1,27 @@
-import fetch from "node-fetch";
-import * as path from "path";
-import * as fs from "fs-extra";
-import * as prettier from "prettier";
+import fetch from 'node-fetch';
+import * as path from 'path';
+import * as fs from 'fs-extra';
+import * as prettier from 'prettier';
 
-import * as ts from "typescript";
-import { ResolveConfigOptions } from "prettier";
-import { CodeGenerator } from "./generate";
-import { debug } from "util";
-import { error } from "./debugLog";
+import * as ts from 'typescript';
+import { ResolveConfigOptions } from 'prettier';
+import { CodeGenerator } from './generate';
+import { debug } from 'util';
+import { error } from './debugLog';
+import { Mod } from './standard';
 
 export class Config {
-  originUrl? = "";
+  originUrl? = '';
   usingOperationId: boolean;
   taggedByName = true;
-  outDir = "service";
+  outDir = 'service';
   origins? = [] as Array<{
     originUrl: string;
     name: string;
     usingOperationId: boolean;
   }>;
   usingMultipleOrigins = false;
-  templatePath = "serviceTemplate";
+  templatePath = 'serviceTemplate';
   prettierConfig: ResolveConfigOptions;
 
   constructor(config: Config) {
@@ -39,22 +40,22 @@ export class Config {
       });
     } else {
       if (!this.originUrl) {
-        return "请配置 originUrl 来指定远程地址。";
+        return '请配置 originUrl 来指定远程地址。';
       }
     }
 
-    return "";
+    return '';
   }
 
   static createFromConfigPath(configPath: string) {
-    const content = fs.readFileSync(configPath, "utf8");
+    const content = fs.readFileSync(configPath, 'utf8');
 
     try {
       const configObj = JSON.parse(content);
 
       return new Config(configObj);
     } catch (e) {
-      throw new Error("pont-config.json is not a validate json");
+      throw new Error('pont-config.json is not a validate json');
     }
   }
 
@@ -92,8 +93,8 @@ export class DataSourceConfig {
   usingOperationId = false;
   usingMultipleOrigins = false;
   taggedByName = true;
-  templatePath = "serviceTemplate";
-  outDir = "src/service";
+  templatePath = 'serviceTemplate';
+  outDir = 'src/service';
   prettierConfig: ResolveConfigOptions = {};
 
   constructor(config: DataSourceConfig) {
@@ -113,8 +114,8 @@ export function format(fileContent: string, prettierOpts = {}) {
   // return fileContent;
   try {
     return prettier.format(fileContent, {
-      parser: "typescript",
-      trailingComma: "all",
+      parser: 'typescript',
+      trailingComma: 'all',
       singleQuote: true,
       ...prettierOpts
     });
@@ -136,7 +137,7 @@ export function format(fileContent: string, prettierOpts = {}) {
   // }
 }
 
-export function getDuplicateById<T>(arr: T[], idKey = "name"): null | T {
+export function getDuplicateById<T>(arr: T[], idKey = 'name'): null | T {
   if (!arr || !arr.length) {
     return null;
   }
@@ -153,19 +154,37 @@ export function getDuplicateById<T>(arr: T[], idKey = "name"): null | T {
   return result;
 }
 
+export function transformModsName(mods: Mod[]) {
+  // 检测所有接口是否存在接口名忽略大小写时重复，如果重复，以下划线命名
+  mods.forEach(mod => {
+    const currName = mod.name;
+    const sameMods = mods.filter(
+      mod => mod.name.toLowerCase() === currName.toLowerCase()
+    );
+
+    if (sameMods.length > 1) {
+      mod.name = transformDashCase(mod.name);
+    }
+  });
+}
+
+function transformDashCase(name: string) {
+  return name.replace(/[A-Z]/g, ch => '_' + ch.toLowerCase());
+}
+
 export function transformCamelCase(name: string) {
   let words = [] as string[];
-  let result = "";
+  let result = '';
 
-  if (name.includes("-")) {
-    words = name.split("-");
-  } else if (name.includes(" ")) {
-    words = name.split(" ");
+  if (name.includes('-')) {
+    words = name.split('-');
+  } else if (name.includes(' ')) {
+    words = name.split(' ');
   } else {
-    if (typeof name === "string") {
+    if (typeof name === 'string') {
       result = name;
     } else {
-      throw new Error("mod name is not a string: " + name);
+      throw new Error('mod name is not a string: ' + name);
     }
   }
 
@@ -174,42 +193,42 @@ export function transformCamelCase(name: string) {
       .map(word => {
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       })
-      .join("");
+      .join('');
   }
 
   result = result.charAt(0).toLowerCase() + result.slice(1);
 
-  if (result.endsWith("Controller")) {
-    result = result.slice(0, result.length - "Controller".length);
+  if (result.endsWith('Controller')) {
+    result = result.slice(0, result.length - 'Controller'.length);
   }
 
   return result;
 }
 
 export function transformDescription(description: string) {
-  const words = description.split(" ").filter(word => word !== "Controller");
+  const words = description.split(' ').filter(word => word !== 'Controller');
 
   const [firstWord, ...rest] = words;
   const sFirstWord = firstWord.charAt(0).toLowerCase() + firstWord.slice(1);
 
-  return [sFirstWord, ...rest].join("");
+  return [sFirstWord, ...rest].join('');
 }
 
 export function toUpperFirstLetter(text: string) {
   return text.charAt(0).toUpperCase() + text.slice(1);
 }
 
-export function getMaxSamePath(paths: string[], samePath = "") {
+export function getMaxSamePath(paths: string[], samePath = '') {
   if (!paths.length) {
     return samePath;
   }
 
-  if (paths.some(path => !path.includes("/"))) {
+  if (paths.some(path => !path.includes('/'))) {
     return samePath;
   }
 
   const segs = paths.map(path => {
-    const [firstSeg, ...restSegs] = path.split("/");
+    const [firstSeg, ...restSegs] = path.split('/');
     return { firstSeg, restSegs };
   });
 
@@ -219,8 +238,8 @@ export function getMaxSamePath(paths: string[], samePath = "") {
     )
   ) {
     return getMaxSamePath(
-      segs.map(seg => seg.restSegs.join("/")),
-      samePath + "/" + segs[0].firstSeg
+      segs.map(seg => seg.restSegs.join('/')),
+      samePath + '/' + segs[0].firstSeg
     );
   }
 
@@ -230,30 +249,30 @@ export function getMaxSamePath(paths: string[], samePath = "") {
 export function getIdentifierFromUrl(
   url: string,
   requestType: string,
-  samePath = ""
+  samePath = ''
 ) {
   const currUrl = url.slice(samePath.length).match(/([^\.]+)/)[0];
 
   return (
     requestType +
     currUrl
-      .split("/")
+      .split('/')
       .map(str => {
         if (str.match(/^{.+}$/gim)) {
-          return "By" + toUpperFirstLetter(str.slice(1, str.length - 1));
+          return 'By' + toUpperFirstLetter(str.slice(1, str.length - 1));
         }
         return toUpperFirstLetter(str);
       })
-      .join("")
+      .join('')
   );
 }
 
 /** some reversed keyword in js but not in java */
-const TS_KEYWORDS = ["delete"];
-const REPLACE_WORDS = ["remove"];
+const TS_KEYWORDS = ['delete'];
+const REPLACE_WORDS = ['remove'];
 
 export function getIdentifierFromOperatorId(operationId: string) {
-  const identifier = operationId.replace(/(.+)(Using.+)/, "$1");
+  const identifier = operationId.replace(/(.+)(Using.+)/, '$1');
 
   const index = TS_KEYWORDS.indexOf(identifier);
 
@@ -265,7 +284,7 @@ export function getIdentifierFromOperatorId(operationId: string) {
 }
 
 export function getTemplate(templatePath): typeof CodeGenerator {
-  const tsResult = fs.readFileSync(templatePath + ".ts", "utf8");
+  const tsResult = fs.readFileSync(templatePath + '.ts', 'utf8');
   const jsResult = ts.transpileModule(tsResult, {
     compilerOptions: {
       target: ts.ScriptTarget.ES2015,
@@ -273,13 +292,13 @@ export function getTemplate(templatePath): typeof CodeGenerator {
     }
   });
 
-  const noCacheFix = (Math.random() + "").slice(2, 5);
-  const jsName = templatePath + noCacheFix + ".js";
+  const noCacheFix = (Math.random() + '').slice(2, 5);
+  const jsName = templatePath + noCacheFix + '.js';
   let moduleResule;
 
   try {
     // 编译到js
-    fs.writeFileSync(jsName, jsResult.outputText, "utf8");
+    fs.writeFileSync(jsName, jsResult.outputText, 'utf8');
 
     // 用 node require 引用编译后的 js 代码
     moduleResule = require(jsName).default;
@@ -313,7 +332,7 @@ export async function lookForFiles(
     const info = await fs.lstat(currName);
 
     if (info.isDirectory()) {
-      if (file === ".git" || file === "node_modules") {
+      if (file === '.git' || file === 'node_modules') {
         continue;
       }
 
@@ -330,11 +349,11 @@ export async function lookForFiles(
 
 export function toDashCase(name: string) {
   const dashName = name
-    .split(" ")
-    .join("")
-    .replace(/[A-Z]/g, p => "-" + p.toLowerCase());
+    .split(' ')
+    .join('')
+    .replace(/[A-Z]/g, p => '-' + p.toLowerCase());
 
-  if (dashName.startsWith("-")) {
+  if (dashName.startsWith('-')) {
     return dashName.slice(1);
   }
 
@@ -343,16 +362,16 @@ export function toDashCase(name: string) {
 
 export function toDashDefaultCase(name: string) {
   let dashName = name
-    .split(" ")
-    .join("")
-    .replace(/[A-Z]/g, p => "-" + p.toLowerCase());
+    .split(' ')
+    .join('')
+    .replace(/[A-Z]/g, p => '-' + p.toLowerCase());
 
-  if (dashName.startsWith("-")) {
+  if (dashName.startsWith('-')) {
     dashName = dashName.slice(1);
   }
 
-  if (dashName.endsWith("-controller")) {
-    return dashName.slice(0, dashName.length - "-controller".length);
+  if (dashName.endsWith('-controller')) {
+    return dashName.slice(0, dashName.length - '-controller'.length);
   }
 
   return dashName;

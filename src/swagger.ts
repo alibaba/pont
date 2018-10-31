@@ -15,7 +15,8 @@ import {
   transformCamelCase,
   toDashCase,
   toDashDefaultCase,
-  hasChinese
+  hasChinese,
+  transformModsName
 } from './utils';
 
 export enum SwaggerType {
@@ -390,6 +391,8 @@ export function transformSwaggerData2Standard(
     .filter(mod => {
       return mod.interfaces.length;
     });
+
+  transformModsName(mods);
 
   const baseClasses = _.map(swagger.definitions, (def, defName) => {
     let templateName = _.get(defName.match(/«(.+)»/), '[1]');
