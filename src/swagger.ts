@@ -455,7 +455,8 @@ export function transformSwaggerData2Standard(
     mod.interfaces.forEach(inter => {
       inter.parameters = inter.parameters.filter(param => {
         if (param.in === 'body') {
-          const ref = param.name;
+          const dataType = param.dataType.reference;
+          const ref = dataType.includes('defs.') ? dataType.slice(dataType.lastIndexOf('.') + 1) : dataType;
 
           if (
             ref &&
