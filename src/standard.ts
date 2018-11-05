@@ -383,9 +383,7 @@ export class StandardDataSource {
 
               if (param.in === 'body') {
                 const dataType = param.dataType.reference;
-                const ref = dataType.includes('defs.')
-                  ? dataType.slice(5)
-                  : dataType;
+                const ref = dataType.includes('defs.') ? dataType.slice(dataType.lastIndexOf('.') + 1) : dataType;
 
                 if (
                   ref &&
