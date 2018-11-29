@@ -189,7 +189,7 @@ export class Manager {
         this.allConfigs.forEach(config => {
           if (!this.allLocalDataSources.find(ds => ds.name === config.name)) {
             this.allLocalDataSources.push(new StandardDataSource({
-              mods: [], name: this.currConfig.name, baseClasses: []
+              mods: [], name: config.name, baseClasses: []
             }));
           }
         });
