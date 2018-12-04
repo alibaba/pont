@@ -1,6 +1,6 @@
 {
   "name": "pont-engine",
-  "version": "0.1.31",
+  "version": "0.1.32",
   "description": "pont swagger typescript API",
   "main": "lib/index.js",
   "typings": "src/index.ts",
@@ -13,7 +13,7 @@
     "fs-extra": "^5.0.0",
     "lodash": "^4.17.4",
     "node-fetch": "^1.7.3",
-    "prettier": "^1.9.2",
+    "prettier": "^1.15.3",
     "ts-node": "^3.3.0",
     "typescript": "^2.9.2"
   },

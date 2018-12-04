@@ -135,9 +135,10 @@ parse-passwd@^1.0.0:
   version "1.0.0"
   resolved "http://registry.npm.alibaba-inc.com/parse-passwd/download/parse-passwd-1.0.0.tgz#6d5b934a456993b23d37f40a382d6f1666a8e5c6"
 
-prettier@^1.9.2:
-  version "1.13.6"
-  resolved "http://registry.npm.alibaba-inc.com/prettier/download/prettier-1.13.6.tgz#00ae0b777ad92f81a9e7a1df2f0470b6dab0cb44"
+prettier@^1.15.3:
+  version "1.15.3"
+  resolved "http://registry.npm.alibaba-inc.com/prettier/download/prettier-1.15.3.tgz#1feaac5bdd181237b54dbe65d874e02a1472786a"
+  integrity sha1-H+qsW90YEje1Tb5l2HTgKhRyeGo=
 
 source-map-support@^0.4.0:
   version "0.4.18"
