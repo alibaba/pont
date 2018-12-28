@@ -10,6 +10,21 @@ import { debug } from 'util';
 import { error } from './debugLog';
 import { Mod } from './standard';
 
+const defaultTemplateCode = `
+import { CodeGenerator, Interface } from "pont-engine";
+
+export default class MyGenerator extends CodeGenerator {
+}
+`;
+
+const defaultTransformCode = `
+import { StandardDataSource } from "pont-engine";
+
+export default function(dataSource: StandardDataSource): StandardDataSource {
+  return dataSource;
+}
+`;
+
 export class Config {
   originUrl? = '';
   usingOperationId: boolean;
@@ -19,10 +34,20 @@ export class Config {
     originUrl: string;
     name: string;
     usingOperationId: boolean;
+    transformPath?: string;
   }>;
   usingMultipleOrigins = false;
   templatePath = 'serviceTemplate';
   prettierConfig: ResolveConfigOptions;
+  transformPath = 'transformTemplate';
+
+  static getTransformFromConfig(config: Config | DataSourceConfig) {
+    if (config.transformPath) {
+      return getTemplate(config.transformPath, defaultTransformCode) as any;
+    }
+
+    return id => id;
+  }
 
   constructor(config: Config) {
     Object.keys(config).forEach(key => (this[key] = config[key]));
@@ -66,6 +91,7 @@ export class Config {
       outDir: path.join(configDir, this.outDir),
       usingMultipleOrigins: this.usingMultipleOrigins,
       templatePath: path.join(configDir, this.templatePath),
+      transformPath: path.join(configDir, this.transformPath),
       prettierConfig: this.prettierConfig
     };
 
@@ -95,6 +121,7 @@ export class DataSourceConfig {
   taggedByName = true;
   templatePath = 'serviceTemplate';
   outDir = 'src/service';
+  transformPath = 'transformTemplate';
   prettierConfig: ResolveConfigOptions = {};
 
   constructor(config: DataSourceConfig) {
@@ -283,7 +310,13 @@ export function getIdentifierFromOperatorId(operationId: string) {
   return REPLACE_WORDS[index];
 }
 
-export function getTemplate(templatePath): typeof CodeGenerator {
+export function getTemplate(
+  templatePath,
+  defaultValue = defaultTemplateCode
+): typeof CodeGenerator {
+  if (!fs.existsSync(templatePath + '.ts')) {
+    fs.writeFileSync(templatePath + '.ts', defaultValue);
+  }
   const tsResult = fs.readFileSync(templatePath + '.ts', 'utf8');
   const jsResult = ts.transpileModule(tsResult, {
     compilerOptions: {

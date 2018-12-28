@@ -7,18 +7,18 @@
  * - api.lock (contains local code state)
  */
 
-import * as _ from "lodash";
-import { StandardDataSource, Interface, Mod, BaseClass } from "./standard";
-import { Config } from "./utils";
-import * as fs from "fs-extra";
-import * as path from "path";
-import { format } from "./utils";
-import { info } from "./debugLog";
+import * as _ from 'lodash';
+import { StandardDataSource, Interface, Mod, BaseClass } from './standard';
+import { Config } from './utils';
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import { format } from './utils';
+import { info } from './debugLog';
 
 export class CodeGenerator {
   dataSource: StandardDataSource;
 
-  constructor() { }
+  constructor() {}
 
   setDataSource(dataSource: StandardDataSource) {
     this.dataSource = dataSource;
@@ -27,21 +27,21 @@ export class CodeGenerator {
   /** 获取某个基类的类型定义代码 */
   getBaseClassInDeclaration(base: BaseClass) {
     return `class ${base.name} {
-      ${base.properties.map(prop => prop.toPropertyCode(true)).join("\n")}
+      ${base.properties.map(prop => prop.toPropertyCode(true)).join('\n')}
     }
     `;
   }
 
   /** 一般不需要覆盖，获取所有基类的类型定义代码，一个 namespace */
   getBaseClassesInDeclaration() {
-    const content = ` namespace ${this.dataSource.name || "defs"} {
+    const content = ` namespace ${this.dataSource.name || 'defs'} {
       ${this.dataSource.baseClasses
         .map(
           base => `
         export ${this.getBaseClassInDeclaration(base)}
       `
         )
-        .join("\n")}
+        .join('\n')}
     }
     `;
 
@@ -80,21 +80,21 @@ export class CodeGenerator {
   getModsDeclaration() {
     const mods = this.dataSource.mods;
 
-    const content = ` namespace ${this.dataSource.name || "API"} {
+    const content = ` namespace ${this.dataSource.name || 'API'} {
         ${mods
-        .map(
-          mod => `
+          .map(
+            mod => `
           /**
            * ${mod.description}
            */
           export namespace ${mod.name} {
             ${mod.interfaces
               .map(this.getInterfaceInDeclaration.bind(this))
-              .join("\n")}
+              .join('\n')}
           }
         `
-        )
-        .join("\n\n")}
+          )
+          .join('\n\n')}
       }
     `;
 
@@ -103,7 +103,7 @@ export class CodeGenerator {
 
   /** 获取公共的类型定义代码 */
   getCommonDeclaration() {
-    return "";
+    return '';
   }
 
   /** 获取总的类型定义代码 */
@@ -141,20 +141,18 @@ export class CodeGenerator {
 
   /** 获取所有基类文件代码 */
   getBaseClassesIndex() {
-    const clsCodes =
-      this.dataSource.baseClasses
-        .map(
-          base => `
+    const clsCodes = this.dataSource.baseClasses.map(
+      base => `
         class ${base.name} {
           ${base.properties
-              .map(prop => {
-                return prop.toPropertyCodeWithInitValue(base.name);
-              })
-              .filter(id => id)
-              .join("\n")}
+            .map(prop => {
+              return prop.toPropertyCodeWithInitValue(base.name);
+            })
+            .filter(id => id)
+            .join('\n')}
         }
       `
-        );
+    );
 
     if (this.dataSource.name) {
       return `
@@ -162,7 +160,7 @@ export class CodeGenerator {
         export const ${this.dataSource.name} = {
           ${this.dataSource.baseClasses.map(bs => bs.justName).join(',\n')}
         }
-      `
+      `;
     }
 
     return clsCodes.map(cls => `export ${cls}`).join('\n');
@@ -187,7 +185,7 @@ export class CodeGenerator {
     export async function request(${requestParams}) {
       return pontFetch({
         url: '${inter.path}',
-        ${bodyParmas ? "params: bodyParams" : "params"},
+        ${bodyParmas ? 'params: bodyParams' : 'params'},
         method: '${inter.method}',
       });
     }
@@ -204,10 +202,10 @@ export class CodeGenerator {
         .map(inter => {
           return `import * as ${inter.name} from './${inter.name}';`;
         })
-        .join("\n")}
+        .join('\n')}
 
       export {
-        ${mod.interfaces.map(inter => inter.name).join(", \n")}
+        ${mod.interfaces.map(inter => inter.name).join(', \n')}
       }
     `;
   }
@@ -218,7 +216,7 @@ export class CodeGenerator {
       declare var window;
 
       window.API = {
-        ${this.dataSource.mods.map(mod => mod.name).join(", \n")}
+        ${this.dataSource.mods.map(mod => mod.name).join(', \n')}
       };
     `;
 
@@ -226,7 +224,7 @@ export class CodeGenerator {
     if (this.dataSource.name) {
       conclusion = `
         export const ${this.dataSource.name} = {
-          ${this.dataSource.mods.map(mod => mod.name).join(", \n")}
+          ${this.dataSource.mods.map(mod => mod.name).join(', \n')}
         };
       `;
     }
@@ -236,7 +234,7 @@ export class CodeGenerator {
         .map(mod => {
           return `import * as ${mod.name} from './${mod.name}';`;
         })
-        .join("\n")}
+        .join('\n')}
 
       ${conclusion}
     `;
@@ -263,22 +261,22 @@ export class FilesManager {
       const currMod = {};
 
       mod.interfaces.forEach(inter => {
-        currMod[inter.name + ".ts"] = generator.getInterfaceContent.bind(
+        currMod[inter.name + '.ts'] = generator.getInterfaceContent.bind(
           generator,
           inter
         );
-        currMod["index.ts"] = generator.getModIndex.bind(generator, mod);
+        currMod['index.ts'] = generator.getModIndex.bind(generator, mod);
       });
       mods[mod.name] = currMod;
 
-      mods["index.ts"] = generator.getModsIndex.bind(generator);
+      mods['index.ts'] = generator.getModsIndex.bind(generator);
     });
 
     return {
-      "baseClass.ts": generator.getBaseClassesIndex.bind(generator),
+      'baseClass.ts': generator.getBaseClassesIndex.bind(generator),
       mods: mods,
-      "index.ts": generator.getIndex.bind(generator),
-      "api.d.ts": generator.getDeclaration.bind(generator)
+      'index.ts': generator.getIndex.bind(generator),
+      'api.d.ts': generator.getDeclaration.bind(generator)
     };
   }
 
@@ -291,13 +289,13 @@ export class FilesManager {
           return `import { defs as ${name}Defs, ${name} } from './${name}';
           `;
         })
-        .join("\n")}
+        .join('\n')}
 
       (window as any).defs = {
-        ${dsNames.map(name => `${name}: ${name}Defs,`).join("\n")}
+        ${dsNames.map(name => `${name}: ${name}Defs,`).join('\n')}
       };
       (window as any).API = {
-        ${dsNames.join(",\n")}
+        ${dsNames.join(',\n')}
       };
     `;
   }
@@ -307,10 +305,10 @@ export class FilesManager {
 
     return `
     ${dsNames
-        .map(name => {
-          return `/// <reference path="./${name}/api.d.ts" />`;
-        })
-        .join("\n")}
+      .map(name => {
+        return `/// <reference path="./${name}/api.d.ts" />`;
+      })
+      .join('\n')}
     `;
   }
 
@@ -338,16 +336,17 @@ export class FilesManager {
       dataSources[ds.name] = dsFiles;
     });
 
-    dataSources["index.ts"] = this.getDataSourcesTs.bind(this);
-    dataSources["api.d.ts"] = this.getDataSourcesDeclarationTs.bind(this);
+    dataSources['index.ts'] = this.getDataSourcesTs.bind(this);
+    dataSources['api.d.ts'] = this.getDataSourcesDeclarationTs.bind(this);
 
     return dataSources;
   }
 
   private setFormat(files: {}) {
     _.forEach(files, (value: Function | {}, name: string) => {
-      if (typeof value === "function") {
-        files[name] = (content: string) => format(value(content), this.prettierConfig);
+      if (typeof value === 'function') {
+        files[name] = (content: string) =>
+          format(value(content), this.prettierConfig);
       }
 
       return this.setFormat(value);
@@ -391,7 +390,7 @@ export class FilesManager {
 
     this.setFormat(files);
 
-    files["api.lock"] = this.getLockContent.bind(this);
+    files['api.lock'] = this.getLockContent.bind(this);
 
     this.clearPath(this.baseDir);
     this.created = true;
@@ -408,10 +407,10 @@ export class FilesManager {
   created = false;
 
   async saveLock() {
-    const lockFile = path.join(this.baseDir, "api.lock");
+    const lockFile = path.join(this.baseDir, 'api.lock');
     const newLockContent = this.getLockContent();
 
-    const lockContent = await fs.readFile(lockFile, "utf8");
+    const lockContent = await fs.readFile(lockFile, 'utf8');
 
     if (lockContent !== newLockContent) {
       this.created = true;
@@ -421,7 +420,7 @@ export class FilesManager {
 
   async generateFiles(files: {}, dir = this.baseDir) {
     const promises = _.map(files, async (value: Function | {}, name) => {
-      if (typeof value === "function") {
+      if (typeof value === 'function') {
         await fs.writeFile(`${dir}/${name}`, value());
         return;
       }

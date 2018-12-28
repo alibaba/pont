@@ -1,15 +1,15 @@
-import { StandardDataSource } from "./standard";
-import { Config, getTemplate, DataSourceConfig, hasChinese } from "./utils";
-import * as fs from "fs-extra";
-import * as path from "path";
-import fetch from "node-fetch";
-import { SwaggerDataSource, transformSwaggerData2Standard } from "./swagger";
-import { diff, Model } from "./diff";
-import { FilesManager } from "./generate";
-import { info as debugInfo } from "./debugLog";
+import { StandardDataSource } from './standard';
+import { Config, getTemplate, DataSourceConfig, hasChinese } from './utils';
+import * as fs from 'fs-extra';
+import * as path from 'path';
+import fetch from 'node-fetch';
+import { SwaggerDataSource, transformSwaggerData2Standard } from './swagger';
+import { diff, Model } from './diff';
+import { FilesManager } from './generate';
+import { info as debugInfo } from './debugLog';
 
 export class Manager {
-  readonly lockFilename = "api.lock";
+  readonly lockFilename = 'api.lock';
 
   allLocalDataSources: StandardDataSource[] = [];
   allConfigs: DataSourceConfig[];
@@ -174,13 +174,13 @@ export class Manager {
 
   async readLocalDataSource() {
     try {
-      this.report("读取本地数据中...");
+      this.report('读取本地数据中...');
       const localDataStr = await fs.readFile(
         path.join(this.currConfig.outDir, this.lockFilename),
-        { encoding: "utf8" }
+        { encoding: 'utf8' }
       );
 
-      this.report("读取本地完成");
+      this.report('读取本地完成');
       const localDataObjects = JSON.parse(localDataStr) as StandardDataSource[];
       this.allLocalDataSources = localDataObjects.map(ldo => {
         return StandardDataSource.constructorFromLock(ldo);
@@ -188,9 +188,13 @@ export class Manager {
       if (this.allLocalDataSources.length < this.allConfigs.length) {
         this.allConfigs.forEach(config => {
           if (!this.allLocalDataSources.find(ds => ds.name === config.name)) {
-            this.allLocalDataSources.push(new StandardDataSource({
-              mods: [], name: config.name, baseClasses: []
-            }));
+            this.allLocalDataSources.push(
+              new StandardDataSource({
+                mods: [],
+                name: config.name,
+                baseClasses: []
+              })
+            );
           }
         });
       }
@@ -198,17 +202,21 @@ export class Manager {
       this.currLocalDataSource = this.allLocalDataSources[0];
 
       if (this.currConfig.name && this.allLocalDataSources.length > 1) {
-        this.currLocalDataSource = this.allLocalDataSources.find(
-          ds => ds.name === this.currConfig.name
-        ) || new StandardDataSource({
-          mods: [], name: this.currConfig.name, baseClasses: []
-        });
+        this.currLocalDataSource =
+          this.allLocalDataSources.find(
+            ds => ds.name === this.currConfig.name
+          ) ||
+          new StandardDataSource({
+            mods: [],
+            name: this.currConfig.name,
+            baseClasses: []
+          });
       }
 
       this.setFilesManager();
-      this.report("本地对象创建成功");
+      this.report('本地对象创建成功');
     } catch (e) {
-      throw new Error("读取 lock 文件错误！" + e.toString());
+      throw new Error('读取 lock 文件错误！' + e.toString());
     }
   }
 
@@ -231,7 +239,7 @@ export class Manager {
     });
 
     if (errorBaseNames.length && errorModNames.length) {
-      const errMsg = ["当前数据源有如下项不符合规范，需要后端修改"];
+      const errMsg = ['当前数据源有如下项不符合规范，需要后端修改'];
       errorModNames.forEach(modName =>
         errMsg.push(`模块名${modName}应该改为英文名！`)
       );
@@ -239,15 +247,15 @@ export class Manager {
         errMsg.push(`基类名${baseName}应该改为英文名！`)
       );
 
-      throw new Error(errMsg.join("\n"));
+      throw new Error(errMsg.join('\n'));
     }
   }
 
   async readRemoteDataSource(config = this.currConfig) {
     try {
-      this.report("获取远程数据中...");
+      this.report('获取远程数据中...');
       const response = await fetch(config.originUrl);
-      this.report("远程数据获取成功！");
+      this.report('远程数据获取成功！');
       const data: SwaggerDataSource = await response.json();
       data.name = config.name;
 
@@ -256,12 +264,14 @@ export class Manager {
         config.usingOperationId,
         config.name
       );
+      const transformProgram = Config.getTransformFromConfig(config);
+      this.remoteDataSource = transformProgram(this.remoteDataSource);
       this.checkDataSource(this.remoteDataSource);
 
-      this.report("远程对象创建完毕！");
+      this.report('远程对象创建完毕！');
       return this.remoteDataSource;
     } catch (e) {
-      throw new Error("读取远程接口数据失败！" + e.toString());
+      throw new Error('读取远程接口数据失败！' + e.toString());
     }
   }
 
@@ -275,7 +285,7 @@ export class Manager {
   }
 
   setFilesManager() {
-    this.report("文件生成器创建中...");
+    this.report('文件生成器创建中...');
     const Generator = getTemplate(this.currConfig.templatePath);
 
     const generators = this.allLocalDataSources.map(dataSource => {
@@ -288,7 +298,7 @@ export class Manager {
     this.fileManager = new FilesManager(generators, this.currConfig.outDir);
     this.fileManager.prettierConfig = this.currConfig.prettierConfig;
     this.fileManager.usingMultipleOrigins = this.currConfig.usingMultipleOrigins;
-    this.report("文件生成器创建成功！");
+    this.report('文件生成器创建成功！');
     this.fileManager.report = this.report;
   }
 }

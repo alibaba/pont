@@ -18,6 +18,11 @@ import {
   hasChinese,
   transformModsName
 } from './utils';
+import {
+  generateTemplate,
+  generateTemplateDef,
+  findDefinition
+} from './compiler';
 
 export enum SwaggerType {
   integer = 'integer',
@@ -104,7 +109,7 @@ export class Schema {
       primitiveType = 'File';
     }
 
-    let reference = transformTemplateName(
+    let reference = generateTemplate(
       $ref || _.get(items, '$ref', ''),
       originName
     ).useName;
@@ -267,66 +272,6 @@ export class SwaggerDataSource {
   };
 }
 
-function transformTemplateName(
-  templateName: string,
-  originName: string
-): { useName: string; declarationName: string } {
-  const refName = templateName.replace(/\#\/definitions\/(.+)/, '$1');
-
-  const declarationName = refName.replace(
-    /«(.+)»/g,
-    (__, matched) =>
-      '<' +
-      matched
-        .split(',')
-        .map((__, index) => 'T' + index)
-        .join(',') +
-      '>'
-  );
-
-  let useName = refName.replace(
-    /(.+?)«(.+)»/,
-    (__, templateName: string, argName: string) => {
-      if (templateName === 'List') {
-        templateName = 'Array';
-      } else if (!templateName.startsWith('defs.')) {
-        if (originName) {
-          templateName = 'defs.' + originName + '.' + templateName;
-        } else {
-          templateName = 'defs.' + templateName;
-        }
-      }
-
-      return `${templateName}<${argName
-        .split(',')
-        .map(name => {
-          if (name === 'long') {
-            return 'number';
-          }
-
-          if (name.includes('«')) {
-            return transformTemplateName(name, originName).useName;
-          }
-
-          if (!PrimitiveType[name] && name !== 'object' && name !== 'any') {
-            if (originName) {
-              return 'defs.' + originName + '.' + name;
-            }
-            return 'defs.' + name;
-          }
-
-          return name;
-        })
-        .join(',')}>`;
-    }
-  );
-
-  return {
-    declarationName,
-    useName
-  };
-}
-
 export function transformSwaggerData2Standard(
   swagger: SwaggerDataSource,
   usingOperationId = true,
@@ -395,22 +340,8 @@ export function transformSwaggerData2Standard(
   transformModsName(mods);
 
   const baseClasses = _.map(swagger.definitions, (def, defName) => {
-    let templateName = _.get(defName.match(/«(.+)»/), '[1]');
-
-    if (templateName && templateName.match(/List«(.+)»/)) {
-      templateName = _.get(templateName.match(/List«(.+)»/), '[1]');
-    }
-
-    defName = defName.replace(
-      /«(.+)»/g,
-      (__, matched) =>
-        '<' +
-        matched
-          .split(',')
-          .map((__, index) => 'T' + index + ' = any')
-          .join(',') +
-        '>'
-    );
+    const templateName = findDefinition(defName);
+    defName = generateTemplateDef(defName);
 
     const properties = _.map(def.properties, (prop, propName) => {
       const { $ref, description, name, type, required, items } = prop;
@@ -435,12 +366,16 @@ export function transformSwaggerData2Standard(
       });
     });
 
+    if (defName.replace(/(.+)<.+/, '$1') === 'Map') {
+      return null;
+    }
+
     return new BaseClass({
       description: def.description,
       name: defName,
       properties
     });
-  });
+  }).filter(id => id);
 
   baseClasses.sort((pre, next) => {
     if (pre.justName === next.justName) {
@@ -456,7 +391,9 @@ export function transformSwaggerData2Standard(
       inter.parameters = inter.parameters.filter(param => {
         if (param.in === 'body') {
           const dataType = param.dataType.reference;
-          const ref = dataType.includes('defs.') ? dataType.slice(dataType.lastIndexOf('.') + 1) : dataType;
+          const ref = dataType.includes('defs.')
+            ? dataType.slice(dataType.lastIndexOf('.') + 1)
+            : dataType;
 
           if (
             ref &&
