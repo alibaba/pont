@@ -39,7 +39,7 @@ export class Config {
   usingMultipleOrigins = false;
   templatePath = 'serviceTemplate';
   prettierConfig: ResolveConfigOptions;
-  transformPath = 'transformTemplate';
+  transformPath: string;
 
   static getTransformFromConfig(config: Config | DataSourceConfig) {
     if (config.transformPath) {
