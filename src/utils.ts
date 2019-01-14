@@ -91,7 +91,7 @@ export class Config {
       outDir: path.join(configDir, this.outDir),
       usingMultipleOrigins: this.usingMultipleOrigins,
       templatePath: path.join(configDir, this.templatePath),
-      transformPath: path.join(configDir, this.transformPath),
+      transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
       prettierConfig: this.prettierConfig
     };
 
