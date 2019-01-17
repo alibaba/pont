@@ -105,13 +105,22 @@ function compileTemplate(template: string) {
 
 function generateCode(ast: any, originName = ''): string {
   const { name, type, templateArgs } = ast;
-  const outCode = originName ? `defs.${originName}.${name}` : `defs.${name}`;
+  let retName = name;
 
-  if (templateArgs.length) {
-    return `${outCode}<${templateArgs.map(arg => generateCode(arg, originName)).join(', ')}>`;
+  if (name === 'long') {
+    retName = 'number';
   }
 
-  return outCode;
+  if (templateArgs.length) {
+    if (name === 'List') {
+      retName = 'Array';
+    } else {
+      retName = originName ? `defs.${originName}.${name}` : `defs.${name}`;
+    }
+    return `${retName}<${templateArgs.map(arg => generateCode(arg, originName)).join(', ')}>`;
+  }
+
+  return retName;
 }
 
 export function generateTemplate(template: string, originName = ''): string {
@@ -130,8 +139,9 @@ export function generateTemplate(template: string, originName = ''): string {
   return generateCode(ast, originName);
 }
 
+// 找到模板表达式里的第一个 template 。都改成 T0
 function findTemplate(ast, isFirst = true) {
-  const plainName = ['List', 'Map', 'number', 'string', 'boolean'];
+  const plainName = ['List', 'Map', 'number', 'string', 'boolean', 'long'];
   const { templateArgs, name } = ast;
 
   if (plainName.indexOf(name) === -1 && !isFirst) {
