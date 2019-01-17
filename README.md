@@ -20,7 +20,7 @@ pont 能够获取多种接口文档数据（目前完美支持 Swagger），将�
   
   ![](https://img.alicdn.com/tfs/TB1zIZHCpzqK1RjSZFCXXbbxVXa-618-316.png)
   
-  每个按钮依次是：更新同步数据源 | 选择要更新的模块 | 选择要更新的实体类 | 生成接口层代码
+  每个按钮依次是：更新同步数据源(sync) | 全量更新(all) | 选择要更新的模块(mod) | 选择要更新的实体类(bo) | 生成接口层代码(generate)
 
 - 2、在你的项目中配置一份 `pont-config.json`。vscode 会提示您可以配置的配置项及其含义。配置项及其含义如下：
 
