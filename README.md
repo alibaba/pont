@@ -26,7 +26,7 @@ pont 能够获取多种接口文档数据（目前完美支持 Swagger），将�
 
 - 阿里巴巴
 
-#### `pont-config.json` 配置指南
+#### 如何配置 `pont-config.json`
 
 - originUrl(string)
 
