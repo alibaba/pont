@@ -129,7 +129,7 @@ export function generateTemplate(template: string, originName = ''): string {
   const code = generateCode(ast);
 
   if (originName) {
-    return 'defs.' + code;
+    return 'defs.' + originName + '.' + code;
   }
 
   return code;
