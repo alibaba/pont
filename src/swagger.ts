@@ -112,7 +112,7 @@ export class Schema {
     let reference = generateTemplate(
       $ref || _.get(items, '$ref', ''),
       originName
-    ).useName;
+    );
 
     if (reference === 'Model') {
       reference = '';

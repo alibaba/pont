@@ -103,7 +103,7 @@ function compileTemplate(template: string) {
   return new Parser(nodes).parseTemplate();
 }
 
-function generateCode(ast: any) {
+function generateCode(ast: any): string {
   const { name, type, templateArgs } = ast;
 
   if (templateArgs.length) {
@@ -113,7 +113,7 @@ function generateCode(ast: any) {
   return name;
 }
 
-export function generateTemplate(template: string, originName = '') {
+export function generateTemplate(template: string, originName = ''): string {
   if (template.startsWith('#/definitions/')) {
     template = template.slice('#/definitions/'.length);
   }
