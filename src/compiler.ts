@@ -108,7 +108,7 @@ function generateCode(ast: any, originName = ''): string {
   const outCode = originName ? `defs.${originName}.${name}` : `defs.${name}`;
 
   if (templateArgs.length) {
-    return `${outCode}<${templateArgs.map(arg => generateCode(arg)).join(', ')}>`;
+    return `${outCode}<${templateArgs.map(arg => generateCode(arg, originName)).join(', ')}>`;
   }
 
   return outCode;
