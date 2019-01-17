@@ -17,6 +17,8 @@ pont 能够获取多种接口文档数据（目前完美支持 Swagger），将�
 #### 快速使用
 
 - 1、在 vscode 中安装插件 pont。
+  
+  https://img.alicdn.com/tfs/TB1zIZHCpzqK1RjSZFCXXbbxVXa-618-316.png
 
 - 2、在你的项目中配置一份 `pont-config.json`。vscode 会提示您可以配置的配置项及其含义。配置项及其含义如下：
 
