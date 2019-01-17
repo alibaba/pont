@@ -103,14 +103,15 @@ function compileTemplate(template: string) {
   return new Parser(nodes).parseTemplate();
 }
 
-function generateCode(ast: any): string {
+function generateCode(ast: any, originName = ''): string {
   const { name, type, templateArgs } = ast;
+  const outCode = originName ? `defs.${originName}.${name}` : `defs.${name}`;
 
   if (templateArgs.length) {
-    return `${name}<${templateArgs.map(arg => generateCode(arg)).join(', ')}>`;
+    return `${outCode}<${templateArgs.map(arg => generateCode(arg)).join(', ')}>`;
   }
 
-  return name;
+  return outCode;
 }
 
 export function generateTemplate(template: string, originName = ''): string {
@@ -126,13 +127,7 @@ export function generateTemplate(template: string, originName = ''): string {
     return '';
   }
 
-  const code = generateCode(ast);
-
-  if (originName) {
-    return 'defs.' + originName + '.' + code;
-  }
-
-  return code;
+  return generateCode(ast, originName);
 }
 
 function findTemplate(ast, isFirst = true) {
