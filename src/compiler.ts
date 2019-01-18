@@ -120,7 +120,11 @@ function generateCode(ast: any, originName = ''): string {
     return `${retName}<${templateArgs.map(arg => generateCode(arg, originName)).join(', ')}>`;
   }
 
-  return retName;
+  if (name === 'number' || name === 'string' || name === 'boolean') {
+    return retName;
+  }
+
+  return originName ? `defs.${originName}.${name}` : `defs.${name}`;
 }
 
 export function generateTemplate(template: string, originName = ''): string {
