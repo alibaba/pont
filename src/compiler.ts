@@ -120,7 +120,7 @@ function generateCode(ast: any, originName = ''): string {
     return `${retName}<${templateArgs.map(arg => generateCode(arg, originName)).join(', ')}>`;
   }
 
-  if (name === 'number' || name === 'string' || name === 'boolean') {
+  if (retName === 'number' || retName === 'string' || retName === 'boolean') {
     return retName;
   }
 
