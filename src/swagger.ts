@@ -124,7 +124,11 @@ export class Schema {
     }
 
     let isTemplateRef = false;
-    if (reference && (reference === templateName) || (reference === 'defs.' + templateName)) {
+    if (
+      (reference && reference === templateName) ||
+      reference === 'defs.' + templateName ||
+      reference === 'defs.' + originName + '.' + templateName
+    ) {
       reference = 'T0';
       isTemplateRef = true;
     } else if (reference) {
