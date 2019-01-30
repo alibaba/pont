@@ -17,9 +17,9 @@ pont 能够获取多种接口文档数据（目前完美支持 Swagger），将�
 #### 快速使用
 
 - 1、在 vscode 中安装插件 pont。
-  
+
   ![](https://img.alicdn.com/tfs/TB1zIZHCpzqK1RjSZFCXXbbxVXa-618-316.png)
-  
+
   每个按钮依次是：更新同步数据源(sync) | 全量更新(all) | 选择要更新的模块(mod) | 选择要更新的实体类(bo) | 生成接口层代码(generate)
 
 - 2、在你的项目中配置一份 `pont-config.json`。vscode 会提示您可以配置的配置项及其含义。配置项及其含义如下：
@@ -55,6 +55,10 @@ pont 能够获取多种接口文档数据（目前完美支持 Swagger），将�
 在这份 ts 代码中，用户可以覆盖默认 Generator 类的各种方法，以自定义生成代码。
 
 能够覆盖的方法、以及各个方法的含义，都可以通过 Typescript 的提示来看到。
+
+#### 示例
+
+可以参考 [pont-demo](https://github.com/nefe/pont-demo)，来体验 pont。
 
 ## 其它接口平台接入
 
