@@ -56,7 +56,7 @@ pont 能够获取多种接口文档数据（目前完美支持 Swagger），将�
 
 能够覆盖的方法、以及各个方法的含义，都可以通过 Typescript 的提示来看到。
 
-#### 示例
+## example
 
 可以参考 [pont-demo](https://github.com/nefe/pont-demo)，来体验 pont。
 
