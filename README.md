@@ -6,7 +6,6 @@ pont 在法语中是“桥”的意思，寓意着前后端之间的桥梁。
 [![npm downloads](https://img.shields.io/npm/dt/pont-engine.svg?style=flat-square)](https://www.npmjs.com/package/pont-engine)
 [![Gitter](https://badges.gitter.im/jasonHzq/pont-engine.svg)](https://gitter.im/jasonHzq/pont-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-#### 原理
 
 pont 能够获取多种接口文档数据（目前完美支持 Swagger），将其转换为静态类型完美的前端 Typescript 接口层代码！
 
@@ -14,7 +13,7 @@ pont 能够获取多种接口文档数据（目前完美支持 Swagger），将�
 
 ![](https://cdn.nlark.com/yuque/0/2019/png/86228/1547715324636-41b40b03-a80f-4dcf-b44c-f2f46dc8b336.png?x-oss-process=image/resize,w_836)
 
-#### 快速使用
+## 开始使用
 
 - 1、在 vscode 中安装插件 pont。
 
@@ -26,11 +25,7 @@ pont 能够获取多种接口文档数据（目前完美支持 Swagger），将�
 
 - 3、确保服务端提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下即可。
 
-#### 谁在使用
-
-- 阿里巴巴
-
-#### 如何配置 `pont-config.json`
+##  `pont-config.json` 配置
 
 - originUrl(string)
 
@@ -48,7 +43,7 @@ pont 能够获取多种接口文档数据（目前完美支持 Swagger），将�
 
 生成的代码会用 prettier 美化。这里可以配置 prettier。
 
-#### 自定义 template
+## 自定义 template
 
 可以参考 pont-demo 中的配置 [pont-template](https://github.com/nefe/pont-demo/blob/master/pontTemplate.ts)。
 
@@ -59,6 +54,11 @@ pont 能够获取多种接口文档数据（目前完美支持 Swagger），将�
 ## example
 
 可以参考 [pont-demo](https://github.com/nefe/pont-demo)，来体验 pont。
+
+
+## 谁在使用
+
+- 阿里巴巴
 
 ## 其它接口平台接入
 
