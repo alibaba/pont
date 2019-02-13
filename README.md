@@ -8,7 +8,7 @@ pont 在法语中是“桥”的意思，寓意着前后端之间的桥梁。
 
 #### 原理
 
-pont 能够获取多种接口文档数据（目前完美支持 Swagger），将其转换为类型完美的前端 Typescript 接口层代码！
+pont 能够获取多种接口文档数据（目前完美支持 Swagger），将其转换为静态类型完美的前端 Typescript 接口层代码！
 
 ![](https://cdn.nlark.com/yuque/0/2019/png/86228/1547715423432-8989c22f-974b-4c8b-b938-3a0799d54b39.png?x-oss-process=image/resize,w_837)
 
