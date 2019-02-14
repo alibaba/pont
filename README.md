@@ -1,13 +1,25 @@
-# pont
+<div align="center">
+  <img src="https://img.alicdn.com/tfs/TB1cpLSGrvpK1RjSZFqXXcXUVXa-726-396.png" height="100">
+  <h2>Pont - 搭建前后端之桥  </h2>
+</div>
 
-pont 在法语中是“桥”的意思，寓意着前后端之间的桥梁。
 
 [![npm version](https://badge.fury.io/js/pont-engine.png)](https://badge.fury.io/js/pont-engine)
 [![npm downloads](https://img.shields.io/npm/dt/pont-engine.svg?style=flat-square)](https://www.npmjs.com/package/pont-engine)
 [![Gitter](https://badges.gitter.im/jasonHzq/pont-engine.svg)](https://gitter.im/jasonHzq/pont-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
 
-pont 能够获取多种接口文档数据（目前完美支持 Swagger），将其转换为静态类型完美的前端 Typescript 接口层代码！
+pont 在法语中是“桥”的意思，寓意着前后端之间的桥梁。
+
+## 介绍
+
+Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数据。Pont 利用接口元数据，可以高度定制化生成前端接口层代码，接口 mock 平台和接口测试平台。
+
+其中 swagger 数据源，Pont 已经完美支持。并在一些大型项目中使用了近两年，各种高度定制化需求都可以满足。
+
+![](https://img.alicdn.com/tfs/TB1klbTGxTpK1RjSZR0XXbEwXXa-1548-1220.png)
+
+Pont 将为你的项目自动生成完美的 API 代码。
 
 ![](https://cdn.nlark.com/yuque/0/2019/png/86228/1547715423432-8989c22f-974b-4c8b-b938-3a0799d54b39.png?x-oss-process=image/resize,w_837)
 
@@ -15,15 +27,9 @@ pont 能够获取多种接口文档数据（目前完美支持 Swagger），将�
 
 ## 开始使用
 
-- 1、在 vscode 中安装插件 pont。
+- 1、在 vscode 中安装vscode插件 pont。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
 
-  ![](https://img.alicdn.com/tfs/TB1zIZHCpzqK1RjSZFCXXbbxVXa-618-316.png)
-
-  每个按钮依次是：更新同步数据源(sync) | 全量更新(all) | 选择要更新的模块(mod) | 选择要更新的实体类(bo) | 生成接口层代码(generate)
-
-- 2、在你的项目中配置一份 `pont-config.json`。vscode 会提示您可以配置的配置项及其含义。配置项及其含义如下：
-
-- 3、确保服务端提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下即可。
+- 2、确保服务端提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下即可。
 
 ##  `pont-config.json` 配置
 
