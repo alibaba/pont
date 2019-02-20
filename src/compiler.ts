@@ -114,6 +114,8 @@ function generateCode(ast: any, originName = ''): string {
   if (templateArgs.length) {
     if (name === 'List') {
       retName = 'Array';
+    } else if(['Map'].includes(name)){
+      retName = name;
     } else {
       retName = originName ? `defs.${originName}.${name}` : `defs.${name}`;
     }
