@@ -10,6 +10,7 @@ export class Translate {
     private dictFullPath = ''
 
     constructor(dictName = 'dict.json') {
+        fs.mkdirpSync(this.localDictDir);
         this.dictFullPath = path.normalize(this.localDictDir + '/' + dictName);
         this.dict = fs.pathExistsSync(this.dictFullPath)
             ? this.loadDict()
