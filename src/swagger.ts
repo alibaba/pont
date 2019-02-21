@@ -124,10 +124,12 @@ export class Schema {
     }
 
     let isTemplateRef = false;
+    const templateCompareName = reference || primitiveType;
+
     if (
-      (reference && reference === templateName) ||
-      reference === 'defs.' + templateName ||
-      reference === 'defs.' + originName + '.' + templateName
+      (templateCompareName && templateCompareName === templateName) ||
+      templateCompareName === 'defs.' + templateName ||
+      templateCompareName === 'defs.' + originName + '.' + templateName
     ) {
       reference = 'T0';
       isTemplateRef = true;
@@ -395,9 +397,14 @@ export function transformSwaggerData2Standard(
       inter.parameters = inter.parameters.filter(param => {
         if (param.in === 'body') {
           const dataType = param.dataType.reference;
-          const ref = dataType.includes('defs.')
+          let ref = dataType.includes('defs.')
             ? dataType.slice(dataType.lastIndexOf('.') + 1)
             : dataType;
+
+          // 如果 ref = "Foo<defs.Bar>" 则 ref = Foo
+          if (ref.includes('«')) {
+            ref = ref.slice(0, ref.indexOf('«'));
+          }
 
           if (
             ref &&
@@ -405,6 +412,11 @@ export function transformSwaggerData2Standard(
               base => base.name === ref || base.justName === ref
             )
           ) {
+            console.warn(
+              `baseClasses not contains ${dataType} in ${param.name} param of ${
+                inter.name
+              } interface `
+            );
             return false;
           }
         }

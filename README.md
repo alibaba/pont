@@ -61,13 +61,18 @@ Pont 将为你的项目自动生成完美的 API 代码。
 
 可以参考 [pont-demo](https://github.com/nefe/pont-demo)，来体验 pont。
 
-
-## 谁在使用
-
-- 阿里巴巴
-
 ## 其它接口平台接入
 
 目前 pont 暂时只支持 [Swagger](https://swagger.io/) 数据源。目前计划支持 DIP 和 RAP2。更希望社区可以踊跃贡献代码！
 
 目前 pont 只需要写一份数据源格式转换代码，把其它接口平台的数据源格式转换为 pont 中的标准格式，即可快捷支持其他接口平台。
+
+## 钉钉用户群
+
+[Pont对外用户群](https://qr.dingtalk.com/action/joingroup?code=v1,k1,zyeunCjwfx1zC9lk6bBWDLa2PwkPi9oiRBW0+Eqgj64=&_dt_no_comment=1&origin=11)
+
+<img src="https://img.alicdn.com/tfs/TB17EwzHFzqK1RjSZFvXXcB7VXa-696-688.png" height="300">
+
+## 谁在使用
+
+- 阿里巴巴
