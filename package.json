@@ -15,7 +15,8 @@
     "node-fetch": "^1.7.3",
     "prettier": "^1.15.3",
     "ts-node": "^3.3.0",
-    "typescript": "^2.9.2"
+    "typescript": "^2.9.2",
+    "node-google-translate-china": "^1.0.2"
   },
   "files": [
     "src",
