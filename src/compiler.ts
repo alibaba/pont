@@ -136,6 +136,11 @@ function generateCode(ast: any, originName = ''): string {
     return retName;
   }
 
+  //
+  if ((global as any).__GenericClass__ && (global as any).__GenericClass__.includes(name)) {
+    return `${name}<any>`
+  }
+
   return originName ? `defs.${originName}.${name}` : `defs.${name}`;
 }
 

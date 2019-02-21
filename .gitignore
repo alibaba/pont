@@ -11,6 +11,7 @@ yarn-error.log*
 /examples/demo1/node_modules/
 
 .vscode/
+.idea/
 
 lib/
 test/

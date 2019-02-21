@@ -333,13 +333,21 @@ export function transformSwaggerData2Standard(
   }).filter(id => id);
 
   baseClasses.sort((pre, next) => {
+    // 如果 justName 相同，根据 name 字符长度由长到短排序
     if (pre.justName === next.justName) {
       return pre.name.length > next.name.length ? -1 : 1;
     }
-
+    // 根据 justName 的字符长度排序，由短到长
     return next.justName > pre.justName ? 1 : -1;
   });
 
+  const baseClassesUniq = _.uniqBy(baseClasses, base => base.justName);
+
+  // 全局保存泛型类名，用于处理接口参数 只有类名无泛型参数的情况
+  // used in compiler.ts  -> generateCode()
+  (global as any).__GenericClass__ = baseClassesUniq
+    .filter(basecls => basecls.name.includes('<'))
+    .map(basecls => basecls.justName);
 
 
   const mods = swagger.tags
@@ -438,7 +446,7 @@ export function transformSwaggerData2Standard(
   });
 
   return new StandardDataSource({
-    baseClasses: _.uniqBy(baseClasses, base => base.justName),
+    baseClasses: baseClassesUniq,
     mods,
     name: swagger.name
   });
