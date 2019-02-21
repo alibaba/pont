@@ -7,6 +7,8 @@ import { SwaggerDataSource, transformSwaggerData2Standard } from './swagger';
 import { diff, Model } from './diff';
 import { FilesManager } from './generate';
 import { info as debugInfo } from './debugLog';
+import * as _ from 'lodash';
+import Translate from './translate';
 
 export class Manager {
   readonly lockFilename = 'api.lock';
@@ -251,12 +253,46 @@ export class Manager {
     }
   }
 
+  async translateChinese(jsonString: string) {
+    let retString = jsonString
+    try {
+      let chineseKeyCollect = jsonString
+        // 匹配中英文混合及包含 空格，«，»，- 的情况
+        .match(/"[a-z0-9-\s]*?[\u4e00-\u9fa5]{1,50}[a-z0-9-\s«»]*?[\u4e00-\u9fa5]{0,50}":/ig)
+        .map(item => item.replace(/["":]/g, ""));
+
+      // 去重
+      chineseKeyCollect = _.uniq(chineseKeyCollect
+        .map(item => item.includes('«') ? item.split('«')[0] : item))
+
+      let result = await Promise.all(chineseKeyCollect.map(text => Translate.translateAsync(text)))
+
+      result.forEach((enKey: string, index) => {
+        const chineseKey = chineseKeyCollect[index];
+        this.report(chineseKey + ' ==> ' + enKey)
+        if (enKey) {
+          retString = retString.replace(eval(`/${chineseKey}/g`), enKey);
+        }
+      })
+      return retString;
+    } catch (err) {
+      return retString;
+    }
+  }
+
   async readRemoteDataSource(config = this.currConfig) {
     try {
       this.report('获取远程数据中...');
       const response = await fetch(config.originUrl);
+
+      this.report('自动翻译中文基类中...');
+      let swaggerJsonStr: string = await response.text();
+      swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
+      this.report('自动翻译中文基类完成！');
+
+      const data: SwaggerDataSource = await JSON.parse(swaggerJsonStr);
       this.report('远程数据获取成功！');
-      const data: SwaggerDataSource = await response.json();
+
       data.name = config.name;
 
       this.remoteDataSource = transformSwaggerData2Standard(
