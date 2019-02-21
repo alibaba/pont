@@ -25,6 +25,7 @@ export class Translate {
     appendToDict(pairKey: { cn: string, en: string }) {
         fs.appendFileSync(this.dictFullPath, `"${pairKey.cn}": "${pairKey.en}",\n`)
     }
+
     translateAsync(text: string): Promise<string> {
 
         if (this.dict[text]) return Promise.resolve(this.dict[text])
