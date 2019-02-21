@@ -111,18 +111,28 @@ function generateCode(ast: any, originName = ''): string {
     retName = 'number';
   }
 
+  if (['void', 'Void'].includes(name)) {
+    retName = 'void';
+  }
+
+  if (['object', 'Object'].includes(name)) {
+    retName = 'object';
+  }
+
   if (templateArgs.length) {
     if (name === 'List') {
       retName = 'Array';
-    } else if(['Map'].includes(name)){
+    } else if (['Map'].includes(name)) {
       retName = name;
     } else {
       retName = originName ? `defs.${originName}.${name}` : `defs.${name}`;
     }
-    return `${retName}<${templateArgs.map(arg => generateCode(arg, originName)).join(', ')}>`;
+    return `${retName}<${templateArgs
+      .map(arg => generateCode(arg, originName))
+      .join(', ')}>`;
   }
 
-  if (retName === 'number' || retName === 'string' || retName === 'boolean') {
+  if (['number', 'string', 'boolean', 'void', 'object'].includes(retName)) {
     return retName;
   }
 
@@ -149,6 +159,8 @@ export function generateTemplate(template: string, originName = ''): string {
 function findTemplate(ast, isFirst = true) {
   const plainName = ['List', 'Map', 'number', 'string', 'boolean', 'long'];
   const { templateArgs, name } = ast;
+
+  // todo 该函数需要修复
 
   if (plainName.indexOf(name) === -1 && !isFirst) {
     return name;
