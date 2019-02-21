@@ -13,4 +13,6 @@ yarn-error.log*
 .vscode/
 
 lib/
+test/
+pont-config*.json
 yarn-error.log

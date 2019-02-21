@@ -294,6 +294,54 @@ export function transformSwaggerData2Standard(
     });
   });
 
+  const baseClasses = _.map(swagger.definitions, (def, defName) => {
+    const templateName = findDefinition(defName);
+    defName = generateTemplateDef(defName);
+
+    const properties = _.map(def.properties, (prop, propName) => {
+      const { $ref, description, name, type, required, items } = prop;
+      let primitiveType = (type as string) as any;
+
+      const dataType = Schema.swaggerSchema2StandardDataType(
+        {
+          $ref,
+          enum: prop.enum,
+          items,
+          type
+        } as Schema,
+        templateName,
+        originName
+      );
+
+      return new Property({
+        dataType,
+        name: propName,
+        description,
+        required
+      });
+    });
+
+    if (defName.replace(/(.+)<.+/, '$1') === 'Map') {
+      return null;
+    }
+
+    return new BaseClass({
+      description: def.description,
+      name: defName,
+      properties
+    });
+  }).filter(id => id);
+
+  baseClasses.sort((pre, next) => {
+    if (pre.justName === next.justName) {
+      return pre.name.length > next.name.length ? -1 : 1;
+    }
+
+    return next.justName > pre.justName ? 1 : -1;
+  });
+
+
+
   const mods = swagger.tags
     .filter(tag => {
       // ignore un annotation case
@@ -347,56 +395,10 @@ export function transformSwaggerData2Standard(
 
   transformModsName(mods);
 
-  const baseClasses = _.map(swagger.definitions, (def, defName) => {
-    const templateName = findDefinition(defName);
-    defName = generateTemplateDef(defName);
-
-    const properties = _.map(def.properties, (prop, propName) => {
-      const { $ref, description, name, type, required, items } = prop;
-      let primitiveType = (type as string) as any;
-
-      const dataType = Schema.swaggerSchema2StandardDataType(
-        {
-          $ref,
-          enum: prop.enum,
-          items,
-          type
-        } as Schema,
-        templateName,
-        originName
-      );
-
-      return new Property({
-        dataType,
-        name: propName,
-        description,
-        required
-      });
-    });
-
-    if (defName.replace(/(.+)<.+/, '$1') === 'Map') {
-      return null;
-    }
-
-    return new BaseClass({
-      description: def.description,
-      name: defName,
-      properties
-    });
-  }).filter(id => id);
-
-  baseClasses.sort((pre, next) => {
-    if (pre.justName === next.justName) {
-      return pre.name.length > next.name.length ? -1 : 1;
-    }
-
-    return next.justName > pre.justName ? 1 : -1;
-  });
-
   // 校验所有接口参数，如果是 body，body 指向的 BO 是否存在
   mods.forEach(mod => {
     mod.interfaces.forEach(inter => {
-      inter.parameters = inter.parameters.filter(param => {
+      inter.parameters = inter.parameters.map(param => {
         if (param.in === 'body') {
           const reference = param.dataType.reference
           // 如果 ref = "def.api.Foo<defs.api.Bar>" 则 ref = def.api.Foo
@@ -415,16 +417,22 @@ export function transformSwaggerData2Standard(
               base => base.name === ref || base.justName === ref
             )
           ) {
+
             debugLog.warn(
               `baseClasses not contains ${dataType} in ${param.name} param of ${
               inter.name
               } interface `
             );
-            return false;
+
+            param.dataType = new DataType({
+              customType: "",
+              type: 'object',
+              initialValue: "{}"
+            })
+
           }
         }
-
-        return true;
+        return param;
       });
     });
   });
