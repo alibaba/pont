@@ -24,6 +24,8 @@ import {
   findDefinition
 } from './compiler';
 
+import * as debugLog from './debugLog'
+
 export enum SwaggerType {
   integer = 'integer',
   string = 'string',
@@ -36,13 +38,13 @@ export enum SwaggerType {
 
 export class SwaggerProperty {
   type: SwaggerType;
-  enum? = [] as string[];
-  items? = null as {
+  enum?= [] as string[];
+  items?= null as {
     type?: SwaggerType;
     $ref?: string;
   };
-  $ref? = '';
-  description? = '';
+  $ref?= '';
+  description?= '';
   name: string;
   required: boolean;
 }
@@ -64,7 +66,7 @@ export class SwaggerParameter {
 
   enum: string[];
 
-  items? = null as {
+  items?= null as {
     type?: SwaggerType;
     $ref?: string;
   };
@@ -396,15 +398,16 @@ export function transformSwaggerData2Standard(
     mod.interfaces.forEach(inter => {
       inter.parameters = inter.parameters.filter(param => {
         if (param.in === 'body') {
-          const dataType = param.dataType.reference;
+          const reference = param.dataType.reference
+          // 如果 ref = "def.api.Foo<defs.api.Bar>" 则 ref = def.api.Foo
+          // 如果 ref = "def.Foo<defs.Bar>" 则 ref = def.Foo
+          const dataType = reference.indexOf('<') > 0
+            ? reference.slice(0, reference.indexOf('<'))
+            : reference
+
           let ref = dataType.includes('defs.')
             ? dataType.slice(dataType.lastIndexOf('.') + 1)
             : dataType;
-
-          // 如果 ref = "Foo<defs.Bar>" 则 ref = Foo
-          if (ref.includes('«')) {
-            ref = ref.slice(0, ref.indexOf('«'));
-          }
 
           if (
             ref &&
@@ -412,9 +415,9 @@ export function transformSwaggerData2Standard(
               base => base.name === ref || base.justName === ref
             )
           ) {
-            console.warn(
+            debugLog.warn(
               `baseClasses not contains ${dataType} in ${param.name} param of ${
-                inter.name
+              inter.name
               } interface `
             );
             return false;
