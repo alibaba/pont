@@ -74,8 +74,8 @@ function compileTemplate(template: string) {
   let nodes = [] as Token[];
 
   while (code) {
-    // 去掉空格
-    code = code.trim();
+    // 去掉空格,包括两端及中间的空格
+    code = code.replace(/\s/g, '')
 
     if (code.match(Identifier)) {
       matchedText = code.match(Identifier)[0];

@@ -358,7 +358,7 @@ export class FilesManager {
       fs.removeSync(path);
     }
 
-    fs.mkdir(path);
+    fs.mkdirpSync(path);
   }
 
   async regenerate(report?: typeof info) {
