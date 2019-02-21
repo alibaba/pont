@@ -161,6 +161,11 @@ function findTemplate(ast, isFirst = true) {
   const { templateArgs, name } = ast;
 
   // todo 该函数需要修复
+  if (name === 'List') {
+    return generateCode(templateArgs[0]);
+  }
+
+  return generateCode(ast);
 
   if (plainName.indexOf(name) === -1 && !isFirst) {
     return name;
@@ -189,11 +194,11 @@ export function findDefinition(template: string) {
 
   const ast = compileTemplate(template);
 
-  if (!ast) {
-    return '';
+  if (ast && ast.templateArgs && ast.templateArgs[0]) {
+    return findTemplate(ast.templateArgs[0]);
   }
 
-  return findTemplate(ast) || '';
+  return '';
 }
 
 export function generateTemplateDef(template: string) {

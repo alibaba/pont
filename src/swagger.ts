@@ -124,10 +124,12 @@ export class Schema {
     }
 
     let isTemplateRef = false;
+    const templateCompareName = reference || primitiveType;
+
     if (
-      (reference && reference === templateName) ||
-      reference === 'defs.' + templateName ||
-      reference === 'defs.' + originName + '.' + templateName
+      (templateCompareName && templateCompareName === templateName) ||
+      templateCompareName === 'defs.' + templateName ||
+      templateCompareName === 'defs.' + originName + '.' + templateName
     ) {
       reference = 'T0';
       isTemplateRef = true;
