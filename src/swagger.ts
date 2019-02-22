@@ -396,18 +396,22 @@ export function transformSwaggerData2Standard(
   // 校验所有接口参数，如果是 body，body 指向的 BO 是否存在
   mods.forEach(mod => {
     mod.interfaces.forEach(inter => {
-      inter.parameters = inter.parameters.filter(param => {
+      inter.parameters = inter.parameters.map(param => {
         if (param.in === 'body') {
-          const reference = param.dataType.reference
-          // 如果 ref = "def.api.Foo<defs.api.Bar>" 则 ref = def.api.Foo
-          // 如果 ref = "def.Foo<defs.Bar>" 则 ref = def.Foo
-          const dataType = reference.indexOf('<') > 0
-            ? reference.slice(0, reference.indexOf('<'))
-            : reference
+          const dataType = param.dataType.reference;
+          let ref = dataType;
 
-          let ref = dataType.includes('defs.')
-            ? dataType.slice(dataType.lastIndexOf('.') + 1)
-            : dataType;
+          // 如果 ref = "Foo<defs.Bar>" 则 ref = Foo
+          if (ref.includes('«')) {
+            ref = ref.slice(0, ref.indexOf('«'));
+          }
+          if (ref.includes('<')) {
+            ref = ref.slice(0, ref.indexOf('<'));
+          }
+
+          if (ref.includes('defs.')) {
+            ref = ref.slice(ref.lastIndexOf('.') + 1);
+          }
 
           if (
             ref &&
@@ -420,11 +424,17 @@ export function transformSwaggerData2Standard(
               inter.name
               } interface `
             );
-            return false;
+            return {
+              ...param,
+              dataType: {
+                ...param.dataType,
+                reference: ''
+              }
+            } as Property;
           }
         }
 
-        return true;
+        return param;
       });
     });
   });
