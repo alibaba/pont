@@ -20,16 +20,16 @@ const server = httpServer.createServer({
 
 
 
-describe('origins 2 个源测试', () => {
+describe('pont功能测试', () => {
 
     before(function (done) {
         // 清除路径
         clearDir('services');
 
         server.listen(8080, (err) => {
-            console.log(err, 'http server start successfull')
+            console.log('http server start successfull')
             exec('node bin/init.js', (err, stdout) => {
-                // console.log(stdout)
+                console.log(stdout)
                 done();
             })
         });
@@ -39,10 +39,9 @@ describe('origins 2 个源测试', () => {
     });
 
     it('api.d.ts should exists', () => {
+        // todo 对 api.d.ts 文件内容做较验
         // let dts = fs.readFileSync(getPath('services/api.d.ts'), { encoding: 'utf8' });
         assert.ok(fs.existsSync(getPath('services/api.d.ts')));
-        // assert.ok(fs.existsSync(getPath('services/api1/api.d.ts')));
-        // assert.ok(fs.existsSync(getPath('services/api2/api.d.ts')));
     })
 })
 

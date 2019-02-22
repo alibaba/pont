@@ -42,14 +42,14 @@
                     "description": "requestParamVo",
                     "required": true,
                     "schema": {
-                        "$ref": "#/definitions/通用请求参数V0«查询参数vo»"
+                        "$ref": "#/definitions/通用请求参数«查询参数»"
                     }
                 }],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DataTransOutput«输出参数abcd»"
+                            "$ref": "#/definitions/DataTransOutput«输出参数vo»"
                         }
                     },
                     "201": {
@@ -69,7 +69,7 @@
         }
     },
     "definitions": {
-        "输出参数abcd": {
+        "输出参数vo": {
             "type": "object",
             "required": [
                 "dueDay",
@@ -86,23 +86,7 @@
                 }
             }
         },
-        "通用请求参数Vo«查询参数vo»": {
-            "type": "object",
-            "properties": {
-                "bizParamVo": {
-                    "$ref": "#/definitions/QueryRequestVo"
-                }
-            }
-        },
-        "通用请求参数Vo«输出参数abcd»": {
-            "type": "object",
-            "properties": {
-                "bizParamVo": {
-                    "$ref": "#/definitions/QueryRequestVo"
-                }
-            }
-        },
-        "查询参数vo": {
+        "查询参数": {
             "type": "object",
             "required": [
                 "dueDay",
@@ -119,7 +103,15 @@
                 }
             }
         },
-        "DataTransOutput«输出参数abcd»": {
+        "通用请求参数token«输出参数vo»": {
+            "type": "object",
+            "properties": {
+                "bizParamVo": {
+                    "$ref": "#/definitions/输出参数vo"
+                }
+            }
+        },
+        "DataTransOutput«输出参数vo»": {
             "type": "object",
             "required": [
                 "transCode",
@@ -129,7 +121,7 @@
             "properties": {
                 "data": {
                     "description": "返回数据",
-                    "$ref": "#/definitions/输出参数abcd"
+                    "$ref": "#/definitions/输出参数vo"
                 },
                 "transCode": {
                     "type": "integer",
