@@ -428,7 +428,7 @@ export function transformSwaggerData2Standard(
                 ...param.dataType,
                 reference: ''
               }
-            };
+            } as Property;
           }
         }
 
