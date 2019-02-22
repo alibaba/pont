@@ -12,6 +12,7 @@ yarn-error.log*
 
 .vscode/
 .idea/
+test/services/
 
 lib/
 yarn-error.log

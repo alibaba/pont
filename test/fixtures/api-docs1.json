@@ -1,0 +1,179 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "注意!!!：URL以【/api/core/asset/credit/】开头，</br>接口统一返回码：</br>SUCCESS(100000, \"成功\"),</br>EMPTY_RESULT(100001, \"未查询到数据\"),</br>INVALID_PARAM(200000, \"入参不合法\"),</br>REPEAT(300000, \"重复\"),</br>OAUTH_ERROR(400000, \"权限不足\"),</br>SERVICE_ERROR(500000, \"服务失败\"),</br>SERVICE_ERROR_1(500001, \"业务类型不存在\"),</br>SERVICE_ERROR_2(500002, \"已出账单不存在,不能进行还款操作\")",
+        "version": "1.0",
+        "title": "接口文档",
+        "termsOfService": "http://localhost",
+        "contact": {
+            "name": "管理平台",
+            "url": "http://localhost",
+            "email": "67890211@qq.com"
+        },
+        "license": {
+            "name": "puhuifiannce license",
+            "url": "http://localhost"
+        }
+    },
+    "host": "http://localhost",
+    "basePath": "/",
+    "tags": [{
+        "name": "credit-query-controller",
+        "description": "Credit Query Controller"
+    }],
+    "paths": {
+        "/api/core/asset/credit/query/pastCreditCardBillGather": {
+            "post": {
+                "tags": [
+                    "credit-query-controller"
+                ],
+                "summary": "往期账单汇总",
+                "description": "往期账单汇总",
+                "operationId": "pastCreditCardBillGatherUsingPOST",
+                "consumes": [
+                    "application/json;charset=UTF-8"
+                ],
+                "produces": [
+                    "application/json;charset=UTF-8"
+                ],
+                "parameters": [{
+                    "in": "body",
+                    "name": "body",
+                    "description": "requestParamVo",
+                    "required": true,
+                    "schema": {
+                        "$ref": "#/definitions/通用请求参数V0«查询参数vo»"
+                    }
+                }],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/DataTransOutput«输出参数abcd»"
+                        }
+                    },
+                    "201": {
+                        "description": "Created"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "403": {
+                        "description": "Forbidden"
+                    },
+                    "404": {
+                        "description": "Not Found"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "输出参数abcd": {
+            "type": "object",
+            "required": [
+                "dueDay",
+                "requestChannel"
+            ],
+            "properties": {
+                "dueDay": {
+                    "type": "string",
+                    "description": "开卡日"
+                },
+                "requestChannel": {
+                    "type": "string",
+                    "description": "进件渠道"
+                }
+            }
+        },
+        "通用请求参数Vo«查询参数vo»": {
+            "type": "object",
+            "properties": {
+                "bizParamVo": {
+                    "$ref": "#/definitions/QueryRequestVo"
+                }
+            }
+        },
+        "通用请求参数Vo«输出参数abcd»": {
+            "type": "object",
+            "properties": {
+                "bizParamVo": {
+                    "$ref": "#/definitions/QueryRequestVo"
+                }
+            }
+        },
+        "查询参数vo": {
+            "type": "object",
+            "required": [
+                "dueDay",
+                "requestChannel"
+            ],
+            "properties": {
+                "dueDay": {
+                    "type": "string",
+                    "description": "开卡日"
+                },
+                "requestChannel": {
+                    "type": "string",
+                    "description": "进件渠道"
+                }
+            }
+        },
+        "DataTransOutput«输出参数abcd»": {
+            "type": "object",
+            "required": [
+                "transCode",
+                "transMessage",
+                "transMessageDetail"
+            ],
+            "properties": {
+                "data": {
+                    "description": "返回数据",
+                    "$ref": "#/definitions/输出参数abcd"
+                },
+                "transCode": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "错误码。\n100000 成功\n200000 入参不合法\n400000 权限不足\n500000 服务失败"
+                },
+                "transMessage": {
+                    "type": "string",
+                    "description": "错误信息。成功：“成功” 失败：“失败对应的msg”"
+                },
+                "transMessageDetail": {
+                    "type": "string",
+                    "description": "信息详情”"
+                }
+            },
+            "description": "带数据的返回数据"
+        },
+        "DataTransOutput": {
+            "type": "object",
+            "required": [
+                "transCode",
+                "transMessage",
+                "transMessageDetail"
+            ],
+            "properties": {
+                "data": {
+                    "type": "object",
+                    "description": "返回数据"
+                },
+                "transCode": {
+                    "type": "integer",
+                    "format": "int32",
+                    "description": "错误码。\n100000 成功\n200000 入参不合法\n400000 权限不足\n500000 服务失败"
+                },
+                "transMessage": {
+                    "type": "string",
+                    "description": "错误信息。成功：“成功” 失败：“失败对应的msg”"
+                },
+                "transMessageDetail": {
+                    "type": "string",
+                    "description": "信息详情”"
+                }
+            },
+            "description": "带数据的返回数据"
+        }
+    }
+}
