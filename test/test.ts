@@ -38,7 +38,10 @@ describe('pont功能测试', () => {
     });
 
     it('api.d.ts should exists', () => {
+
         assert.ok(fs.existsSync(getPath('services/api.d.ts')));
+        assert.ok(fs.existsSync(getPath('services/api1/api.d.ts')));
+        assert.ok(fs.existsSync(getPath('services/api2/api.d.ts')));
     })
     it('api.d.ts should export class DataTransOutput<T0>', () => {
         let rightCode = oneline(`
@@ -75,6 +78,11 @@ describe('pont功能测试', () => {
         let rightCode = oneline(`Promise<defs.api1.DataTransOutput<any>>`)
         let wrongCode = oneline(`Promise<defs.api1.DataTransOutput>`)
 
+        assert.ok(apidts.includes(rightCode));
+        assert.ok(!apidts.includes(wrongCode));
+    })
+
+    it('api.d.ts should translate chinese of baseClass to english', () => {
         assert.ok(apidts.includes(rightCode));
         assert.ok(!apidts.includes(wrongCode));
     })
