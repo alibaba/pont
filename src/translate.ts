@@ -2,10 +2,11 @@ import * as _ from 'lodash';
 import googleTranslate = require('node-google-translate-china');
 import * as fs from 'fs-extra';
 import * as path from 'path';
+import * as os from 'os';
 
 export class Translate {
 
-    private localDictDir = process.env.HOME + '/.pont';
+    private localDictDir = os.homedir() + '/.pont';
     private dict: { [key: string]: string } = {}
     private dictFullPath = ''
 
