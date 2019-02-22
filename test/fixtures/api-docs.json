@@ -1,7 +1,7 @@
 {
     "swagger": "2.0",
     "info": {
-        "description": "注意!!!：URL以【/api/core/asset/credit/】开头，</br>接口统一返回码：</br>SUCCESS(100000, \"成功\"),</br>EMPTY_RESULT(100001, \"未查询到数据\"),</br>INVALID_PARAM(200000, \"入参不合法\"),</br>REPEAT(300000, \"重复\"),</br>OAUTH_ERROR(400000, \"权限不足\"),</br>SERVICE_ERROR(500000, \"服务失败\"),</br>SERVICE_ERROR_1(500001, \"业务类型不存在\"),</br>SERVICE_ERROR_2(500002, \"已出账单不存在,不能进行还款操作\")",
+        "description": "",
         "version": "1.0",
         "title": "接口文档",
         "termsOfService": "http://localhost",
@@ -11,7 +11,7 @@
             "email": "67890211@qq.com"
         },
         "license": {
-            "name": "puhuifiannce license",
+            "name": "license",
             "url": "http://localhost"
         }
     },
@@ -49,7 +49,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/DataTransOutput«输出参数vo»"
+                            "$ref": "#/definitions/DataTransOutput"
                         }
                     },
                     "201": {
