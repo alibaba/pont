@@ -75,7 +75,7 @@ function compileTemplate(template: string) {
 
   while (code) {
     // 去掉空格,包括两端及中间的空格
-    code = code.replace(/\s/g, '')
+    code = code.replace(/\s/g, '');
 
     if (code.match(Identifier)) {
       matchedText = code.match(Identifier)[0];
@@ -218,7 +218,7 @@ export function generateTemplateDef(template: string) {
 
   if (templateArgs && templateArgs.length) {
     return `${name}<${templateArgs
-      .map((arg, argIndex) => 'T' + argIndex)
+      .map((arg, argIndex) => 'T' + argIndex + ' = any')
       .join(', ')}>`;
   }
 

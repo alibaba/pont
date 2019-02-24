@@ -1,11 +1,16 @@
 {
   "name": "pont-engine",
-  "version": "0.1.49",
+  "version": "0.1.50",
   "description": "pont swagger typescript API",
   "main": "lib/index.js",
   "typings": "src/index.ts",
   "bin": {
     "pont": "bin/init.js"
+  },
+  "scripts": {
+    "test": "mocha --timeout 15000 -r ts-node/register test/**/test.ts",
+    "dev": "tsc -w",
+    "build": "tsc"
   },
   "dependencies": {
     "chalk": "^2.3.0",
@@ -13,10 +18,10 @@
     "fs-extra": "^5.0.0",
     "lodash": "^4.17.4",
     "node-fetch": "^1.7.3",
+    "node-google-translate-china": "^1.0.2",
     "prettier": "^1.15.3",
     "ts-node": "^3.3.0",
-    "typescript": "^2.9.2",
-    "node-google-translate-china": "^1.0.2"
+    "typescript": "^2.9.2"
   },
   "files": [
     "src",
@@ -27,17 +32,27 @@
   "devDependencies": {
     "@types/chai": "^4.1.7",
     "@types/fs-extra": "^5.0.4",
+    "@types/http-server": "^0.10.0",
     "@types/lodash": "^4.14.110",
     "@types/mocha": "^5.2.6",
     "@types/node": "^10.3.6",
     "http-server": "^0.11.1",
     "mocha": "^6.0.1",
+    "husky": "^1.1.3",
+    "lint-staged": "^8.1.0",
     "ts-node": "^3.3.0"
   },
-  "scripts": {
-    "test": "mocha --timeout 15000 -r ts-node/register test/**/test.ts",
-    "dev": "tsc -w",
-    "build": "tsc"
+  "husky": {
+    "hooks": {
+      "post-merge": "yarn",
+      "pre-commit": "lint-staged"
+    }
+  },
+  "lint-staged": {
+    "{src, test}/**/*.ts": [
+      "prettier --write",
+      "git add"
+    ]
   },
   "keywords": [
     "pont",

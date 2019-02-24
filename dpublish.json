@@ -1,3 +1,4 @@
 {
-  "publishType": "npm"
+  "publishType": "npm",
+  "usingYarn": true
 }

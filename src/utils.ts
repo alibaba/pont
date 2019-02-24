@@ -9,6 +9,7 @@ import { CodeGenerator } from './generate';
 import { debug } from 'util';
 import { error } from './debugLog';
 import { Mod } from './standard';
+import { Manager } from './manage';
 
 const defaultTemplateCode = `
 import { CodeGenerator, Interface } from "pont-engine";
@@ -91,7 +92,9 @@ export class Config {
       outDir: path.join(configDir, this.outDir),
       usingMultipleOrigins: this.usingMultipleOrigins,
       templatePath: path.join(configDir, this.templatePath),
-      transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
+      transformPath: this.transformPath
+        ? path.join(configDir, this.transformPath)
+        : undefined,
       prettierConfig: this.prettierConfig
     };
 
@@ -418,4 +421,18 @@ export function hasChinese(str: string) {
       /[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uff1a\uff0c\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]|[\uff01-\uff5e\u3000-\u3009\u2026]/
     )
   );
+}
+
+const PROJECT_ROOT = process.cwd();
+const CONFIG_FILE = 'pont-config.json';
+
+export async function createManager() {
+  const configPath = await lookForFiles(PROJECT_ROOT, CONFIG_FILE);
+
+  const config = Config.createFromConfigPath(configPath);
+  const manager = new Manager(config, path.dirname(configPath));
+
+  await manager.ready();
+
+  return manager;
 }

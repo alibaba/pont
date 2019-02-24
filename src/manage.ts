@@ -166,7 +166,7 @@ export class Manager {
       this.remoteDataSource = this.currLocalDataSource;
       this.setFilesManager();
 
-      this.regenerateFiles();
+      await this.regenerateFiles();
     }
   }
 
@@ -254,30 +254,35 @@ export class Manager {
   }
 
   async translateChinese(jsonString: string) {
-    let retString = jsonString
+    let retString = jsonString;
     try {
       let chineseKeyCollect = jsonString
         // 匹配中英文混合及包含 空格，«，»，- 的情况
-        .match(/"[a-z0-9\s-]*[\u4e00-\u9fa5]+.*?":/ig)
-        .map(item => item.replace(/["":]/g, ""));
+        .match(/"[a-z0-9\s-]*[\u4e00-\u9fa5]+.*?":/gi)
+        .map(item => item.replace(/["":]/g, ''));
 
       // 去重
-      chineseKeyCollect = _.uniq(chineseKeyCollect
-        .map(item => item.includes('«') ? item.split('«')[0] : item))
+      chineseKeyCollect = _.uniq(
+        chineseKeyCollect.map(item =>
+          item.includes('«') ? item.split('«')[0] : item
+        )
+      );
 
-      // 按长度倒序排序，防止替换时中文名部分重名  
+      // 按长度倒序排序，防止替换时中文名部分重名
       // 例如: 请求参数vo, 请求参数, 替换时先替换 请求参数vo, 后替换请求参数
-      chineseKeyCollect.sort((pre, next) => next.length - pre.length)
+      chineseKeyCollect.sort((pre, next) => next.length - pre.length);
 
-      let result = await Promise.all(chineseKeyCollect.map(text => Translate.translateAsync(text)))
+      let result = await Promise.all(
+        chineseKeyCollect.map(text => Translate.translateAsync(text))
+      );
 
       result.forEach((enKey: string, index) => {
         const chineseKey = chineseKeyCollect[index];
-        this.report(chineseKey + ' ==> ' + enKey)
+        this.report(chineseKey + ' ==> ' + enKey);
         if (enKey) {
           retString = retString.replace(eval(`/${chineseKey}/g`), enKey);
         }
-      })
+      });
       return retString;
     } catch (err) {
       return retString;
