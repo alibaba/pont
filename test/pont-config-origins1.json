@@ -1,0 +1,8 @@
+{
+    "outDir": "services",
+    "templatePath": "./pontTemplate",
+    "origins": [{
+        "originUrl": "http://localhost:8080/api-docs1.json",
+        "name": "api1"
+    }]
+}

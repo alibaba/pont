@@ -258,12 +258,16 @@ export class Manager {
     try {
       let chineseKeyCollect = jsonString
         // 匹配中英文混合及包含 空格，«，»，- 的情况
-        .match(/"[a-z0-9-\s]*?[\u4e00-\u9fa5]{1,50}[a-z0-9-\s«»]*?[\u4e00-\u9fa5]{0,50}":/ig)
+        .match(/"[a-z0-9\s-]*[\u4e00-\u9fa5]+.*?":/ig)
         .map(item => item.replace(/["":]/g, ""));
 
       // 去重
       chineseKeyCollect = _.uniq(chineseKeyCollect
         .map(item => item.includes('«') ? item.split('«')[0] : item))
+
+      // 按长度倒序排序，防止替换时中文名部分重名  
+      // 例如: 请求参数vo, 请求参数, 替换时先替换 请求参数vo, 后替换请求参数
+      chineseKeyCollect.sort((pre, next) => next.length - pre.length)
 
       let result = await Promise.all(chineseKeyCollect.map(text => Translate.translateAsync(text)))
 

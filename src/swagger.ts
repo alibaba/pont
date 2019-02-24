@@ -24,6 +24,8 @@ import {
   findDefinition
 } from './compiler';
 
+import * as debugLog from './debugLog'
+
 export enum SwaggerType {
   integer = 'integer',
   string = 'string',
@@ -36,13 +38,13 @@ export enum SwaggerType {
 
 export class SwaggerProperty {
   type: SwaggerType;
-  enum? = [] as string[];
-  items? = null as {
+  enum?= [] as string[];
+  items?= null as {
     type?: SwaggerType;
     $ref?: string;
   };
-  $ref? = '';
-  description? = '';
+  $ref?= '';
+  description?= '';
   name: string;
   required: boolean;
 }
@@ -64,7 +66,7 @@ export class SwaggerParameter {
 
   enum: string[];
 
-  items? = null as {
+  items?= null as {
     type?: SwaggerType;
     $ref?: string;
   };
@@ -418,9 +420,9 @@ export function transformSwaggerData2Standard(
               base => base.name === ref || base.justName === ref
             )
           ) {
-            console.warn(
+            debugLog.warn(
               `baseClasses not contains ${dataType} in ${param.name} param of ${
-                inter.name
+              inter.name
               } interface `
             );
             return {

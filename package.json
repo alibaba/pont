@@ -25,12 +25,17 @@
     "bin"
   ],
   "devDependencies": {
+    "@types/chai": "^4.1.7",
     "@types/fs-extra": "^5.0.4",
     "@types/lodash": "^4.14.110",
-    "@types/node": "^10.3.6"
+    "@types/mocha": "^5.2.6",
+    "@types/node": "^10.3.6",
+    "http-server": "^0.11.1",
+    "mocha": "^6.0.1",
+    "ts-node": "^3.3.0"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --timeout 15000 -r ts-node/register test/**/test.ts",
     "dev": "tsc -w",
     "build": "tsc"
   },
