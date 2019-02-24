@@ -10,7 +10,6 @@ yarn-debug.log*
 yarn-error.log*
 /examples/demo1/node_modules/
 
-.vscode/
 .idea/
 test/services/
 
