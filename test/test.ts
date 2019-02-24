@@ -75,13 +75,6 @@ describe('pont功能测试', () => {
 
     assert.ok(!apidts.includes(wrongCode));
   });
-  it('api.d.ts should auto fix defs.api1.DataTransOutput to defs.api1.DataTransOutput<any>', () => {
-    let rightCode = oneline(`Promise<defs.api1.DataTransOutput<any>>`);
-    let wrongCode = oneline(`Promise<defs.api1.DataTransOutput>`);
-
-    assert.ok(apidts.includes(rightCode));
-    assert.ok(!apidts.includes(wrongCode));
-  });
 
   it('api.d.ts should translate chinese of baseClass to english', () => {
     // assert.ok(apidts.includes(rightCode));
