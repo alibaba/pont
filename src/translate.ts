@@ -1,56 +1,65 @@
 import * as _ from 'lodash';
-import googleTranslate = require('node-google-translate-china');
+const { youdao, baidu, google } = require('translation.js');
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
+import * as debugLog from './debugLog';
 
 export class Translate {
+  private localDictDir = os.homedir() + '/.pont';
+  private dict: { [key: string]: string } = {};
+  private dictFullPath = '';
+  private engines = [google, youdao, baidu];
 
-    private localDictDir = os.homedir() + '/.pont';
-    private dict: { [key: string]: string } = {}
-    private dictFullPath = ''
+  constructor(dictName = 'dict.json') {
+    fs.mkdirpSync(this.localDictDir);
+    this.dictFullPath = path.normalize(this.localDictDir + '/' + dictName);
+    this.dict = fs.pathExistsSync(this.dictFullPath) ? this.loadDict() : {};
+  }
 
-    constructor(dictName = 'dict.json') {
-        fs.mkdirpSync(this.localDictDir);
-        this.dictFullPath = path.normalize(this.localDictDir + '/' + dictName);
-        this.dict = fs.pathExistsSync(this.dictFullPath)
-            ? this.loadDict()
-            : {}
+  loadDict() {
+    let dictstr = fs.readFileSync(this.dictFullPath, { encoding: 'utf8' });
+    dictstr = dictstr.slice(0, dictstr.length - 2);
+    return JSON.parse(`{${dictstr}}`);
+  }
+
+  appendToDict(pairKey: { cn: string; en: string }) {
+    if (!this.dict[pairKey.cn]) {
+      this.dict[pairKey.cn] = pairKey.en;
+      fs.appendFileSync(this.dictFullPath, `"${pairKey.cn}": "${pairKey.en}",\n`);
+    }
+  }
+
+  startCaseClassName(result) {
+    let wordArray = _.startCase(result).split(' ');
+    if (wordArray.length > 6) {
+      wordArray = [].concat(wordArray.slice(0, 5), wordArray.slice(-1));
+    }
+    return wordArray.join('');
+  }
+
+  async translateAsync(text: string, engineIndex = 0) {
+    if (this.dict[text]) {
+      // debugLog.info('using local dictinary')
+      return this.dict[text];
     }
 
-    loadDict() {
-        let dictstr = fs.readFileSync(this.dictFullPath, { encoding: 'utf8' })
-        dictstr = dictstr.slice(0, dictstr.length - 2)
-        return JSON.parse(`{${dictstr}}`);
+    if (engineIndex >= this.engines.length) {
+      throw new Error('translate error, all translate engine can not access');
     }
 
-    appendToDict(pairKey: { cn: string, en: string }) {
-        fs.appendFileSync(this.dictFullPath, `"${pairKey.cn}": "${pairKey.en}",\n`)
+    let enKey;
+    let index = engineIndex;
+
+    try {
+      let res = await this.engines[index].translate(text);
+      enKey = this.startCaseClassName(res.result[0]);
+      this.appendToDict({ cn: text, en: enKey });
+      return enKey;
+    } catch (err) {
+      this.translateAsync(text, index++);
     }
-
-    translateAsync(text: string): Promise<string> {
-
-        if (this.dict[text]) return Promise.resolve(this.dict[text])
-
-        return new Promise((resolve) => {
-            googleTranslate({
-                text,
-                source: 'zh-CN',
-                target: 'en'
-            }, (result: any) => {
-                let wordArray = _.startCase(result.translation).split(' ');
-                if (wordArray.length > 6) {
-                    wordArray = [].concat(wordArray.slice(0, 5), wordArray.slice(-1))
-                }
-
-                let enKey = wordArray.join('');
-
-                this.appendToDict({ cn: text, en: enKey });
-
-                resolve(enKey);
-            });
-        })
-    }
+  }
 }
 
 export default new Translate();

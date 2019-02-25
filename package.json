@@ -18,8 +18,8 @@
     "fs-extra": "^5.0.0",
     "lodash": "^4.17.5",
     "node-fetch": "^1.7.3",
-    "node-google-translate-china": "^1.0.2",
     "prettier": "^1.15.3",
+    "translation.js": "^0.7.5",
     "ts-node": "^3.3.0",
     "typescript": "^2.9.2"
   },
