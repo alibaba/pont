@@ -3,7 +3,7 @@ const { youdao, baidu, google } = require('translation.js');
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
-import * as debugLog from './debugLog';
+import * as assert from 'assert';
 
 export class Translate {
   private localDictDir = os.homedir() + '/.pont';
@@ -40,7 +40,6 @@ export class Translate {
 
   async translateAsync(text: string, engineIndex = 0) {
     if (this.dict[text]) {
-      // debugLog.info('using local dictinary')
       return this.dict[text];
     }
 
@@ -54,10 +53,13 @@ export class Translate {
     try {
       let res = await this.engines[index].translate(text);
       enKey = this.startCaseClassName(res.result[0]);
+
+      assert.ok(enKey);
+
       this.appendToDict({ cn: text, en: enKey });
       return enKey;
     } catch (err) {
-      this.translateAsync(text, index++);
+      return this.translateAsync(text, index + 1);
     }
   }
 }
