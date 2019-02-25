@@ -7,49 +7,49 @@ import { createManager } from '../src/utils';
 
 const getPath = fname => path.join(__dirname, fname);
 const clearDir = dirName => {
-  try {
-    const fullpath = getPath(dirName);
+    try {
+        const fullpath = getPath(dirName);
 
-    if (fs.existsSync(fullpath)) {
-      fs.removeSync(getPath(dirName));
-    }
-  } catch (error) {}
+        if (fs.existsSync(fullpath)) {
+            fs.removeSync(getPath(dirName));
+        }
+    } catch (error) { }
 };
 const oneline = (code: string) => code.replace(/[\s\n]/g, '');
 const server = httpServer.createServer({
-  root: getPath('fixtures')
+    root: getPath('fixtures')
 });
 
 let apidts = '';
 
 describe('pont功能测试', () => {
-  before(function(done) {
-    // 清除路径
-    clearDir('services');
+    before(function (done) {
+        // 清除路径
+        clearDir('services');
 
-    server.listen(9090, async err => {
-      console.log('http server start successfull');
-      await createManager();
+        server.listen(9090, async err => {
+            console.log('http server start successfull');
+            await createManager();
 
-      // 读取 api.d.ts 并转换为单行
-      const codeBuffer = await fs.readFile(getPath('services/api1/api.d.ts'));
-      apidts = oneline(codeBuffer.toString('utf8'));
+            // 读取 api.d.ts 并转换为单行
+            const codeBuffer = await fs.readFile(getPath('services/api1/api.d.ts'));
+            apidts = oneline(codeBuffer.toString('utf8'));
 
-      done();
+            done();
+        });
     });
-  });
-  after(function() {
-    server.close();
-  });
+    after(function () {
+        server.close();
+    });
 
-  it('api.d.ts should exists', () => {
-    assert.ok(fs.existsSync(getPath('services/api.d.ts')));
-    assert.ok(fs.existsSync(getPath('services/api1/api.d.ts')));
-    assert.ok(fs.existsSync(getPath('services/api2/api.d.ts')));
-  });
-  it('api.d.ts should export class DataTransOutput<T0>', () => {
-    let rightCode = oneline(`
-            export class DataTransOutput<T0> {
+    it('api.d.ts should exists', () => {
+        assert.ok(fs.existsSync(getPath('services/api.d.ts')));
+        assert.ok(fs.existsSync(getPath('services/api1/api.d.ts')));
+        assert.ok(fs.existsSync(getPath('services/api2/api.d.ts')));
+    });
+    it('api.d.ts should export class DataTransOutput<T0=any>', () => {
+        let rightCode = oneline(`
+            export class DataTransOutput<T0=any> {
                     /** 返回数据 */
                     data?: T0;
 
@@ -67,17 +67,17 @@ describe('pont功能测试', () => {
                     transMessageDetail?: string;
                 }
         `);
-    assert.ok(apidts.includes(rightCode));
-  });
+        assert.ok(apidts.includes(rightCode));
+    });
 
-  it('api.d.ts should not export class DataTransOutput', () => {
-    let wrongCode = oneline(`export class DataTransOutput {`);
+    it('api.d.ts should not export class DataTransOutput', () => {
+        let wrongCode = oneline(`export class DataTransOutput {`);
 
-    assert.ok(!apidts.includes(wrongCode));
-  });
+        assert.ok(!apidts.includes(wrongCode));
+    });
 
-  it('api.d.ts should translate chinese of baseClass to english', () => {
-    // assert.ok(apidts.includes(rightCode));
-    // assert.ok(!apidts.includes(wrongCode));
-  });
+    it('api.d.ts should translate chinese of baseClass to english', () => {
+        // assert.ok(apidts.includes(rightCode));
+        // assert.ok(!apidts.includes(wrongCode));
+    });
 });
