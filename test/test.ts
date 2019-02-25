@@ -77,7 +77,15 @@ describe('pont功能测试', () => {
     });
 
     it('api.d.ts should translate chinese of baseClass to english', () => {
-        // assert.ok(apidts.includes(rightCode));
-        // assert.ok(!apidts.includes(wrongCode));
+        // 通用请求参数token«输出参数vo»
+        assert.ok(apidts.includes(`GenericRequestParameterToken<T0=any>`));
+        // 输出参数vo
+        assert.ok(apidts.includes(`OutputParameterVo`));
+        // 查询参数
+        assert.ok(apidts.includes(`QueryParameter`));
+        // abc输出参数
+        assert.ok(apidts.includes(`AbcOutputParameter`));
+        // " 中英文 混合 带 空格 Vo "
+        assert.ok(apidts.includes(`ChineseAndEnglishMixedWithVo`));
     });
 });
