@@ -1537,7 +1537,7 @@ lodash.get@^4.4.2:
   resolved "http://registry.npm.alibaba-inc.com/lodash.get/download/lodash.get-4.4.2.tgz#2d177f652fa31e939b4438d5341499dfa3825e99"
   integrity sha1-LRd/ZS+jHpObRDjVNBSZ36OCXpk=
 
-lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.5:
+lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.4, lodash@^4.17.5:
   version "4.17.11"
   resolved "http://registry.npm.alibaba-inc.com/lodash/download/lodash-4.17.11.tgz#b39ea6229ef607ecd89e2c8df12536891cac9b8d"
   integrity sha1-s56mIp72B+zYniyN8SU2iRysm40=
@@ -2019,6 +2019,21 @@ please-upgrade-node@^3.0.2, please-upgrade-node@^3.1.1:
   integrity sha1-7TIAUd/MUCT65pZxLIKImTWV6Kw=
   dependencies:
     semver-compare "^1.0.0"
+
+pont-engine@0.1.50:
+  version "0.1.50"
+  resolved "http://registry.npm.alibaba-inc.com/pont-engine/download/pont-engine-0.1.50.tgz#8c574c5e9fa958febc5d78a6c68cc66133abbaf4"
+  integrity sha1-jFdMXp+pWP68XXimxozGYTOruvQ=
+  dependencies:
+    chalk "^2.3.0"
+    commander "^2.11.0"
+    fs-extra "^5.0.0"
+    lodash "^4.17.4"
+    node-fetch "^1.7.3"
+    node-google-translate-china "^1.0.2"
+    prettier "^1.15.3"
+    ts-node "^3.3.0"
+    typescript "^2.9.2"
 
 portfinder@^1.0.13:
   version "1.0.20"
