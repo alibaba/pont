@@ -92,9 +92,7 @@ export class Config {
       outDir: path.join(configDir, this.outDir),
       usingMultipleOrigins: this.usingMultipleOrigins,
       templatePath: path.join(configDir, this.templatePath),
-      transformPath: this.transformPath
-        ? path.join(configDir, this.transformPath)
-        : undefined,
+      transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
       prettierConfig: this.prettierConfig
     };
 
@@ -188,9 +186,7 @@ export function transformModsName(mods: Mod[]) {
   // 检测所有接口是否存在接口名忽略大小写时重复，如果重复，以下划线命名
   mods.forEach(mod => {
     const currName = mod.name;
-    const sameMods = mods.filter(
-      mod => mod.name.toLowerCase() === currName.toLowerCase()
-    );
+    const sameMods = mods.filter(mod => mod.name.toLowerCase() === currName.toLowerCase());
 
     if (sameMods.length > 1) {
       mod.name = transformDashCase(mod.name);
@@ -262,25 +258,14 @@ export function getMaxSamePath(paths: string[], samePath = '') {
     return { firstSeg, restSegs };
   });
 
-  if (
-    segs.every(
-      (seg, index) => index === 0 || seg.firstSeg === segs[index - 1].firstSeg
-    )
-  ) {
-    return getMaxSamePath(
-      segs.map(seg => seg.restSegs.join('/')),
-      samePath + '/' + segs[0].firstSeg
-    );
+  if (segs.every((seg, index) => index === 0 || seg.firstSeg === segs[index - 1].firstSeg)) {
+    return getMaxSamePath(segs.map(seg => seg.restSegs.join('/')), samePath + '/' + segs[0].firstSeg);
   }
 
   return samePath;
 }
 
-export function getIdentifierFromUrl(
-  url: string,
-  requestType: string,
-  samePath = ''
-) {
+export function getIdentifierFromUrl(url: string, requestType: string, samePath = '') {
   const currUrl = url.slice(samePath.length).match(/([^\.]+)/)[0];
 
   return (
@@ -313,10 +298,7 @@ export function getIdentifierFromOperatorId(operationId: string) {
   return REPLACE_WORDS[index];
 }
 
-export function getTemplate(
-  templatePath,
-  defaultValue = defaultTemplateCode
-): typeof CodeGenerator {
+export function getTemplate(templatePath, defaultValue = defaultTemplateCode): typeof CodeGenerator {
   if (!fs.existsSync(templatePath + '.ts')) {
     fs.writeFileSync(templatePath + '.ts', defaultValue);
   }
@@ -356,10 +338,7 @@ export function getTemplate(
   return moduleResule;
 }
 
-export async function lookForFiles(
-  dir: string,
-  fileName: string
-): Promise<string> {
+export async function lookForFiles(dir: string, fileName: string): Promise<string> {
   const files = await fs.readdir(dir);
 
   for (let file of files) {
@@ -426,8 +405,8 @@ export function hasChinese(str: string) {
 const PROJECT_ROOT = process.cwd();
 const CONFIG_FILE = 'pont-config.json';
 
-export async function createManager() {
-  const configPath = await lookForFiles(PROJECT_ROOT, CONFIG_FILE);
+export async function createManager(configFile = CONFIG_FILE) {
+  const configPath = await lookForFiles(PROJECT_ROOT, configFile);
 
   const config = Config.createFromConfigPath(configPath);
   const manager = new Manager(config, path.dirname(configPath));

@@ -29,7 +29,7 @@ describe('pont功能测试', () => {
 
         server.listen(9090, async err => {
             console.log('http server start successfull');
-            await createManager();
+            await createManager('test-pont-config.json');
 
             // 读取 api.d.ts 并转换为单行
             const codeBuffer = await fs.readFile(getPath('services/api1/api.d.ts'));
