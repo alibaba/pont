@@ -4,6 +4,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
 import * as assert from 'assert';
+import * as debugLog from './debugLog';
 
 export class Translate {
   private localDictDir = os.homedir() + '/.pont';
@@ -20,7 +21,13 @@ export class Translate {
   loadDict() {
     let dictstr = fs.readFileSync(this.dictFullPath, { encoding: 'utf8' });
     dictstr = dictstr.slice(0, dictstr.length - 2);
-    return JSON.parse(`{${dictstr}}`);
+    try {
+      return JSON.parse(`{${dictstr}}`);
+    } catch (err) {
+      debugLog.error('[translate] local dict is invalid, attempting auto fix');
+      fs.remove(this.dictFullPath);
+      return {};
+    }
   }
 
   appendToDict(pairKey: { cn: string; en: string }) {
