@@ -30,6 +30,11 @@
   dependencies:
     any-observable "^0.3.0"
 
+"@types/blueimp-md5@^2.7.0":
+  version "2.7.0"
+  resolved "http://registry.npm.alibaba-inc.com/@types/blueimp-md5/download/@types/blueimp-md5-2.7.0.tgz#404222806800478ca2782e8ad46590aba7f14627"
+  integrity sha1-QEIigGgAR4yieC6K1GWQq6fxRic=
+
 "@types/chai@^4.1.7":
   version "4.1.7"
   resolved "http://registry.npm.alibaba-inc.com/@types/chai/download/@types/chai-4.1.7.tgz#1b8e33b61a8c09cbe1f85133071baa0dbf9fa71a"
@@ -71,6 +76,11 @@
 "@types/node@^10.3.6":
   version "10.3.6"
   resolved "http://registry.npm.alibaba-inc.com/@types/node/download/@types/node-10.3.6.tgz#ea8aab9439b59f40d19ec5f13b44642344872b11"
+
+"@types/node@^9.3.0":
+  version "9.6.42"
+  resolved "http://registry.npm.alibaba-inc.com/@types/node/download/@types/node-9.6.42.tgz#96fd9c8cf15fbf2c16fe525fc2be97c49cdd0c2f"
+  integrity sha1-lv2cjPFfvywW/lJfwr6XxJzdDC8=
 
 ajv@^6.5.5:
   version "6.9.2"
@@ -239,6 +249,11 @@ bluebird@^3.5.0:
   version "3.5.3"
   resolved "http://registry.npm.alibaba-inc.com/bluebird/download/bluebird-3.5.3.tgz#7d01c6f9616c9a51ab0f8c549a79dfe6ec33efa7"
   integrity sha1-fQHG+WFsmlGrD4xUmnnf5uwz76c=
+
+blueimp-md5@^2.10.0:
+  version "2.10.0"
+  resolved "http://registry.npm.alibaba-inc.com/blueimp-md5/download/blueimp-md5-2.10.0.tgz#02f0843921f90dca14f5b8920a38593201d6964d"
+  integrity sha1-AvCEOSH5DcoU9biSCjhZMgHWlk0=
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -2591,6 +2606,16 @@ tough-cookie@~2.4.3:
     psl "^1.1.24"
     punycode "^1.4.1"
 
+translation.js@^0.7.5:
+  version "0.7.5"
+  resolved "http://registry.npm.alibaba-inc.com/translation.js/download/translation.js-0.7.5.tgz#97e871d78318770930773f297fffb40c4209b053"
+  integrity sha1-l+hx14MYdwkwdz8pf/+0DEIJsFM=
+  dependencies:
+    "@types/blueimp-md5" "^2.7.0"
+    "@types/node" "^9.3.0"
+    blueimp-md5 "^2.10.0"
+    tslib "^1.8.1"
+
 ts-node@^3.3.0:
   version "3.3.0"
   resolved "http://registry.npm.alibaba-inc.com/ts-node/download/ts-node-3.3.0.tgz#c13c6a3024e30be1180dd53038fc209289d4bf69"
@@ -2613,7 +2638,7 @@ tsconfig@^6.0.0:
     strip-bom "^3.0.0"
     strip-json-comments "^2.0.0"
 
-tslib@^1.9.0:
+tslib@^1.8.1, tslib@^1.9.0:
   version "1.9.3"
   resolved "http://registry.npm.alibaba-inc.com/tslib/download/tslib-1.9.3.tgz#d7e4dd79245d85428c4d7e4822a79917954ca286"
   integrity sha1-1+TdeSRdhUKMTX5IIqeZF5VMooY=
