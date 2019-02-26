@@ -4,51 +4,52 @@ import httpServer = require('http-server');
 import * as fs from 'fs-extra';
 import { exec } from 'child_process';
 import { createManager } from '../src/utils';
+import translate from '../src/translate';
 
 const getPath = fname => path.join(__dirname, fname);
 const clearDir = dirName => {
-    try {
-        const fullpath = getPath(dirName);
+  try {
+    const fullpath = getPath(dirName);
 
-        if (fs.existsSync(fullpath)) {
-            fs.removeSync(getPath(dirName));
-        }
-    } catch (error) { }
+    if (fs.existsSync(fullpath)) {
+      fs.removeSync(getPath(dirName));
+    }
+  } catch (error) {}
 };
 const oneline = (code: string) => code.replace(/[\s\n]/g, '');
 const server = httpServer.createServer({
-    root: getPath('fixtures')
+  root: getPath('fixtures')
 });
 
 let apidts = '';
 
 describe('pont功能测试', () => {
-    before(function (done) {
-        // 清除路径
-        clearDir('services');
+  before(function(done) {
+    // 清除路径
+    clearDir('services');
 
-        server.listen(9090, async err => {
-            console.log('http server start successfull');
-            await createManager('test-pont-config.json');
+    server.listen(9090, async err => {
+      console.log('http server start successfull');
+      await createManager('test-pont-config.json');
 
-            // 读取 api.d.ts 并转换为单行
-            const codeBuffer = await fs.readFile(getPath('services/api1/api.d.ts'));
-            apidts = oneline(codeBuffer.toString('utf8'));
+      // 读取 api.d.ts 并转换为单行
+      const codeBuffer = await fs.readFile(getPath('services/api1/api.d.ts'));
+      apidts = oneline(codeBuffer.toString('utf8'));
 
-            done();
-        });
+      done();
     });
-    after(function () {
-        server.close();
-    });
+  });
+  after(function() {
+    server.close();
+  });
 
-    it('api.d.ts should exists', () => {
-        assert.ok(fs.existsSync(getPath('services/api.d.ts')));
-        assert.ok(fs.existsSync(getPath('services/api1/api.d.ts')));
-        assert.ok(fs.existsSync(getPath('services/api2/api.d.ts')));
-    });
-    it('api.d.ts should export class DataTransOutput<T0=any>', () => {
-        let rightCode = oneline(`
+  it('api.d.ts should exists', () => {
+    assert.ok(fs.existsSync(getPath('services/api.d.ts')));
+    assert.ok(fs.existsSync(getPath('services/api1/api.d.ts')));
+    assert.ok(fs.existsSync(getPath('services/api2/api.d.ts')));
+  });
+  it('api.d.ts should export class DataTransOutput<T0=any>', () => {
+    let rightCode = oneline(`
             export class DataTransOutput<T0=any> {
                     /** 返回数据 */
                     data?: T0;
@@ -67,25 +68,21 @@ describe('pont功能测试', () => {
                     transMessageDetail?: string;
                 }
         `);
-        assert.ok(apidts.includes(rightCode));
-    });
+    assert.ok(apidts.includes(rightCode));
+  });
 
-    it('api.d.ts should not export class DataTransOutput', () => {
-        let wrongCode = oneline(`export class DataTransOutput {`);
+  it('api.d.ts should not export class DataTransOutput', () => {
+    let wrongCode = oneline(`export class DataTransOutput {`);
 
-        assert.ok(!apidts.includes(wrongCode));
-    });
+    assert.ok(!apidts.includes(wrongCode));
+  });
 
-    it('api.d.ts should translate chinese of baseClass to english', () => {
-        // 通用请求参数token«输出参数vo»
-        assert.ok(apidts.includes(`GenericRequestParameterToken<T0=any>`));
-        // 输出参数vo
-        assert.ok(apidts.includes(`OutputParameterVo`));
-        // 查询参数
-        assert.ok(apidts.includes(`QueryParameter`));
-        // abc输出参数
-        assert.ok(apidts.includes(`AbcOutputParameter`));
-        // " 中英文 混合 带 空格 Vo "
-        assert.ok(apidts.includes(`ChineseAndEnglishMixedWithVo`));
+  it('api.d.ts should translate chinese of baseClass to english', () => {
+    let dict: { [key: string]: string } = translate.loadDict();
+    ['通用请求参数token', '输出参数vo', '查询参数', 'abc输出参数', ' 中英文 混合 带 空格 Vo '].forEach(cnKey => {
+      const enKey = dict[cnKey];
+      assert.ok(enKey);
+      assert.ok(apidts.includes(enKey));
     });
+  });
 });

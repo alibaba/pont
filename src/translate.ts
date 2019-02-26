@@ -24,7 +24,7 @@ export class Translate {
     try {
       return JSON.parse(`{${dictstr}}`);
     } catch (err) {
-      debugLog.error('local dict is invalid, attempting auto fix');
+      debugLog.error('[translate] local dict is invalid, attempting auto fix');
       fs.remove(this.dictFullPath);
       return {};
     }
