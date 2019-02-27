@@ -12,7 +12,11 @@ import { Mod } from './standard';
 import { Manager } from './manage';
 
 const defaultTemplateCode = `
+import * as Pont from 'pont-engine';
 import { CodeGenerator, Interface } from "pont-engine";
+
+export class FileStructures extends Pont.FileStructures {
+}
 
 export default class MyGenerator extends CodeGenerator {
 }
@@ -44,7 +48,11 @@ export class Config {
 
   static getTransformFromConfig(config: Config | DataSourceConfig) {
     if (config.transformPath) {
-      return getTemplate(config.transformPath, defaultTransformCode) as any;
+      const moduleResult = getTemplate(config.transformPath, defaultTransformCode) as any;
+
+      if (moduleResult) {
+        return moduleResult.default;
+      }
     }
 
     return id => id;
@@ -298,7 +306,7 @@ export function getIdentifierFromOperatorId(operationId: string) {
   return REPLACE_WORDS[index];
 }
 
-export function getTemplate(templatePath, defaultValue = defaultTemplateCode): typeof CodeGenerator {
+export function getTemplate(templatePath, defaultValue = defaultTemplateCode) {
   if (!fs.existsSync(templatePath + '.ts')) {
     fs.writeFileSync(templatePath + '.ts', defaultValue);
   }
@@ -312,14 +320,14 @@ export function getTemplate(templatePath, defaultValue = defaultTemplateCode): t
 
   const noCacheFix = (Math.random() + '').slice(2, 5);
   const jsName = templatePath + noCacheFix + '.js';
-  let moduleResule;
+  let moduleResult;
 
   try {
     // 编译到js
     fs.writeFileSync(jsName, jsResult.outputText, 'utf8');
 
     // 用 node require 引用编译后的 js 代码
-    moduleResule = require(jsName).default;
+    moduleResult = require(jsName);
 
     // 删除该文件
     fs.removeSync(jsName);
@@ -330,12 +338,12 @@ export function getTemplate(templatePath, defaultValue = defaultTemplateCode): t
     }
 
     // 没有引用，报错
-    if (!moduleResule) {
+    if (!moduleResult) {
       throw new Error(e);
     }
   }
 
-  return moduleResule;
+  return moduleResult;
 }
 
 export async function lookForFiles(dir: string, fileName: string): Promise<string> {
