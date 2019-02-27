@@ -17,7 +17,7 @@ Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数
 
 其中 swagger 数据源，Pont 已经完美支持。并在一些大型项目中使用了近两年，各种高度定制化需求都可以满足。
 
-![](https://img.alicdn.com/tfs/TB1SCT3IxTpK1RjSZFMXXbG_VXa-1316-1282.png)
+![](https://img.alicdn.com/tfs/TB15pZGI6TpK1RjSZKPXXa3UpXa-1584-1090.png)
 
 Pont 将为你的项目自动生成完美的 API 代码。
 
