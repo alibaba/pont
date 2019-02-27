@@ -32,19 +32,36 @@ export class FileStructures {
     });
 
     return {
+      ...files,
       'index.ts': this.getDataSourcesTs.bind(this),
       'api.lock': this.getLockContent.bind(this),
       'api.d.ts': this.getDataSourcesDeclarationTs.bind(this)
     };
   }
 
-  getBaseClassesInDeclaration(originCode: string) {
+  getBaseClassesInDeclaration(originCode: string, usingMultipleOrigins: boolean) {
+    if (usingMultipleOrigins) {
+      return `
+      declare namespace defs {
+        export ${originCode}
+      };
+      `;
+    }
+
     return `
       declare ${originCode}
     `;
   }
 
-  getModsDeclaration(originCode: string) {
+  getModsDeclaration(originCode: string, usingMultipleOrigins: boolean) {
+    if (usingMultipleOrigins) {
+      return `
+      declare namespace API {
+        export ${originCode}
+      };
+      `;
+    }
+
     return `
       declare ${originCode}
     `;
@@ -68,9 +85,14 @@ export class FileStructures {
 
     generator.getBaseClassesInDeclaration = this.getBaseClassesInDeclaration.bind(
       this,
-      generator.getBaseClassesInDeclaration()
+      generator.getBaseClassesInDeclaration(),
+      usingMultipleOrigins
     );
-    generator.getModsDeclaration = this.getModsDeclaration.bind(this, generator.getModsDeclaration());
+    generator.getModsDeclaration = this.getModsDeclaration.bind(
+      this,
+      generator.getModsDeclaration(),
+      usingMultipleOrigins
+    );
 
     return {
       'baseClass.ts': generator.getBaseClassesIndex.bind(generator),
@@ -370,7 +392,6 @@ export class FilesManager {
   // todo: report 可以更改为单例，防止每个地方都注入。
   report = info;
   prettierConfig: {};
-  usingMultipleOrigins = false;
 
   constructor(private fileStructures: FileStructures, private baseDir: string) {}
 
