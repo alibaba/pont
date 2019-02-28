@@ -2,7 +2,6 @@ import * as assert from 'assert';
 import * as path from 'path';
 import httpServer = require('http-server');
 import * as fs from 'fs-extra';
-import { exec } from 'child_process';
 import { createManager } from '../src/utils';
 import translate from '../src/translate';
 
@@ -17,6 +16,8 @@ const clearDir = dirName => {
   } catch (error) {}
 };
 const oneline = (code: string) => code.replace(/[\s\n]/g, '');
+const exists = filepath => fs.existsSync(getPath(filepath));
+
 const server = httpServer.createServer({
   root: getPath('fixtures')
 });
@@ -30,8 +31,7 @@ describe('pont功能测试', () => {
 
     server.listen(9090, async err => {
       console.log('http server start successfull');
-      await createManager('test-pont-config.json');
-
+      await createManager('config-multiple-origins.json');
       // 读取 api.d.ts 并转换为单行
       const codeBuffer = await fs.readFile(getPath('services/api1/api.d.ts'));
       apidts = oneline(codeBuffer.toString('utf8'));
@@ -44,9 +44,9 @@ describe('pont功能测试', () => {
   });
 
   it('api.d.ts should exists', () => {
-    assert.ok(fs.existsSync(getPath('services/api.d.ts')));
-    assert.ok(fs.existsSync(getPath('services/api1/api.d.ts')));
-    assert.ok(fs.existsSync(getPath('services/api2/api.d.ts')));
+    assert.ok(exists('services/api.d.ts'));
+    assert.ok(exists('services/api1/api.d.ts'));
+    assert.ok(exists('services/api2/api.d.ts'));
   });
   it('api.d.ts should export class DataTransOutput<T0=any>', () => {
     let rightCode = oneline(`
@@ -84,5 +84,12 @@ describe('pont功能测试', () => {
       assert.ok(enKey);
       assert.ok(apidts.includes(enKey));
     });
+  });
+
+  it('config-single-usingMultipleOrigins should has multiple origin fileStructure', async () => {
+    // 清除路径
+    clearDir('services');
+    await createManager('config-single-usingMultipleOrigins.json');
+    assert.ok(exists('services/api1/api.d.ts'));
   });
 });
