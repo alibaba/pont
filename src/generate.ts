@@ -104,7 +104,7 @@ export class FileStructures {
   }
 
   getFileStructures() {
-    if (this.usingMultipleOrigins && this.generators.length > 1) {
+    if (this.usingMultipleOrigins || this.generators.length > 1) {
       return this.getMultipleOriginsFileStructures();
     } else {
       return this.getOriginFileStructures(this.generators[0]);
