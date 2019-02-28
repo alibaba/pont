@@ -15,6 +15,139 @@ import * as path from 'path';
 import { format } from './utils';
 import { info } from './debugLog';
 
+export class FileStructures {
+  constructor(private generators: CodeGenerator[], private usingMultipleOrigins: boolean) {}
+
+  getDataSources() {
+    return this.generators.map(ge => ge.dataSource);
+  }
+
+  getMultipleOriginsFileStructures() {
+    const files = {};
+    this.generators.forEach(generator => {
+      const dsName = generator.dataSource.name;
+      const dsFiles = this.getOriginFileStructures(generator, true);
+
+      files[dsName] = dsFiles;
+    });
+
+    return {
+      ...files,
+      'index.ts': this.getDataSourcesTs.bind(this),
+      'api.lock': this.getLockContent.bind(this),
+      'api.d.ts': this.getDataSourcesDeclarationTs.bind(this)
+    };
+  }
+
+  getBaseClassesInDeclaration(originCode: string, usingMultipleOrigins: boolean) {
+    if (usingMultipleOrigins) {
+      return `
+      declare namespace defs {
+        export ${originCode}
+      };
+      `;
+    }
+
+    return `
+      declare ${originCode}
+    `;
+  }
+
+  getModsDeclaration(originCode: string, usingMultipleOrigins: boolean) {
+    if (usingMultipleOrigins) {
+      return `
+      declare namespace API {
+        export ${originCode}
+      };
+      `;
+    }
+
+    return `
+      declare ${originCode}
+    `;
+  }
+
+  getOriginFileStructures(generator: CodeGenerator, usingMultipleOrigins = false) {
+    let mods = {};
+    const dataSource = generator.dataSource;
+
+    dataSource.mods.forEach(mod => {
+      const currMod = {};
+
+      mod.interfaces.forEach(inter => {
+        currMod[inter.name + '.ts'] = generator.getInterfaceContent.bind(generator, inter);
+        currMod['index.ts'] = generator.getModIndex.bind(generator, mod);
+      });
+      mods[mod.name] = currMod;
+
+      mods['index.ts'] = generator.getModsIndex.bind(generator);
+    });
+
+    generator.getBaseClassesInDeclaration = this.getBaseClassesInDeclaration.bind(
+      this,
+      generator.getBaseClassesInDeclaration(),
+      usingMultipleOrigins
+    );
+    generator.getModsDeclaration = this.getModsDeclaration.bind(
+      this,
+      generator.getModsDeclaration(),
+      usingMultipleOrigins
+    );
+
+    return {
+      'baseClass.ts': generator.getBaseClassesIndex.bind(generator),
+      mods: mods,
+      'index.ts': generator.getIndex.bind(generator),
+      'api.d.ts': generator.getDeclaration.bind(generator),
+      'api.lock': this.getLockContent.bind(this)
+    };
+  }
+
+  getFileStructures() {
+    if (this.usingMultipleOrigins || this.generators.length > 1) {
+      return this.getMultipleOriginsFileStructures();
+    } else {
+      return this.getOriginFileStructures(this.generators[0]);
+    }
+  }
+
+  getDataSourcesTs() {
+    const dsNames = this.generators.map(ge => ge.dataSource.name);
+
+    return `
+      ${dsNames
+        .map(name => {
+          return `import { defs as ${name}Defs, ${name} } from './${name}';
+          `;
+        })
+        .join('\n')}
+
+      (window as any).defs = {
+        ${dsNames.map(name => `${name}: ${name}Defs,`).join('\n')}
+      };
+      (window as any).API = {
+        ${dsNames.join(',\n')}
+      };
+    `;
+  }
+
+  getDataSourcesDeclarationTs() {
+    const dsNames = this.generators.map(ge => ge.dataSource.name);
+
+    return `
+    ${dsNames
+      .map(name => {
+        return `/// <reference path="./${name}/api.d.ts" />`;
+      })
+      .join('\n')}
+    `;
+  }
+
+  getLockContent() {
+    return JSON.stringify(this.getDataSources(), null, 2);
+  }
+}
+
 export class CodeGenerator {
   dataSource: StandardDataSource;
 
@@ -32,9 +165,9 @@ export class CodeGenerator {
     `;
   }
 
-  /** 一般不需要覆盖，获取所有基类的类型定义代码，一个 namespace */
+  /** 获取所有基类的类型定义代码，一个 namespace */
   getBaseClassesInDeclaration() {
-    const content = ` namespace ${this.dataSource.name || 'defs'} {
+    const content = `namespace ${this.dataSource.name || 'defs'} {
       ${this.dataSource.baseClasses
         .map(
           base => `
@@ -48,12 +181,24 @@ export class CodeGenerator {
     return content;
   }
 
+  getBaseClassesInDeclarationWithMultipleOrigins() {
+    return `
+      declare namespace defs {
+        export ${this.getBaseClassesInDeclaration()}
+      }
+    `;
+  }
+
+  getBaseClassesInDeclarationWithSingleOrigin() {
+    return `
+      declare ${this.getBaseClassesInDeclaration()}
+    `;
+  }
+
   /** 获取接口内容的类型定义代码 */
   getInterfaceContentInDeclaration(inter: Interface) {
     const bodyParmas = inter.getBodyParamsCode();
-    const requestParams = bodyParmas
-      ? `params: Params, bodyParams: ${bodyParmas}`
-      : `params: Params`;
+    const requestParams = bodyParmas ? `params: Params, bodyParams: ${bodyParmas}` : `params: Params`;
 
     return `
       export ${inter.getParamsCode()}
@@ -80,7 +225,7 @@ export class CodeGenerator {
   getModsDeclaration() {
     const mods = this.dataSource.mods;
 
-    const content = ` namespace ${this.dataSource.name || 'API'} {
+    const content = `namespace ${this.dataSource.name || 'API'} {
         ${mods
           .map(
             mod => `
@@ -88,9 +233,7 @@ export class CodeGenerator {
            * ${mod.description}
            */
           export namespace ${mod.name} {
-            ${mod.interfaces
-              .map(this.getInterfaceInDeclaration.bind(this))
-              .join('\n')}
+            ${mod.interfaces.map(this.getInterfaceInDeclaration.bind(this)).join('\n')}
           }
         `
           )
@@ -100,6 +243,10 @@ export class CodeGenerator {
 
     return content;
   }
+
+  getModsDeclarationWithMultipleOrigins() {}
+
+  getModsDeclarationWithSingleOrigin() {}
 
   /** 获取公共的类型定义代码 */
   getCommonDeclaration() {
@@ -242,114 +389,23 @@ export class CodeGenerator {
 }
 
 export class FilesManager {
-  generators: CodeGenerator[];
-  baseDir: string;
+  // todo: report 可以更改为单例，防止每个地方都注入。
   report = info;
   prettierConfig: {};
-  usingMultipleOrigins = false;
 
-  constructor(generators: CodeGenerator[], baseDir: string) {
-    this.generators = generators;
-    this.baseDir = baseDir;
-  }
-
-  getSingleFileStructures(generator: CodeGenerator) {
-    let mods = {};
-    const dataSource = generator.dataSource;
-
-    dataSource.mods.forEach(mod => {
-      const currMod = {};
-
-      mod.interfaces.forEach(inter => {
-        currMod[inter.name + '.ts'] = generator.getInterfaceContent.bind(
-          generator,
-          inter
-        );
-        currMod['index.ts'] = generator.getModIndex.bind(generator, mod);
-      });
-      mods[mod.name] = currMod;
-
-      mods['index.ts'] = generator.getModsIndex.bind(generator);
-    });
-
-    return {
-      'baseClass.ts': generator.getBaseClassesIndex.bind(generator),
-      mods: mods,
-      'index.ts': generator.getIndex.bind(generator),
-      'api.d.ts': generator.getDeclaration.bind(generator)
-    };
-  }
-
-  getDataSourcesTs() {
-    const dsNames = this.generators.map(ge => ge.dataSource.name);
-
-    return `
-      ${dsNames
-        .map(name => {
-          return `import { defs as ${name}Defs, ${name} } from './${name}';
-          `;
-        })
-        .join('\n')}
-
-      (window as any).defs = {
-        ${dsNames.map(name => `${name}: ${name}Defs,`).join('\n')}
-      };
-      (window as any).API = {
-        ${dsNames.join(',\n')}
-      };
-    `;
-  }
-
-  getDataSourcesDeclarationTs() {
-    const dsNames = this.generators.map(ge => ge.dataSource.name);
-
-    return `
-    ${dsNames
-      .map(name => {
-        return `/// <reference path="./${name}/api.d.ts" />`;
-      })
-      .join('\n')}
-    `;
-  }
-
-  getSourcesFileStructures() {
-    const dataSources = {};
-
-    this.generators.forEach(generator => {
-      const ds = generator.dataSource;
-      let { getBaseClassesInDeclaration, getModsDeclaration } = generator;
-      getBaseClassesInDeclaration = getBaseClassesInDeclaration.bind(generator);
-      getModsDeclaration = getModsDeclaration.bind(generator);
-
-      generator.getBaseClassesInDeclaration = () => `
-        declare namespace defs {
-          export ${getBaseClassesInDeclaration()}
-        }
-      `;
-      generator.getModsDeclaration = () => `
-        declare namespace API {
-          export ${getModsDeclaration()}
-        }
-      `;
-      const dsFiles = this.getSingleFileStructures(generator);
-
-      dataSources[ds.name] = dsFiles;
-    });
-
-    dataSources['index.ts'] = this.getDataSourcesTs.bind(this);
-    dataSources['api.d.ts'] = this.getDataSourcesDeclarationTs.bind(this);
-
-    return dataSources;
-  }
+  constructor(private fileStructures: FileStructures, private baseDir: string) {}
 
   private setFormat(files: {}) {
     _.forEach(files, (value: Function | {}, name: string) => {
-      if (typeof value === 'function') {
-        files[name] = (content: string) =>
-          format(value(content), this.prettierConfig);
+      if (name.endsWith('.json') || name.endsWith('.lock')) {
+        return;
       }
 
-      return this.setFormat(value);
+      if (typeof value === 'function') {
+        files[name] = (content: string) => format(value(content), this.prettierConfig);
+      }
+
+      this.setFormat(value);
     });
   }
 
@@ -366,49 +422,20 @@ export class FilesManager {
       this.report = report;
     }
 
-    const dataSources = this.generators.map(ge => ge.dataSource);
-    let files = {};
-
-    if (this.generators.length > 1 || this.usingMultipleOrigins) {
-      files = this.getSourcesFileStructures() as {};
-    } else {
-      const generator = this.generators[0];
-      let { getBaseClassesInDeclaration, getModsDeclaration } = generator;
-
-      getBaseClassesInDeclaration = getBaseClassesInDeclaration.bind(generator);
-      getModsDeclaration = getModsDeclaration.bind(generator);
-
-      generator.getBaseClassesInDeclaration = () => `
-        declare ${getBaseClassesInDeclaration()}
-      `;
-      generator.getModsDeclaration = () => `
-        declare ${getModsDeclaration()}
-      `;
-
-      files = this.getSingleFileStructures(generator);
-    }
-
+    const files = this.fileStructures.getFileStructures();
     this.setFormat(files);
-
-    files['api.lock'] = this.getLockContent.bind(this);
 
     this.clearPath(this.baseDir);
     this.created = true;
     await this.generateFiles(files);
   }
 
-  getLockContent() {
-    const dataSources = this.generators.map(ge => ge.dataSource);
-
-    return JSON.stringify(dataSources, null, 2);
-  }
-
-  /** 区分lock文件是创建的还是认为更改的 */
+  /** 区分lock文件是创建的还是人为更改的 */
   created = false;
 
   async saveLock() {
     const lockFile = path.join(this.baseDir, 'api.lock');
-    const newLockContent = this.getLockContent();
+    const newLockContent = this.fileStructures.getLockContent();
 
     const lockContent = await fs.readFile(lockFile, 'utf8');
 
@@ -418,6 +445,7 @@ export class FilesManager {
     }
   }
 
+  /** 根据 Codegenerator 配置生成目录和文件 */
   async generateFiles(files: {}, dir = this.baseDir) {
     const promises = _.map(files, async (value: Function | {}, name) => {
       if (typeof value === 'function') {

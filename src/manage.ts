@@ -9,6 +9,7 @@ import { FilesManager } from './generate';
 import { info as debugInfo } from './debugLog';
 import * as _ from 'lodash';
 import Translate from './translate';
+import { FileStructures } from './generate';
 
 export class Manager {
   readonly lockFilename = 'api.lock';
@@ -294,7 +295,7 @@ export class Manager {
 
   setFilesManager() {
     this.report('文件生成器创建中...');
-    const Generator = getTemplate(this.currConfig.templatePath);
+    const { default: Generator, FileStructures: MyFileStructures } = getTemplate(this.currConfig.templatePath);
 
     const generators = this.allLocalDataSources.map(dataSource => {
       const generator = new Generator();
@@ -302,10 +303,17 @@ export class Manager {
 
       return generator;
     });
+    let FileStructuresClazz = FileStructures as any;
 
-    this.fileManager = new FilesManager(generators, this.currConfig.outDir);
+    if (MyFileStructures) {
+      FileStructuresClazz = MyFileStructures;
+    }
+
+    this.fileManager = new FilesManager(
+      new FileStructuresClazz(generators, this.currConfig.usingMultipleOrigins),
+      this.currConfig.outDir
+    );
     this.fileManager.prettierConfig = this.currConfig.prettierConfig;
-    this.fileManager.usingMultipleOrigins = this.currConfig.usingMultipleOrigins;
     this.report('文件生成器创建成功！');
     this.fileManager.report = this.report;
   }
