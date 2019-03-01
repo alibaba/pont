@@ -145,7 +145,6 @@ export class Manager {
       this.allLocalDataSources = await Promise.all(promises);
       this.currLocalDataSource = this.allLocalDataSources[0];
       this.remoteDataSource = this.currLocalDataSource;
-      this.setFilesManager();
 
       await this.regenerateFiles();
     }
