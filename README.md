@@ -59,7 +59,10 @@ Pont 将为你的项目自动生成完美的 API 代码。
 
 ## example
 
-可以参考 [pont-demo](https://github.com/nefe/pont-demo)，来体验 pont。
+参考下面的例子，来体验 pont。
+
+- [pont-demo](https://github.com/nefe/pont-demo)
+- [nuxt-ts-pont-demo](https://github.com/gaoletian/nuxt-ts-pont-demo)
 
 ## 其它接口平台接入
 
