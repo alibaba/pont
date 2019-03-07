@@ -31,38 +31,67 @@ Pont 将为你的项目自动生成完美的 API 代码。
 
 - 3、在项目中任何位置添加 `pont-config.json` 文件，vscode-pont 检测到项目中有合法的 `pont-config.json`，插件马上启动。
 
-## `pont-config.json` 配置
+## `pont-config.json` 配置项
 
-- originUrl(string)
+   对于 pont-config.json 的配置，在 vscode-pont 插件中已经做了自动提示、自动补全、配置项描述提醒等功能。具体配置项介绍如下：
 
-接口平台提供数据源的 open api url（需要免登），目前只支持 Swagger
+#### originUrl
 
-- outDir(string)
+   值类型：字符串
 
-生成代码的存放路径，使用相对路径。
+   描述： 接口平台提供数据源的 open api url（需要免登），目前只支持 Swagger。如 "https://petstore.swagger.io/v2/swagger.json"
 
-- templatePath(string)
+#### outDir
+   值类型：字符串
 
-指定自定义代码生成器（ts 文件）的路径，使用相对路径指定。一旦指定，pont 将会为你生成一份默认的自定义代码生成器。关于自定义代码生成器，请参看[文档](./Template.md);
+   描述： 生成代码的存放路径，使用相对路径即可。如："./src/api"
 
-- prettierConfig(object)
+#### templatePath
 
-生成的代码会用 prettier 美化。这里可以配置 prettier。
+   值类型：字符串
 
-## 自定义 template
+   描述：指定自定义代码生成器的路径（使用相对路径指定）。一旦指定，pont 将即刻生成一份默认的自定义代码生成器。自定义代码生成器是一份 ts 文件，通过覆盖默认的代码生成器，来自定义生成代码。默认的代码生成器包含两个类，一个负责管理目录结构，一个负责管理目录结构每个文件如何生成代码。自定义代码生成器通过继承这两个类（类型完美，可以查看提示和含义），覆盖对应的代码来达到自定义的目的。具体使用方法请参看[自定义代码生成器文档](./Template.md)。
 
-可以参考 pont-demo 中的配置 [pont-template](https://github.com/nefe/pont-demo/blob/master/pontTemplate.ts)。
+   示例：可以参看示例 demo 中的 template。
 
-在这份 ts 代码中，用户可以覆盖默认 Generator 类的各种方法，以自定义生成代码。
+#### prettierConfig
 
-能够覆盖的方法、以及各个方法的含义，都可以通过 Typescript 的提示来看到。
+   值类型：object
 
-## example
+   描述：生成的代码会用 prettier 来美化。此处配置 prettier 的配置项即可，具体可以参考 [prettier 文档](https://prettier.io/docs/en/options.html)。
+
+#### usingMultipleOrigins
+
+   值类型：boolean
+
+   描述：pont 支持一个项目中配置多个 Swagger 来源。此处配置是否启用多数据源
+   
+#### origins
+
+   值类型：array
+
+   描述：配置每个数据来源
+
+   示例：
+
+   ```json
+   "origins": [{
+     "name": "pet",
+     "originUrl": "",
+   }, {
+     "name": "fruit",
+     "originUrl": ""
+   }]
+   ```
+
+## demo
 
 参考下面的例子，来体验 pont。
 
 - [pont-demo](https://github.com/nefe/pont-demo)
 - [nuxt-ts-pont-demo](https://github.com/gaoletian/nuxt-ts-pont-demo)
+
+持续丰富中...
 
 ## 其它接口平台接入
 
