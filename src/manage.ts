@@ -1,9 +1,9 @@
 import { StandardDataSource } from './standard';
-import { Config, getTemplate, DataSourceConfig, hasChinese } from './utils';
+import { Config, getTemplate, DataSourceConfig, hasChinese, Version } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import fetch from 'node-fetch';
-import { SwaggerDataSource, transformSwaggerData2Standard } from './swagger';
+import { SwaggerDataSource, transformSwaggerData2Standard, transformV102SwaggerData2Standard } from './swagger';
 import { diff, Model } from './diff';
 import { FilesManager } from './generate';
 import { info as debugInfo } from './debugLog';
@@ -261,17 +261,37 @@ export class Manager {
       this.report('获取远程数据中...');
       const response = await fetch(config.originUrl);
 
+      // 判断是否为老版本的swagger
+      if (config.version === Version.Old) {
+        response.group = [];
+
+        this.report('获取各模块数据中...');
+        _.forEach(response.apis, async api => {
+          const module = await fetch(`${config.originUrl}${api.path}`);
+          response.group.push(module);
+        });
+      }
+
       this.report('自动翻译中文基类中...');
       let swaggerJsonStr: string = await response.text();
       swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
       this.report('自动翻译中文基类完成！');
 
-      const data: SwaggerDataSource = await JSON.parse(swaggerJsonStr);
+      // 判断是否为老版本的swagger
+      if (config.version === Version.Old) {
+        const data = await JSON.parse(swaggerJsonStr);
+        data.name = config.name;
+
+        // this.remoteDataSource = transformV102SwaggerData2Standard(data, config.usingOperationId, config.name);
+      } else {
+        const data: SwaggerDataSource = await JSON.parse(swaggerJsonStr);
+
+        data.name = config.name;
+
+        this.remoteDataSource = transformSwaggerData2Standard(data, config.usingOperationId, config.name);
+      }
       this.report('远程数据获取成功！');
 
-      data.name = config.name;
-
-      this.remoteDataSource = transformSwaggerData2Standard(data, config.usingOperationId, config.name);
       const transformProgram = Config.getTransformFromConfig(config);
       this.remoteDataSource = transformProgram(this.remoteDataSource);
       this.checkDataSource(this.remoteDataSource);

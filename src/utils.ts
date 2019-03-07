@@ -122,9 +122,15 @@ export class Config {
   }
 }
 
+export enum Version {
+  Old = 'old',
+  New = 'new'
+}
+
 export class DataSourceConfig {
   originUrl: string;
   name?: string;
+  version?: Version = Version.New;
   usingOperationId = false;
   usingMultipleOrigins = false;
   taggedByName = true;

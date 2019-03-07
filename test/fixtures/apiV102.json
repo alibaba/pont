@@ -1,0 +1,11 @@
+{
+  "apiVersion": "1",
+  "apis": [
+    { "description": "车商组织服务接口", "path": "/dir/first.json", "position": 0 },
+    { "description": "集团服务接口", "path": "/dir/second.json", "position": 0 },
+    { "description": "企业认证提交接口", "path": "/dir/third.json", "position": 0 }
+  ],
+  "authorizations": {},
+  "info": { "description": "api list", "termsOfServiceUrl": "http://localhost:8080/api-docs", "title": "souche api" },
+  "swaggerVersion": "1.2"
+}

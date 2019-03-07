@@ -1,12 +1,4 @@
-import {
-  StandardDataSource,
-  PrimitiveType,
-  Interface,
-  DataType,
-  Mod,
-  BaseClass,
-  Property
-} from './standard';
+import { StandardDataSource, PrimitiveType, Interface, DataType, Mod, BaseClass, Property } from './standard';
 import * as _ from 'lodash';
 import {
   getMaxSamePath,
@@ -18,13 +10,9 @@ import {
   hasChinese,
   transformModsName
 } from './utils';
-import {
-  generateTemplate,
-  generateTemplateDef,
-  findDefinition
-} from './compiler';
+import { generateTemplate, generateTemplateDef, findDefinition } from './compiler';
 
-import * as debugLog from './debugLog'
+import * as debugLog from './debugLog';
 
 export enum SwaggerType {
   integer = 'integer',
@@ -38,13 +26,13 @@ export enum SwaggerType {
 
 export class SwaggerProperty {
   type: SwaggerType;
-  enum?= [] as string[];
-  items?= null as {
+  enum? = [] as string[];
+  items? = null as {
     type?: SwaggerType;
     $ref?: string;
   };
-  $ref?= '';
-  description?= '';
+  $ref? = '';
+  description? = '';
   name: string;
   required: boolean;
 }
@@ -66,7 +54,7 @@ export class SwaggerParameter {
 
   enum: string[];
 
-  items?= null as {
+  items? = null as {
     type?: SwaggerType;
     $ref?: string;
   };
@@ -82,12 +70,7 @@ export class Schema {
   };
   $ref: string;
 
-  static swaggerSchema2StandardDataType(
-    schema: Schema,
-    templateName = '',
-    originName = '',
-    isResponse = false
-  ) {
+  static swaggerSchema2StandardDataType(schema: Schema, templateName = '', originName = '', isResponse = false) {
     const { items, $ref, type } = schema;
     let primitiveType = schema.type as string;
 
@@ -111,10 +94,7 @@ export class Schema {
       primitiveType = 'File';
     }
 
-    let reference = generateTemplate(
-      $ref || _.get(items, '$ref', ''),
-      originName
-    );
+    let reference = generateTemplate($ref || _.get(items, '$ref', ''), originName);
 
     if (reference === 'Model') {
       reference = '';
@@ -127,8 +107,7 @@ export class Schema {
 
     let isTemplateRef = false;
     const reg = new RegExp(`defs\\.${originName}\\.`, 'g');
-    const templateCompareName =
-      reference.replace(reg, 'defs.') || primitiveType;
+    const templateCompareName = reference.replace(reg, 'defs.') || primitiveType;
 
     if (
       (templateCompareName && templateCompareName === templateName) ||
@@ -210,22 +189,10 @@ export class SwaggerInterface {
     }
 
     const responseSchema = _.get(inter, 'responses.200.schema', {}) as Schema;
-    const response = Schema.swaggerSchema2StandardDataType(
-      responseSchema,
-      '',
-      originName,
-      true
-    );
+    const response = Schema.swaggerSchema2StandardDataType(responseSchema, '', originName, true);
 
     const parameters = (inter.parameters || []).map(param => {
-      const {
-        description,
-        items,
-        name,
-        type,
-        schema = {} as Schema,
-        required
-      } = param;
+      const { description, items, name, type, schema = {} as Schema, required } = param;
 
       return new Property({
         in: param.in,
@@ -281,11 +248,10 @@ export class SwaggerDataSource {
   };
 }
 
-export function transformSwaggerData2Standard(
-  swagger: SwaggerDataSource,
-  usingOperationId = true,
-  originName = ''
-) {
+// TODO: 转换1.2版本的swagger数据成标准数据
+export function transformV102SwaggerData2Standard(swagger, usingOperationId = true, originName = '') {}
+
+export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperationId = true, originName = '') {
   const allSwaggerInterfaces = [] as SwaggerInterface[];
   _.forEach(swagger.paths, (methodInters, path) => {
     _.forEach(methodInters, (inter, method) => {
@@ -295,6 +261,7 @@ export function transformSwaggerData2Standard(
     });
   });
 
+  // 取mods
   const mods = swagger.tags
     .filter(tag => {
       // ignore un annotation case
@@ -305,6 +272,7 @@ export function transformSwaggerData2Standard(
       return true;
     })
     .map(tag => {
+      // 筛选所有的swagger方法，tags中包含了tag字段的
       const modInterfaces = allSwaggerInterfaces.filter(inter => {
         return (
           inter.tags.includes(tag.name) ||
@@ -314,16 +282,12 @@ export function transformSwaggerData2Standard(
         );
       });
       const samePath = getMaxSamePath(
+        // 去除掉前面的'/'
         modInterfaces.map(inter => inter.path.slice(1))
       );
 
       const standardInterfaces = modInterfaces.map(inter => {
-        return SwaggerInterface.transformSwaggerInterface2Standard(
-          inter,
-          usingOperationId,
-          samePath,
-          originName
-        );
+        return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, samePath, originName);
       });
 
       // 兼容某些项目把swagger tag的name和description弄反的情况
@@ -414,17 +378,8 @@ export function transformSwaggerData2Standard(
             ref = ref.slice(ref.lastIndexOf('.') + 1);
           }
 
-          if (
-            ref &&
-            !baseClasses.find(
-              base => base.name === ref || base.justName === ref
-            )
-          ) {
-            debugLog.warn(
-              `baseClasses not contains ${dataType} in ${param.name} param of ${
-              inter.name
-              } interface `
-            );
+          if (ref && !baseClasses.find(base => base.name === ref || base.justName === ref)) {
+            debugLog.warn(`baseClasses not contains ${dataType} in ${param.name} param of ${inter.name} interface `);
             return {
               ...param,
               dataType: {

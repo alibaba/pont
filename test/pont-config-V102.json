@@ -1,0 +1,6 @@
+{
+  "outDir": "services",
+  "templatePath": "./pontTemplate",
+  "version": "old",
+  "originUrl": "http://localhost:9090/apiV102.json"
+}

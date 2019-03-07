@@ -93,3 +93,19 @@ describe('pont功能测试', () => {
     assert.ok(exists('services/api1/api.d.ts'));
   });
 });
+
+// describe('swagger V1.x测试', () => {
+//   before(function(done) {
+//     // 清除路径
+//     clearDir('services');
+
+//     server.listen(9090, async err => {
+//       console.log('http server start successfull');
+//       await createManager('pont-config-V102.json');
+//       done();
+//     });
+//   });
+//   after(function() {
+//     server.close();
+//   });
+// });
