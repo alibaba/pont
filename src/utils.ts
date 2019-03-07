@@ -32,6 +32,7 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 
 export class Config {
   originUrl? = '';
+  version: string = 'new';
   usingOperationId: boolean;
   taggedByName = true;
   outDir = 'service';
@@ -101,7 +102,8 @@ export class Config {
       usingMultipleOrigins: this.usingMultipleOrigins,
       templatePath: path.join(configDir, this.templatePath),
       transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
-      prettierConfig: this.prettierConfig
+      prettierConfig: this.prettierConfig,
+      version: this.version
     };
 
     if (this.origins && this.origins.length) {
@@ -122,15 +124,10 @@ export class Config {
   }
 }
 
-export enum Version {
-  Old = 'old',
-  New = 'new'
-}
-
 export class DataSourceConfig {
   originUrl: string;
   name?: string;
-  version?: Version = Version.New;
+  version?: string = 'new';
   usingOperationId = false;
   usingMultipleOrigins = false;
   taggedByName = true;

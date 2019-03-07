@@ -2,5 +2,5 @@
   "outDir": "services",
   "templatePath": "./pontTemplate",
   "version": "old",
-  "originUrl": "http://localhost:9090/apiV102.json"
+  "originUrl": "http://127.0.0.1:9090/apiV102.json"
 }

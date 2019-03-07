@@ -1,5 +1,5 @@
 import { StandardDataSource } from './standard';
-import { Config, getTemplate, DataSourceConfig, hasChinese, Version } from './utils';
+import { Config, getTemplate, DataSourceConfig, hasChinese } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import fetch from 'node-fetch';
@@ -261,26 +261,23 @@ export class Manager {
       this.report('获取远程数据中...');
       const response = await fetch(config.originUrl);
 
-      // 判断是否为老版本的swagger
-      if (config.version === Version.Old) {
-        response.group = [];
-
-        this.report('获取各模块数据中...');
-        _.forEach(response.apis, async api => {
-          const module = await fetch(`${config.originUrl}${api.path}`);
-          response.group.push(module);
-        });
-      }
-
       this.report('自动翻译中文基类中...');
       let swaggerJsonStr: string = await response.text();
       swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
       this.report('自动翻译中文基类完成！');
 
       // 判断是否为老版本的swagger
-      if (config.version === Version.Old) {
+      if (config.version === 'old') {
         const data = await JSON.parse(swaggerJsonStr);
         data.name = config.name;
+        data.group = [];
+
+        this.report('获取各模块数据中...');
+        for (let i = 0; i < data.apis.length; i++) {
+          const module = await fetch(`${config.originUrl}${data.apis[i].path}`);
+          const json = await module.text();
+          data.group.push(json);
+        }
 
         // this.remoteDataSource = transformV102SwaggerData2Standard(data, config.usingOperationId, config.name);
       } else {
