@@ -14,6 +14,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { format } from './utils';
 import { info } from './debugLog';
+import { existsSync } from 'fs-extra';
 
 export class FileStructures {
   constructor(private generators: CodeGenerator[], private usingMultipleOrigins: boolean) {}
@@ -34,7 +35,7 @@ export class FileStructures {
     return {
       ...files,
       'index.ts': this.getDataSourcesTs.bind(this),
-      'api.lock': this.getLockContent.bind(this),
+      'api-lock.json': this.getLockContent.bind(this),
       'api.d.ts': this.getDataSourcesDeclarationTs.bind(this)
     };
   }
@@ -99,7 +100,7 @@ export class FileStructures {
       mods: mods,
       'index.ts': generator.getIndex.bind(generator),
       'api.d.ts': generator.getDeclaration.bind(generator),
-      'api.lock': this.getLockContent.bind(this)
+      'api-lock.json': this.getLockContent.bind(this)
     };
   }
 
@@ -434,7 +435,13 @@ export class FilesManager {
   created = false;
 
   async saveLock() {
-    const lockFile = path.join(this.baseDir, 'api.lock');
+    let lockFile = path.join(this.baseDir, 'api-lock.json');
+    const isExists = fs.existsSync(lockFile);
+
+    if (!isExists) {
+      lockFile = path.join(this.baseDir, 'api.lock');
+    }
+
     const newLockContent = this.fileStructures.getLockContent();
 
     const lockContent = await fs.readFile(lockFile, 'utf8');
