@@ -108,7 +108,7 @@ function generateCode(ast: any, originName = ''): string {
     retName = 'void';
   }
 
-  if (['object', 'Object', 'Map'].includes(name)) {
+  if (['object', 'Object'].includes(name)) {
     retName = 'object';
   }
 
