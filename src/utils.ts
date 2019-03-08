@@ -32,7 +32,8 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 
 export class Config {
   originUrl? = '';
-  version: string = 'new';
+  // 配置项上加version配置，默认new
+  version: 'new' | 'old' = 'new';
   usingOperationId: boolean;
   taggedByName = true;
   outDir = 'service';
@@ -127,7 +128,8 @@ export class Config {
 export class DataSourceConfig {
   originUrl: string;
   name?: string;
-  version?: string = 'new';
+  // 配置项加入version配置，默认new
+  version?: 'new' | 'old' = 'new';
   usingOperationId = false;
   usingMultipleOrigins = false;
   taggedByName = true;

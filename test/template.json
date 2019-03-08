@@ -1,0 +1,2088 @@
+{
+  "apiVersion": "1",
+  "apis": [
+    { "description": "车商组织服务接口", "path": "/souche/cardealercontroller", "position": 0 },
+    { "description": "集团服务接口", "path": "/souche/groupcontroller", "position": 0 },
+    { "description": "企业认证提交接口", "path": "/souche/shopauthcontroller", "position": 0 }
+  ],
+  "authorizations": {},
+  "info": { "description": "api list", "termsOfServiceUrl": "http://localhost:8080/api-docs", "title": "souche api" },
+  "swaggerVersion": "1.2",
+  "group": [
+    {
+      "apiVersion": "1.0",
+      "swaggerVersion": "1.2",
+      "basePath": "/",
+      "resourcePath": "/drucker/carDealerController",
+      "produces": ["*/*"],
+      "consumes": ["application/json"],
+      "apis": [
+        {
+          "path": "/drucker/carDealerController/addCarDealer.json",
+          "description": "addCarDealer",
+          "operations": [
+            {
+              "method": "POST",
+              "summary": "添加车商(组织)信息",
+              "notes": "addCarDealer",
+              "nickname": "addCarDealer",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "description": "车商（组织）id",
+                  "name": "id",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "format": "int64",
+                  "type": "integer",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商（组织）编码，添加的时候不填",
+                  "name": "code",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商（组织）名称",
+                  "name": "name",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "省编码",
+                  "name": "provinceCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "市编码",
+                  "name": "cityCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "区编码",
+                  "name": "districtCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "地址",
+                  "name": "area",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "详细地址",
+                  "name": "address",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "手机",
+                  "name": "mobilePhone",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "座机",
+                  "name": "telephone",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商类型",
+                  "name": "type",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "format": "int32",
+                  "type": "integer",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "经纬度",
+                  "name": "coordinate",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "独立域名",
+                  "name": "domainName",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "钉钉企业id",
+                  "name": "companyId",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "钉钉企业id",
+                  "name": "companyKey",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "父级车商code",
+                  "name": "superiorDealerCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商类型：1-集团 2-大区 3-门店 不传会有默认值",
+                  "name": "organizeType",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "采购对内简称",
+                  "name": "purchaseNickname",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "采购对外简称",
+                  "name": "purchaseShortname",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "零售对外简称",
+                  "name": "retailNickname",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "零售对内简称",
+                  "name": "retailShortname",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "易置换售后服务地址",
+                  "name": "aftersalesServiceAddress",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "shopTypes",
+                  "name": "shopTypes",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«string»" }],
+              "deprecated": "false",
+              "type": "Result«string»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/batchCreateShops.json",
+          "description": "batchCreateShops",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "批量处理采购店铺",
+              "notes": "batchCreateShops",
+              "nickname": "batchCreateShops",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«string»" }],
+              "deprecated": "false",
+              "type": "Result«string»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/batchDeleteManageShop.json",
+          "description": "batchDeleteManageShop",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "批量删除管理店铺",
+              "notes": "batchDeleteManageShop",
+              "nickname": "batchDeleteManageShop",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«string»" }],
+              "deprecated": "false",
+              "type": "Result«string»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/getCarDealerByCode.json",
+          "description": "getCarDealerByCode",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "根据车商编码获取车商",
+              "notes": "getCarDealerByCode",
+              "nickname": "getCarDealerByCode",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "车商编码",
+                  "name": "code",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": true
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«CarDealerVo»" }],
+              "deprecated": "false",
+              "type": "Result«CarDealerVo»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/getCarDealerCode.json",
+          "description": "getCarDealerCode",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "获取当前用户所属的车商code",
+              "notes": "getCarDealerCode",
+              "nickname": "getCarDealerCode",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«string»" }],
+              "deprecated": "false",
+              "type": "Result«string»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/getCarDealerTreeByCode.json",
+          "description": "getCarDealerTreeByCode",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "根据集团code获取车商树,车商code非必填，code填了则根据该车商code查，如果不填，则根据当前用户查出整棵树",
+              "notes": "getCarDealerTreeByCode",
+              "nickname": "getCarDealerTreeByCode",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "车商编码",
+                  "name": "code",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                }
+              ],
+              "responseMessages": [
+                { "code": 200, "message": null, "responseModel": "Result«List«CarDealerTreeNode»»" }
+              ],
+              "deprecated": "false",
+              "type": "Result«List«CarDealerTreeNode»»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/getGroupCode.json",
+          "description": "getGroupCode",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "获取当前用户所属的集团编码",
+              "notes": "getGroupCode",
+              "nickname": "getGroupCode",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«string»" }],
+              "deprecated": "false",
+              "type": "Result«string»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/getLevelLimitCarDealer.json",
+          "description": "getLevelLimitCarDealer",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "根据(层级)车商类型，集团1、大区2、门店3，获取该层级的车商",
+              "notes": "getLevelLimitCarDealer",
+              "nickname": "getLevelLimitCarDealer",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "(层级)车商类型，集团1、大区2、门店3，获取该层级的车商",
+                  "name": "type",
+                  "paramType": "query",
+                  "format": "int32",
+                  "type": "integer",
+                  "required": true
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«List«DealerDTO»»" }],
+              "deprecated": "false",
+              "type": "Result«List«DealerDTO»»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/getUpLevelDealerByCode.json",
+          "description": "getUpLevelDealerByCode",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "根据车商编码获取上级车商",
+              "notes": "getUpLevelDealerByCode",
+              "nickname": "getUpLevelDealerByCode",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "车商编码",
+                  "name": "code",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": true
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«OrganizationDTO»" }],
+              "deprecated": "false",
+              "type": "Result«OrganizationDTO»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/isCarDealerNameRepeat.json",
+          "description": "isCarDealerNameRepeat",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "判断车商名字是否重复",
+              "notes": "isCarDealerNameRepeat",
+              "nickname": "isCarDealerNameRepeat",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "车商组织结构名称",
+                  "name": "name",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": true
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«boolean»" }],
+              "deprecated": "false",
+              "type": "Result«boolean»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/loadAreas.json",
+          "description": "loadAreas",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "获取省市区",
+              "notes": "loadAreas",
+              "nickname": "loadAreas",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«List«Area»»" }],
+              "deprecated": "false",
+              "type": "Result«List«Area»»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/queryChildDealerByDealerCode.json",
+          "description": "queryChildDealerByDealerCode",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "根据车商编码，分页获取子级车商",
+              "notes": "queryChildDealerByDealerCode",
+              "nickname": "queryChildDealerByDealerCode",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "车商编码",
+                  "name": "code",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": true
+                },
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "页码",
+                  "name": "currentIndex",
+                  "paramType": "query",
+                  "format": "int32",
+                  "type": "integer",
+                  "required": true
+                },
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "数量",
+                  "name": "pageSize",
+                  "paramType": "query",
+                  "format": "int32",
+                  "type": "integer",
+                  "required": true
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«Page«DealerDTO»»" }],
+              "deprecated": "false",
+              "type": "Result«Page«DealerDTO»»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/searchCarDealerChildrenByCode.json",
+          "description": "searchCarDealerChildrenByCode",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "根据车商编码获取子级车商",
+              "notes": "searchCarDealerChildrenByCode",
+              "nickname": "searchCarDealerChildrenByCode",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "车商编码",
+                  "name": "code",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": true
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«List«DealerDTO»»" }],
+              "deprecated": "false",
+              "type": "Result«List«DealerDTO»»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/searchCarDealerPage.json",
+          "description": "searchCarDealerPage",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "获取车商（组织结构节点）信息",
+              "notes": "searchCarDealerPage",
+              "nickname": "searchCarDealerPage",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "description": "车商（组织）编码",
+                  "name": "code",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商（组织）名称",
+                  "name": "name",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "省编码",
+                  "name": "provinceCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "市编码",
+                  "name": "cityCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "区编码",
+                  "name": "districtCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "地址",
+                  "name": "area",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "详细地址",
+                  "name": "address",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "手机",
+                  "name": "mobilePhone",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "座机",
+                  "name": "telephone",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商类型",
+                  "name": "type",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "format": "int32",
+                  "type": "integer",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "经纬度",
+                  "name": "coordinate",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "编码或名称",
+                  "name": "codeOrName",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "页码",
+                  "name": "currentIndex",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "format": "int32",
+                  "type": "integer",
+                  "required": true
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "数量",
+                  "name": "pageSize",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "format": "int32",
+                  "type": "integer",
+                  "required": true
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "组织结构类型",
+                  "name": "organizeType",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": true,
+                  "defaultValue": "",
+                  "description": "dealerCodes",
+                  "name": "dealerCodes",
+                  "paramType": "query",
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "uniqueItems": false,
+                  "required": false
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«Page«CarDealerVo»»" }],
+              "deprecated": "false",
+              "type": "Result«Page«CarDealerVo»»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/carDealerController/updateCarDealer.json",
+          "description": "updateCarDealer",
+          "operations": [
+            {
+              "method": "POST",
+              "summary": "更新车商(组织)信息",
+              "notes": "updateCarDealer",
+              "nickname": "updateCarDealer",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "description": "车商（组织）id",
+                  "name": "id",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "format": "int64",
+                  "type": "integer",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商（组织）编码，添加的时候不填",
+                  "name": "code",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商（组织）名称",
+                  "name": "name",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "省编码",
+                  "name": "provinceCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "市编码",
+                  "name": "cityCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "区编码",
+                  "name": "districtCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "地址",
+                  "name": "area",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "详细地址",
+                  "name": "address",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "手机",
+                  "name": "mobilePhone",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "座机",
+                  "name": "telephone",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商类型",
+                  "name": "type",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "format": "int32",
+                  "type": "integer",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "经纬度",
+                  "name": "coordinate",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "独立域名",
+                  "name": "domainName",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "钉钉企业id",
+                  "name": "companyId",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "钉钉企业id",
+                  "name": "companyKey",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "父级车商code",
+                  "name": "superiorDealerCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商类型：1-集团 2-大区 3-门店 不传会有默认值",
+                  "name": "organizeType",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "采购对内简称",
+                  "name": "purchaseNickname",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "采购对外简称",
+                  "name": "purchaseShortname",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "零售对外简称",
+                  "name": "retailNickname",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "零售对内简称",
+                  "name": "retailShortname",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "易置换售后服务地址",
+                  "name": "aftersalesServiceAddress",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "shopTypes",
+                  "name": "shopTypes",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«string»" }],
+              "deprecated": "false",
+              "type": "Result«string»"
+            }
+          ]
+        }
+      ],
+      "models": {
+        "Result«List«DealerDTO»»": {
+          "description": "",
+          "id": "Result«List«DealerDTO»»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "items": { "type": "DealerDTO" }, "required": false, "type": "array" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "Result«OrganizationDTO»": {
+          "description": "",
+          "id": "Result«OrganizationDTO»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "required": false, "type": "OrganizationDTO" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "Page«CarDealerVo»": {
+          "description": "",
+          "id": "Page«CarDealerVo»",
+          "properties": {
+            "currentIndex": { "required": false, "format": "int32", "type": "integer" },
+            "pageSize": { "required": false, "format": "int32", "type": "integer" },
+            "totalNumber": { "required": false, "format": "int32", "type": "integer" },
+            "totalPage": { "required": false, "format": "int32", "type": "integer" },
+            "nextIndex": { "required": false, "format": "int32", "type": "integer" },
+            "preIndex": { "required": false, "format": "int32", "type": "integer" },
+            "items": { "items": { "type": "CarDealerVo" }, "required": false, "type": "array" }
+          }
+        },
+        "Result«List«CarDealerTreeNode»»": {
+          "description": "",
+          "id": "Result«List«CarDealerTreeNode»»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "items": { "type": "CarDealerTreeNode" }, "required": false, "type": "array" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "Result«Page«DealerDTO»»": {
+          "description": "",
+          "id": "Result«Page«DealerDTO»»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "required": false, "type": "Page«DealerDTO»" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "Result«Page«CarDealerVo»»": {
+          "description": "",
+          "id": "Result«Page«CarDealerVo»»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "required": false, "type": "Page«CarDealerVo»" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "OrganizationDTO": {
+          "description": "",
+          "id": "OrganizationDTO",
+          "properties": {
+            "id": { "required": false, "format": "int64", "type": "integer" },
+            "name": { "required": false, "type": "string" },
+            "comment": { "required": false, "type": "string" },
+            "organizeType": { "required": false, "format": "int32", "type": "integer" },
+            "parentId": { "required": false, "format": "int64", "type": "integer" },
+            "attachedCode": { "required": false, "type": "string" },
+            "dealerDTO": { "required": false, "type": "DealerDTO" },
+            "enterpriseCode": { "required": false, "type": "string" },
+            "creator": { "required": false, "type": "string" },
+            "modifier": { "required": false, "type": "string" }
+          }
+        },
+        "Result«string»": {
+          "description": "",
+          "id": "Result«string»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "required": false, "type": "string" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "Page«DealerDTO»": {
+          "description": "",
+          "id": "Page«DealerDTO»",
+          "properties": {
+            "currentIndex": { "required": false, "format": "int32", "type": "integer" },
+            "pageSize": { "required": false, "format": "int32", "type": "integer" },
+            "totalNumber": { "required": false, "format": "int32", "type": "integer" },
+            "totalPage": { "required": false, "format": "int32", "type": "integer" },
+            "nextIndex": { "required": false, "format": "int32", "type": "integer" },
+            "preIndex": { "required": false, "format": "int32", "type": "integer" },
+            "items": { "items": { "type": "DealerDTO" }, "required": false, "type": "array" }
+          }
+        },
+        "CarDealerVo": {
+          "description": "车商信息对象",
+          "id": "CarDealerVo",
+          "properties": {
+            "code": { "description": "车商（组织）编码", "required": false, "type": "string" },
+            "name": { "description": "车商（组织）名称", "required": false, "type": "string" },
+            "manageShopNum": { "description": "管理店铺数量", "required": false, "format": "int32", "type": "integer" },
+            "purchaseShopNum": {
+              "description": "零售店铺数量",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "num": { "description": "总门店数量", "required": false, "format": "int32", "type": "integer" },
+            "upLevelName": { "description": "上级组织名称", "required": false, "type": "string" },
+            "provinceCode": { "description": "省编码", "required": false, "type": "string" },
+            "cityCode": { "description": "市编码", "required": false, "type": "string" },
+            "districtCode": { "description": "区编码", "required": false, "type": "string" },
+            "area": { "description": "地址", "required": false, "type": "string" },
+            "address": { "description": "详细地址", "required": false, "type": "string" },
+            "mobilePhone": { "description": "手机", "required": false, "type": "string" },
+            "telephone": { "description": "座机", "required": false, "type": "string" },
+            "type": { "description": "车商类型", "required": false, "format": "int32", "type": "integer" },
+            "longitude": { "description": "经度", "required": false, "type": "string" },
+            "latitude": { "description": "纬度", "required": false, "type": "string" },
+            "companyId": { "description": "钉钉企业id", "required": false, "type": "string" },
+            "companyKey": { "description": "钉钉企业id", "required": false, "type": "string" },
+            "upLevelCode": { "description": "上级组织code", "required": false, "type": "string" },
+            "managementShopCode": { "required": false, "type": "string" },
+            "purchaseShopCode": { "required": false, "type": "string" },
+            "retailShopCode": { "required": false, "type": "string" },
+            "shopTypes": { "items": { "type": "string" }, "required": false, "type": "array" },
+            "organizeType": { "required": false, "format": "int32", "type": "integer" },
+            "enterpriseCode": { "required": false, "type": "string" },
+            "enterpriseCertStatus": { "required": false, "format": "int32", "type": "integer" },
+            "subRetailShopNum": { "required": false, "format": "int32", "type": "integer" },
+            "subPurchaseShopNum": { "required": false, "format": "int32", "type": "integer" },
+            "subRealShopNum": { "required": false, "format": "int32", "type": "integer" },
+            "purchaseNickname": { "required": false, "type": "string" },
+            "purchaseShortname": { "required": false, "type": "string" },
+            "retailNickname": { "required": false, "type": "string" },
+            "retailShortname": { "required": false, "type": "string" },
+            "aftersalesServiceAddress": { "description": "易置换售后服务地址", "required": false, "type": "string" }
+          }
+        },
+        "CarDealerTreeNode": {
+          "description": "",
+          "id": "CarDealerTreeNode",
+          "properties": {
+            "code": { "required": false, "type": "string" },
+            "name": { "required": false, "type": "string" },
+            "provinceCode": { "required": false, "type": "string" },
+            "cityCode": { "required": false, "type": "string" },
+            "districtCode": { "required": false, "type": "string" },
+            "area": { "required": false, "type": "string" },
+            "address": { "required": false, "type": "string" },
+            "mobilePhone": { "required": false, "type": "string" },
+            "telephone": { "required": false, "type": "string" },
+            "type": { "required": false, "format": "int32", "type": "integer" },
+            "longitude": { "required": false, "type": "string" },
+            "latitude": { "required": false, "type": "string" },
+            "managementShopCode": { "required": false, "type": "string" },
+            "purchaseShopCode": { "required": false, "type": "string" },
+            "retailShopCode": { "required": false, "type": "string" },
+            "subDealerNum": { "required": false, "format": "int32", "type": "integer" },
+            "subRetailShopNum": { "required": false, "format": "int32", "type": "integer" },
+            "subPurchaseShopNum": { "required": false, "format": "int32", "type": "integer" },
+            "organizeType": { "required": false, "format": "int32", "type": "integer" },
+            "enterpriseCode": { "required": false, "type": "string" },
+            "nodes": { "items": { "type": "CarDealerTreeNode" }, "required": false, "type": "array" }
+          }
+        },
+        "Area": {
+          "description": "",
+          "id": "Area",
+          "properties": {
+            "code": { "required": false, "type": "string" },
+            "name": { "required": false, "type": "string" },
+            "type": { "required": false, "type": "string" },
+            "subItems": { "items": { "type": "Area" }, "required": false, "type": "array" }
+          }
+        },
+        "DealerDTO": {
+          "description": "",
+          "id": "DealerDTO",
+          "properties": {
+            "code": { "required": false, "type": "string" },
+            "name": { "required": false, "type": "string" },
+            "provinceCode": { "required": false, "type": "string" },
+            "cityCode": { "required": false, "type": "string" },
+            "districtCode": { "required": false, "type": "string" },
+            "area": { "required": false, "type": "string" },
+            "address": { "required": false, "type": "string" },
+            "mobilePhone": { "required": false, "type": "string" },
+            "telephone": { "required": false, "type": "string" },
+            "type": { "required": false, "format": "int32", "type": "integer" },
+            "longitude": { "required": false, "type": "string" },
+            "latitude": { "required": false, "type": "string" },
+            "managementShopCode": { "required": false, "type": "string" },
+            "purchaseShopCode": { "required": false, "type": "string" },
+            "retailShopCode": { "required": false, "type": "string" },
+            "subDealerNum": { "required": false, "format": "int32", "type": "integer" },
+            "subRetailShopNum": { "required": false, "format": "int32", "type": "integer" },
+            "subPurchaseShopNum": { "required": false, "format": "int32", "type": "integer" },
+            "subRealShopNum": { "required": false, "format": "int32", "type": "integer" },
+            "organizeType": { "required": false, "format": "int32", "type": "integer" },
+            "enterpriseCode": { "required": false, "type": "string" }
+          }
+        },
+        "Result«List«Area»»": {
+          "description": "",
+          "id": "Result«List«Area»»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "items": { "type": "Area" }, "required": false, "type": "array" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "Result«CarDealerVo»": {
+          "description": "",
+          "id": "Result«CarDealerVo»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "required": false, "type": "CarDealerVo" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "Result«boolean»": {
+          "description": "",
+          "id": "Result«boolean»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "required": false, "type": "boolean" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "1.0",
+      "swaggerVersion": "1.2",
+      "basePath": "/",
+      "resourcePath": "/drucker/groupController/addGroup.json",
+      "produces": ["*/*"],
+      "consumes": ["application/json"],
+      "apis": [
+        {
+          "path": "/drucker/groupController/addGroup.json",
+          "description": "addGroup",
+          "operations": [
+            {
+              "method": "POST",
+              "summary": "添加集团信息",
+              "notes": "addGroup",
+              "nickname": "addGroup",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "name": "requestId",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                { "allowMultiple": false, "name": "code", "paramType": "query", "type": "string", "required": false },
+                { "allowMultiple": false, "name": "name", "paramType": "query", "type": "string", "required": false },
+                {
+                  "allowMultiple": false,
+                  "name": "groupName",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                { "allowMultiple": false, "name": "domain", "paramType": "query", "type": "string", "required": false },
+                {
+                  "allowMultiple": false,
+                  "name": "provinceCode",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "name": "cityCode",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "name": "districtCode",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                { "allowMultiple": false, "name": "area", "paramType": "query", "type": "string", "required": false },
+                {
+                  "allowMultiple": false,
+                  "name": "description",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "name": "dealerCode",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "name": "creator",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "name": "modifier",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "name": "companyId",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "name": "companyKey",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商（组织）id",
+                  "name": "id",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "format": "int64",
+                  "type": "integer",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商（组织）编码，添加的时候不填",
+                  "name": "code",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商（组织）名称",
+                  "name": "name",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "省编码",
+                  "name": "provinceCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "市编码",
+                  "name": "cityCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "区编码",
+                  "name": "districtCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "地址",
+                  "name": "area",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "详细地址",
+                  "name": "address",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "手机",
+                  "name": "mobilePhone",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "座机",
+                  "name": "telephone",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "车商类型",
+                  "name": "type",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "format": "int32",
+                  "type": "integer",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "经纬度",
+                  "name": "coordinate",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "独立域名",
+                  "name": "domainName",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "钉钉企业id",
+                  "name": "companyId",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "钉钉企业id",
+                  "name": "companyKey",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "业务店铺类型数组",
+                  "name": "shopTypes",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "List",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "description": "父级车商code",
+                  "name": "superiorDealerCode",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                },
+                {
+                  "allowMultiple": false,
+                  "enum": [
+                    "ORGANIZE_LAYER_1",
+                    "ORGANIZE_LAYER_2",
+                    "ORGANIZE_LAYER_3",
+                    "ORGANIZE_LAYER_4",
+                    "ORGANIZE_LAYER_5",
+                    "ORGANIZE_LAYER_6",
+                    "ORGANIZE_LAYER_7",
+                    "ORGANIZE_LAYER_8",
+                    "ORGANIZE_LAYER_9",
+                    "ORGANIZE_LAYER_10"
+                  ],
+                  "description": "车商类型：1-集团 2-大区 3-门店 不传会有默认值",
+                  "name": "organizeType",
+                  "paramAccess": "",
+                  "paramType": "query",
+                  "type": "OrganizationTypeEnum",
+                  "required": false
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«string»" }],
+              "deprecated": "false",
+              "type": "Result«string»"
+            }
+          ]
+        }
+      ],
+      "models": {
+        "Result«string»": {
+          "description": "",
+          "id": "Result«string»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "required": false, "type": "string" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        }
+      }
+    },
+    {
+      "apiVersion": "1.0",
+      "swaggerVersion": "1.2",
+      "basePath": "/",
+      "resourcePath": "/drucker/shopAuthController",
+      "produces": ["*/*"],
+      "consumes": ["application/json"],
+      "apis": [
+        {
+          "path": "/drucker/shopAuthController/addShopAuth.json",
+          "description": "addShopAuth",
+          "operations": [
+            {
+              "method": "POST",
+              "summary": "提交企业认证",
+              "notes": "addShopAuth",
+              "nickname": "addShopAuth",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "企业认证json串",
+                  "name": "auth",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": true
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«string»" }],
+              "deprecated": "false",
+              "type": "Result«string»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/shopAuthController/bussinessLicenseOrcDistinguish.json",
+          "description": "bussinessLicenseOrcDistinguish",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": " 企业营业执照Ocr识别",
+              "notes": "bussinessLicenseOrcDistinguish",
+              "nickname": "bussinessLicenseOrcDistinguish",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "图片地址",
+                  "name": "imgUrl",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": true
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«BussinessLicenseOrcVo»" }],
+              "deprecated": "false",
+              "type": "Result«BussinessLicenseOrcVo»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/shopAuthController/changeShopAuth.json",
+          "description": "changeShopAuth",
+          "operations": [
+            {
+              "method": "POST",
+              "summary": "变更企业认证",
+              "notes": "changeShopAuth",
+              "nickname": "changeShopAuth",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "企业认证json串",
+                  "name": "auth",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": true
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«string»" }],
+              "deprecated": "false",
+              "type": "Result«string»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/shopAuthController/idCardOrcDistinguish.json",
+          "description": "idCardOrcDistinguish",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": " 身份证Ocr识别",
+              "notes": "idCardOrcDistinguish",
+              "nickname": "idCardOrcDistinguish",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "图片地址",
+                  "name": "imgUrl",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": true
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«IdCardOcrVo»" }],
+              "deprecated": "false",
+              "type": "Result«IdCardOcrVo»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/shopAuthController/loadShopAuth.json",
+          "description": "loadShopAuth",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "根据编码查询企业认证信息",
+              "notes": "loadShopAuth",
+              "nickname": "loadShopAuth",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "企业认证的编码",
+                  "name": "code",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": true
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«ShopAuth»" }],
+              "deprecated": "false",
+              "type": "Result«ShopAuth»"
+            }
+          ]
+        },
+        {
+          "path": "/drucker/shopAuthController/queryOperateLog.json",
+          "description": "queryOperateLog",
+          "operations": [
+            {
+              "method": "GET",
+              "summary": "取得操作记录",
+              "notes": "queryOperateLog",
+              "nickname": "queryOperateLog",
+              "produces": ["*/*"],
+              "consumes": ["application/json"],
+              "parameters": [
+                {
+                  "allowMultiple": false,
+                  "defaultValue": "",
+                  "description": "shopCode",
+                  "name": "shopCode",
+                  "paramType": "query",
+                  "type": "string",
+                  "required": false
+                }
+              ],
+              "responseMessages": [{ "code": 200, "message": null, "responseModel": "Result«List«ShopAuthOperate»»" }],
+              "deprecated": "false",
+              "type": "Result«List«ShopAuthOperate»»"
+            }
+          ]
+        }
+      ],
+      "models": {
+        "Result«List«ShopAuthOperate»»": {
+          "description": "",
+          "id": "Result«List«ShopAuthOperate»»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "items": { "type": "ShopAuthOperate" }, "required": false, "type": "array" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "BussinessLicenseOrcVo": {
+          "description": "",
+          "id": "BussinessLicenseOrcVo",
+          "properties": {
+            "businessRegName": { "required": false, "type": "string" },
+            "businessName": { "required": false, "type": "string" },
+            "businessAddress": { "required": false, "type": "string" },
+            "businessPerson": { "required": false, "type": "string" },
+            "businessStartDate": { "required": false, "type": "string" },
+            "businessValidPeriod": { "required": false, "type": "string" },
+            "businessCaptial": { "required": false, "type": "string" },
+            "businessScope": { "required": false, "type": "string" }
+          }
+        },
+        "ShopAuth": {
+          "description": "",
+          "id": "ShopAuth",
+          "properties": {
+            "dateCreate": { "required": false, "type": "Timestamp" },
+            "dateUpdate": { "required": false, "type": "Timestamp" },
+            "dateDelete": { "required": false, "type": "Timestamp" },
+            "creator": { "required": false, "type": "string" },
+            "modifier": { "required": false, "type": "string" },
+            "id": { "required": false, "format": "int64", "type": "integer" },
+            "shopCode": { "required": false, "type": "string" },
+            "companyType": {
+              "description": "公司性质, 1:个体工商户  2：公司",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "creditCode": { "description": "信用代码", "required": false, "type": "string" },
+            "registCapital": { "description": "注册资本", "required": false, "format": "double", "type": "number" },
+            "fromDate": { "description": "营业期限(from)", "required": false, "type": "Timestamp" },
+            "toDate": { "description": "营业期限(to)", "required": false, "type": "Timestamp" },
+            "shopBrandPic": { "description": "店铺门头图片", "required": false, "type": "string" },
+            "businessLicPic": { "description": "营业执照或市场合同", "required": false, "type": "string" },
+            "corporationName": { "description": "法人姓名", "required": false, "type": "string" },
+            "identityCode": { "description": "身份证号码", "required": false, "type": "string" },
+            "identityCardCorrect": { "description": "身份证正面", "required": false, "type": "string" },
+            "identityCardOpposite": { "description": "身份证反面", "required": false, "type": "string" },
+            "certStatus": {
+              "description": "认证状态，0-未认证，1-已认证",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "reviewStatus": {
+              "description": "审核状态，0-待审核，1-审核通过, 2-审核不通过",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "reviewReason": { "description": "审核原因", "required": false, "type": "string" },
+            "auditor": { "description": "审核人", "required": false, "type": "string" },
+            "auditorName": { "description": "审核人姓名", "required": false, "type": "string" },
+            "submitDate": { "description": "提交审核日期", "required": false, "type": "Timestamp" },
+            "endAuditDate": { "description": "审核结束日期", "required": false, "type": "Timestamp" },
+            "eStatus": {
+              "description": "e签宝审核状态，0-未认证，1-已通过, 2-不通过",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "eReason": { "description": "e签宝审核失败原因", "required": false, "type": "string" },
+            "licenseCompanyName": { "description": "营业执照上的公司名称", "required": false, "type": "string" },
+            "businessLicenseCode": { "description": "营业执照编码", "required": false, "type": "string" },
+            "existChange": {
+              "description": "企业认证变更信息状态, 0-无企业认证变更，1-正在变更企业认证",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "authSource": {
+              "description": "企业认证来源，0-通用服务，1-新零售，2-弹个车",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "authPriority": {
+              "description": "认证优先级, 0-普通，1-加急",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "address": { "description": "公司地址", "required": false, "type": "string" },
+            "establishDate": { "description": "公司创建日期", "required": false, "type": "string" },
+            "introduce": { "description": "经营范围", "required": false, "type": "string" },
+            "isTstd": { "description": "是否特殊通道认证", "required": false, "format": "int32", "type": "integer" },
+            "shop": { "required": false, "type": "Shop" },
+            "baseshop": { "required": false, "type": "BaseShop" },
+            "fromDateStr": { "required": false, "type": "string" },
+            "toDateStr": { "required": false, "type": "string" },
+            "sensitiveIdentityCode": { "required": false, "type": "string" }
+          }
+        },
+        "Timestamp": {
+          "description": "",
+          "id": "Timestamp",
+          "properties": {
+            "nanos": { "required": false, "format": "int32", "type": "integer" },
+            "time": { "required": false, "format": "int64", "type": "integer" },
+            "year": { "required": false, "format": "int32", "type": "integer" },
+            "month": { "required": false, "format": "int32", "type": "integer" },
+            "hours": { "required": false, "format": "int32", "type": "integer" },
+            "minutes": { "required": false, "format": "int32", "type": "integer" },
+            "seconds": { "required": false, "format": "int32", "type": "integer" },
+            "date": { "required": false, "format": "int32", "type": "integer" },
+            "day": { "required": false, "format": "int32", "type": "integer" },
+            "timezoneOffset": { "required": false, "format": "int32", "type": "integer" }
+          }
+        },
+        "Date": {
+          "description": "",
+          "id": "Date",
+          "properties": {
+            "hours": { "required": false, "format": "int32", "type": "integer" },
+            "minutes": { "required": false, "format": "int32", "type": "integer" },
+            "seconds": { "required": false, "format": "int32", "type": "integer" },
+            "time": { "required": false, "format": "int64", "type": "integer" },
+            "year": { "required": false, "format": "int32", "type": "integer" },
+            "month": { "required": false, "format": "int32", "type": "integer" },
+            "date": { "required": false, "format": "int32", "type": "integer" },
+            "day": { "required": false, "format": "int32", "type": "integer" },
+            "timezoneOffset": { "required": false, "format": "int32", "type": "integer" }
+          }
+        },
+        "Result«BussinessLicenseOrcVo»": {
+          "description": "",
+          "id": "Result«BussinessLicenseOrcVo»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "required": false, "type": "BussinessLicenseOrcVo" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "Result«string»": {
+          "description": "",
+          "id": "Result«string»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "required": false, "type": "string" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "Shop": {
+          "description": "",
+          "id": "Shop",
+          "properties": {
+            "dateCreate": { "required": false, "type": "Timestamp" },
+            "dateUpdate": { "required": false, "type": "Timestamp" },
+            "dateDelete": { "required": false, "type": "Timestamp" },
+            "creator": { "required": false, "type": "string" },
+            "modifier": { "required": false, "type": "string" },
+            "id": { "required": false, "format": "int64", "type": "integer" },
+            "code": { "required": false, "type": "string" },
+            "name": { "required": false, "type": "string" },
+            "walletAccountId": { "required": false, "type": "string" },
+            "phone": { "required": false, "type": "string" },
+            "addresscall": { "required": false, "type": "string" },
+            "provinceCode": { "description": "省份code", "required": false, "type": "string" },
+            "cityCode": { "description": "城市code", "required": false, "type": "string" },
+            "regionCode": { "required": false, "type": "string" },
+            "area": { "description": "省份城市中文名", "required": false, "type": "string" },
+            "place": { "description": "店铺地址", "required": false, "type": "string" },
+            "coordinate": { "required": false, "type": "string" },
+            "parentCode": { "required": false, "type": "string" },
+            "baseType": { "required": false, "type": "string" },
+            "tag": { "required": false, "type": "string" },
+            "isCheniu": { "required": false, "format": "int32", "type": "integer" },
+            "isTest": { "required": false, "format": "int32", "type": "integer" },
+            "isVirtual": { "required": false, "format": "int32", "type": "integer" },
+            "mapUrl": { "required": false, "type": "string" },
+            "certStatus": { "required": false, "format": "int32", "type": "integer" },
+            "eStatus": {
+              "description": "e签宝审核状态，0-未认证，1-已通过, 2-不通过",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "newSaleProvider": { "required": false, "format": "int32", "type": "integer" },
+            "companyId": { "required": false, "format": "int32", "type": "integer" },
+            "extInfoType": { "required": false, "format": "int32", "type": "integer" },
+            "type": { "description": "门店store || 车牛cheniu", "required": false, "type": "string" },
+            "nickname": { "required": false, "type": "string" },
+            "shortname": { "required": false, "type": "string" },
+            "introduce": { "description": "介绍", "required": false, "type": "string" },
+            "businessStartTime": { "required": false, "type": "string" },
+            "businessEndTime": { "required": false, "type": "string" },
+            "openDate": { "required": false, "format": "date-time", "type": "string" },
+            "auction": {
+              "description": "是否开通拍卖，1-开通",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "lease": {
+              "description": "是否开通新车直租, 1-开通 2-代销",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "leasePhone": { "required": false, "type": "string" },
+            "secLease": { "required": false, "format": "int32", "type": "integer" },
+            "secLeasePhone": { "required": false, "type": "string" },
+            "insurance": {
+              "description": "是否开通质保, 1-开通",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "customerLoan": {
+              "description": "是否开通消费贷, 1-开通",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "isDetection": {
+              "description": "是否需要检测，1是，2否",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "isShowDetectionReport": {
+              "description": "是否展示质检报告，1是，2否",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "isRemoteOpen": {
+              "description": "是否远程开通, 1是, 2否",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "storeType": {
+              "description": "0-大车商客户、1-二手车经销商，2-4S店，3-主机厂，4-二手车交易市场， 5-个体工商户， 6-经纪公司， 7-中介， 8-寄售代理,12新车二网,13.大车商二网",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "implStatus": { "required": false, "format": "int32", "type": "integer" },
+            "avata": { "required": false, "type": "string" },
+            "authStatus": {
+              "description": "车商认证状态，0-未认证，1-认证通过",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "disable": { "required": false, "format": "int32", "type": "integer" },
+            "marketId": { "required": false, "format": "int32", "type": "integer" },
+            "marketName": { "required": false, "type": "string" },
+            "shopLevel": { "required": false, "format": "int32", "type": "integer" },
+            "posId": { "required": false, "type": "string" },
+            "taobaoShopId": { "required": false, "type": "string" },
+            "booth": { "required": false, "type": "string" },
+            "guarantee": {
+              "description": "是否开通收车宝，1-开通，0-不开通",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "dateUpdateImpl": { "required": false, "type": "Timestamp" },
+            "dateUpdateLease": { "required": false, "type": "Timestamp" },
+            "dateUpdateSecLease": { "required": false, "type": "Timestamp" },
+            "dateCreateLease": { "required": false, "type": "Timestamp" },
+            "dateCreateSecLease": { "required": false, "type": "Timestamp" },
+            "buCode": { "required": false, "type": "string" },
+            "factoryCode": { "required": false, "type": "string" },
+            "isDt": { "required": false, "format": "int32", "type": "integer" },
+            "subType": { "required": false, "format": "int32", "type": "integer" },
+            "otherPlat": { "required": false, "format": "int32", "type": "integer" },
+            "otherPlatId": { "required": false, "type": "string" },
+            "retail": { "required": false, "format": "int32", "type": "integer" },
+            "dateCreateRetail": { "required": false, "type": "Timestamp" },
+            "dateCancelRetail": { "required": false, "type": "Timestamp" },
+            "dateCancelLease": { "required": false, "type": "Timestamp" },
+            "leaseAfterPhone": { "required": false, "type": "string" },
+            "dateCancelSecLease": { "required": false, "type": "Timestamp" },
+            "secLeaseMarket": { "required": false, "format": "int32", "type": "integer" },
+            "isMendian": { "description": "车行168是否开通门店", "required": false, "type": "string" },
+            "ch168Tag": { "required": false, "type": "string" },
+            "dateCreateSecLeaseMarket": { "required": false, "type": "Timestamp" },
+            "dateCancelSecLeaseMarket": { "required": false, "type": "Timestamp" },
+            "selfSecCar": { "required": false, "format": "int32", "type": "integer" },
+            "dateCreateSelfSecCar": { "required": false, "type": "Timestamp" },
+            "dateCancelSelfSecCar": { "required": false, "type": "Timestamp" },
+            "supplyChainFinance": { "required": false, "format": "int32", "type": "integer" },
+            "tgcChannel": { "required": false, "format": "int32", "type": "integer" },
+            "newCarTool": { "required": false, "format": "int32", "type": "integer" },
+            "dateCreateNewCarTool": { "required": false, "type": "Timestamp" },
+            "dateCancelNewCarTool": { "required": false, "type": "Timestamp" },
+            "allowOpenTgc": { "required": false, "format": "int32", "type": "integer" },
+            "virtual": { "required": false, "format": "int32", "type": "integer" },
+            "cloudWarehouse": { "required": false, "format": "int32", "type": "integer" },
+            "openAuction": { "required": false, "type": "boolean" },
+            "openLease": { "required": false, "type": "boolean" },
+            "openSecLease": { "required": false, "type": "boolean" },
+            "openInsurance": { "required": false, "type": "boolean" },
+            "openCustomerLoan": { "required": false, "type": "boolean" },
+            "openTgc": { "required": false, "type": "boolean" }
+          }
+        },
+        "ShopAuthOperate": {
+          "description": "",
+          "id": "ShopAuthOperate",
+          "properties": {
+            "id": { "required": false, "format": "int64", "type": "integer" },
+            "shopCode": { "required": false, "type": "string" },
+            "operateStatus": { "required": false, "format": "int32", "type": "integer" },
+            "auditor": { "required": false, "type": "string" },
+            "reviewReason": { "required": false, "type": "string" },
+            "dateCreate": { "required": false, "type": "Timestamp" },
+            "dateUpdate": { "required": false, "type": "Timestamp" }
+          }
+        },
+        "Result«ShopAuth»": {
+          "description": "",
+          "id": "Result«ShopAuth»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "required": false, "type": "ShopAuth" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        },
+        "IdCardOcrVo": {
+          "description": "",
+          "id": "IdCardOcrVo",
+          "properties": {
+            "idNumber": { "required": false, "type": "string" },
+            "idName": { "required": false, "type": "string" }
+          }
+        },
+        "BaseShop": {
+          "description": "",
+          "id": "BaseShop",
+          "properties": {
+            "dateCreate": { "required": false, "type": "Timestamp" },
+            "dateUpdate": { "required": false, "type": "Timestamp" },
+            "dateDelete": { "required": false, "type": "Timestamp" },
+            "creator": { "required": false, "type": "string" },
+            "modifier": { "required": false, "type": "string" },
+            "id": { "required": false, "format": "int64", "type": "integer" },
+            "code": { "required": false, "type": "string" },
+            "name": { "required": false, "type": "string" },
+            "walletAccountId": { "required": false, "type": "string" },
+            "phone": { "required": false, "type": "string" },
+            "addresscall": { "required": false, "type": "string" },
+            "provinceCode": { "description": "省份code", "required": false, "type": "string" },
+            "cityCode": { "description": "城市code", "required": false, "type": "string" },
+            "regionCode": { "required": false, "type": "string" },
+            "area": { "description": "省份城市中文名", "required": false, "type": "string" },
+            "place": { "description": "店铺地址", "required": false, "type": "string" },
+            "coordinate": { "required": false, "type": "string" },
+            "parentCode": { "required": false, "type": "string" },
+            "baseType": { "required": false, "type": "string" },
+            "tag": { "required": false, "type": "string" },
+            "isCheniu": { "required": false, "format": "int32", "type": "integer" },
+            "isTest": { "required": false, "format": "int32", "type": "integer" },
+            "isVirtual": { "required": false, "format": "int32", "type": "integer" },
+            "mapUrl": { "required": false, "type": "string" },
+            "certStatus": { "required": false, "format": "int32", "type": "integer" },
+            "eStatus": {
+              "description": "e签宝审核状态，0-未认证，1-已通过, 2-不通过",
+              "required": false,
+              "format": "int32",
+              "type": "integer"
+            },
+            "newSaleProvider": { "required": false, "format": "int32", "type": "integer" },
+            "companyId": { "required": false, "format": "int32", "type": "integer" },
+            "extInfoType": { "required": false, "format": "int32", "type": "integer" }
+          }
+        },
+        "Result«IdCardOcrVo»": {
+          "description": "",
+          "id": "Result«IdCardOcrVo»",
+          "properties": {
+            "success": { "required": false, "type": "boolean" },
+            "data": { "required": false, "type": "IdCardOcrVo" },
+            "msg": { "required": false, "type": "string" },
+            "code": { "required": false, "type": "string" },
+            "traceId": { "required": false, "type": "string" }
+          }
+        }
+      }
+    }
+  ]
+}

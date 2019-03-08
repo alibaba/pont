@@ -248,8 +248,101 @@ export class SwaggerDataSource {
   };
 }
 
-// TODO: 转换1.2版本的swagger数据成标准数据
-export function transformV102SwaggerData2Standard(swagger, usingOperationId = true, originName = '') {}
+export class OutModuleDataSource {
+  description: string;
+  models: {
+    [key in string]: {
+      description: string;
+      id: string;
+      properties: { [key in string]: SwaggerProperty };
+    }
+  };
+  apis: {
+    description: string;
+    path: string;
+    operations: SwaggerInterface[];
+  }[];
+  resourcePath: string;
+}
+
+/**
+ * swagger 1.x拼接好的数据
+ * @export
+ * @class OutDataSource
+ */
+export class OutDataSource {
+  name: string;
+  apis: { description: string; path: string }[];
+  info: {
+    description: string;
+    title: string;
+  };
+  groups: OutModuleDataSource[];
+}
+
+// 转换1.2版本的swagger数据成2.0需求数据
+export function transformOutDateSwaggerData2Standard(swagger: OutDataSource, usingOperationId = true, originName = '') {
+  // 构造mods
+  const mods = swagger.groups.map((group, index) => {
+    const interfaces = group.apis.reduce((allInterfaces, api) => allInterfaces.concat(api.operations), []);
+
+    const standardInterfaces = interfaces.map(inter => {
+      inter.operationId = inter.nickname;
+      return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, '', originName);
+    });
+    const description = group.description;
+    const name = swagger.apis[index].path.match(/([a-zA-Z]+)/g).pop();
+    return new Mod({
+      description,
+      interfaces: standardInterfaces,
+      name
+    });
+  });
+  // 构造baseClasses
+  const baseClasses = swagger.groups.reduce((allClasses, group) => {
+    return allClasses.concat(
+      _.map(group.models, (value, key) => {
+        const name = key;
+        const description = value.description;
+        const templateName = findDefinition(key);
+        const properties = _.map(value.properties, (prop, propName) => {
+          const { $ref, description, type, required, items } = prop;
+
+          const dataType = Schema.swaggerSchema2StandardDataType(
+            {
+              $ref,
+              enum: prop.enum,
+              items,
+              type
+            } as Schema,
+            templateName,
+            originName
+          );
+
+          return new Property({
+            dataType,
+            name: propName,
+            description,
+            required
+          });
+        });
+
+        return new BaseClass({
+          name,
+          description,
+          properties
+        });
+      })
+    );
+  }, []);
+
+  const name = swagger.name;
+  return new StandardDataSource({
+    name,
+    mods,
+    baseClasses: _.uniqBy(baseClasses, base => base.justName)
+  });
+}
 
 export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperationId = true, originName = '') {
   const allSwaggerInterfaces = [] as SwaggerInterface[];
@@ -261,7 +354,6 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
     });
   });
 
-  // 取mods
   const mods = swagger.tags
     .filter(tag => {
       // ignore un annotation case

@@ -1,6 +1,6 @@
 {
   "outDir": "services",
-  "templatePath": "./pontTemplate",
   "version": "old",
-  "originUrl": "http://127.0.0.1:9090/apiV102.json"
+  "templatePath": "./pontTemplate",
+  "originUrl": "http://shop-build.dasouche-inc.net/api-docs"
 }

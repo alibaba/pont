@@ -3,7 +3,13 @@ import { Config, getTemplate, DataSourceConfig, hasChinese } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import fetch from 'node-fetch';
-import { SwaggerDataSource, transformSwaggerData2Standard, transformV102SwaggerData2Standard } from './swagger';
+import {
+  SwaggerDataSource,
+  OutModuleDataSource,
+  OutDataSource,
+  transformSwaggerData2Standard,
+  transformOutDateSwaggerData2Standard
+} from './swagger';
 import { diff, Model } from './diff';
 import { FilesManager } from './generate';
 import { info as debugInfo } from './debugLog';
@@ -267,26 +273,31 @@ export class Manager {
       this.report('自动翻译中文基类完成！');
 
       // 判断是否为老版本的swagger
+      // 老版本的swagger需要遍历请求接口，拿到模块数据
       if (config.version === 'old') {
-        const data = await JSON.parse(swaggerJsonStr);
+        const data: OutDataSource = await JSON.parse(swaggerJsonStr);
         data.name = config.name;
-        data.group = [];
+        data.groups = [];
 
         this.report('获取各模块数据中...');
+        // 按照第一层返回的数据，去遍历请求各个模块的数据
         for (let i = 0; i < data.apis.length; i++) {
           const module = await fetch(`${config.originUrl}${data.apis[i].path}`);
-          const json = await module.text();
-          data.group.push(json);
+          let moduleStr = await module.text();
+          moduleStr = await this.translateChinese(moduleStr);
+          const moduleJson: OutModuleDataSource = await JSON.parse(moduleStr);
+          // 模块上需要加上描述，到时候在转换数据的时候用到
+          moduleJson.description = data.apis[i].description;
+          // 加入到拼接好的数据
+          data.groups.push(moduleJson);
         }
-
-        // this.remoteDataSource = transformV102SwaggerData2Standard(data, config.usingOperationId, config.name);
+        this.remoteDataSource = transformOutDateSwaggerData2Standard(data, config.usingOperationId, config.name);
       } else {
         const data: SwaggerDataSource = await JSON.parse(swaggerJsonStr);
-
         data.name = config.name;
-
         this.remoteDataSource = transformSwaggerData2Standard(data, config.usingOperationId, config.name);
       }
+
       this.report('远程数据获取成功！');
 
       const transformProgram = Config.getTransformFromConfig(config);
