@@ -3,6 +3,7 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as debugLog from './debugLog';
 import { createManager } from './utils';
+import { StandardDataSource } from './standard';
 
 const packageFilePath = path.join(__dirname, '..', 'package.json');
 const packageInfo = JSON.parse(fs.readFileSync(packageFilePath, 'utf8'));
@@ -13,9 +14,58 @@ program.version(currentVersion).usage('[命令] [配置项]');
 
 program.description('powerful api code generator');
 
+function assert(expression: boolean, message: string) {
+  if (!expression) {
+    debugLog.error(message);
+    process.exit(1);
+  }
+}
+
 (async function() {
   try {
     const manager = await createManager();
+
+    program
+      .command('check')
+      .description('检测 api-lock.json 文件')
+      .action(async () => {
+        debugLog.info('api-lock.json 文件检测中...');
+        const fileContent = await manager.readLockFile();
+
+        try {
+          const localDatas = JSON.parse(fileContent) as StandardDataSource[];
+          if (localDatas.length > 1) {
+            assert(localDatas.every(data => !!data.name), '多数据源每个数据源应该有 "name"');
+          }
+
+          localDatas.forEach(data => {
+            data.baseClasses.forEach(base => {
+              assert(!!base.name, `描述为 ${base.description} 的类没有"name"属性`);
+
+              base.properties.forEach(prop => {
+                assert(!!prop.name, `${base.name} 类的某个属性没有 "name" 属性`);
+              });
+            });
+
+            data.mods.forEach((mod, modIndex) => {
+              assert(!!mod.name, `描述为 ${mod.description} 的模块没有 "name" 属性`);
+
+              mod.interfaces.forEach(inter => {
+                assert(!!inter.name, `${mod.name} 模块的某个接口没有 "name" 属性`);
+
+                inter.parameters.forEach(param => {
+                  assert(!!param.name, `${mod.name} 模块的 ${inter.name} 接口的某个参数没有 "name" 属性`);
+                });
+              });
+            });
+          });
+        } catch (e) {
+          debugLog.error(e);
+          process.exit(1);
+        }
+
+        process.exit(0);
+      });
 
     program
       .command('ls')
@@ -32,17 +82,9 @@ program.description('powerful api code generator');
         const { modDiffs, boDiffs } = manager.diffs;
 
         console.log('模块：');
-        console.log(
-          modDiffs
-            .map(mod => `${mod.name}(${mod.details.join(',').slice(0, 20)})`)
-            .join('\n')
-        );
+        console.log(modDiffs.map(mod => `${mod.name}(${mod.details.join(',').slice(0, 20)})`).join('\n'));
         console.log('基类');
-        console.log(
-          boDiffs
-            .map(bo => `${bo.name}(${bo.details.join(',').slice(0, 20)})`)
-            .join('\n')
-        );
+        console.log(boDiffs.map(bo => `${bo.name}(${bo.details.join(',').slice(0, 20)})`).join('\n'));
       });
 
     program
