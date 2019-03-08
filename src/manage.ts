@@ -293,7 +293,7 @@ export class Manager {
       if (config.version === 'old') {
         const data: OutDataSource = await JSON.parse(swaggerJsonStr);
         data.name = config.name;
-        data.groups = [];
+        !data.groups && (data.groups = []);
 
         this.report('获取各模块数据中...');
         // 按照第一层返回的数据，去遍历请求各个模块的数据
@@ -304,6 +304,7 @@ export class Manager {
           const moduleJson: OutModuleDataSource = await JSON.parse(moduleStr);
           // 模块上需要加上描述，到时候在转换数据的时候用到
           moduleJson.description = data.apis[i].description;
+          moduleJson.path = data.apis[i].path;
           // 加入到拼接好的数据
           data.groups.push(moduleJson);
         }

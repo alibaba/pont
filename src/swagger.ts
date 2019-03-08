@@ -250,6 +250,7 @@ export class SwaggerDataSource {
 
 export class OutModuleDataSource {
   description: string;
+  path: string;
   models: {
     [key in string]: {
       description: string;
@@ -291,7 +292,7 @@ export function transformOutDateSwaggerData2Standard(swagger: OutDataSource, usi
       return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, '', originName);
     });
     const description = group.description;
-    const name = swagger.apis[index].path.match(/([a-zA-Z]+)/g).pop();
+    const name = group.path.match(/([a-zA-Z]+)/g).pop();
     return new Mod({
       description,
       interfaces: standardInterfaces,
