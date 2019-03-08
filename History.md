@@ -1,3 +1,11 @@
+0.1.53 / 2019-03-08
+==================
+
+* Merge pull request #31 from nefe/feat/cmd-check
+* Merge pull request #32 from gaoletian/master
+* chore:  clean code
+* test:  Map without template params to object
+
 0.1.52 / 2019-02-28
 ==================
 

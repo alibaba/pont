@@ -47,9 +47,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/fs-extra@^5.0.4":
-  version "5.0.4"
-  resolved "http://registry.npm.alibaba-inc.com/@types/fs-extra/download/@types/fs-extra-5.0.4.tgz#b971134d162cc0497d221adde3dbb67502225599"
+"@types/fs-extra@^5.0.5":
+  version "5.0.5"
+  resolved "http://registry.npm.alibaba-inc.com/@types/fs-extra/download/@types/fs-extra-5.0.5.tgz#080d90a792f3fa2c5559eb44bd8ef840aae9104b"
+  integrity sha1-CA2Qp5Lz+ixVWetEvY74QKrpEEs=
   dependencies:
     "@types/node" "*"
 
