@@ -18,7 +18,7 @@ import Translate from './translate';
 import { FileStructures } from './generate';
 
 export class Manager {
-  readonly lockFilename = 'api.lock';
+  readonly lockFilename = 'api-lock.json';
 
   allLocalDataSources: StandardDataSource[] = [];
   allConfigs: DataSourceConfig[];
@@ -157,15 +157,31 @@ export class Manager {
   }
 
   existsLocal() {
-    return fs.existsSync(path.join(this.currConfig.outDir, this.lockFilename));
+    return (
+      fs.existsSync(path.join(this.currConfig.outDir, this.lockFilename)) ||
+      fs.existsSync(path.join(this.currConfig.outDir, 'api.lock'))
+    );
+  }
+
+  async readLockFile(): Promise<string> {
+    let lockFile = path.join(this.currConfig.outDir, 'api-lock.json');
+    const isExists = fs.existsSync(lockFile);
+
+    if (!isExists) {
+      lockFile = path.join(this.currConfig.outDir, 'api.lock');
+    }
+
+    const localDataStr = await fs.readFile(lockFile, {
+      encoding: 'utf8'
+    });
+
+    return localDataStr;
   }
 
   async readLocalDataSource() {
     try {
       this.report('读取本地数据中...');
-      const localDataStr = await fs.readFile(path.join(this.currConfig.outDir, this.lockFilename), {
-        encoding: 'utf8'
-      });
+      const localDataStr = await this.readLockFile();
 
       this.report('读取本地完成');
       const localDataObjects = JSON.parse(localDataStr) as StandardDataSource[];

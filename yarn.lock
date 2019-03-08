@@ -47,9 +47,10 @@
   dependencies:
     "@types/node" "*"
 
-"@types/fs-extra@^5.0.4":
-  version "5.0.4"
-  resolved "http://registry.npm.alibaba-inc.com/@types/fs-extra/download/@types/fs-extra-5.0.4.tgz#b971134d162cc0497d221adde3dbb67502225599"
+"@types/fs-extra@^5.0.5":
+  version "5.0.5"
+  resolved "http://registry.npm.alibaba-inc.com/@types/fs-extra/download/@types/fs-extra-5.0.5.tgz#080d90a792f3fa2c5559eb44bd8ef840aae9104b"
+  integrity sha1-CA2Qp5Lz+ixVWetEvY74QKrpEEs=
   dependencies:
     "@types/node" "*"
 
@@ -369,11 +370,7 @@ colors@1.0.3:
   resolved "http://registry.npm.alibaba-inc.com/colors/download/colors-1.0.3.tgz#0433f44d809680fdeb60ed260f1b0c262e82a40b"
   integrity sha1-BDP0TYCWgP3rYO0mDxsMJi6CpAs=
 
-commander@^2.11.0:
-  version "2.11.0"
-  resolved "http://registry.npm.alibaba-inc.com/commander/download/commander-2.11.0.tgz#157152fd1e7a6c8d98a5b715cf376df928004563"
-
-commander@^2.14.1, commander@^2.9.0:
+commander@^2.14.1, commander@^2.19.0, commander@^2.9.0:
   version "2.19.0"
   resolved "http://registry.npm.alibaba-inc.com/commander/download/commander-2.19.0.tgz#f6198aa84e5b83c46054b94ddedbfed5ee9ff12a"
   integrity sha1-9hmKqE5bg8RgVLlN3tv+1e6f8So=

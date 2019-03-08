@@ -86,6 +86,27 @@ describe('pont功能测试', () => {
     });
   });
 
+  it('api.d.ts should transform Map without template params to object', () => {
+    let rightCode = oneline(`
+      export namespace getAllMsgForMap {
+          export class Params {
+            /** accountTime */
+            accountTime: string;
+            /** type */
+            type: string;
+          }
+
+          export type Response = defs.api1.Result<Array<object>>;
+          export const init: Response;
+          export function request(
+            params: Params,
+          ): Promise<defs.api1.Result<Array<object>>>;
+        }
+    `);
+
+    assert.ok(apidts.includes(rightCode));
+  });
+
   it('config-single-usingMultipleOrigins should has multiple origin fileStructure', async () => {
     // 清除路径
     clearDir('services');
