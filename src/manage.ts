@@ -157,20 +157,25 @@ export class Manager {
     );
   }
 
+  async readLockFile(): Promise<string> {
+    let lockFile = path.join(this.currConfig.outDir, 'api-lock.json');
+    const isExists = fs.existsSync(lockFile);
+
+    if (!isExists) {
+      lockFile = path.join(this.currConfig.outDir, 'api.lock');
+    }
+
+    const localDataStr = await fs.readFile(lockFile, {
+      encoding: 'utf8'
+    });
+
+    return localDataStr;
+  }
+
   async readLocalDataSource() {
     try {
       this.report('读取本地数据中...');
-
-      let lockFile = path.join(this.currConfig.outDir, 'api-lock.json');
-      const isExists = fs.existsSync(lockFile);
-
-      if (!isExists) {
-        lockFile = path.join(this.currConfig.outDir, 'api.lock');
-      }
-
-      const localDataStr = await fs.readFile(lockFile, {
-        encoding: 'utf8'
-      });
+      const localDataStr = await this.readLockFile();
 
       this.report('读取本地完成');
       const localDataObjects = JSON.parse(localDataStr) as StandardDataSource[];

@@ -14,7 +14,7 @@
   },
   "dependencies": {
     "chalk": "^2.3.0",
-    "commander": "^2.11.0",
+    "commander": "^2.19.0",
     "fs-extra": "^5.0.0",
     "lodash": "^4.17.5",
     "node-fetch": "^1.7.3",
@@ -31,7 +31,7 @@
   ],
   "devDependencies": {
     "@types/chai": "^4.1.7",
-    "@types/fs-extra": "^5.0.4",
+    "@types/fs-extra": "^5.0.5",
     "@types/http-server": "^0.10.0",
     "@types/lodash": "^4.14.110",
     "@types/mocha": "^5.2.6",
