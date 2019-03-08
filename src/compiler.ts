@@ -1,8 +1,5 @@
 class Token {
-  constructor(
-    public type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma',
-    public value = ''
-  ) {}
+  constructor(public type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma', public value = '') {}
 }
 
 class Parser {
@@ -16,11 +13,7 @@ class Parser {
       return node;
     } else {
       console.error('current nodes', this.nodes);
-      throw Error(
-        'the first node type is not ' +
-          type +
-          " in template parser's eat method"
-      );
+      throw Error('the first node type is not ' + type + " in template parser's eat method");
     }
   }
 
@@ -115,10 +108,11 @@ function generateCode(ast: any, originName = ''): string {
     retName = 'void';
   }
 
-  if (['object', 'Object'].includes(name)) {
+  if (['object', 'Object', 'Map'].includes(name)) {
     retName = 'object';
   }
 
+  // 优先处理有模板参数的情况 如 Map<Foo,Bar> , List<Foo, Bar> , Foo<Bar, Baz>
   if (templateArgs.length) {
     if (name === 'List') {
       retName = 'Array';
@@ -127,12 +121,15 @@ function generateCode(ast: any, originName = ''): string {
     } else {
       retName = originName ? `defs.${originName}.${name}` : `defs.${name}`;
     }
-    return `${retName}<${templateArgs
-      .map(arg => generateCode(arg, originName))
-      .join(', ')}>`;
+    return `${retName}<${templateArgs.map(arg => generateCode(arg, originName)).join(', ')}>`;
   }
 
   if (['number', 'string', 'boolean', 'void', 'object'].includes(retName)) {
+    return retName;
+  }
+  // 无模板参数的 Map 转换为 object
+  if (['Map'].includes(name)) {
+    retName = 'object';
     return retName;
   }
 
@@ -217,9 +214,7 @@ export function generateTemplateDef(template: string) {
   const { templateArgs, name } = ast;
 
   if (templateArgs && templateArgs.length) {
-    return `${name}<${templateArgs
-      .map((arg, argIndex) => 'T' + argIndex + ' = any')
-      .join(', ')}>`;
+    return `${name}<${templateArgs.map((arg, argIndex) => 'T' + argIndex + ' = any').join(', ')}>`;
   }
 
   return name;
