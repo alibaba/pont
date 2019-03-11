@@ -6,7 +6,7 @@ import * as os from 'os';
 import * as assert from 'assert';
 import * as debugLog from './debugLog';
 
-export class Translate {
+class Translate {
   private localDictDir = os.homedir() + '/.pont';
   private dict: { [key: string]: string } = {};
   private dictFullPath = '';
@@ -71,4 +71,4 @@ export class Translate {
   }
 }
 
-export default new Translate();
+export const Translator = new Translate();

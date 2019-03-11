@@ -1,12 +1,4 @@
-import {
-  StandardDataSource,
-  PrimitiveType,
-  Interface,
-  DataType,
-  Mod,
-  BaseClass,
-  Property
-} from './standard';
+import { StandardDataSource, PrimitiveType, Interface, DataType, Mod, BaseClass, Property } from '../standard';
 import * as _ from 'lodash';
 import {
   getMaxSamePath,
@@ -16,15 +8,14 @@ import {
   toDashCase,
   toDashDefaultCase,
   hasChinese,
-  transformModsName
-} from './utils';
-import {
-  generateTemplate,
-  generateTemplateDef,
-  findDefinition
-} from './compiler';
+  transformModsName,
+  Config
+} from '../utils';
+import { generateTemplate, generateTemplateDef, findDefinition } from '../compiler';
+import fetch from 'node-fetch';
 
-import * as debugLog from './debugLog'
+import * as debugLog from '../debugLog';
+import { OriginBaseReader } from './base';
 
 export enum SwaggerType {
   integer = 'integer',
@@ -38,13 +29,13 @@ export enum SwaggerType {
 
 export class SwaggerProperty {
   type: SwaggerType;
-  enum?= [] as string[];
-  items?= null as {
+  enum? = [] as string[];
+  items? = null as {
     type?: SwaggerType;
     $ref?: string;
   };
-  $ref?= '';
-  description?= '';
+  $ref? = '';
+  description? = '';
   name: string;
   required: boolean;
 }
@@ -66,7 +57,7 @@ export class SwaggerParameter {
 
   enum: string[];
 
-  items?= null as {
+  items? = null as {
     type?: SwaggerType;
     $ref?: string;
   };
@@ -82,12 +73,7 @@ export class Schema {
   };
   $ref: string;
 
-  static swaggerSchema2StandardDataType(
-    schema: Schema,
-    templateName = '',
-    originName = '',
-    isResponse = false
-  ) {
+  static swaggerSchema2StandardDataType(schema: Schema, templateName = '', originName = '', isResponse = false) {
     const { items, $ref, type } = schema;
     let primitiveType = schema.type as string;
 
@@ -111,10 +97,7 @@ export class Schema {
       primitiveType = 'File';
     }
 
-    let reference = generateTemplate(
-      $ref || _.get(items, '$ref', ''),
-      originName
-    );
+    let reference = generateTemplate($ref || _.get(items, '$ref', ''), originName);
 
     if (reference === 'Model') {
       reference = '';
@@ -127,8 +110,7 @@ export class Schema {
 
     let isTemplateRef = false;
     const reg = new RegExp(`defs\\.${originName}\\.`, 'g');
-    const templateCompareName =
-      reference.replace(reg, 'defs.') || primitiveType;
+    const templateCompareName = reference.replace(reg, 'defs.') || primitiveType;
 
     if (
       (templateCompareName && templateCompareName === templateName) ||
@@ -210,22 +192,10 @@ export class SwaggerInterface {
     }
 
     const responseSchema = _.get(inter, 'responses.200.schema', {}) as Schema;
-    const response = Schema.swaggerSchema2StandardDataType(
-      responseSchema,
-      '',
-      originName,
-      true
-    );
+    const response = Schema.swaggerSchema2StandardDataType(responseSchema, '', originName, true);
 
     const parameters = (inter.parameters || []).map(param => {
-      const {
-        description,
-        items,
-        name,
-        type,
-        schema = {} as Schema,
-        required
-      } = param;
+      const { description, items, name, type, schema = {} as Schema, required } = param;
 
       return new Property({
         in: param.in,
@@ -281,11 +251,7 @@ export class SwaggerDataSource {
   };
 }
 
-export function transformSwaggerData2Standard(
-  swagger: SwaggerDataSource,
-  usingOperationId = true,
-  originName = ''
-) {
+function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperationId = true, originName = '') {
   const allSwaggerInterfaces = [] as SwaggerInterface[];
   _.forEach(swagger.paths, (methodInters, path) => {
     _.forEach(methodInters, (inter, method) => {
@@ -313,17 +279,10 @@ export function transformSwaggerData2Standard(
           inter.tags.includes(toDashCase(tag.description))
         );
       });
-      const samePath = getMaxSamePath(
-        modInterfaces.map(inter => inter.path.slice(1))
-      );
+      const samePath = getMaxSamePath(modInterfaces.map(inter => inter.path.slice(1)));
 
       const standardInterfaces = modInterfaces.map(inter => {
-        return SwaggerInterface.transformSwaggerInterface2Standard(
-          inter,
-          usingOperationId,
-          samePath,
-          originName
-        );
+        return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, samePath, originName);
       });
 
       // 兼容某些项目把swagger tag的name和description弄反的情况
@@ -414,17 +373,8 @@ export function transformSwaggerData2Standard(
             ref = ref.slice(ref.lastIndexOf('.') + 1);
           }
 
-          if (
-            ref &&
-            !baseClasses.find(
-              base => base.name === ref || base.justName === ref
-            )
-          ) {
-            debugLog.warn(
-              `baseClasses not contains ${dataType} in ${param.name} param of ${
-              inter.name
-              } interface `
-            );
+          if (ref && !baseClasses.find(base => base.name === ref || base.justName === ref)) {
+            debugLog.warn(`baseClasses not contains ${dataType} in ${param.name} param of ${inter.name} interface `);
             return {
               ...param,
               dataType: {
@@ -445,4 +395,35 @@ export function transformSwaggerData2Standard(
     mods,
     name: swagger.name
   });
+}
+
+export class SwaggerV2Reader extends OriginBaseReader {
+  async fetchRemoteData() {
+    try {
+      this.report('获取远程数据中...');
+      const response = await fetch(this.config.originUrl);
+
+      this.report('自动翻译中文基类中...');
+      let swaggerJsonStr: string = await response.text();
+      swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
+      this.report('自动翻译中文基类完成！');
+
+      const data: SwaggerDataSource = await JSON.parse(swaggerJsonStr);
+      this.report('远程数据获取成功！');
+
+      data.name = this.config.name;
+
+      let remoteDataSource = transformSwaggerData2Standard(data, this.config.usingOperationId, this.config.name);
+      const transformProgram = Config.getTransformFromConfig(this.config);
+
+      remoteDataSource = transformProgram(remoteDataSource);
+      this.checkDataSource(remoteDataSource);
+
+      this.report('远程对象创建完毕！');
+
+      return remoteDataSource;
+    } catch (e) {
+      throw new Error('读取远程接口数据失败！' + e.toString());
+    }
+  }
 }
