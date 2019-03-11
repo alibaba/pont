@@ -32,8 +32,6 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 
 export class Config {
   originUrl? = '';
-  // 配置项上加version配置，默认new
-  version: 'new' | 'old' = 'new';
   usingOperationId: boolean;
   taggedByName = true;
   outDir = 'service';
@@ -103,8 +101,7 @@ export class Config {
       usingMultipleOrigins: this.usingMultipleOrigins,
       templatePath: path.join(configDir, this.templatePath),
       transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
-      prettierConfig: this.prettierConfig,
-      version: this.version
+      prettierConfig: this.prettierConfig
     };
 
     if (this.origins && this.origins.length) {
@@ -128,8 +125,6 @@ export class Config {
 export class DataSourceConfig {
   originUrl: string;
   name?: string;
-  // 配置项加入version配置，默认new
-  version?: 'new' | 'old' = 'new';
   usingOperationId = false;
   usingMultipleOrigins = false;
   taggedByName = true;
