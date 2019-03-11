@@ -1,12 +1,4 @@
-import {
-  StandardDataSource,
-  PrimitiveType,
-  Interface,
-  DataType,
-  Mod,
-  BaseClass,
-  Property
-} from './standard';
+import { StandardDataSource, PrimitiveType, Interface, DataType, Mod, BaseClass, Property } from '../standard';
 import * as _ from 'lodash';
 import {
   getMaxSamePath,
@@ -14,19 +6,15 @@ import {
   getIdentifierFromUrl,
   transformCamelCase,
   toDashCase,
-  toDashDefaultCase,
   hasChinese,
   transformModsName
-} from './utils';
-import {
-  generateTemplate,
-  generateTemplateDef,
-  findDefinition
-} from './compiler';
+} from '../utils';
+import { generateTemplate, generateTemplateDef, findDefinition } from '../compiler';
 
-import * as debugLog from './debugLog'
+import * as debugLog from '../debugLog';
+import { OriginBaseReader } from './base';
 
-export enum SwaggerType {
+enum SwaggerType {
   integer = 'integer',
   string = 'string',
   file = 'string',
@@ -36,20 +24,20 @@ export enum SwaggerType {
   object = 'object'
 }
 
-export class SwaggerProperty {
+class SwaggerProperty {
   type: SwaggerType;
-  enum?= [] as string[];
-  items?= null as {
+  enum? = [] as string[];
+  items? = null as {
     type?: SwaggerType;
     $ref?: string;
   };
-  $ref?= '';
-  description?= '';
+  $ref? = '';
+  description? = '';
   name: string;
   required: boolean;
 }
 
-export class SwaggerParameter {
+class SwaggerParameter {
   /** 字段名 */
   name = '';
 
@@ -66,14 +54,14 @@ export class SwaggerParameter {
 
   enum: string[];
 
-  items?= null as {
+  items? = null as {
     type?: SwaggerType;
     $ref?: string;
   };
 
   schema: Schema;
 }
-export class Schema {
+class Schema {
   enum?: string[];
   type: SwaggerType;
   items: {
@@ -82,12 +70,7 @@ export class Schema {
   };
   $ref: string;
 
-  static swaggerSchema2StandardDataType(
-    schema: Schema,
-    templateName = '',
-    originName = '',
-    isResponse = false
-  ) {
+  static swaggerSchema2StandardDataType(schema: Schema, templateName = '', originName = '', isResponse = false) {
     const { items, $ref, type } = schema;
     let primitiveType = schema.type as string;
 
@@ -111,10 +94,7 @@ export class Schema {
       primitiveType = 'File';
     }
 
-    let reference = generateTemplate(
-      $ref || _.get(items, '$ref', ''),
-      originName
-    );
+    let reference = generateTemplate($ref || _.get(items, '$ref', ''), originName);
 
     if (reference === 'Model') {
       reference = '';
@@ -127,8 +107,7 @@ export class Schema {
 
     let isTemplateRef = false;
     const reg = new RegExp(`defs\\.${originName}\\.`, 'g');
-    const templateCompareName =
-      reference.replace(reg, 'defs.') || primitiveType;
+    const templateCompareName = reference.replace(reg, 'defs.') || primitiveType;
 
     if (
       (templateCompareName && templateCompareName === templateName) ||
@@ -154,7 +133,7 @@ export class Schema {
   }
 }
 
-export function fixSwaggerEnum(enumStrs: string[]) {
+function fixSwaggerEnum(enumStrs: string[]) {
   if (!enumStrs) {
     return enumStrs;
   }
@@ -172,7 +151,7 @@ export function fixSwaggerEnum(enumStrs: string[]) {
   });
 }
 
-export class SwaggerInterface {
+class SwaggerInterface {
   consumes = [] as string[];
 
   parameters = [] as SwaggerParameter[];
@@ -210,22 +189,10 @@ export class SwaggerInterface {
     }
 
     const responseSchema = _.get(inter, 'responses.200.schema', {}) as Schema;
-    const response = Schema.swaggerSchema2StandardDataType(
-      responseSchema,
-      '',
-      originName,
-      true
-    );
+    const response = Schema.swaggerSchema2StandardDataType(responseSchema, '', originName, true);
 
     const parameters = (inter.parameters || []).map(param => {
-      const {
-        description,
-        items,
-        name,
-        type,
-        schema = {} as Schema,
-        required
-      } = param;
+      const { description, items, name, type, schema = {} as Schema, required } = param;
 
       return new Property({
         in: param.in,
@@ -281,11 +248,7 @@ export class SwaggerDataSource {
   };
 }
 
-export function transformSwaggerData2Standard(
-  swagger: SwaggerDataSource,
-  usingOperationId = true,
-  originName = ''
-) {
+function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperationId = true, originName = '') {
   const allSwaggerInterfaces = [] as SwaggerInterface[];
   _.forEach(swagger.paths, (methodInters, path) => {
     _.forEach(methodInters, (inter, method) => {
@@ -313,17 +276,10 @@ export function transformSwaggerData2Standard(
           inter.tags.includes(toDashCase(tag.description))
         );
       });
-      const samePath = getMaxSamePath(
-        modInterfaces.map(inter => inter.path.slice(1))
-      );
+      const samePath = getMaxSamePath(modInterfaces.map(inter => inter.path.slice(1)));
 
       const standardInterfaces = modInterfaces.map(inter => {
-        return SwaggerInterface.transformSwaggerInterface2Standard(
-          inter,
-          usingOperationId,
-          samePath,
-          originName
-        );
+        return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, samePath, originName);
       });
 
       // 兼容某些项目把swagger tag的name和description弄反的情况
@@ -414,17 +370,8 @@ export function transformSwaggerData2Standard(
             ref = ref.slice(ref.lastIndexOf('.') + 1);
           }
 
-          if (
-            ref &&
-            !baseClasses.find(
-              base => base.name === ref || base.justName === ref
-            )
-          ) {
-            debugLog.warn(
-              `baseClasses not contains ${dataType} in ${param.name} param of ${
-              inter.name
-              } interface `
-            );
+          if (ref && !baseClasses.find(base => base.name === ref || base.justName === ref)) {
+            debugLog.warn(`baseClasses not contains ${dataType} in ${param.name} param of ${inter.name} interface `);
             return {
               ...param,
               dataType: {
@@ -443,6 +390,12 @@ export function transformSwaggerData2Standard(
   return new StandardDataSource({
     baseClasses: _.uniqBy(baseClasses, base => base.justName),
     mods,
-    name: swagger.name
+    name: originName
   });
+}
+
+export class SwaggerV2Reader extends OriginBaseReader {
+  transform2Standard(data, usingOperationId: boolean, originName: string) {
+    return transformSwaggerData2Standard(data, usingOperationId, originName);
+  }
 }

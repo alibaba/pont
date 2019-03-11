@@ -1,15 +1,13 @@
-import fetch from 'node-fetch';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as prettier from 'prettier';
 
 import * as ts from 'typescript';
 import { ResolveConfigOptions } from 'prettier';
-import { CodeGenerator } from './generate';
-import { debug } from 'util';
 import { error } from './debugLog';
 import { Mod } from './standard';
 import { Manager } from './manage';
+import { OriginType } from './scripts';
 
 const defaultTemplateCode = `
 import * as Pont from 'pont-engine';
@@ -32,10 +30,12 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 
 export class Config {
   originUrl? = '';
+  originType = OriginType.SwaggerV2;
   usingOperationId: boolean;
   taggedByName = true;
   outDir = 'service';
   origins? = [] as Array<{
+    originType: OriginType;
     originUrl: string;
     name: string;
     usingOperationId: boolean;
@@ -116,7 +116,8 @@ export class Config {
     return [
       new DataSourceConfig({
         ...commonConfig,
-        originUrl: this.originUrl
+        originUrl: this.originUrl,
+        originType: this.originType
       })
     ];
   }
@@ -124,6 +125,7 @@ export class Config {
 
 export class DataSourceConfig {
   originUrl: string;
+  originType = OriginType.SwaggerV2;
   name?: string;
   usingOperationId = false;
   usingMultipleOrigins = false;
