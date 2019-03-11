@@ -12,8 +12,6 @@ import {
 } from './utils';
 import { generateTemplate, generateTemplateDef, findDefinition } from './compiler';
 
-import * as debugLog from './debugLog';
-
 export enum SwaggerType {
   integer = 'integer',
   string = 'string',
@@ -268,7 +266,6 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
       return true;
     })
     .map(tag => {
-      // 筛选所有的swagger方法，tags中包含了tag字段的
       const modInterfaces = allSwaggerInterfaces.filter(inter => {
         return (
           inter.tags.includes(tag.name) ||
@@ -277,10 +274,7 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
           inter.tags.includes(toDashCase(tag.description))
         );
       });
-      const samePath = getMaxSamePath(
-        // 去除掉前面的'/'
-        modInterfaces.map(inter => inter.path.slice(1))
-      );
+      const samePath = getMaxSamePath(modInterfaces.map(inter => inter.path.slice(1)));
 
       const standardInterfaces = modInterfaces.map(inter => {
         return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, samePath, originName);
@@ -375,7 +369,7 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
           }
 
           if (ref && !baseClasses.find(base => base.name === ref || base.justName === ref)) {
-            debugLog.warn(`baseClasses not contains ${dataType} in ${param.name} param of ${inter.name} interface `);
+            console.warn(`baseClasses not contains ${dataType} in ${param.name} param of ${inter.name} interface `);
             return {
               ...param,
               dataType: {
