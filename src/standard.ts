@@ -162,8 +162,7 @@ export class DataType {
     if (dataType.enum && dataType.enum.length) {
       standardDataType = new StandardDataType([], '', false);
       standardDataType.enum = dataType.enum;
-    }
-    else if (dataType.primitiveType) {
+    } else if (dataType.primitiveType) {
       standardDataType = new StandardDataType([], dataType.primitiveType, false);
     } else if (dataType.reference) {
       const PreTemplate = /«/g;
@@ -194,8 +193,8 @@ export class StandardDataType {
     public typeName = '',
     public isDefsType = false,
     /** 指向类的第几个模板，-1 表示没有 */
-    public templateIndex = -1,
-  ) { }
+    public templateIndex = -1
+  ) {}
 
   static constructorWithEnum(enums: Array<string | number> = []) {
     const dataType = new StandardDataType();
@@ -212,7 +211,12 @@ export class StandardDataType {
     const { isDefsType, templateIndex, typeArgs = [], typeName } = dataType;
 
     if (typeArgs.length) {
-      const instance = new StandardDataType(typeArgs.map(arg => StandardDataType.constructorFromJSON(arg)), typeName, isDefsType, templateIndex);
+      const instance = new StandardDataType(
+        typeArgs.map(arg => StandardDataType.constructorFromJSON(arg)),
+        typeName,
+        isDefsType,
+        templateIndex
+      );
       instance.enum = dataType.enum;
       return instance;
     }
@@ -362,9 +366,9 @@ export class Interface extends Constructable {
     return `
       class ${className} {
         ${this.parameters
-        .filter(param => param.in !== 'body')
-        .map(param => param.toPropertyCode(true))
-        .join('')}
+          .filter(param => param.in !== 'body')
+          .map(param => param.toPropertyCode(true))
+          .join('')}
       }
     `;
   }
@@ -459,11 +463,7 @@ export class StandardDataSource {
     );
   }
 
-  constructor(standard: {
-    mods: Mod[];
-    name: string;
-    baseClasses: BaseClass[];
-  }) {
+  constructor(standard: { mods: Mod[]; name: string; baseClasses: BaseClass[] }) {
     this.mods = standard.mods;
     if (standard.name) {
       this.name = standard.name;
@@ -477,7 +477,7 @@ export class StandardDataSource {
     try {
       const baseClasses = localDataObject.baseClasses.map(base => {
         const props = base.properties.map(prop => {
-          const { reference, customType, } = prop.dataType as any as DataType;
+          const { reference, customType } = (prop.dataType as any) as DataType;
           const dataType = new StandardDataType();
 
           return new Property({

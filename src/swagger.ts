@@ -18,12 +18,9 @@ import {
   hasChinese,
   transformModsName
 } from './utils';
-import {
-  compileTemplate,
-  parseAst2StandardDataType
-} from './compiler';
+import { compileTemplate, parseAst2StandardDataType } from './compiler';
 
-import * as debugLog from './debugLog'
+import * as debugLog from './debugLog';
 
 export enum SwaggerType {
   integer = 'integer',
@@ -37,13 +34,13 @@ export enum SwaggerType {
 
 export class SwaggerProperty {
   type: SwaggerType;
-  enum?= [] as string[];
-  items?= null as {
+  enum? = [] as string[];
+  items? = null as {
     type?: SwaggerType;
     $ref?: string;
   };
-  $ref?= '';
-  description?= '';
+  $ref? = '';
+  description? = '';
   name: string;
   required: boolean;
 }
@@ -65,7 +62,7 @@ export class SwaggerParameter {
 
   enum: string[];
 
-  items?= null as {
+  items? = null as {
     type?: SwaggerType;
     $ref?: string;
   };
@@ -81,9 +78,7 @@ export class Schema {
   };
   $ref: string;
 
-  static parseSwaggerSchema2StandardDataType(
-    schema: Schema,
-    defNames: string[]) {
+  static parseSwaggerSchema2StandardDataType(schema: Schema, defNames: string[]) {
     const { items, $ref, type } = schema;
     let typeName = schema.type as string;
     // let primitiveType = schema.type as string;
@@ -137,15 +132,17 @@ export function parseSwaggerEnumType(enumStrs: string[]) {
     }
   });
 
-  return enums.filter(str => {
-    return String(str).match(/^[0-9a-zA-Z\_\-\$]+$/);
-  }).map(numOrStr => {
-    if (typeof numOrStr === 'string') {
-      return `'${numOrStr}'`;
-    }
+  return enums
+    .filter(str => {
+      return String(str).match(/^[0-9a-zA-Z\_\-\$]+$/);
+    })
+    .map(numOrStr => {
+      if (typeof numOrStr === 'string') {
+        return `'${numOrStr}'`;
+      }
 
-    return numOrStr;
-  });
+      return numOrStr;
+    });
 }
 
 export class SwaggerInterface {
@@ -177,7 +174,7 @@ export class SwaggerInterface {
     inter: SwaggerInterface,
     usingOperationId: boolean,
     samePath: string,
-    defNames: string[] = [],
+    defNames: string[] = []
   ) {
     let name = getIdentifierFromOperatorId(inter.operationId);
 
@@ -186,20 +183,10 @@ export class SwaggerInterface {
     }
 
     const responseSchema = _.get(inter, 'responses.200.schema', {}) as Schema;
-    const response = Schema.parseSwaggerSchema2StandardDataType(
-      responseSchema,
-      defNames
-    );
+    const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames);
 
     const parameters = (inter.parameters || []).map(param => {
-      const {
-        description,
-        items,
-        name,
-        type,
-        schema = {} as Schema,
-        required
-      } = param;
+      const { description, items, name, type, schema = {} as Schema, required } = param;
 
       return new Property({
         in: param.in,
@@ -272,17 +259,10 @@ export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[],
           inter.tags.includes(toDashCase(tag.description))
         );
       });
-      const samePath = getMaxSamePath(
-        modInterfaces.map(inter => inter.path.slice(1))
-      );
+      const samePath = getMaxSamePath(modInterfaces.map(inter => inter.path.slice(1)));
 
       const standardInterfaces = modInterfaces.map(inter => {
-        return SwaggerInterface.transformSwaggerInterface2Standard(
-          inter,
-          usingOperationId,
-          samePath,
-          defNames
-        );
+        return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, samePath, defNames);
       });
 
       // 兼容某些项目把swagger tag的name和description弄反的情况
@@ -310,18 +290,14 @@ export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[],
   return mods;
 }
 
-export function transformSwaggerData2Standard(
-  swagger: SwaggerDataSource,
-  usingOperationId = true,
-  originName = ''
-) {
+export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperationId = true, originName = '') {
   const draftClasses = _.map(swagger.definitions, (def, defName) => {
     const defNameAst = compileTemplate(defName);
 
     return {
       name: defNameAst.name,
       defNameAst,
-      def,
+      def
     };
   });
   const defNames = draftClasses.map(clazz => clazz.name);
@@ -342,7 +318,7 @@ export function transformSwaggerData2Standard(
           items,
           type
         } as Schema,
-        defNames,
+        defNames
       );
 
       return new Property({
@@ -358,8 +334,8 @@ export function transformSwaggerData2Standard(
       name: clazz.name,
       properties: props,
       templateArgs
-    })
-  })
+    });
+  });
 
   baseClasses.sort((pre, next) => {
     if (pre.name === next.name) {
@@ -372,6 +348,6 @@ export function transformSwaggerData2Standard(
   return new StandardDataSource({
     baseClasses: _.uniqBy(baseClasses, base => base.name),
     mods: parseSwaggerMods(swagger, defNames, usingOperationId),
-    name: originName,
+    name: originName
   });
 }

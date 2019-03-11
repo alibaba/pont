@@ -1,7 +1,7 @@
-import { StandardDataType } from "./standard";
+import { StandardDataType } from './standard';
 
 class Token {
-  constructor(public type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma', public value = '') { }
+  constructor(public type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma', public value = '') {}
 }
 
 interface AstNode {
@@ -10,7 +10,7 @@ interface AstNode {
 }
 
 class Parser {
-  constructor(private nodes: Token[]) { }
+  constructor(private nodes: Token[]) {}
 
   eat(type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma') {
     if (this.nodes.length && this.nodes[0].type === type) {
@@ -62,9 +62,12 @@ class Parser {
   }
 }
 
-
 /** ast 转换为标准类型 */
-export function parseAst2StandardDataType(ast: AstNode, defNames: string[], classTemplateArgs: StandardDataType[] = []): StandardDataType {
+export function parseAst2StandardDataType(
+  ast: AstNode,
+  defNames: string[],
+  classTemplateArgs: StandardDataType[] = []
+): StandardDataType {
   const { name, templateArgs } = ast;
   let typeName = name;
 
