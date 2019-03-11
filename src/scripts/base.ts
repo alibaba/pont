@@ -43,27 +43,45 @@ export class OriginBaseReader {
     return data;
   }
 
-  /** 获取接口数据 */
+  /** 获取远程数据源 */
+  async fetchData() {
+    // 获取数据源
+    this.report('获取远程数据中...');
+    const response = await fetch(this.config.originUrl);
+
+    // 翻译中文类名等
+    this.report('自动翻译中文基类中...');
+    let swaggerJsonStr: string = await response.text();
+    swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
+    this.report('自动翻译中文基类完成！');
+
+    const data = await JSON.parse(swaggerJsonStr);
+    this.report('远程数据获取成功！');
+
+    return data;
+  }
+
+  /** 获取接口数据，解析并返回 */
   async fetchRemoteData(): Promise<StandardDataSource> {
     try {
-      this.report('获取远程数据中...');
-      const response = await fetch(this.config.originUrl);
+      const data = await this.fetchData();
 
-      this.report('自动翻译中文基类中...');
-      let swaggerJsonStr: string = await response.text();
-      swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
-      this.report('自动翻译中文基类完成！');
-
-      const data = await JSON.parse(swaggerJsonStr);
-      this.report('远程数据获取成功！');
-
-      data.name = this.config.name;
-
+      // 将数据源转换为标准数据源格式
       let remoteDataSource = this.transform2Standard(data, this.config.usingOperationId, this.config.name);
-      const transformProgram = Config.getTransformFromConfig(this.config);
+      this.report('远程数据解析完毕!');
 
-      remoteDataSource = transformProgram(remoteDataSource);
+      // 如果用户配置了数据的自定义转换方法、如接口过滤等
+      if (this.config.transformPath) {
+        this.report('获取用户自定义数据转换方法中...');
+        const transformProgram = Config.getTransformFromConfig(this.config);
+
+        remoteDataSource = transformProgram(remoteDataSource);
+        this.report('用户自定义数据转换方法执行完毕');
+      }
+
+      // 对解析后的标准数据源进行校验
       this.checkDataSource(remoteDataSource);
+      this.report('解析后数据校验完毕！');
 
       this.report('远程对象创建完毕！');
 

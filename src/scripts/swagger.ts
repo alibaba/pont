@@ -390,7 +390,7 @@ function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperatio
   return new StandardDataSource({
     baseClasses: _.uniqBy(baseClasses, base => base.justName),
     mods,
-    name: swagger.name
+    name: originName
   });
 }
 
