@@ -6,18 +6,15 @@ import {
   getIdentifierFromUrl,
   transformCamelCase,
   toDashCase,
-  toDashDefaultCase,
   hasChinese,
-  transformModsName,
-  Config
+  transformModsName
 } from '../utils';
 import { generateTemplate, generateTemplateDef, findDefinition } from '../compiler';
-import fetch from 'node-fetch';
 
 import * as debugLog from '../debugLog';
 import { OriginBaseReader } from './base';
 
-export enum SwaggerType {
+enum SwaggerType {
   integer = 'integer',
   string = 'string',
   file = 'string',
@@ -27,7 +24,7 @@ export enum SwaggerType {
   object = 'object'
 }
 
-export class SwaggerProperty {
+class SwaggerProperty {
   type: SwaggerType;
   enum? = [] as string[];
   items? = null as {
@@ -40,7 +37,7 @@ export class SwaggerProperty {
   required: boolean;
 }
 
-export class SwaggerParameter {
+class SwaggerParameter {
   /** 字段名 */
   name = '';
 
@@ -64,7 +61,7 @@ export class SwaggerParameter {
 
   schema: Schema;
 }
-export class Schema {
+class Schema {
   enum?: string[];
   type: SwaggerType;
   items: {
@@ -136,7 +133,7 @@ export class Schema {
   }
 }
 
-export function fixSwaggerEnum(enumStrs: string[]) {
+function fixSwaggerEnum(enumStrs: string[]) {
   if (!enumStrs) {
     return enumStrs;
   }
@@ -154,7 +151,7 @@ export function fixSwaggerEnum(enumStrs: string[]) {
   });
 }
 
-export class SwaggerInterface {
+class SwaggerInterface {
   consumes = [] as string[];
 
   parameters = [] as SwaggerParameter[];
@@ -398,32 +395,7 @@ function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperatio
 }
 
 export class SwaggerV2Reader extends OriginBaseReader {
-  async fetchRemoteData() {
-    try {
-      this.report('获取远程数据中...');
-      const response = await fetch(this.config.originUrl);
-
-      this.report('自动翻译中文基类中...');
-      let swaggerJsonStr: string = await response.text();
-      swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
-      this.report('自动翻译中文基类完成！');
-
-      const data: SwaggerDataSource = await JSON.parse(swaggerJsonStr);
-      this.report('远程数据获取成功！');
-
-      data.name = this.config.name;
-
-      let remoteDataSource = transformSwaggerData2Standard(data, this.config.usingOperationId, this.config.name);
-      const transformProgram = Config.getTransformFromConfig(this.config);
-
-      remoteDataSource = transformProgram(remoteDataSource);
-      this.checkDataSource(remoteDataSource);
-
-      this.report('远程对象创建完毕！');
-
-      return remoteDataSource;
-    } catch (e) {
-      throw new Error('读取远程接口数据失败！' + e.toString());
-    }
+  transform2Standard(data, usingOperationId: boolean, originName: string) {
+    return transformSwaggerData2Standard(data, usingOperationId, originName);
   }
 }

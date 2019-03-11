@@ -7,7 +7,7 @@ import { FilesManager } from './generate';
 import { info as debugInfo } from './debugLog';
 import * as _ from 'lodash';
 import { FileStructures } from './generate';
-import { OriginReader } from './scripts';
+import { readRemoteDataSource } from './scripts';
 
 export class Manager {
   readonly lockFilename = 'api-lock.json';
@@ -241,8 +241,7 @@ export class Manager {
   }
 
   async readRemoteDataSource(config = this.currConfig) {
-    const originReader = new OriginReader(config, this.report);
-    const remoteDataSource = await originReader.fetchRemoteData();
+    const remoteDataSource = await readRemoteDataSource(config, this.report);
     this.remoteDataSource = remoteDataSource;
 
     return remoteDataSource;

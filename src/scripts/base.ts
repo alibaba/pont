@@ -1,11 +1,13 @@
 import { Translator } from '../translate';
 import * as _ from 'lodash';
-import { hasChinese, DataSourceConfig } from '../utils';
+import { hasChinese, DataSourceConfig, Config } from '../utils';
 import { StandardDataSource } from '../standard';
+import fetch from 'node-fetch';
 
 export class OriginBaseReader {
   constructor(protected config: DataSourceConfig, protected report: any) {}
 
+  /** 翻译中文类名等 */
   async translateChinese(jsonString: string) {
     let retString = jsonString;
     try {
@@ -36,11 +38,42 @@ export class OriginBaseReader {
     }
   }
 
-  async fetchRemoteData(): Promise<StandardDataSource> {
-    return;
+  /** 数据转换，可覆盖 */
+  transform2Standard(data, usingOperationId: boolean, originName: string) {
+    return data;
   }
 
-  checkDataSource(dataSource: StandardDataSource) {
+  /** 获取接口数据 */
+  async fetchRemoteData(): Promise<StandardDataSource> {
+    try {
+      this.report('获取远程数据中...');
+      const response = await fetch(this.config.originUrl);
+
+      this.report('自动翻译中文基类中...');
+      let swaggerJsonStr: string = await response.text();
+      swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
+      this.report('自动翻译中文基类完成！');
+
+      const data = await JSON.parse(swaggerJsonStr);
+      this.report('远程数据获取成功！');
+
+      data.name = this.config.name;
+
+      let remoteDataSource = this.transform2Standard(data, this.config.usingOperationId, this.config.name);
+      const transformProgram = Config.getTransformFromConfig(this.config);
+
+      remoteDataSource = transformProgram(remoteDataSource);
+      this.checkDataSource(remoteDataSource);
+
+      this.report('远程对象创建完毕！');
+
+      return remoteDataSource;
+    } catch (e) {
+      throw new Error('读取远程接口数据失败！' + e.toString());
+    }
+  }
+
+  protected checkDataSource(dataSource: StandardDataSource) {
     const { mods, baseClasses } = dataSource;
 
     const errorModNames = [] as string[];
