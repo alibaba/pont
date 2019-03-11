@@ -1,0 +1,5 @@
+{
+  "outDir": "services",
+  "templatePath": "./pontTemplate",
+  "originUrl": "http://shop-build.dasouche-inc.net/api-docs"
+}

@@ -113,4 +113,10 @@ describe('pont功能测试', () => {
     await createManager('config-single-usingMultipleOrigins.json');
     assert.ok(exists('services/api1/api.d.ts'));
   });
+
+  it('swagger 1.x should run correctly', async () => {
+    clearDir('services');
+    await createManager('swagger10N.json');
+    assert.ok(exists('services/api.d.ts'));
+  });
 });

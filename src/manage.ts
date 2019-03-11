@@ -4,6 +4,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import fetch from 'node-fetch';
 import { SwaggerDataSource, transformSwaggerData2Standard } from './swagger';
+import { CompatibleModuleSource, transformCompatibleSwaggerData2Standard } from './compatible';
 import { diff, Model } from './diff';
 import { FilesManager } from './generate';
 import { info as debugInfo } from './debugLog';
@@ -272,6 +273,44 @@ export class Manager {
     }
   }
 
+  /**
+   * 判断是否是老版本swagger定义
+   * @param data swagger数据
+   */
+  isOldSwaggerVersion(data) {
+    const oldReg = /^1/;
+    const swaggerVersion = data.swaggerVersion;
+    return swaggerVersion && oldReg.test(swaggerVersion);
+  }
+
+  /**
+   * 获取拼接老版本swagger数据
+   * @param api 老版本第一层swagger数据
+   * @param config 配置信息
+   */
+  async readOldSwaggerRemoteDataSource(api, config) {
+    !api.groups && (api.groups = []);
+    this.report('获取老版本各模块数据中...');
+    try {
+      // 按照第一层返回的数据，去遍历请求各个模块的数据
+      for (let i = 0; i < api.apis.length; i++) {
+        const module = await fetch(`${config.originUrl}${api.apis[i].path}`);
+        let moduleStr = await module.text();
+        moduleStr = await this.translateChinese(moduleStr);
+        const moduleJson: CompatibleModuleSource = await JSON.parse(moduleStr);
+        // 模块上需要加上描述，在转换数据的时候用到
+        moduleJson.description = api.apis[i].description;
+        moduleJson.path = api.apis[i].path;
+        // 加入到拼接好的数据
+        api.groups.push(moduleJson);
+      }
+      this.report('获取老版本模块数据成功!');
+      return api;
+    } catch (e) {
+      throw new Error('读取老版本模块接口失败' + e.toString());
+    }
+  }
+
   async readRemoteDataSource(config = this.currConfig) {
     try {
       this.report('获取远程数据中...');
@@ -282,12 +321,20 @@ export class Manager {
       swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
       this.report('自动翻译中文基类完成！');
 
-      const data: SwaggerDataSource = await JSON.parse(swaggerJsonStr);
-      this.report('远程数据获取成功！');
-
+      // 当前数据可能是两类情况，老版本swagger或是2.0版本swagger
+      let data = await JSON.parse(swaggerJsonStr);
       data.name = config.name;
+      const isOldVersion = this.isOldSwaggerVersion(data);
 
-      this.remoteDataSource = transformSwaggerData2Standard(data, config.usingOperationId, config.name);
+      // 如果是老版本情况
+      if (isOldVersion) {
+        data = await this.readOldSwaggerRemoteDataSource(data, config);
+        this.remoteDataSource = transformCompatibleSwaggerData2Standard(data, config.usingOperationId, config.name);
+      } else {
+        this.remoteDataSource = transformSwaggerData2Standard(data, config.usingOperationId, config.name);
+      }
+
+      this.report('远程数据获取成功！');
       const transformProgram = Config.getTransformFromConfig(config);
       this.remoteDataSource = transformProgram(this.remoteDataSource);
       this.checkDataSource(this.remoteDataSource);
