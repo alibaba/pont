@@ -1807,6 +1807,21 @@ please-upgrade-node@^3.0.2, please-upgrade-node@^3.1.1:
   dependencies:
     semver-compare "^1.0.0"
 
+pont-engine@0.1.53:
+  version "0.1.53"
+  resolved "http://registry.npm.alibaba-inc.com/pont-engine/download/pont-engine-0.1.53.tgz#e4136d330fada330028eaa7e5904d20b4ffc250b"
+  integrity sha1-5BNtMw+tozACjqp+WQTSC0/8JQs=
+  dependencies:
+    chalk "^2.3.0"
+    commander "^2.19.0"
+    fs-extra "^5.0.0"
+    lodash "^4.17.5"
+    node-fetch "^1.7.3"
+    prettier "^1.15.3"
+    translation.js "^0.7.5"
+    ts-node "^3.3.0"
+    typescript "^2.9.2"
+
 portfinder@^1.0.13:
   version "1.0.20"
   resolved "http://registry.npm.alibaba-inc.com/portfinder/download/portfinder-1.0.20.tgz#bea68632e54b2e13ab7b0c4775e9b41bf270e44a"

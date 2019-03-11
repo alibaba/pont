@@ -1,9 +1,16 @@
+import { StandardDataType } from "./standard";
+
 class Token {
-  constructor(public type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma', public value = '') {}
+  constructor(public type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma', public value = '') { }
+}
+
+interface AstNode {
+  name: string;
+  templateArgs: AstNode[];
 }
 
 class Parser {
-  constructor(private nodes: Token[]) {}
+  constructor(private nodes: Token[]) { }
 
   eat(type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma') {
     if (this.nodes.length && this.nodes[0].type === type) {
@@ -51,11 +58,47 @@ class Parser {
       type: 'Template',
       name,
       templateArgs
-    };
+    } as AstNode;
   }
 }
 
-function compileTemplate(template: string) {
+
+/** ast 转换为标准类型 */
+export function parseAst2StandardDataType(ast: AstNode, defNames: string[], classTemplateArgs: StandardDataType[] = []): StandardDataType {
+  const { name, templateArgs } = ast;
+  let typeName = name;
+
+  if (name === 'long') {
+    typeName = 'number';
+  }
+
+  if (['void', 'Void'].includes(name)) {
+    typeName = 'void';
+  }
+
+  if (['object', 'Object'].includes(name)) {
+    typeName = 'object';
+  }
+
+  const isDefsType = defNames.includes(name);
+  const typeArgs = templateArgs.map(arg => {
+    return parseAst2StandardDataType(arg, defNames, classTemplateArgs);
+  });
+
+  const dataType = new StandardDataType(typeArgs, typeName, isDefsType);
+  dataType.setTemplateIndex(classTemplateArgs);
+
+  return dataType;
+}
+
+export function compileTemplate(template: string) {
+  if (template.startsWith('#/definitions/')) {
+    template = template.slice('#/definitions/'.length);
+  }
+  if (!template) {
+    return null;
+  }
+
   const Identifier = /^[a-zA-Z_][a-zA-Z_0-9]*/;
   const PreTemplate = /^«/;
   const EndTemplate = /^»/;
@@ -110,6 +153,10 @@ function generateCode(ast: any, originName = ''): string {
 
   if (['object', 'Object'].includes(name)) {
     retName = 'object';
+  }
+
+  if (['List'].includes(name)) {
+    retName = 'Array';
   }
 
   // 优先处理有模板参数的情况 如 Map<Foo,Bar> , List<Foo, Bar> , Foo<Bar, Baz>

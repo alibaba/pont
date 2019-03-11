@@ -17,7 +17,7 @@ import { info } from './debugLog';
 import { existsSync } from 'fs-extra';
 
 export class FileStructures {
-  constructor(private generators: CodeGenerator[], private usingMultipleOrigins: boolean) {}
+  constructor(private generators: CodeGenerator[], private usingMultipleOrigins: boolean) { }
 
   getDataSources() {
     return this.generators.map(ge => ge.dataSource);
@@ -137,10 +137,10 @@ export class FileStructures {
 
     return `
     ${dsNames
-      .map(name => {
-        return `/// <reference path="./${name}/api.d.ts" />`;
-      })
-      .join('\n')}
+        .map(name => {
+          return `/// <reference path="./${name}/api.d.ts" />`;
+        })
+        .join('\n')}
     `;
   }
 
@@ -152,7 +152,7 @@ export class FileStructures {
 export class CodeGenerator {
   dataSource: StandardDataSource;
 
-  constructor() {}
+  constructor() { }
 
   setDataSource(dataSource: StandardDataSource) {
     this.dataSource = dataSource;
@@ -228,8 +228,8 @@ export class CodeGenerator {
 
     const content = `namespace ${this.dataSource.name || 'API'} {
         ${mods
-          .map(
-            mod => `
+        .map(
+          mod => `
           /**
            * ${mod.description}
            */
@@ -237,17 +237,17 @@ export class CodeGenerator {
             ${mod.interfaces.map(this.getInterfaceInDeclaration.bind(this)).join('\n')}
           }
         `
-          )
-          .join('\n\n')}
+        )
+        .join('\n\n')}
       }
     `;
 
     return content;
   }
 
-  getModsDeclarationWithMultipleOrigins() {}
+  getModsDeclarationWithMultipleOrigins() { }
 
-  getModsDeclarationWithSingleOrigin() {}
+  getModsDeclarationWithSingleOrigin() { }
 
   /** 获取公共的类型定义代码 */
   getCommonDeclaration() {
@@ -293,11 +293,11 @@ export class CodeGenerator {
       base => `
         class ${base.name} {
           ${base.properties
-            .map(prop => {
-              return prop.toPropertyCodeWithInitValue(base.name);
-            })
-            .filter(id => id)
-            .join('\n')}
+          .map(prop => {
+            return prop.toPropertyCodeWithInitValue(base.name);
+          })
+          .filter(id => id)
+          .join('\n')}
         }
       `
     );
@@ -306,7 +306,7 @@ export class CodeGenerator {
       return `
         ${clsCodes.join('\n')}
         export const ${this.dataSource.name} = {
-          ${this.dataSource.baseClasses.map(bs => bs.justName).join(',\n')}
+          ${this.dataSource.baseClasses.map(bs => bs.name).join(',\n')}
         }
       `;
     }
@@ -328,7 +328,7 @@ export class CodeGenerator {
     import pontFetch from 'src/utils/pontFetch';
 
     export ${inter.getParamsCode()}
-    export const init = ${inter.response.initialValue};
+    export const init = ${inter.response.getInitialValue()};
 
     export async function request(${requestParams}) {
       return pontFetch({
@@ -394,7 +394,7 @@ export class FilesManager {
   report = info;
   prettierConfig: {};
 
-  constructor(private fileStructures: FileStructures, private baseDir: string) {}
+  constructor(private fileStructures: FileStructures, private baseDir: string) { }
 
   private setFormat(files: {}) {
     _.forEach(files, (value: Function | {}, name: string) => {

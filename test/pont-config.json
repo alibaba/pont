@@ -1,0 +1,18 @@
+{
+  "templatePath": "./pontTemplate",
+  "outDir": "../src/services",
+  "usingOperationId": false,
+  "usingMultipleOrigins": true,
+  "origins": [
+    {
+      "name": "ide",
+      "originUrl": "http://v1-4-x-ci.dataphin.aliyun.com/v2/api-docs"
+    }
+  ],
+  "prettierConfig": {
+    "printWidth": 120,
+    "singleQuote": true,
+    "trailingComma": "none",
+    "jsxBracketSameLine": true
+  }
+}

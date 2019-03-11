@@ -262,6 +262,7 @@ export class Manager {
       result.forEach((enKey: string, index) => {
         const chineseKey = chineseKeyCollect[index];
         this.report(chineseKey + ' ==> ' + enKey);
+
         if (enKey) {
           retString = retString.replace(eval(`/${chineseKey}/g`), enKey);
         }
@@ -284,8 +285,6 @@ export class Manager {
 
       const data: SwaggerDataSource = await JSON.parse(swaggerJsonStr);
       this.report('远程数据获取成功！');
-
-      data.name = config.name;
 
       this.remoteDataSource = transformSwaggerData2Standard(data, config.usingOperationId, config.name);
       const transformProgram = Config.getTransformFromConfig(config);

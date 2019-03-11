@@ -1,5 +1,7 @@
 import * as _ from 'lodash';
 import { getDuplicateById } from './utils';
+import { compileTemplate, parseAst2StandardDataType } from './compiler';
+import { type } from 'os';
 
 // primitive type
 export enum PrimitiveType {
@@ -153,11 +155,145 @@ export class DataType {
 
     return this.primitiveType || 'any';
   }
+
+  static dataType2StandardDataType(dataType: DataType) {
+    let standardDataType = null as StandardDataType;
+
+    if (dataType.enum && dataType.enum.length) {
+      standardDataType = new StandardDataType([], '', false);
+      standardDataType.enum = dataType.enum;
+    }
+    else if (dataType.primitiveType) {
+      standardDataType = new StandardDataType([], dataType.primitiveType, false);
+    } else if (dataType.reference) {
+      const PreTemplate = /«/g;
+      const EndTemplate = /»/g;
+      const ref = dataType.reference.replace(PreTemplate, '<').replace(EndTemplate, '>');
+      const ast = compileTemplate(ref);
+      standardDataType = parseAst2StandardDataType(ast, [], []);
+    }
+
+    if (dataType.isArr) {
+      return new StandardDataType([standardDataType], 'Array', false);
+    }
+
+    return standardDataType;
+  }
+}
+
+export class StandardDataType {
+  enum: Array<string | number> = [];
+
+  setEnum(enums: Array<string | number> = []) {
+    this.enum = enums;
+  }
+
+  constructor(
+    public typeArgs = [] as StandardDataType[],
+    /** 例如 number,A(defs.A),Array,Object, '1' | '2' | 'a' 等 */
+    public typeName = '',
+    public isDefsType = false,
+    /** 指向类的第几个模板，-1 表示没有 */
+    public templateIndex = -1,
+  ) { }
+
+  static constructorWithEnum(enums: Array<string | number> = []) {
+    const dataType = new StandardDataType();
+    dataType.enum = enums;
+
+    return dataType;
+  }
+
+  static constructorFromJSON(dataType: StandardDataType) {
+    if (Object.getOwnPropertyNames(dataType).includes('reference')) {
+      return DataType.dataType2StandardDataType(dataType as any);
+    }
+
+    const { isDefsType, templateIndex, typeArgs = [], typeName } = dataType;
+
+    if (typeArgs.length) {
+      const instance = new StandardDataType(typeArgs.map(arg => StandardDataType.constructorFromJSON(arg)), typeName, isDefsType, templateIndex);
+      instance.enum = dataType.enum;
+      return instance;
+    }
+
+    return new StandardDataType([], typeName, isDefsType, templateIndex).setEnum(dataType.enum);
+  }
+
+  setTemplateIndex(classTemplateArgs: StandardDataType[]) {
+    const codes = classTemplateArgs.map(arg => arg.generateCode());
+    const index = codes.indexOf(this.generateCode());
+
+    return index;
+  }
+
+  getDefName(originName = '') {
+    let name = this.typeName;
+
+    if (this.isDefsType) {
+      name = originName ? `defs.${originName}.${this.typeName}` : `defs.${this.typeName}`;
+    }
+
+    return name;
+  }
+
+  getEnumType() {
+    return this.enum.join(' | ') || 'string';
+  }
+
+  /** 生成 Typescript 类型定义的代码 */
+  generateCode(originName = '') {
+    if (this.enum.length) {
+      return this.getEnumType();
+    }
+
+    const name = this.getDefName(originName);
+
+    if (this.typeArgs.length) {
+      return `${name}<${this.typeArgs.map(arg => arg.generateCode(originName)).join(', ')}>`;
+    }
+
+    return name;
+  }
+
+  getInitialValue(originName = '') {
+    if (this.typeName === 'Array') {
+      return '[]';
+    }
+
+    if (this.isDefsType) {
+      return `new ${this.getDefName(originName)}()`;
+    }
+
+    if (this.templateIndex > -1) {
+      return 'undefined';
+    }
+
+    if (this.typeName === 'string') {
+      return "''";
+    }
+
+    if (this.typeName === 'boolean') {
+      return 'false';
+    }
+
+    if (this.enum && this.enum.length) {
+      const str = this.enum[0];
+
+      if (typeof str === 'string') {
+        return `'${str}'`;
+      }
+
+      return str + '';
+    }
+
+    return 'undefined';
+  }
 }
 
 // property both in params and response
 export class Property extends Constructable {
-  dataType: DataType;
+  dataType: StandardDataType;
   description?: string;
   name: string;
   required: boolean;
@@ -183,34 +319,18 @@ export class Property extends Constructable {
 
     return `
       /** ${this.description || this.name} */
-      ${this.name}${optionalSignal}: ${this.dataType.type};`;
+      ${this.name}${optionalSignal}: ${this.dataType.generateCode()};`;
   }
 
   toPropertyCodeWithInitValue(baseName = '') {
     const dataType = this.dataType;
-    let typeWithValue = `= ${this.dataType.initialValue}`;
+    let typeWithValue = `= ${this.dataType.getInitialValue()}`;
 
-    if (
-      dataType.type !== 'any' &&
-      dataType.type !== 'any[]' &&
-      !dataType.isArr
-    ) {
-      typeWithValue = `= ${dataType.initialValue}`;
-
-      if (!this.dataType.initialValue) {
-        return '';
-      }
+    if (!this.dataType.getInitialValue()) {
+      typeWithValue = `: ${this.dataType.generateCode()}`;
     }
 
-    if (!this.dataType.initialValue) {
-      typeWithValue = `: ${this.dataType.type}`;
-    }
-
-    if (typeWithValue.includes('defs.')) {
-      typeWithValue = typeWithValue.replace(/defs.*\./g, '');
-    }
-
-    if (this.dataType.reference.includes(baseName)) {
+    if (this.dataType.typeName === baseName) {
       typeWithValue = `= {}`;
     }
 
@@ -221,7 +341,7 @@ export class Property extends Constructable {
   }
 
   toBody() {
-    return this.dataType.type;
+    return this.dataType.generateCode();
   }
 }
 
@@ -229,22 +349,22 @@ export class Interface extends Constructable {
   consumes: string[];
   parameters: Property[];
   description: string;
-  response: DataType;
+  response: StandardDataType;
   method: string;
   name: string;
   path: string;
 
   get responseType() {
-    return this.response.type;
+    return this.response.generateCode();
   }
 
   getParamsCode(className = 'Params') {
     return `
       class ${className} {
         ${this.parameters
-          .filter(param => param.in !== 'body')
-          .map(param => param.toPropertyCode(true))
-          .join('')}
+        .filter(param => param.in !== 'body')
+        .map(param => param.toPropertyCode(true))
+        .join('')}
       }
     `;
   }
@@ -252,7 +372,7 @@ export class Interface extends Constructable {
   getBodyParamsCode() {
     const bodyParam = this.parameters.find(param => param.in === 'body');
 
-    return (bodyParam && bodyParam.dataType.type) || '';
+    return (bodyParam && bodyParam.dataType.generateCode()) || '';
   }
 
   constructor(inter: Partial<Interface>) {
@@ -276,10 +396,7 @@ export class BaseClass extends Constructable {
   name: string;
   description: string;
   properties: Property[];
-
-  get justName() {
-    return this.name.replace(/(.+)<.+/, '$1');
-  }
+  templateArgs: StandardDataType[];
 
   constructor(base: Partial<BaseClass>) {
     super(base);
@@ -360,7 +477,8 @@ export class StandardDataSource {
     try {
       const baseClasses = localDataObject.baseClasses.map(base => {
         const props = base.properties.map(prop => {
-          const dataType = new DataType(prop.dataType);
+          const { reference, customType, } = prop.dataType as any as DataType;
+          const dataType = new StandardDataType();
 
           return new Property({
             ...prop,
@@ -376,24 +494,11 @@ export class StandardDataSource {
       });
       const mods = localDataObject.mods.map(mod => {
         const interfaces = mod.interfaces.map(inter => {
-          const response = new DataType(inter.response);
+          const response = StandardDataType.constructorFromJSON(inter.response);
+
           const parameters = inter.parameters
             .map(param => {
-              const dataType = new DataType(param.dataType);
-
-              if (param.in === 'body') {
-                const dataType = param.dataType.reference;
-                const ref = dataType.includes('defs.') ? dataType.slice(dataType.lastIndexOf('.') + 1) : dataType;
-
-                if (
-                  ref &&
-                  !baseClasses.find(
-                    base => base.name === ref || base.justName === ref
-                  )
-                ) {
-                  return;
-                }
-              }
+              const dataType = StandardDataType.constructorFromJSON(param.dataType);
 
               return new Property({
                 ...param,
