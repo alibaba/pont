@@ -13,7 +13,7 @@ const clearDir = dirName => {
     if (fs.existsSync(fullpath)) {
       fs.removeSync(getPath(dirName));
     }
-  } catch (error) {}
+  } catch (error) { }
 };
 const oneline = (code: string) => code.replace(/[\s\n]/g, '');
 const exists = filepath => fs.existsSync(getPath(filepath));
@@ -25,11 +25,11 @@ const server = httpServer.createServer({
 let apidts = '';
 
 describe('pont功能测试', () => {
-  before(function(done) {
+  before(function (done) {
     // 清除路径
     clearDir('services');
 
-    server.listen(9090, async err => {
+    server.listen({ port: 9090 }, async err => {
       console.log('http server start successfull');
       await createManager('config-multiple-origins.json');
       // 读取 api.d.ts 并转换为单行
@@ -39,7 +39,7 @@ describe('pont功能测试', () => {
       done();
     });
   });
-  after(function() {
+  after(function () {
     server.close();
   });
 
