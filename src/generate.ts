@@ -330,7 +330,7 @@ export class CodeGenerator {
     import pontFetch from 'src/utils/pontFetch';
 
     export ${inter.getParamsCode()}
-    export const init = ${inter.response.getInitialValue(inter.getDsName())};
+    export const init = ${inter.response.getInitialValue()};
 
     export async function request(${requestParams}) {
       return pontFetch({

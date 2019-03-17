@@ -10,7 +10,7 @@ export enum PrimitiveType {
   boolean = 'boolean'
 }
 
-class Constructable {
+class Contextable {
   getDsName() {
     const context = this.getContext();
 
@@ -50,11 +50,10 @@ class Constructable {
   }
 }
 
-// all the data type here
-export class DataType {
+/** deprecated */
+class DataType {
   primitiveType: PrimitiveType;
   isArr: boolean = false;
-
   customType: string = '';
 
   // reference may have generic like Pagination<BaseBO>
@@ -63,154 +62,32 @@ export class DataType {
   enum: Array<string | number> = [];
 
   isTemplateRef = false;
-
-  constructor(inter: Partial<DataType>) {
-    if (inter.enum) {
-      this.enum = inter.enum;
-    }
-    if (inter.reference) {
-      this.reference = inter.reference;
-    }
-    if (inter.customType) {
-      this.customType = inter.customType;
-    }
-    if (inter.isArr) {
-      this.isArr = inter.isArr;
-    }
-    if (inter.primitiveType) {
-      this.primitiveType = inter.primitiveType;
-    }
-
-    if (inter.isTemplateRef) {
-      this.isTemplateRef = inter.isTemplateRef;
-    }
-  }
-
-  getReference() {
-    return this.reference;
-  }
-
-  getEnumType() {
-    // NOTE: fix the swagger can only export number bug in swagger transform programe
-    if (!this.enum.length) {
-      return 'string';
-    }
-
-    return this.enum
-      .map(numOrStr => {
-        if (typeof numOrStr === 'string') {
-          return `'${numOrStr}'`;
-        }
-
-        return numOrStr;
-      })
-      .join(' | ');
-  }
-
-  get initialValue() {
-    if (this.isArr) {
-      return '[]';
-    }
-
-    if (this.reference) {
-      if (this.reference.match(/<.+>/)) {
-        const noTemplateRef = this.reference.replace(/<.+>/, '');
-
-        return `new ${noTemplateRef}()`;
-      }
-
-      if (this.isTemplateRef) {
-        return 'undefined';
-      }
-
-      return `new ${this.reference}()`;
-    }
-
-    if (this.enum && this.enum.length) {
-      const str = this.enum[0];
-
-      if (typeof str === 'string') {
-        return `'${str}'`;
-      }
-
-      return str + '';
-    }
-
-    if (this.primitiveType) {
-      if (this.primitiveType === PrimitiveType.string) {
-        return "''";
-      }
-
-      if (this.primitiveType === PrimitiveType.boolean) {
-        return 'false';
-      }
-    }
-
-    return 'undefined';
-  }
-
-  get type() {
-    if (this.reference === 'Array') {
-      this.reference = 'any[]';
-    }
-
-    if (this.reference) {
-      if (this.isArr) {
-        return `${this.reference}[]`;
-      }
-
-      // todo
-      return this.reference;
-    }
-
-    if (this.customType) {
-      return `Array<${this.customType}>`;
-    }
-
-    if (this.isArr) {
-      if (this.enum && this.enum.length) {
-        return `Array<${this.getEnumType()}>`;
-      }
-
-      if (this.primitiveType) {
-        return `${this.primitiveType}[]`;
-      }
-
-      return 'any[]';
-    }
-
-    if (this.enum && this.enum.length) {
-      return this.getEnumType();
-    }
-
-    return this.primitiveType || 'any';
-  }
-
-  static dataType2StandardDataType(dataType: DataType) {
-    let standardDataType = null as StandardDataType;
-
-    if (dataType.enum && dataType.enum.length) {
-      standardDataType = new StandardDataType([], '', false);
-      standardDataType.enum = dataType.enum;
-    } else if (dataType.primitiveType) {
-      standardDataType = new StandardDataType([], dataType.primitiveType, false);
-    } else if (dataType.reference) {
-      const PreTemplate = /«/g;
-      const EndTemplate = /»/g;
-      const ref = dataType.reference.replace(PreTemplate, '<').replace(EndTemplate, '>');
-      const ast = compileTemplate(ref);
-      standardDataType = parseAst2StandardDataType(ast, [], []);
-    }
-
-    if (dataType.isArr) {
-      return new StandardDataType([standardDataType], 'Array', false);
-    }
-
-    return standardDataType;
-  }
 }
 
-export class StandardDataType {
+function dataType2StandardDataType(dataType: DataType) {
+  let standardDataType = null as StandardDataType;
+
+  if (dataType.enum && dataType.enum.length) {
+    standardDataType = new StandardDataType([], '', false);
+    standardDataType.enum = dataType.enum;
+  } else if (dataType.primitiveType) {
+    standardDataType = new StandardDataType([], dataType.primitiveType, false);
+  } else if (dataType.reference) {
+    const PreTemplate = /«/g;
+    const EndTemplate = /»/g;
+    const ref = dataType.reference.replace(PreTemplate, '<').replace(EndTemplate, '>');
+    const ast = compileTemplate(ref);
+    standardDataType = parseAst2StandardDataType(ast, [], []);
+  }
+
+  if (dataType.isArr) {
+    return new StandardDataType([standardDataType], 'Array', false);
+  }
+
+  return standardDataType;
+}
+
+export class StandardDataType extends Contextable {
   enum: Array<string | number> = [];
 
   setEnum(enums: Array<string | number> = []) {
@@ -224,7 +101,9 @@ export class StandardDataType {
     public isDefsType = false,
     /** 指向类的第几个模板，-1 表示没有 */
     public templateIndex = -1
-  ) {}
+  ) {
+    super();
+  }
 
   static constructorWithEnum(enums: Array<string | number> = []) {
     const dataType = new StandardDataType();
@@ -235,7 +114,7 @@ export class StandardDataType {
 
   static constructorFromJSON(dataType: StandardDataType) {
     if (Object.getOwnPropertyNames(dataType).includes('reference')) {
-      return DataType.dataType2StandardDataType(dataType as any);
+      return dataType2StandardDataType(dataType as any);
     }
 
     const { isDefsType, templateIndex, typeArgs = [], typeName } = dataType;
@@ -298,12 +177,13 @@ export class StandardDataType {
     return name || 'any';
   }
 
-  getInitialValue(originName = '') {
+  getInitialValue() {
     if (this.typeName === 'Array') {
       return '[]';
     }
 
     if (this.isDefsType) {
+      const originName = this.getDsName();
       return originName ? `new ${this.getDefName(originName)}()` : `new ${this.typeName}()`;
     }
 
@@ -331,16 +211,26 @@ export class StandardDataType {
 
     return 'undefined';
   }
+
+  /** deprecated */
+  get initialValue() {
+    return this.getInitialValue();
+  }
 }
 
 // property both in params and response
-export class Property extends Constructable {
+export class Property extends Contextable {
   dataType: StandardDataType;
   description?: string;
   name: string;
   required: boolean;
 
   in: 'query' | 'body' | 'path';
+
+  setContext(context) {
+    super.setContext(context);
+    this.dataType.setContext(context);
+  }
 
   constructor(prop: Partial<Property>) {
     super(prop);
@@ -387,7 +277,7 @@ export class Property extends Constructable {
   }
 }
 
-export class Interface extends Constructable {
+export class Interface extends Contextable {
   consumes: string[];
   parameters: Property[];
   description: string;
@@ -420,6 +310,7 @@ export class Interface extends Constructable {
   setContext(context: any) {
     super.setContext(context);
     this.parameters.forEach(param => param.setContext(context));
+    this.response.setContext(context);
   }
 
   constructor(inter: Partial<Interface>) {
@@ -427,7 +318,7 @@ export class Interface extends Constructable {
   }
 }
 
-export class Mod extends Constructable {
+export class Mod extends Contextable {
   description: string;
   interfaces: Interface[];
   name: string;
@@ -444,7 +335,7 @@ export class Mod extends Constructable {
   }
 }
 
-export class BaseClass extends Constructable {
+export class BaseClass extends Contextable {
   name: string;
   description: string;
   properties: Property[];
