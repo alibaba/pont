@@ -26,7 +26,10 @@
       "request": "launch",
       "name": "debug cmd",
       "program": "${workspaceFolder}/lib/cmd.js",
-      "args": [],
+      "args": [
+        "generate"
+      ],
+      "cwd": "${workspaceFolder}/",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "protocol": "inspector"

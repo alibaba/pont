@@ -31,8 +31,8 @@ export class FileStructures {
     return {
       ...files,
       'index.ts': this.getDataSourcesTs.bind(this),
-      'api-lock.json': this.getLockContent.bind(this),
-      'api.d.ts': this.getDataSourcesDeclarationTs.bind(this)
+      'api.d.ts': this.getDataSourcesDeclarationTs.bind(this),
+      'api-lock.json': this.getLockContent.bind(this)
     };
   }
 
@@ -91,13 +91,18 @@ export class FileStructures {
       usingMultipleOrigins
     );
 
-    return {
+    const result = {
       'baseClass.ts': generator.getBaseClassesIndex.bind(generator),
       mods: mods,
       'index.ts': generator.getIndex.bind(generator),
-      'api.d.ts': generator.getDeclaration.bind(generator),
-      'api-lock.json': this.getLockContent.bind(this)
+      'api.d.ts': generator.getDeclaration.bind(generator)
     };
+
+    if (!usingMultipleOrigins) {
+      result['api-lock.json'] = this.getLockContent.bind(this);
+    }
+
+    return result;
   }
 
   getFileStructures() {
@@ -437,20 +442,18 @@ export class FilesManager {
   created = false;
 
   async saveLock() {
-    let lockFile = path.join(this.baseDir, 'api-lock.json');
-    const isExists = fs.existsSync(lockFile);
+    const lockFilePath = path.join(this.baseDir, 'api-lock.json');
+    const oldLockFilePath = path.join(this.baseDir, 'api.lock');
+    const isExists = fs.existsSync(lockFilePath);
+    const readFilePath = isExists ? lockFilePath : oldLockFilePath;
 
-    if (!isExists) {
-      lockFile = path.join(this.baseDir, 'api.lock');
-    }
+    const lockContent = await fs.readFile(readFilePath, 'utf8');
 
     const newLockContent = this.fileStructures.getLockContent();
 
-    const lockContent = await fs.readFile(lockFile, 'utf8');
-
     if (lockContent !== newLockContent) {
       this.created = true;
-      await fs.writeFile(lockFile, newLockContent);
+      await fs.writeFile(lockFilePath, newLockContent);
     }
   }
 

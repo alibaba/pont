@@ -64,7 +64,22 @@ class DataType {
   isTemplateRef = false;
 }
 
-function dataType2StandardDataType(dataType: DataType) {
+// 兼容性代码，将老的 datatype 转换为新的。
+function dateTypeRefs2Ast(refStr: string, originName: string) {
+  let ref = refStr.replace(new RegExp(`defs.${originName}.`, 'g'), '');
+  ref = ref.replace(/defs./g, '');
+  ref = ref.replace(/= any/g, '');
+  const PreTemplate = '«';
+  const EndTemplate = '»';
+  ref = ref.replace(/</g, PreTemplate).replace(/>/g, EndTemplate);
+
+  const ast = compileTemplate(ref);
+
+  return ast;
+}
+
+// 兼容性代码，将老的 datatype 转换为新的。
+function dataType2StandardDataType(dataType: DataType, originName: string, defNames: string[]) {
   let standardDataType = null as StandardDataType;
 
   if (dataType.enum && dataType.enum.length) {
@@ -73,15 +88,20 @@ function dataType2StandardDataType(dataType: DataType) {
   } else if (dataType.primitiveType) {
     standardDataType = new StandardDataType([], dataType.primitiveType, false);
   } else if (dataType.reference) {
-    const PreTemplate = /«/g;
-    const EndTemplate = /»/g;
-    const ref = dataType.reference.replace(PreTemplate, '<').replace(EndTemplate, '>');
-    const ast = compileTemplate(ref);
-    standardDataType = parseAst2StandardDataType(ast, [], []);
+    const ast = dateTypeRefs2Ast(dataType.reference, originName);
+    standardDataType = parseAst2StandardDataType(ast, defNames, []);
   }
 
   if (dataType.isArr) {
+    if (!standardDataType) {
+      standardDataType = new StandardDataType();
+    }
+
     return new StandardDataType([standardDataType], 'Array', false);
+  }
+
+  if (!standardDataType) {
+    return new StandardDataType();
   }
 
   return standardDataType;
@@ -112,16 +132,16 @@ export class StandardDataType extends Contextable {
     return dataType;
   }
 
-  static constructorFromJSON(dataType: StandardDataType) {
+  static constructorFromJSON(dataType: StandardDataType, originName: string, defNames: string[]) {
     if (Object.getOwnPropertyNames(dataType).includes('reference')) {
-      return dataType2StandardDataType(dataType as any);
+      return dataType2StandardDataType(dataType as any, originName, defNames);
     }
 
     const { isDefsType, templateIndex, typeArgs = [], typeName } = dataType;
 
     if (typeArgs.length) {
       const instance = new StandardDataType(
-        typeArgs.map(arg => StandardDataType.constructorFromJSON(arg)),
+        typeArgs.map(arg => StandardDataType.constructorFromJSON(arg, originName, defNames)),
         typeName,
         isDefsType,
         templateIndex
@@ -130,7 +150,10 @@ export class StandardDataType extends Contextable {
       return instance;
     }
 
-    return new StandardDataType([], typeName, isDefsType, templateIndex).setEnum(dataType.enum);
+    const result = new StandardDataType([], typeName, isDefsType, templateIndex);
+    result.setEnum(dataType.enum);
+
+    return result;
   }
 
   setTemplateIndex(classTemplateArgs: StandardDataType[]) {
@@ -177,14 +200,19 @@ export class StandardDataType extends Contextable {
     return name || 'any';
   }
 
-  getInitialValue() {
+  getInitialValue(usingDef = true) {
     if (this.typeName === 'Array') {
       return '[]';
     }
 
     if (this.isDefsType) {
       const originName = this.getDsName();
-      return originName ? `new ${this.getDefName(originName)}()` : `new ${this.typeName}()`;
+
+      if (!usingDef) {
+        return `new ${this.typeName}()`;
+      }
+
+      return `new ${this.getDefName(originName)}()`;
     }
 
     if (this.templateIndex > -1) {
@@ -256,9 +284,9 @@ export class Property extends Contextable {
 
   toPropertyCodeWithInitValue(baseName = '') {
     const dataType = this.dataType;
-    let typeWithValue = `= ${this.dataType.getInitialValue()}`;
+    let typeWithValue = `= ${this.dataType.getInitialValue(false)}`;
 
-    if (!this.dataType.getInitialValue()) {
+    if (!this.dataType.getInitialValue(false)) {
       typeWithValue = `: ${this.dataType.generateCode(this.getDsName())}`;
     }
 
@@ -310,7 +338,7 @@ export class Interface extends Contextable {
   setContext(context: any) {
     super.setContext(context);
     this.parameters.forEach(param => param.setContext(context));
-    this.response.setContext(context);
+    this.response && this.response.setContext(context);
   }
 
   constructor(inter: Partial<Interface>) {
@@ -425,6 +453,13 @@ export class StandardDataSource {
 
   static constructorFromLock(localDataObject: StandardDataSource) {
     try {
+      // 兼容性代码，将老的数据结构转换为新的。
+      const defNames = localDataObject.baseClasses.map(base => {
+        if (base.name.includes('<')) {
+          return base.name.slice(0, base.name.indexOf('<'));
+        }
+        return base.name;
+      });
       const baseClasses = localDataObject.baseClasses.map(base => {
         const props = base.properties.map(prop => {
           const { reference, customType } = (prop.dataType as any) as DataType;
@@ -435,20 +470,32 @@ export class StandardDataSource {
             dataType
           });
         });
+        let templateArgs = base.templateArgs;
+        let name = base.name;
+
+        if (!templateArgs && base.name.includes('<')) {
+          // 兼容性代码，将老的数据结构转换为新的。
+          const defNameAst = dateTypeRefs2Ast(base.name, localDataObject.name);
+          const dataType = parseAst2StandardDataType(defNameAst, defNames, []);
+
+          templateArgs = dataType.typeArgs;
+          name = dataType.typeName;
+        }
 
         return new BaseClass({
           description: base.description,
-          name: base.name,
+          name,
+          templateArgs,
           properties: _.unionBy(props, 'name')
         });
       });
       const mods = localDataObject.mods.map(mod => {
         const interfaces = mod.interfaces.map(inter => {
-          const response = StandardDataType.constructorFromJSON(inter.response);
+          const response = StandardDataType.constructorFromJSON(inter.response, localDataObject.name, defNames);
 
           const parameters = inter.parameters
             .map(param => {
-              const dataType = StandardDataType.constructorFromJSON(param.dataType);
+              const dataType = StandardDataType.constructorFromJSON(param.dataType, localDataObject.name, defNames);
 
               return new Property({
                 ...param,
