@@ -157,7 +157,7 @@ export class CodeGenerator {
   /** 获取某个基类的类型定义代码 */
   getBaseClassInDeclaration(base: BaseClass) {
     if (base.templateArgs && base.templateArgs.length) {
-      return `class ${base.name}<${base.templateArgs.map((ignored, index) => 'T' + index).join(', ')}> {
+      return `class ${base.name}<${base.templateArgs.map((ignored, index) => `T${index} = any`).join(', ')}> {
         ${base.properties.map(prop => prop.toPropertyCode(true)).join('\n')}
       }
       `;

@@ -83,7 +83,7 @@ export function parseAst2StandardDataType(
     typeName = 'void';
   }
 
-  if (['object', 'Object'].includes(name)) {
+  if (['object', 'Object', 'Map'].includes(name)) {
     typeName = 'object';
   }
 

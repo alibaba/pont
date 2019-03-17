@@ -128,6 +128,10 @@ export class Schema {
     if ($ref) {
       const ast = compileTemplate($ref);
 
+      if (!ast) {
+        return new StandardDataType();
+      }
+
       return parseAst2StandardDataType(ast, defNames, classTemplateArgs);
     }
 
