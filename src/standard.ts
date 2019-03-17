@@ -11,11 +11,41 @@ export enum PrimitiveType {
 }
 
 class Constructable {
+  getDsName() {
+    const context = this.getContext();
+
+    if (context && context.dataSource) {
+      return context.dataSource.name;
+    }
+
+    return '';
+  }
+
+  private context: any;
+
+  getContext() {
+    return this.context;
+  }
+
+  setContext(context) {
+    this.context = context;
+  }
+
   constructor(arg = {}) {
     _.forEach(arg, (value, key) => {
       if (value !== undefined) {
         this[key] = value;
       }
+    });
+  }
+
+  toJSON() {
+    return _.mapValues(this, (value, key) => {
+      if (key === 'context') {
+        return undefined;
+      }
+
+      return value;
     });
   }
 }
@@ -228,10 +258,14 @@ export class StandardDataType {
     const codes = classTemplateArgs.map(arg => arg.generateCode());
     const index = codes.indexOf(this.generateCode());
 
-    return index;
+    this.templateIndex = index;
   }
 
-  getDefName(originName = '') {
+  getDefNameWithTemplate() {}
+
+  generateCodeWithTemplate() {}
+
+  getDefName(originName) {
     let name = this.typeName;
 
     if (this.isDefsType) {
@@ -247,6 +281,10 @@ export class StandardDataType {
 
   /** 生成 Typescript 类型定义的代码 */
   generateCode(originName = '') {
+    if (this.templateIndex !== -1) {
+      return `T${this.templateIndex}`;
+    }
+
     if (this.enum.length) {
       return this.getEnumType();
     }
@@ -257,7 +295,7 @@ export class StandardDataType {
       return `${name}<${this.typeArgs.map(arg => arg.generateCode(originName)).join(', ')}>`;
     }
 
-    return name;
+    return name || 'any';
   }
 
   getInitialValue(originName = '') {
@@ -266,7 +304,7 @@ export class StandardDataType {
     }
 
     if (this.isDefsType) {
-      return `new ${this.getDefName(originName)}()`;
+      return originName ? `new ${this.getDefName(originName)}()` : `new ${this.typeName}()`;
     }
 
     if (this.templateIndex > -1) {
@@ -285,7 +323,7 @@ export class StandardDataType {
       const str = this.enum[0];
 
       if (typeof str === 'string') {
-        return `'${str}'`;
+        return `${str}`;
       }
 
       return str + '';
@@ -323,7 +361,7 @@ export class Property extends Constructable {
 
     return `
       /** ${this.description || this.name} */
-      ${this.name}${optionalSignal}: ${this.dataType.generateCode()};`;
+      ${this.name}${optionalSignal}: ${this.dataType.generateCode(this.getDsName())};`;
   }
 
   toPropertyCodeWithInitValue(baseName = '') {
@@ -331,7 +369,7 @@ export class Property extends Constructable {
     let typeWithValue = `= ${this.dataType.getInitialValue()}`;
 
     if (!this.dataType.getInitialValue()) {
-      typeWithValue = `: ${this.dataType.generateCode()}`;
+      typeWithValue = `: ${this.dataType.generateCode(this.getDsName())}`;
     }
 
     if (this.dataType.typeName === baseName) {
@@ -345,7 +383,7 @@ export class Property extends Constructable {
   }
 
   toBody() {
-    return this.dataType.generateCode();
+    return this.dataType.generateCode(this.getDsName());
   }
 }
 
@@ -359,7 +397,7 @@ export class Interface extends Constructable {
   path: string;
 
   get responseType() {
-    return this.response.generateCode();
+    return this.response.generateCode(this.getDsName());
   }
 
   getParamsCode(className = 'Params') {
@@ -376,7 +414,12 @@ export class Interface extends Constructable {
   getBodyParamsCode() {
     const bodyParam = this.parameters.find(param => param.in === 'body');
 
-    return (bodyParam && bodyParam.dataType.generateCode()) || '';
+    return (bodyParam && bodyParam.dataType.generateCode(this.getDsName())) || '';
+  }
+
+  setContext(context: any) {
+    super.setContext(context);
+    this.parameters.forEach(param => param.setContext(context));
   }
 
   constructor(inter: Partial<Interface>) {
@@ -388,6 +431,11 @@ export class Mod extends Constructable {
   description: string;
   interfaces: Interface[];
   name: string;
+
+  setContext(context: any) {
+    super.setContext(context);
+    this.interfaces.forEach(inter => inter.setContext(context));
+  }
 
   constructor(mod: Partial<Mod>) {
     super(mod);
@@ -401,6 +449,11 @@ export class BaseClass extends Constructable {
   description: string;
   properties: Property[];
   templateArgs: StandardDataType[];
+
+  setContext(context: any) {
+    super.setContext(context);
+    this.properties.forEach(prop => prop.setContext(context));
+  }
 
   constructor(base: Partial<BaseClass>) {
     super(base);
@@ -463,6 +516,11 @@ export class StandardDataSource {
     );
   }
 
+  setContext() {
+    this.baseClasses.forEach(base => base.setContext({ dataSource: this }));
+    this.mods.forEach(mod => mod.setContext({ dataSource: this }));
+  }
+
   constructor(standard: { mods: Mod[]; name: string; baseClasses: BaseClass[] }) {
     this.mods = standard.mods;
     if (standard.name) {
@@ -471,6 +529,7 @@ export class StandardDataSource {
     this.baseClasses = standard.baseClasses;
 
     this.reOrder();
+    this.setContext();
   }
 
   static constructorFromLock(localDataObject: StandardDataSource) {

@@ -13,7 +13,9 @@ export class Translate {
   private engines = [google, youdao, baidu];
 
   constructor(dictName = 'dict.json') {
-    fs.mkdirpSync(this.localDictDir);
+    if (!fs.pathExistsSync(this.localDictDir)) {
+      fs.mkdirpSync(this.localDictDir);
+    }
     this.dictFullPath = path.normalize(this.localDictDir + '/' + dictName);
     this.dict = fs.pathExistsSync(this.dictFullPath) ? this.loadDict() : {};
   }

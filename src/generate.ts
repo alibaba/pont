@@ -19,10 +19,6 @@ import { existsSync } from 'fs-extra';
 export class FileStructures {
   constructor(private generators: CodeGenerator[], private usingMultipleOrigins: boolean) {}
 
-  getDataSources() {
-    return this.generators.map(ge => ge.dataSource);
-  }
-
   getMultipleOriginsFileStructures() {
     const files = {};
     this.generators.forEach(generator => {
@@ -145,7 +141,7 @@ export class FileStructures {
   }
 
   getLockContent() {
-    return JSON.stringify(this.getDataSources(), null, 2);
+    return JSON.stringify(this.generators.map(ge => ge.dataSource), null, 2);
   }
 }
 
@@ -160,6 +156,12 @@ export class CodeGenerator {
 
   /** 获取某个基类的类型定义代码 */
   getBaseClassInDeclaration(base: BaseClass) {
+    if (base.templateArgs && base.templateArgs.length) {
+      return `class ${base.name}<${base.templateArgs.map((ignored, index) => 'T' + index).join(', ')}> {
+        ${base.properties.map(prop => prop.toPropertyCode(true)).join('\n')}
+      }
+      `;
+    }
     return `class ${base.name} {
       ${base.properties.map(prop => prop.toPropertyCode(true)).join('\n')}
     }
@@ -328,7 +330,7 @@ export class CodeGenerator {
     import pontFetch from 'src/utils/pontFetch';
 
     export ${inter.getParamsCode()}
-    export const init = ${inter.response.getInitialValue()};
+    export const init = ${inter.response.getInitialValue(inter.getDsName())};
 
     export async function request(${requestParams}) {
       return pontFetch({

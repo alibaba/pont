@@ -71,6 +71,10 @@ export function parseAst2StandardDataType(
   const { name, templateArgs } = ast;
   let typeName = name;
 
+  if (name === 'List') {
+    typeName = 'Array';
+  }
+
   if (name === 'long') {
     typeName = 'number';
   }

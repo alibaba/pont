@@ -6,7 +6,7 @@
   "origins": [
     {
       "name": "ide",
-      "originUrl": "http://daily-oxs2.yunbi.biz.aliyun.test/v2/api-docs?group=QuickBI"
+      "originUrl": "http://v1-4-x-ci.dataphin.aliyun.com/v2/api-docs"
     }
   ],
   "prettierConfig": {
