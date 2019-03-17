@@ -3,7 +3,7 @@ import * as path from 'path';
 import httpServer = require('http-server');
 import * as fs from 'fs-extra';
 import { createManager } from '../src/utils';
-import translate from '../src/translate';
+import { Translator } from '../src/translate';
 
 const getPath = fname => path.join(__dirname, fname);
 const clearDir = dirName => {
@@ -78,7 +78,7 @@ describe('pont功能测试', () => {
   });
 
   it('api.d.ts should translate chinese of baseClass to english', () => {
-    let dict: { [key: string]: string } = translate.loadDict();
+    let dict: { [key: string]: string } = Translator.loadDict();
     ['通用请求参数token', '输出参数vo', '查询参数', 'abc输出参数', ' 中英文 混合 带 空格 Vo '].forEach(cnKey => {
       const enKey = dict[cnKey];
       assert.ok(enKey);

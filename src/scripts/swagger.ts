@@ -1,13 +1,4 @@
-import {
-  StandardDataSource,
-  PrimitiveType,
-  Interface,
-  DataType,
-  Mod,
-  BaseClass,
-  Property,
-  StandardDataType
-} from './standard';
+import { StandardDataSource, Interface, Mod, BaseClass, Property, StandardDataType } from '../standard';
 import * as _ from 'lodash';
 import {
   getMaxSamePath,
@@ -17,12 +8,12 @@ import {
   toDashCase,
   hasChinese,
   transformModsName
-} from './utils';
-import { compileTemplate, parseAst2StandardDataType } from './compiler';
+} from '../utils';
+import { compileTemplate, parseAst2StandardDataType } from '../compiler';
 
-import * as debugLog from './debugLog';
+import { OriginBaseReader } from './base';
 
-export enum SwaggerType {
+enum SwaggerType {
   integer = 'integer',
   string = 'string',
   file = 'string',
@@ -32,7 +23,7 @@ export enum SwaggerType {
   object = 'object'
 }
 
-export class SwaggerProperty {
+class SwaggerProperty {
   type: SwaggerType;
   enum? = [] as string[];
   items? = null as {
@@ -45,7 +36,7 @@ export class SwaggerProperty {
   required: boolean;
 }
 
-export class SwaggerParameter {
+class SwaggerParameter {
   /** 字段名 */
   name = '';
 
@@ -69,7 +60,7 @@ export class SwaggerParameter {
 
   schema: Schema;
 }
-export class Schema {
+class Schema {
   enum?: string[];
   type: SwaggerType;
   items: {
@@ -165,7 +156,7 @@ export function parseSwaggerEnumType(enumStrs: string[]) {
     });
 }
 
-export class SwaggerInterface {
+class SwaggerInterface {
   consumes = [] as string[];
 
   parameters = [] as SwaggerParameter[];
@@ -371,4 +362,10 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
     mods: parseSwaggerMods(swagger, defNames, usingOperationId),
     name: originName
   });
+}
+
+export class SwaggerV2Reader extends OriginBaseReader {
+  transform2Standard(data, usingOperationId: boolean, originName: string) {
+    return transformSwaggerData2Standard(data, usingOperationId, originName);
+  }
 }

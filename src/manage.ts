@@ -2,14 +2,12 @@ import { StandardDataSource } from './standard';
 import { Config, getTemplate, DataSourceConfig, hasChinese } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import fetch from 'node-fetch';
-import { SwaggerDataSource, transformSwaggerData2Standard } from './swagger';
 import { diff, Model } from './diff';
 import { FilesManager } from './generate';
 import { info as debugInfo } from './debugLog';
 import * as _ from 'lodash';
-import Translate from './translate';
 import { FileStructures } from './generate';
+import { readRemoteDataSource } from './scripts';
 
 export class Manager {
   readonly lockFilename = 'api-lock.json';
@@ -242,61 +240,11 @@ export class Manager {
     }
   }
 
-  async translateChinese(jsonString: string) {
-    let retString = jsonString;
-    try {
-      const matchItems =
-        jsonString
-          // 匹配中英文混合及包含 空格，«，»，- 的情况
-          .match(/"[a-z0-9\s-]*[\u4e00-\u9fa5]+[a-z0-9\s-«»\u4e00-\u9fa5]*":/gi) || [];
-      let chineseKeyCollect = matchItems.map(item => item.replace(/["":]/g, ''));
-
-      // 去重
-      chineseKeyCollect = _.uniq(chineseKeyCollect.map(item => (item.includes('«') ? item.split('«')[0] : item)));
-
-      // 按长度倒序排序，防止替换时中文名部分重名
-      // 例如: 请求参数vo, 请求参数, 替换时先替换 请求参数vo, 后替换请求参数
-      chineseKeyCollect.sort((pre, next) => next.length - pre.length);
-
-      let result = await Promise.all(chineseKeyCollect.map(text => Translate.translateAsync(text)));
-
-      result.forEach((enKey: string, index) => {
-        const chineseKey = chineseKeyCollect[index];
-        this.report(chineseKey + ' ==> ' + enKey);
-
-        if (enKey) {
-          retString = retString.replace(eval(`/${chineseKey}/g`), enKey);
-        }
-      });
-      return retString;
-    } catch (err) {
-      return retString;
-    }
-  }
-
   async readRemoteDataSource(config = this.currConfig) {
-    try {
-      this.report('获取远程数据中...');
-      const response = await fetch(config.originUrl);
+    const remoteDataSource = await readRemoteDataSource(config, this.report);
+    this.remoteDataSource = remoteDataSource;
 
-      this.report('自动翻译中文基类中...');
-      let swaggerJsonStr: string = await response.text();
-      swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
-      this.report('自动翻译中文基类完成！');
-
-      const data: SwaggerDataSource = await JSON.parse(swaggerJsonStr);
-      this.report('远程数据获取成功！');
-
-      this.remoteDataSource = transformSwaggerData2Standard(data, config.usingOperationId, config.name);
-      const transformProgram = Config.getTransformFromConfig(config);
-      this.remoteDataSource = transformProgram(this.remoteDataSource);
-      this.checkDataSource(this.remoteDataSource);
-
-      this.report('远程对象创建完毕！');
-      return this.remoteDataSource;
-    } catch (e) {
-      throw new Error('读取远程接口数据失败！' + e.toString());
-    }
+    return remoteDataSource;
   }
 
   async lock() {

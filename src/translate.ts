@@ -73,4 +73,4 @@ export class Translate {
   }
 }
 
-export default new Translate();
+export const Translator = new Translate();
