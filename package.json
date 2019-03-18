@@ -8,6 +8,7 @@
     "pont": "bin/init.js"
   },
   "scripts": {
+    "pretest": "npm run build",
     "test": "mocha --timeout 15000 -r ts-node/register test/**/test.ts",
     "dev": "tsc -w",
     "build": "tsc"
