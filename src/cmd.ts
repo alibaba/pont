@@ -108,6 +108,13 @@ function assert(expression: boolean, message: string) {
         manager.makeSameMod(modName);
       });
 
+    program
+      .command('generate')
+      .description('生成代码')
+      .action(() => {
+        manager.regenerateFiles();
+      });
+
     program.parse(process.argv);
   } catch (e) {
     console.error(e.stack);

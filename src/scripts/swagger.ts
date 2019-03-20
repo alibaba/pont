@@ -1,4 +1,4 @@
-import { StandardDataSource, PrimitiveType, Interface, DataType, Mod, BaseClass, Property } from '../standard';
+import { StandardDataSource, Interface, Mod, BaseClass, Property, StandardDataType } from '../standard';
 import * as _ from 'lodash';
 import {
   getMaxSamePath,
@@ -9,9 +9,8 @@ import {
   hasChinese,
   transformModsName
 } from '../utils';
-import { generateTemplate, generateTemplateDef, findDefinition } from '../compiler';
+import { compileTemplate, parseAst2StandardDataType } from '../compiler';
 
-import * as debugLog from '../debugLog';
 import { OriginBaseReader } from './base';
 
 enum SwaggerType {
@@ -70,74 +69,72 @@ class Schema {
   };
   $ref: string;
 
-  static swaggerSchema2StandardDataType(schema: Schema, templateName = '', originName = '', isResponse = false) {
+  static parseSwaggerSchema2StandardDataType(
+    schema: Schema,
+    defNames: string[],
+    classTemplateArgs = [] as StandardDataType[]
+  ) {
     const { items, $ref, type } = schema;
-    let primitiveType = schema.type as string;
+    let typeName = schema.type as string;
+    // let primitiveType = schema.type as string;
 
     if (type === 'array') {
-      primitiveType === _.get(items, 'type', '');
+      let itemsType = _.get(items, 'type', '');
+      const itemsRef = _.get(items, '$ref', '');
 
-      if (primitiveType === 'array') {
-        primitiveType = '';
+      if (itemsType) {
+        if (itemsType === 'integer') {
+          itemsType = 'number';
+        }
+
+        if (itemsType === 'file') {
+          itemsType = 'File';
+        }
+
+        let contentType = new StandardDataType([], itemsType, false, -1);
+
+        if (itemsType === 'array') {
+          contentType = new StandardDataType([new StandardDataType()], 'Array', false, -1);
+        }
+
+        return new StandardDataType([contentType], 'Array', false, -1);
+      }
+
+      if (itemsRef) {
+        const ast = compileTemplate(itemsRef);
+        const contentType = parseAst2StandardDataType(ast, defNames, classTemplateArgs);
+
+        return new StandardDataType([contentType], 'Array', false, -1);
       }
     }
 
-    if (primitiveType === 'object') {
-      primitiveType = '';
+    if (typeName === 'integer') {
+      typeName = 'number';
     }
 
-    if (primitiveType === 'integer') {
-      primitiveType = 'number';
+    if (typeName === 'file') {
+      typeName = 'File';
     }
 
-    if (primitiveType === 'file') {
-      primitiveType = 'File';
-    }
+    if ($ref) {
+      const ast = compileTemplate($ref);
 
-    let reference = generateTemplate($ref || _.get(items, '$ref', ''), originName);
-
-    if (reference === 'Model') {
-      reference = '';
-    }
-
-    if (reference === 'Array') {
-      primitiveType = 'any[]';
-      reference = '';
-    }
-
-    let isTemplateRef = false;
-    const reg = new RegExp(`defs\\.${originName}\\.`, 'g');
-    const templateCompareName = reference.replace(reg, 'defs.') || primitiveType;
-
-    if (
-      (templateCompareName && templateCompareName === templateName) ||
-      templateCompareName === 'defs.' + templateName
-    ) {
-      reference = 'T0';
-      isTemplateRef = true;
-    } else if (reference) {
-      if (originName && !reference.includes(originName)) {
-        reference = 'defs.' + originName + '.' + reference;
-      } else if (isResponse && !reference.startsWith('defs.')) {
-        reference = 'defs.' + reference;
+      if (!ast) {
+        return new StandardDataType();
       }
+
+      return parseAst2StandardDataType(ast, defNames, classTemplateArgs);
     }
 
-    return new DataType({
-      isArr: type === 'array',
-      enum: fixSwaggerEnum(schema.enum),
-      primitiveType: primitiveType as PrimitiveType,
-      reference,
-      isTemplateRef
-    });
+    if (schema.enum) {
+      return StandardDataType.constructorWithEnum(parseSwaggerEnumType(schema.enum));
+    }
+
+    return new StandardDataType([], typeName, false);
   }
 }
 
-function fixSwaggerEnum(enumStrs: string[]) {
-  if (!enumStrs) {
-    return enumStrs;
-  }
-
+export function parseSwaggerEnumType(enumStrs: string[]) {
   let enums = enumStrs as Array<string | number>;
 
   enumStrs.forEach(str => {
@@ -146,9 +143,17 @@ function fixSwaggerEnum(enumStrs: string[]) {
     }
   });
 
-  return enums.filter(str => {
-    return String(str).match(/^[0-9a-zA-Z\_\-\$]+$/);
-  });
+  return enums
+    .filter(str => {
+      return String(str).match(/^[0-9a-zA-Z\_\-\$]+$/);
+    })
+    .map(numOrStr => {
+      if (typeof numOrStr === 'string') {
+        return `'${numOrStr}'`;
+      }
+
+      return numOrStr;
+    });
 }
 
 class SwaggerInterface {
@@ -180,7 +185,7 @@ class SwaggerInterface {
     inter: SwaggerInterface,
     usingOperationId: boolean,
     samePath: string,
-    originName: string
+    defNames: string[] = []
   ) {
     let name = getIdentifierFromOperatorId(inter.operationId);
 
@@ -189,7 +194,7 @@ class SwaggerInterface {
     }
 
     const responseSchema = _.get(inter, 'responses.200.schema', {}) as Schema;
-    const response = Schema.swaggerSchema2StandardDataType(responseSchema, '', originName, true);
+    const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames);
 
     const parameters = (inter.parameters || []).map(param => {
       const { description, items, name, type, schema = {} as Schema, required } = param;
@@ -197,18 +202,16 @@ class SwaggerInterface {
       return new Property({
         in: param.in,
         description,
-        name,
+        name: name.includes('/') ? name.split('/').join('') : name,
         required,
-        dataType: Schema.swaggerSchema2StandardDataType(
+        dataType: Schema.parseSwaggerSchema2StandardDataType(
           {
             enum: param.enum,
             items,
             type,
             $ref: _.get(schema, '$ref')
           } as Schema,
-          '',
-          originName,
-          param.in === 'body'
+          defNames
         )
       });
     });
@@ -229,7 +232,6 @@ class SwaggerInterface {
 }
 
 export class SwaggerDataSource {
-  name: string;
   paths: {
     [key in string]: {
       put: SwaggerInterface;
@@ -248,7 +250,7 @@ export class SwaggerDataSource {
   };
 }
 
-function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperationId = true, originName = '') {
+export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[], usingOperationId: boolean) {
   const allSwaggerInterfaces = [] as SwaggerInterface[];
   _.forEach(swagger.paths, (methodInters, path) => {
     _.forEach(methodInters, (inter, method) => {
@@ -259,14 +261,6 @@ function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperatio
   });
 
   const mods = swagger.tags
-    .filter(tag => {
-      // ignore un annotation case
-      // if (toDashDefaultCase(tag.name) === toDashDefaultCase(tag.description)) {
-      //   return false;
-      // }
-
-      return true;
-    })
     .map(tag => {
       const modInterfaces = allSwaggerInterfaces.filter(inter => {
         return (
@@ -279,7 +273,7 @@ function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperatio
       const samePath = getMaxSamePath(modInterfaces.map(inter => inter.path.slice(1)));
 
       const standardInterfaces = modInterfaces.map(inter => {
-        return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, samePath, originName);
+        return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, samePath, defNames);
       });
 
       // 兼容某些项目把swagger tag的name和description弄反的情况
@@ -304,23 +298,39 @@ function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperatio
 
   transformModsName(mods);
 
-  const baseClasses = _.map(swagger.definitions, (def, defName) => {
-    const templateName = findDefinition(defName);
-    defName = generateTemplateDef(defName);
+  return mods;
+}
 
-    const properties = _.map(def.properties, (prop, propName) => {
+export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperationId = true, originName = '') {
+  const draftClasses = _.map(swagger.definitions, (def, defName) => {
+    const defNameAst = compileTemplate(defName);
+
+    return {
+      name: defNameAst.name,
+      defNameAst,
+      def
+    };
+  });
+  const defNames = draftClasses.map(clazz => clazz.name);
+
+  const baseClasses = draftClasses.map(clazz => {
+    const dataType = parseAst2StandardDataType(clazz.defNameAst, defNames, []);
+    const templateArgs = dataType.typeArgs;
+    const { description, properties } = clazz.def;
+
+    const props = _.map(properties, (prop, propName) => {
       const { $ref, description, name, type, required, items } = prop;
       let primitiveType = (type as string) as any;
 
-      const dataType = Schema.swaggerSchema2StandardDataType(
+      const dataType = Schema.parseSwaggerSchema2StandardDataType(
         {
           $ref,
           enum: prop.enum,
           items,
           type
         } as Schema,
-        templateName,
-        originName
+        defNames,
+        templateArgs
       );
 
       return new Property({
@@ -331,65 +341,25 @@ function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperatio
       });
     });
 
-    if (defName.replace(/(.+)<.+/, '$1') === 'Map') {
-      return null;
-    }
-
     return new BaseClass({
-      description: def.description,
-      name: defName,
-      properties
+      description,
+      name: clazz.name,
+      properties: props,
+      templateArgs
     });
-  }).filter(id => id);
-
-  baseClasses.sort((pre, next) => {
-    if (pre.justName === next.justName) {
-      return pre.name.length > next.name.length ? -1 : 1;
-    }
-
-    return next.justName > pre.justName ? 1 : -1;
   });
 
-  // 校验所有接口参数，如果是 body，body 指向的 BO 是否存在
-  mods.forEach(mod => {
-    mod.interfaces.forEach(inter => {
-      inter.parameters = inter.parameters.map(param => {
-        if (param.in === 'body') {
-          const dataType = param.dataType.reference;
-          let ref = dataType;
+  baseClasses.sort((pre, next) => {
+    if (pre.name === next.name) {
+      return pre.templateArgs.length > next.templateArgs.length ? -1 : 1;
+    }
 
-          // 如果 ref = "Foo<defs.Bar>" 则 ref = Foo
-          if (ref.includes('«')) {
-            ref = ref.slice(0, ref.indexOf('«'));
-          }
-          if (ref.includes('<')) {
-            ref = ref.slice(0, ref.indexOf('<'));
-          }
-
-          if (ref.includes('defs.')) {
-            ref = ref.slice(ref.lastIndexOf('.') + 1);
-          }
-
-          if (ref && !baseClasses.find(base => base.name === ref || base.justName === ref)) {
-            debugLog.warn(`baseClasses not contains ${dataType} in ${param.name} param of ${inter.name} interface `);
-            return {
-              ...param,
-              dataType: {
-                ...param.dataType,
-                reference: ''
-              }
-            } as Property;
-          }
-        }
-
-        return param;
-      });
-    });
+    return next.name > pre.name ? 1 : -1;
   });
 
   return new StandardDataSource({
-    baseClasses: _.uniqBy(baseClasses, base => base.justName),
-    mods,
+    baseClasses: _.uniqBy(baseClasses, base => base.name),
+    mods: parseSwaggerMods(swagger, defNames, usingOperationId),
     name: originName
   });
 }

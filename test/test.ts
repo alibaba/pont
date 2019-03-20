@@ -29,7 +29,7 @@ describe('pont功能测试', () => {
     // 清除路径
     clearDir('services');
 
-    server.listen(9090, async err => {
+    server.listen({ port: 9090 }, async err => {
       console.log('http server start successfull');
       await createManager('config-multiple-origins.json');
       // 读取 api.d.ts 并转换为单行

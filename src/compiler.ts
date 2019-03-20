@@ -1,5 +1,12 @@
+import { StandardDataType } from './standard';
+
 class Token {
   constructor(public type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma', public value = '') {}
+}
+
+interface AstNode {
+  name: string;
+  templateArgs: AstNode[];
 }
 
 class Parser {
@@ -51,11 +58,54 @@ class Parser {
       type: 'Template',
       name,
       templateArgs
-    };
+    } as AstNode;
   }
 }
 
-function compileTemplate(template: string) {
+/** ast 转换为标准类型 */
+export function parseAst2StandardDataType(
+  ast: AstNode,
+  defNames: string[],
+  classTemplateArgs: StandardDataType[] = []
+): StandardDataType {
+  const { name, templateArgs } = ast;
+  let typeName = name;
+
+  if (name === 'List') {
+    typeName = 'Array';
+  }
+
+  if (name === 'long') {
+    typeName = 'number';
+  }
+
+  if (['void', 'Void'].includes(name)) {
+    typeName = 'void';
+  }
+
+  if (['object', 'Object', 'Map'].includes(name)) {
+    typeName = 'object';
+  }
+
+  const isDefsType = defNames.includes(name);
+  const typeArgs = templateArgs.map(arg => {
+    return parseAst2StandardDataType(arg, defNames, classTemplateArgs);
+  });
+
+  const dataType = new StandardDataType(typeArgs, typeName, isDefsType);
+  dataType.setTemplateIndex(classTemplateArgs);
+
+  return dataType;
+}
+
+export function compileTemplate(template: string) {
+  if (template.startsWith('#/definitions/')) {
+    template = template.slice('#/definitions/'.length);
+  }
+  if (!template) {
+    return null;
+  }
+
   const Identifier = /^[a-zA-Z_][a-zA-Z_0-9]*/;
   const PreTemplate = /^«/;
   const EndTemplate = /^»/;
@@ -94,128 +144,4 @@ function compileTemplate(template: string) {
   }
 
   return new Parser(nodes).parseTemplate();
-}
-
-function generateCode(ast: any, originName = ''): string {
-  const { name, type, templateArgs } = ast;
-  let retName = name;
-
-  if (name === 'long') {
-    retName = 'number';
-  }
-
-  if (['void', 'Void'].includes(name)) {
-    retName = 'void';
-  }
-
-  if (['object', 'Object'].includes(name)) {
-    retName = 'object';
-  }
-
-  // 优先处理有模板参数的情况 如 Map<Foo,Bar> , List<Foo, Bar> , Foo<Bar, Baz>
-  if (templateArgs.length) {
-    if (name === 'List') {
-      retName = 'Array';
-    } else if (['Map'].includes(name)) {
-      retName = name;
-    } else {
-      retName = originName ? `defs.${originName}.${name}` : `defs.${name}`;
-    }
-    return `${retName}<${templateArgs.map(arg => generateCode(arg, originName)).join(', ')}>`;
-  }
-
-  if (['number', 'string', 'boolean', 'void', 'object'].includes(retName)) {
-    return retName;
-  }
-  // 无模板参数的 Map 转换为 object
-  if (['Map'].includes(name)) {
-    retName = 'object';
-    return retName;
-  }
-
-  return originName ? `defs.${originName}.${name}` : `defs.${name}`;
-}
-
-export function generateTemplate(template: string, originName = ''): string {
-  if (template.startsWith('#/definitions/')) {
-    template = template.slice('#/definitions/'.length);
-  }
-  if (!template) {
-    return '';
-  }
-  const ast = compileTemplate(template);
-
-  if (!ast) {
-    return '';
-  }
-
-  return generateCode(ast, originName);
-}
-
-// 找到模板表达式里的第一个 template 。都改成 T0
-function findTemplate(ast, isFirst = true) {
-  const plainName = ['List', 'Map', 'number', 'string', 'boolean', 'long'];
-  const { templateArgs, name } = ast;
-
-  // todo 该函数需要修复
-  if (name === 'List') {
-    return generateCode(templateArgs[0]);
-  }
-
-  return generateCode(ast);
-
-  if (plainName.indexOf(name) === -1 && !isFirst) {
-    return name;
-  }
-
-  if (templateArgs && templateArgs.length) {
-    let res = null;
-
-    templateArgs.forEach(item => {
-      res = findTemplate(item, false);
-    });
-
-    return res;
-  }
-
-  return false;
-}
-
-export function findDefinition(template: string) {
-  if (template.startsWith('#/definitions/')) {
-    template = template.slice('#/definitions/'.length);
-  }
-  if (!template) {
-    return '';
-  }
-
-  const ast = compileTemplate(template);
-
-  if (ast && ast.templateArgs && ast.templateArgs[0]) {
-    return findTemplate(ast.templateArgs[0]);
-  }
-
-  return '';
-}
-
-export function generateTemplateDef(template: string) {
-  if (template.startsWith('#/definitions/')) {
-    template = template.slice('#/definitions/'.length);
-  }
-  if (!template) {
-    return '';
-  }
-  const ast = compileTemplate(template);
-
-  if (!ast) {
-    return '';
-  }
-
-  const { templateArgs, name } = ast;
-
-  if (templateArgs && templateArgs.length) {
-    return `${name}<${templateArgs.map((arg, argIndex) => 'T' + argIndex + ' = any').join(', ')}>`;
-  }
-
-  return name;
 }
