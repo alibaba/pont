@@ -85,6 +85,24 @@ Pont 将为你的项目自动生成完美的 API 代码。
 }]
 ```
 
+### transformPath
+
+值类型：string
+
+描述：可选项。指定数据源预处理路径（使用相对路径指定）。一旦指定，Pont 将生成一份默认的数据预处理器。
+
+数据预处理器示例：
+
+```javascript
+import { StandardDataSource } from "pont-engine";
+
+export default function(dataSource: StandardDataSource): StandardDataSource {
+  dataSource.mods = dataSource.mods.filter(mod => mod.name !== 'user');
+
+  return dataSource;
+}
+```
+
 ## demo
 
 参考下面的例子，来体验 pont。
