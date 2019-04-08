@@ -1,7 +1,10 @@
-/**
- *
- * This source aims to transform swagger1.x dataSource to StandardDataSource
+/*
+ * Created Date: Monday March 11th 2019
+ * Author: xuyanqi
+ * Description: This source aims to transform swagger1.x dataSource to StandardDataSource
+ * Copyright (c) 2019
  */
+
 import * as _ from 'lodash';
 import { StandardDataSource, Mod, BaseClass, Property } from './standard';
 import { SwaggerProperty, SwaggerInterface, Schema } from './swagger';
