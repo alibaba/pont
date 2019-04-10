@@ -1,3 +1,23 @@
+0.1.54 / 2019-04-10
+==================
+
+* Merge pull request #40 from alibaba/feat/dir
+* fix: fix no operationId
+* Merge pull request #39 from alibaba/feat/dir
+* feat: change dir
+* Update README.md
+* Merge pull request #36 from alibaba/feat/data-type
+* chore: add pretest script
+* feat: delete useless code
+* fix: fix swagger test
+* feat: delete deprecated code
+* feat: delete useless code
+* fix: fix conflict
+* fix: fix ftest
+* fix: fix test
+* fix: fix launch script
+* fix: fix data-type in pont
+
 0.1.53 / 2019-03-08
 ==================
 
