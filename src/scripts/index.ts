@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import { OriginBaseReader } from './base';
 import { SwaggerV2Reader } from './swagger';
-import { DataSourceConfig } from 'src';
+import { DataSourceConfig } from '../utils';
 
 export enum OriginType {
   SwaggerV2 = 'SwaggerV2',
