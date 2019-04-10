@@ -13,7 +13,7 @@ const clearDir = dirName => {
     if (fs.existsSync(fullpath)) {
       fs.removeSync(getPath(dirName));
     }
-  } catch (error) { }
+  } catch (error) {}
 };
 const oneline = (code: string) => code.replace(/[\s\n]/g, '');
 const exists = filepath => fs.existsSync(getPath(filepath));
@@ -25,7 +25,7 @@ const server = httpServer.createServer({
 let apidts = '';
 
 describe('pont功能测试', () => {
-  before(function (done) {
+  before(function(done) {
     // 清除路径
     clearDir('services');
 
@@ -39,7 +39,7 @@ describe('pont功能测试', () => {
       done();
     });
   });
-  after(function () {
+  after(function() {
     server.close();
   });
 
@@ -96,11 +96,11 @@ describe('pont功能测试', () => {
             type: string;
           }
 
-          export type Response = defs.api1.Result<Array<object>>;
+          export type Response = defs.api1.Result<Array<ObjectMap>>;
           export const init: Response;
           export function request(
             params: Params,
-          ): Promise<defs.api1.Result<Array<object>>>;
+          ): Promise<defs.api1.Result<Array<ObjectMap>>>;
         }
     `);
 

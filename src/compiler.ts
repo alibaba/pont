@@ -84,7 +84,7 @@ export function parseAst2StandardDataType(
   }
 
   if (['object', 'Object', 'Map'].includes(name)) {
-    typeName = 'object';
+    typeName = 'ObjectMap';
   }
 
   const isDefsType = defNames.includes(name);

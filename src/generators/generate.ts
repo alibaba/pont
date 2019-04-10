@@ -264,6 +264,10 @@ export class CodeGenerator {
   /** 获取总的类型定义代码 */
   getDeclaration() {
     return `
+      type ObjectMap<Key extends string | number | symbol = any, Value = any> = {
+        [key in Key]: Value;
+      }
+
       ${this.getCommonDeclaration()}
 
       ${this.getBaseClassesInDeclaration()}

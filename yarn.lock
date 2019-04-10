@@ -1807,10 +1807,10 @@ please-upgrade-node@^3.0.2, please-upgrade-node@^3.1.1:
   dependencies:
     semver-compare "^1.0.0"
 
-pont-engine@0.1.53:
-  version "0.1.53"
-  resolved "http://registry.npm.alibaba-inc.com/pont-engine/download/pont-engine-0.1.53.tgz#e4136d330fada330028eaa7e5904d20b4ffc250b"
-  integrity sha1-5BNtMw+tozACjqp+WQTSC0/8JQs=
+pont-engine@0.1.55:
+  version "0.1.55"
+  resolved "http://registry.npm.alibaba-inc.com/pont-engine/download/pont-engine-0.1.55.tgz#538a3a1761e387916b921dfd33473a36b9ba7325"
+  integrity sha1-U4o6F2Hjh5Frkh39M0c6Nrm6cyU=
   dependencies:
     chalk "^2.3.0"
     commander "^2.19.0"
