@@ -187,10 +187,12 @@ class SwaggerInterface {
     samePath: string,
     defNames: string[] = []
   ) {
-    let name = getIdentifierFromOperatorId(inter.operationId);
+    let name = '';
 
     if (!usingOperationId) {
       name = getIdentifierFromUrl(inter.path, inter.method, samePath);
+    } else {
+      name = getIdentifierFromOperatorId(inter.operationId);
     }
 
     const responseSchema = _.get(inter, 'responses.200.schema', {}) as Schema;
