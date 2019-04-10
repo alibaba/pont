@@ -8,12 +8,12 @@
  */
 
 import * as _ from 'lodash';
-import { StandardDataSource, Interface, Mod, BaseClass } from './standard';
-import { Config } from './utils';
+import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
+import { Config } from '../utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { format } from './utils';
-import { info } from './debugLog';
+import { format } from '../utils';
+import { info } from '../debugLog';
 import { existsSync } from 'fs-extra';
 
 export class FileStructures {
@@ -417,7 +417,8 @@ export class FilesManager {
     });
   }
 
-  private clearPath(path: string) {
+  /** 初始化清空路径 */
+  private initPath(path: string) {
     if (fs.existsSync(path)) {
       fs.removeSync(path);
     }
@@ -433,7 +434,7 @@ export class FilesManager {
     const files = this.fileStructures.getFileStructures();
     this.setFormat(files);
 
-    this.clearPath(this.baseDir);
+    this.initPath(this.baseDir);
     this.created = true;
     await this.generateFiles(files);
   }

@@ -1,5 +1,5 @@
-import { Mod, Interface, BaseClass, Property } from "./standard";
-import * as _ from "lodash";
+import { Mod, Interface, BaseClass, Property } from './standard';
+import * as _ from 'lodash';
 
 export interface Model extends Mod {
   name: string;
@@ -17,17 +17,13 @@ interface Entity {
 
 function analyWithName(preEntities: Entity[], nextEntities: Entity[]) {
   return {
-    newEntities: _.differenceBy(nextEntities, preEntities, "name"),
-    deletedEntities: _.differenceBy(preEntities, nextEntities, "name"),
-    modifiedEntities: _.intersectionBy(preEntities, nextEntities, "name")
+    newEntities: _.differenceBy(nextEntities, preEntities, 'name'),
+    deletedEntities: _.differenceBy(preEntities, nextEntities, 'name'),
+    modifiedEntities: _.intersectionBy(preEntities, nextEntities, 'name')
   };
 }
 
-function deepDifInterface(
-  preInter: Interface,
-  nextInter: Interface,
-  preLabel: string
-): string[] {
+function deepDifInterface(preInter: Interface, nextInter: Interface, preLabel: string): string[] {
   const { parameters, response, description, method } = preInter;
   const details = [] as string[];
 
@@ -39,26 +35,18 @@ function deepDifInterface(
     details.push(`${preLabel}的METHOD更新`);
   }
 
-  const {
-    newEntities: newParams,
-    deletedEntities: deletedParams,
-    modifiedEntities: updateParams
-  } = analyWithName(parameters, nextInter.parameters);
+  const { newEntities: newParams, deletedEntities: deletedParams, modifiedEntities: updateParams } = analyWithName(
+    parameters,
+    nextInter.parameters
+  );
 
-  const newMsgs = newParams
-    .map(param => param.name)
-    .map(name => `${preLabel}新增参数 ${name}`);
-  const delMsgs = deletedParams
-    .map(param => param.name)
-    .map(name => `${preLabel}删除参数 ${name}`);
+  const newMsgs = newParams.map(param => param.name).map(name => `${preLabel}新增参数 ${name}`);
+  const delMsgs = deletedParams.map(param => param.name).map(name => `${preLabel}删除参数 ${name}`);
   const updateMsgs = [] as string[];
 
   updateParams.forEach(tParam => {
     const preParam = _.find(parameters, param => param.name === tParam.name);
-    const nextParam = _.find(
-      nextInter.parameters,
-      param => param.name === tParam.name
-    );
+    const nextParam = _.find(nextInter.parameters, param => param.name === tParam.name);
 
     if (!_.isEqual(preParam, nextParam)) {
       updateMsgs.push(`${preLabel}的参数 ${tParam.name} 信息有更新`);
@@ -82,31 +70,19 @@ function deepDifMod(preMod: Mod, nextMod: Mod): string[] {
     details.push(`${label} 的描述信息更新`);
   }
 
-  const {
-    newEntities: newInters,
-    deletedEntities: delInters,
-    modifiedEntities: updateInters
-  } = analyWithName(interfaces, nextInterfaces);
-  const newMsgs = newInters
-    .map(inter => inter.name)
-    .map(name => `${label} 新增接口 ${name}`);
-  const delMsgs = delInters
-    .map(inter => inter.name)
-    .map(name => `${label} 删除接口 ${name}`);
+  const { newEntities: newInters, deletedEntities: delInters, modifiedEntities: updateInters } = analyWithName(
+    interfaces,
+    nextInterfaces
+  );
+  const newMsgs = newInters.map(inter => inter.name).map(name => `${label} 新增接口 ${name}`);
+  const delMsgs = delInters.map(inter => inter.name).map(name => `${label} 删除接口 ${name}`);
   const updateMsgs = [] as string[];
 
   updateInters.map(tInter => {
     const preInter = _.find(interfaces, inter => inter.name === tInter.name);
-    const nextInter = _.find(
-      nextInterfaces,
-      inter => inter.name === tInter.name
-    );
+    const nextInter = _.find(nextInterfaces, inter => inter.name === tInter.name);
 
-    const msgs = deepDifInterface(
-      preInter,
-      nextInter,
-      `${label}的 ${tInter.name} 接口`
-    );
+    const msgs = deepDifInterface(preInter, nextInter, `${label}的 ${tInter.name} 接口`);
     updateMsgs.push(...msgs);
   });
 
@@ -122,25 +98,17 @@ function deepDifBo(preBo: BaseClass, nextBo: BaseClass): string[] {
     details.push(`${label}的描述信息更新`);
   }
 
-  const {
-    newEntities: newProps,
-    modifiedEntities: updateProps,
-    deletedEntities: delProps
-  } = analyWithName(properties, nextBo.properties);
+  const { newEntities: newProps, modifiedEntities: updateProps, deletedEntities: delProps } = analyWithName(
+    properties,
+    nextBo.properties
+  );
 
-  const delMsgs = delProps
-    .map(prop => prop.name)
-    .map(name => `${label} 删除属性 ${name}`);
-  const newMsgs = newProps
-    .map(prop => prop.name)
-    .map(name => `${label} 新增属性 ${name}`);
+  const delMsgs = delProps.map(prop => prop.name).map(name => `${label} 删除属性 ${name}`);
+  const newMsgs = newProps.map(prop => prop.name).map(name => `${label} 新增属性 ${name}`);
 
   updateProps.forEach(tProp => {
     const preProps = _.find(properties, prop => prop.name === tProp.name);
-    const nextProps = _.find(
-      nextBo.properties,
-      prop => prop.name === tProp.name
-    );
+    const nextProps = _.find(nextBo.properties, prop => prop.name === tProp.name);
 
     if (!_.isEqual(preProps, nextProps)) {
       details.push(`${label}的属性 ${name} 已更新`);
@@ -150,19 +118,12 @@ function deepDifBo(preBo: BaseClass, nextBo: BaseClass): string[] {
   return [...details, ...delMsgs, ...newMsgs];
 }
 
-export function diff(
-  preModels: Model[],
-  nextModels: Model[],
-  isMod = true
-): Model[] {
-  const { deletedEntities, modifiedEntities, newEntities } = analyWithName(
-    preModels,
-    nextModels
-  );
+export function diff(preModels: Model[], nextModels: Model[], isMod = true): Model[] {
+  const { deletedEntities, modifiedEntities, newEntities } = analyWithName(preModels, nextModels);
 
-  let label = "基类";
+  let label = '基类';
   if (isMod) {
-    label = "模块";
+    label = '模块';
   }
 
   const delModels = deletedEntities.map(model => ({

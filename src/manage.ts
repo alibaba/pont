@@ -3,10 +3,10 @@ import { Config, getTemplate, DataSourceConfig, hasChinese } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { diff, Model } from './diff';
-import { FilesManager } from './generate';
+import { FilesManager } from './generators/generate';
 import { info as debugInfo } from './debugLog';
 import * as _ from 'lodash';
-import { FileStructures } from './generate';
+import { FileStructures } from './generators/generate';
 import { readRemoteDataSource } from './scripts';
 
 export class Manager {
