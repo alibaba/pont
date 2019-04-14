@@ -278,6 +278,19 @@ export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[],
         return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, samePath, defNames);
       });
 
+      // 判断是否有重复的 name
+      if (usingOperationId) {
+        const names = [] as string[];
+
+        standardInterfaces.forEach(inter => {
+          if (!names.includes(inter.name)) {
+            names.push(inter.name);
+          } else {
+            inter.name = getIdentifierFromUrl(inter.path, inter.method, samePath);
+          }
+        });
+      }
+
       // 兼容某些项目把swagger tag的name和description弄反的情况
       if (hasChinese(tag.name)) {
         // 当检测到name包含中文的时候，采用description
