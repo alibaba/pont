@@ -1,5 +1,5 @@
 import { StandardDataSource } from './standard';
-import { Config, getTemplate, DataSourceConfig, hasChinese } from './utils';
+import { Config, getTemplate, DataSourceConfig, hasChinese, diffDses } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { diff, Model } from './diff';
@@ -8,6 +8,7 @@ import { info as debugInfo } from './debugLog';
 import * as _ from 'lodash';
 import { FileStructures } from './generators/generate';
 import { readRemoteDataSource } from './scripts';
+import { DsManager } from './DsManager';
 
 export class Manager {
   readonly lockFilename = 'api-lock.json';
@@ -44,6 +45,7 @@ export class Manager {
 
     await this.readLocalDataSource();
     await this.readRemoteDataSource();
+    this.beginPolling(this.currConfig);
   }
 
   makeAllSame() {
@@ -127,9 +129,32 @@ export class Manager {
     };
   }
 
-  constructor(config: Config, configDir = process.cwd()) {
+  constructor(private projectRoot: string, config: Config, configDir = process.cwd()) {
     this.allConfigs = config.getDataSourcesConfig(configDir);
     this.currConfig = this.allConfigs[0];
+  }
+
+  pollingId = null;
+
+  private polling(currConfig: DataSourceConfig) {
+    this.pollingId = setTimeout(() => {
+      this.readRemoteDataSource(currConfig);
+      this.polling(currConfig);
+    }, currConfig.pollingTime * 1000);
+  }
+
+  beginPolling(currConfig: DataSourceConfig) {
+    if (this.pollingId) {
+      clearTimeout(this.pollingId);
+    }
+    this.polling(currConfig);
+  }
+
+  stopPolling() {
+    if (this.pollingId) {
+      clearTimeout(this.pollingId);
+      this.pollingId = null;
+    }
   }
 
   async ready() {
@@ -146,6 +171,7 @@ export class Manager {
 
       await this.regenerateFiles();
     }
+    this.beginPolling(this.currConfig);
   }
 
   existsLocal() {
@@ -241,8 +267,35 @@ export class Manager {
   }
 
   async readRemoteDataSource(config = this.currConfig) {
+    const projName = this.projectRoot;
+    const currProj = {
+      originUrl: this.currConfig.originUrl,
+      projectName: projName
+    } as any;
+
+    // 只查询当前数据源，用户只关心当前数据源。
+    let oldRemoteSource = DsManager.getLatestDsInProject(currProj);
+
+    if (!oldRemoteSource) {
+      if (this.remoteDataSource) {
+        DsManager.saveDataSource(currProj, this.remoteDataSource);
+        oldRemoteSource = this.remoteDataSource;
+      } else {
+        const remoteDataSource = await readRemoteDataSource(config, this.report);
+        this.remoteDataSource = remoteDataSource;
+        DsManager.saveDataSource(currProj, this.remoteDataSource);
+        return remoteDataSource;
+      }
+    }
+
     const remoteDataSource = await readRemoteDataSource(config, this.report);
     this.remoteDataSource = remoteDataSource;
+
+    const { modDiffs, boDiffs } = diffDses(oldRemoteSource, this.remoteDataSource);
+
+    if (modDiffs.length || boDiffs.length) {
+      DsManager.saveDataSource(currProj, this.remoteDataSource);
+    }
 
     return remoteDataSource;
   }
@@ -279,5 +332,14 @@ export class Manager {
     this.fileManager.prettierConfig = this.currConfig.prettierConfig;
     this.report('文件生成器创建成功！');
     this.fileManager.report = this.report;
+  }
+
+  /** 打开接口变更报表 */
+  openReport() {
+    const currProj = {
+      originUrl: this.currConfig.originUrl,
+      projectName: this.projectRoot
+    } as any;
+    DsManager.openReport(currProj);
   }
 }

@@ -5,9 +5,10 @@ import * as prettier from 'prettier';
 import * as ts from 'typescript';
 import { ResolveConfigOptions } from 'prettier';
 import { error } from './debugLog';
-import { Mod } from './standard';
+import { Mod, StandardDataSource } from './standard';
 import { Manager } from './manage';
 import { OriginType } from './scripts';
+import { diff } from './diff';
 
 const defaultTemplateCode = `
 import * as Pont from 'pont-engine';
@@ -28,12 +29,28 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 }
 `;
 
-export class Config {
+export class DataSourceConfig {
   originUrl? = '';
   originType = OriginType.SwaggerV2;
-  usingOperationId: boolean;
+  name?: string;
+  usingOperationId = true;
+  usingMultipleOrigins = false;
   taggedByName = true;
-  outDir = 'service';
+  templatePath = 'serviceTemplate';
+  outDir = 'src/service';
+  transformPath = '';
+  prettierConfig: ResolveConfigOptions = {};
+  /** 单位为秒，默认 20 分钟 */
+  pollingTime = 60 * 20;
+
+  constructor(config: DataSourceConfig) {
+    Object.keys(config).forEach(key => {
+      this[key] = config[key];
+    });
+  }
+}
+
+export class Config extends DataSourceConfig {
   origins? = [] as Array<{
     originType: OriginType;
     originUrl: string;
@@ -41,10 +58,11 @@ export class Config {
     usingOperationId: boolean;
     transformPath?: string;
   }>;
-  usingMultipleOrigins = false;
-  templatePath = 'serviceTemplate';
-  prettierConfig: ResolveConfigOptions;
-  transformPath: string;
+
+  constructor(config: Config) {
+    super(config);
+    this.origins = config.origins || [];
+  }
 
   static getTransformFromConfig(config: Config | DataSourceConfig) {
     if (config.transformPath) {
@@ -56,10 +74,6 @@ export class Config {
     }
 
     return id => id;
-  }
-
-  constructor(config: Config) {
-    Object.keys(config).forEach(key => (this[key] = config[key]));
   }
 
   validate() {
@@ -94,14 +108,12 @@ export class Config {
   }
 
   getDataSourcesConfig(configDir: string) {
+    const { origins, ...rest } = this;
     const commonConfig = {
-      usingOperationId: this.usingOperationId,
-      taggedByName: this.taggedByName,
+      ...rest,
       outDir: path.join(configDir, this.outDir),
-      usingMultipleOrigins: this.usingMultipleOrigins,
       templatePath: path.join(configDir, this.templatePath),
-      transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
-      prettierConfig: this.prettierConfig
+      transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined
     };
 
     if (this.origins && this.origins.length) {
@@ -113,39 +125,8 @@ export class Config {
       });
     }
 
-    return [
-      new DataSourceConfig({
-        ...commonConfig,
-        originUrl: this.originUrl,
-        originType: this.originType
-      })
-    ];
+    return [new DataSourceConfig(commonConfig)];
   }
-}
-
-export class DataSourceConfig {
-  originUrl: string;
-  originType = OriginType.SwaggerV2;
-  name?: string;
-  usingOperationId = false;
-  usingMultipleOrigins = false;
-  taggedByName = true;
-  templatePath = 'serviceTemplate';
-  outDir = 'src/service';
-  transformPath = 'transformTemplate';
-  prettierConfig: ResolveConfigOptions = {};
-
-  constructor(config: DataSourceConfig) {
-    Object.keys(config).forEach(key => {
-      this[key] = config[key];
-    });
-  }
-}
-
-function wait(timeout = 100) {
-  return new Promise(resolve => {
-    setTimeout(resolve, timeout);
-  });
 }
 
 export function format(fileContent: string, prettierOpts = {}) {
@@ -161,18 +142,6 @@ export function format(fileContent: string, prettierOpts = {}) {
     error(`代码格式化报错！${e.toString()}\n代码为：${fileContent}`);
     return fileContent;
   }
-  // try {
-  //   await wait(Math.random() * 100);
-  //   return prettier.format(fileContent, {
-  //     parser: "typescript",
-  //     trailingComma: "all",
-  //     singleQuote: true,
-  //     ...prettierOpts
-  //   });
-  // } catch (e) {
-  //   console.log("prettier format 错误", fileContent, e);
-  //   return format(fileContent, prettierOpts);
-  // }
 }
 
 export function getDuplicateById<T>(arr: T[], idKey = 'name'): null | T {
@@ -419,9 +388,21 @@ export async function createManager(configFile = CONFIG_FILE) {
   const configPath = await lookForFiles(PROJECT_ROOT, configFile);
 
   const config = Config.createFromConfigPath(configPath);
-  const manager = new Manager(config, path.dirname(configPath));
+  const manager = new Manager(PROJECT_ROOT, config, path.dirname(configPath));
 
   await manager.ready();
 
   return manager;
+}
+
+export function diffDses(ds1: StandardDataSource, ds2: StandardDataSource) {
+  const mapModel = model => Object.assign({}, model, { details: [] }) as any;
+
+  const modDiffs = diff(ds1.mods.map(mapModel), ds2.mods.map(mapModel));
+  const boDiffs = diff(ds1.baseClasses.map(mapModel), ds2.baseClasses.map(mapModel));
+
+  return {
+    modDiffs,
+    boDiffs
+  };
 }
