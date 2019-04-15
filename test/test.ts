@@ -4,6 +4,7 @@ import httpServer = require('http-server');
 import * as fs from 'fs-extra';
 import { createManager } from '../src/utils';
 import { Translator } from '../src/translate';
+import { Manager } from '../src/manage';
 
 const getPath = fname => path.join(__dirname, fname);
 const clearDir = dirName => {
@@ -25,13 +26,14 @@ const server = httpServer.createServer({
 let apidts = '';
 
 describe('pont功能测试', () => {
+  let manager: Manager;
   before(function(done) {
     // 清除路径
     clearDir('services');
 
     server.listen({ port: 9090 }, async err => {
       console.log('http server start successfull');
-      await createManager('config-multiple-origins.json');
+      manager = await createManager('config-multiple-origins.json');
       // 读取 api.d.ts 并转换为单行
       const codeBuffer = await fs.readFile(getPath('services/api1/api.d.ts'));
       apidts = oneline(codeBuffer.toString('utf8'));
@@ -41,6 +43,7 @@ describe('pont功能测试', () => {
   });
   after(function() {
     server.close();
+    manager.stopPolling();
   });
 
   it('api.d.ts should exists', () => {
@@ -110,7 +113,8 @@ describe('pont功能测试', () => {
   it('config-single-usingMultipleOrigins should has multiple origin fileStructure', async () => {
     // 清除路径
     clearDir('services');
-    await createManager('config-single-usingMultipleOrigins.json');
+    const manager = await createManager('config-single-usingMultipleOrigins.json');
     assert.ok(exists('services/api1/api.d.ts'));
+    manager.stopPolling();
   });
 });

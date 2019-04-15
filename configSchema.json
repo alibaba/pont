@@ -1,0 +1,25 @@
+{
+  "title": "JSON schema for rap2ts configuration files",
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "type": "object",
+  "properties": {
+    "templatePath": {
+      "description": "the code generator template, a ts file",
+      "type": "string",
+      "default": "./template"
+    },
+    "outDir": {
+      "description": "the directory code generated to, a relative path to the config file",
+      "type": "string",
+      "default": "./services"
+    },
+    "originUrl": {
+      "description": "the API documents data request URL",
+      "type": "string"
+    },
+    "prettierConfig": {
+      "type": "object",
+      "properties": {}
+    }
+  }
+}

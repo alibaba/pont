@@ -2276,6 +2276,11 @@ typescript@^2.9.2:
   resolved "http://registry.npm.alibaba-inc.com/typescript/download/typescript-2.9.2.tgz#1cbf61d05d6b96269244eb6a3bce4bd914e0f00c"
   integrity sha1-HL9h0F1rliaSROtqO85L2RTg8Aw=
 
+typescript@^3.4.3:
+  version "3.4.3"
+  resolved "http://registry.npm.alibaba-inc.com/typescript/download/typescript-3.4.3.tgz#0eb320e4ace9b10eadf5bc6103286b0f8b7c224f"
+  integrity sha1-DrMg5KzpsQ6t9bxhAyhrD4t8Ik8=
+
 union-value@^1.0.0:
   version "1.0.0"
   resolved "http://registry.npm.alibaba-inc.com/union-value/download/union-value-1.0.0.tgz#5c71c34cb5bad5dcebe3ea0cd08207ba5aa1aea4"
