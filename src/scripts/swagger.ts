@@ -218,9 +218,19 @@ class SwaggerInterface {
       });
     });
 
+    let interDesc = inter.summary;
+
+    if (inter.description) {
+      if (interDesc) {
+        interDesc += '\n' + inter.description;
+      } else {
+        interDesc = inter.description;
+      }
+    }
+
     const standardInterface = new Interface({
       consumes: inter.consumes,
-      description: inter.summary,
+      description: interDesc,
       name,
       method: inter.method,
       path: inter.path,
