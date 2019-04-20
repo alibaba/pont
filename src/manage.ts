@@ -45,7 +45,10 @@ export class Manager {
 
     await this.readLocalDataSource();
     await this.readRemoteDataSource();
-    this.beginPolling(this.currConfig);
+
+    if (this.pollingId) {
+      this.beginPolling(this.currConfig);
+    }
   }
 
   makeAllSame() {
@@ -171,7 +174,6 @@ export class Manager {
 
       await this.regenerateFiles();
     }
-    this.beginPolling(this.currConfig);
   }
 
   existsLocal() {

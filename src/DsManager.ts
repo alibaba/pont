@@ -57,8 +57,9 @@ class LocalDsManager {
 
     if (foundProj && foundProj.records.length) {
       const record = foundProj.records[foundProj.records.length - 1];
+      const recordPath = project.projectPath + '/' + record.filename;
 
-      return PontDictManager.loadJsonFileIfExistsSync(record.filename);
+      return PontDictManager.loadJsonFileIfExistsSync(recordPath);
     }
 
     return null;
