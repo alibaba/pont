@@ -29,6 +29,17 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 }
 `;
 
+export class Mocks {
+  enable = true;
+  host = 8080;
+  basePath = '';
+  wrapper = `{
+    "code": 0,
+    "data": {response},
+    "message": ""
+  }`;
+}
+
 export class DataSourceConfig {
   originUrl? = '';
   originType = OriginType.SwaggerV2;
@@ -42,6 +53,7 @@ export class DataSourceConfig {
   prettierConfig: ResolveConfigOptions = {};
   /** 单位为秒，默认 20 分钟 */
   pollingTime = 60 * 20;
+  mocks = new Mocks();
 
   constructor(config: DataSourceConfig) {
     Object.keys(config).forEach(key => {

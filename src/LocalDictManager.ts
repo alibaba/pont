@@ -86,7 +86,7 @@ class LocalDictManager {
       fs.mkdirpSync(dirname);
     }
 
-    return fs.writeFile(filePath, content);
+    fs.writeFileSync(filePath, content);
   }
 
   saveFileSync(filename: string, content: string) {

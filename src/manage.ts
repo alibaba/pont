@@ -146,7 +146,7 @@ export class Manager {
     }, currConfig.pollingTime * 1000);
   }
 
-  beginPolling(currConfig: DataSourceConfig) {
+  beginPolling(currConfig = this.currConfig) {
     if (this.pollingId) {
       clearTimeout(this.pollingId);
     }
@@ -163,7 +163,7 @@ export class Manager {
   async ready() {
     if (this.existsLocal()) {
       await this.readLocalDataSource();
-      await this.readRemoteDataSource();
+      await this.initRemoteDataSource();
     } else {
       const promises = this.allConfigs.map(config => {
         return this.readRemoteDataSource(config);
@@ -265,6 +265,25 @@ export class Manager {
       errorBaseNames.forEach(baseName => errMsg.push(`基类名${baseName}应该改为英文名！`));
 
       throw new Error(errMsg.join('\n'));
+    }
+  }
+
+  async initRemoteDataSource(config = this.currConfig) {
+    const projName = this.projectRoot;
+    const currProj = {
+      originUrl: this.currConfig.originUrl,
+      projectName: projName
+    } as any;
+
+    // 只查询当前数据源，用户只关心当前数据源。
+    let oldRemoteSource = DsManager.getLatestDsInProject(currProj);
+
+    if (oldRemoteSource) {
+      this.remoteDataSource = StandardDataSource.constructorFromLock(oldRemoteSource);
+    } else {
+      const remoteDataSource = await readRemoteDataSource(config, this.report);
+      this.remoteDataSource = remoteDataSource;
+      await DsManager.saveDataSource(currProj, this.remoteDataSource);
     }
   }
 

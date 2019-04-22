@@ -3,7 +3,7 @@
   "version": "0.1.62",
   "description": "pont swagger typescript API",
   "main": "lib/index.js",
-  "typings": "src/index.ts",
+  "typings": "lib/index.d.ts",
   "bin": {
     "pont": "bin/init.js"
   },

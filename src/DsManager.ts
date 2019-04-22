@@ -57,7 +57,7 @@ class LocalDsManager {
 
     if (foundProj && foundProj.records.length) {
       const record = foundProj.records[foundProj.records.length - 1];
-      const recordPath = project.projectPath + '/' + record.filename;
+      const recordPath = foundProj.projectPath + '/' + record.filename;
 
       return PontDictManager.loadJsonFileIfExistsSync(recordPath);
     }
@@ -71,6 +71,8 @@ class LocalDsManager {
     if (!content) {
       const manifest = new ProjectsManifest([]);
       PontDictManager.saveFileSync(this.PROJECTS_MANIFEST_FILE, JSON.stringify(manifest, null, 2));
+
+      return manifest;
     }
 
     return content;
