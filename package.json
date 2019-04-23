@@ -31,6 +31,7 @@
     "bin"
   ],
   "devDependencies": {
+    "@commitlint/cli": "^7.5.2",
     "@types/chai": "^4.1.7",
     "@types/fs-extra": "^5.0.5",
     "@types/http-server": "^0.10.0",
@@ -46,6 +47,7 @@
   },
   "husky": {
     "hooks": {
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
       "post-merge": "yarn",
       "pre-commit": "npm run build && npm run test && lint-staged"
     }
