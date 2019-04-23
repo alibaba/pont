@@ -64,8 +64,8 @@ class Schema {
   enum?: string[];
   type: SwaggerType;
   items: {
-    type: SwaggerType;
-    $ref: string;
+    type?: SwaggerType;
+    $ref?: string;
   };
   $ref: string;
 
@@ -199,22 +199,26 @@ class SwaggerInterface {
     const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames);
 
     const parameters = (inter.parameters || []).map(param => {
+      let paramSchema: Schema;
       const { description, items, name, type, schema = {} as Schema, required } = param;
+      // 如果请求参数在body中的话，处理方式与response保持一致，因为他们本身的结构是一样的
+      if (param.in === 'body') {
+        paramSchema = param.schema;
+      } else {
+        paramSchema = {
+          enum: param.enum,
+          items,
+          type,
+          $ref: _.get(schema, '$ref')
+        };
+      }
 
       return new Property({
         in: param.in,
         description,
         name: name.includes('/') ? name.split('/').join('') : name,
         required,
-        dataType: Schema.parseSwaggerSchema2StandardDataType(
-          {
-            enum: param.enum,
-            items,
-            type,
-            $ref: _.get(schema, '$ref')
-          } as Schema,
-          defNames
-        )
+        dataType: Schema.parseSwaggerSchema2StandardDataType(paramSchema, defNames)
       });
     });
 
