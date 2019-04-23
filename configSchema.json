@@ -2,6 +2,12 @@
   "title": "JSON schema for rap2ts configuration files",
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
+  "definitions": {
+    "originUrl": {
+      "description": "the API documents data request URL",
+      "type": "string"
+    }
+  },
   "properties": {
     "templatePath": {
       "description": "the code generator template, a ts file",
@@ -14,12 +20,31 @@
       "default": "./services"
     },
     "originUrl": {
-      "description": "the API documents data request URL",
-      "type": "string"
+      "$ref": "#/definitions/originUrl"
     },
     "prettierConfig": {
       "type": "object",
       "properties": {}
+    },
+    "usingMultipleOrigins": {
+      "type": "boolean",
+      "description": "是否开启多数据源模式"
+    },
+    "origins": {
+      "type": "array",
+      "description": "数据源列表",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "数据源名"
+          },
+          "originUrl": {
+            "$ref": "#/definitions/originUrl"
+          }
+        }
+      }
     }
   }
 }
