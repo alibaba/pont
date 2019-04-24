@@ -148,6 +148,16 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 
 - 项目 pre-commit hook 中，加上 pont check，防止本地数据源被研发人员损坏。
 
+- vscode 配置 `trigger suggest` 的快捷键(cmd K + cmd S)，传参时，用快捷键触发提醒，非常好用；
+
+- pont template 配置 API、defs 为全局变量；这样不需要 import 任何接口、实体类；使用 API 直接触发建议找到 模块、接口，非常方便
+
+- 快捷键 cmd + ctrl + p 进行接口查找，非常方便；
+
+- 善于利用实体类（defs），可以当成类型用、也可以作为逻辑实现的辅助；实体类是后端写得实体类，前端自己写实体类，既没有必要，长期来看也会和后端的实现差异越来越大。如果有自定义逻辑，继承 defs 实体类即可。
+
+- 待补充
+
 ## 其它接口平台接入
 
 目前 pont 暂时只支持 [Swagger V2](https://swagger.io/) 数据源。目前只需要在 scripts 中添加对应的数据格式转换文件，把对应数据格式转换为 pont 标准格式，即可适配新的数据源类型。希望社区可以踊跃贡献代码，接入更多类型的数据源！
