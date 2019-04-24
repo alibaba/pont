@@ -118,7 +118,32 @@ function deepDifBo(preBo: BaseClass, nextBo: BaseClass): string[] {
   return [...details, ...delMsgs, ...newMsgs];
 }
 
+export function removeCtx(data) {
+  if (Array.isArray(data)) {
+    return data.map(item => {
+      const { context, ...rest } = item;
+      Object.keys(rest).forEach(key => {
+        rest[key] = removeCtx(rest[key]);
+      });
+
+      return rest;
+    });
+  } else if (typeof data === 'object') {
+    const { context, ...rest } = data;
+
+    Object.keys(rest).forEach(key => {
+      rest[key] = removeCtx(rest[key]);
+    });
+
+    return rest;
+  }
+  return data;
+}
+
 export function diff(preModels: Model[], nextModels: Model[], isMod = true): Model[] {
+  preModels = removeCtx(preModels);
+  nextModels = removeCtx(nextModels);
+
   const { deletedEntities, modifiedEntities, newEntities } = analyWithName(preModels, nextModels);
 
   let label = '基类';
