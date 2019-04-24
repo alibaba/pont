@@ -94,7 +94,7 @@ Pont 将为你的项目自动生成完美的 API 代码。
 数据预处理器示例：
 
 ```javascript
-import { StandardDataSource } from "pont-engine";
+import { StandardDataSource } from 'pont-engine';
 
 export default function(dataSource: StandardDataSource): StandardDataSource {
   dataSource.mods = dataSource.mods.filter(mod => mod.name !== 'user');
@@ -143,6 +143,10 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 #### pont updateMod [modName]
 
 选择性更新本地的模块
+
+## 最佳实践建议
+
+- 项目 pre-commit hook 中，加上 pont check，防止本地数据源被研发人员损坏。
 
 ## 其它接口平台接入
 
