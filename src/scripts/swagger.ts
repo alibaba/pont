@@ -30,6 +30,7 @@ class SwaggerProperty {
     type?: SwaggerType;
     $ref?: string;
   };
+  additionalProperties: SwaggerProperty;
   $ref? = '';
   description? = '';
   name: string;
@@ -63,6 +64,7 @@ class SwaggerParameter {
 class Schema {
   enum?: string[];
   type: SwaggerType;
+  additionalProperties?: Schema;
   items: {
     type?: SwaggerType;
     $ref?: string;
@@ -74,7 +76,7 @@ class Schema {
     defNames: string[],
     classTemplateArgs = [] as StandardDataType[]
   ) {
-    const { items, $ref, type } = schema;
+    const { items, $ref, type, additionalProperties } = schema;
     let typeName = schema.type as string;
     // let primitiveType = schema.type as string;
 
@@ -128,6 +130,16 @@ class Schema {
 
     if (schema.enum) {
       return StandardDataType.constructorWithEnum(parseSwaggerEnumType(schema.enum));
+    }
+
+    if (type === 'object') {
+      if (additionalProperties) {
+        const typeArgs = [
+          new StandardDataType(),
+          Schema.parseSwaggerSchema2StandardDataType(additionalProperties, defNames, classTemplateArgs)
+        ];
+        return new StandardDataType(typeArgs, 'ObjectMap', false);
+      }
     }
 
     return new StandardDataType([], typeName, false);
@@ -348,7 +360,7 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
     const { description, properties } = clazz.def;
 
     const props = _.map(properties, (prop, propName) => {
-      const { $ref, description, name, type, required, items } = prop;
+      const { $ref, description, name, type, required, items, additionalProperties } = prop;
       let primitiveType = (type as string) as any;
 
       const dataType = Schema.parseSwaggerSchema2StandardDataType(
@@ -356,7 +368,8 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
           $ref,
           enum: prop.enum,
           items,
-          type
+          type,
+          additionalProperties
         } as Schema,
         defNames,
         templateArgs
