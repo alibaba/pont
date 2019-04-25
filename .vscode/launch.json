@@ -20,6 +20,19 @@
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "protocol": "inspector"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "debug cmd",
+      "program": "${workspaceFolder}/lib/cmd.js",
+      "args": [
+        "generate"
+      ],
+      "cwd": "${workspaceFolder}/",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "protocol": "inspector"
     }
   ]
 }

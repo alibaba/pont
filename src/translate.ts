@@ -1,39 +1,32 @@
 import * as _ from 'lodash';
 const { youdao, baidu, google } = require('translation.js');
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import * as os from 'os';
 import * as assert from 'assert';
 import * as debugLog from './debugLog';
+import { PontDictManager } from './LocalDictManager';
 
-class Translate {
-  private localDictDir = os.homedir() + '/.pont';
-  private dict: { [key: string]: string } = {};
-  private dictFullPath = '';
+export class Translate {
   private engines = [google, youdao, baidu];
+  dict = {};
 
-  constructor(dictName = 'dict.json') {
-    fs.mkdirpSync(this.localDictDir);
-    this.dictFullPath = path.normalize(this.localDictDir + '/' + dictName);
-    this.dict = fs.pathExistsSync(this.dictFullPath) ? this.loadDict() : {};
-  }
+  constructor(private dictName = 'dict.json') {
+    const localDict = PontDictManager.loadFileIfExistsSync(dictName);
 
-  loadDict() {
-    let dictstr = fs.readFileSync(this.dictFullPath, { encoding: 'utf8' });
-    dictstr = dictstr.slice(0, dictstr.length - 2);
-    try {
-      return JSON.parse(`{${dictstr}}`);
-    } catch (err) {
-      debugLog.error('[translate] local dict is invalid, attempting auto fix');
-      fs.remove(this.dictFullPath);
-      return {};
+    if (localDict) {
+      const dictstr = localDict.slice(0, localDict.length - 2);
+
+      try {
+        this.dict = JSON.parse(`{${dictstr}}`);
+      } catch (err) {
+        debugLog.error('[translate] local dict is invalid, attempting auto fix');
+        PontDictManager.removeFile(dictName);
+      }
     }
   }
 
   appendToDict(pairKey: { cn: string; en: string }) {
     if (!this.dict[pairKey.cn]) {
       this.dict[pairKey.cn] = pairKey.en;
-      fs.appendFileSync(this.dictFullPath, `"${pairKey.cn}": "${pairKey.en}",\n`);
+      PontDictManager.appendFileSync(this.dictName, `"${pairKey.cn}": "${pairKey.en}",\n`);
     }
   }
 

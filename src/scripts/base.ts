@@ -11,10 +11,14 @@ export class OriginBaseReader {
   async translateChinese(jsonString: string) {
     let retString = jsonString;
     try {
-      let chineseKeyCollect = jsonString
+      const matchItems = jsonString
         // 匹配中英文混合及包含 空格，«，»，- 的情况
-        .match(/"[a-z0-9\s-]*[\u4e00-\u9fa5]+[a-z0-9\s-«»\u4e00-\u9fa5]*":/gi)
-        .map(item => item.replace(/["":]/g, ''));
+        .match(/"[a-z0-9\s-]*[\u4e00-\u9fa5]+[a-z0-9\s-«»\u4e00-\u9fa5]*":/gi);
+      if (!matchItems) {
+        return retString;
+      }
+
+      let chineseKeyCollect = matchItems.map(item => item.replace(/["":]/g, ''));
 
       // 去重
       chineseKeyCollect = _.uniq(chineseKeyCollect.map(item => (item.includes('«') ? item.split('«')[0] : item)));

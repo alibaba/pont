@@ -8,20 +8,16 @@
  */
 
 import * as _ from 'lodash';
-import { StandardDataSource, Interface, Mod, BaseClass } from './standard';
-import { Config } from './utils';
+import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
+import { Config } from '../utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { format } from './utils';
-import { info } from './debugLog';
+import { format } from '../utils';
+import { info } from '../debugLog';
 import { existsSync } from 'fs-extra';
 
 export class FileStructures {
   constructor(private generators: CodeGenerator[], private usingMultipleOrigins: boolean) {}
-
-  getDataSources() {
-    return this.generators.map(ge => ge.dataSource);
-  }
 
   getMultipleOriginsFileStructures() {
     const files = {};
@@ -35,8 +31,8 @@ export class FileStructures {
     return {
       ...files,
       'index.ts': this.getDataSourcesTs.bind(this),
-      'api-lock.json': this.getLockContent.bind(this),
-      'api.d.ts': this.getDataSourcesDeclarationTs.bind(this)
+      'api.d.ts': this.getDataSourcesDeclarationTs.bind(this),
+      'api-lock.json': this.getLockContent.bind(this)
     };
   }
 
@@ -95,13 +91,18 @@ export class FileStructures {
       usingMultipleOrigins
     );
 
-    return {
+    const result = {
       'baseClass.ts': generator.getBaseClassesIndex.bind(generator),
       mods: mods,
       'index.ts': generator.getIndex.bind(generator),
-      'api.d.ts': generator.getDeclaration.bind(generator),
-      'api-lock.json': this.getLockContent.bind(this)
+      'api.d.ts': generator.getDeclaration.bind(generator)
     };
+
+    if (!usingMultipleOrigins) {
+      result['api-lock.json'] = this.getLockContent.bind(this);
+    }
+
+    return result;
   }
 
   getFileStructures() {
@@ -145,7 +146,7 @@ export class FileStructures {
   }
 
   getLockContent() {
-    return JSON.stringify(this.getDataSources(), null, 2);
+    return JSON.stringify(this.generators.map(ge => ge.dataSource), null, 2);
   }
 }
 
@@ -160,6 +161,12 @@ export class CodeGenerator {
 
   /** 获取某个基类的类型定义代码 */
   getBaseClassInDeclaration(base: BaseClass) {
+    if (base.templateArgs && base.templateArgs.length) {
+      return `class ${base.name}<${base.templateArgs.map((ignored, index) => `T${index} = any`).join(', ')}> {
+        ${base.properties.map(prop => prop.toPropertyCode(true)).join('\n')}
+      }
+      `;
+    }
     return `class ${base.name} {
       ${base.properties.map(prop => prop.toPropertyCode(true)).join('\n')}
     }
@@ -257,6 +264,10 @@ export class CodeGenerator {
   /** 获取总的类型定义代码 */
   getDeclaration() {
     return `
+      type ObjectMap<Key extends string | number | symbol = any, Value = any> = {
+        [key in Key]: Value;
+      }
+
       ${this.getCommonDeclaration()}
 
       ${this.getBaseClassesInDeclaration()}
@@ -306,7 +317,7 @@ export class CodeGenerator {
       return `
         ${clsCodes.join('\n')}
         export const ${this.dataSource.name} = {
-          ${this.dataSource.baseClasses.map(bs => bs.justName).join(',\n')}
+          ${this.dataSource.baseClasses.map(bs => bs.name).join(',\n')}
         }
       `;
     }
@@ -328,7 +339,7 @@ export class CodeGenerator {
     import pontFetch from 'src/utils/pontFetch';
 
     export ${inter.getParamsCode()}
-    export const init = ${inter.response.initialValue};
+    export const init = ${inter.response.getInitialValue()};
 
     export async function request(${requestParams}) {
       return pontFetch({
@@ -410,7 +421,8 @@ export class FilesManager {
     });
   }
 
-  private clearPath(path: string) {
+  /** 初始化清空路径 */
+  private initPath(path: string) {
     if (fs.existsSync(path)) {
       fs.removeSync(path);
     }
@@ -426,7 +438,7 @@ export class FilesManager {
     const files = this.fileStructures.getFileStructures();
     this.setFormat(files);
 
-    this.clearPath(this.baseDir);
+    this.initPath(this.baseDir);
     this.created = true;
     await this.generateFiles(files);
   }
@@ -435,20 +447,18 @@ export class FilesManager {
   created = false;
 
   async saveLock() {
-    let lockFile = path.join(this.baseDir, 'api-lock.json');
-    const isExists = fs.existsSync(lockFile);
+    const lockFilePath = path.join(this.baseDir, 'api-lock.json');
+    const oldLockFilePath = path.join(this.baseDir, 'api.lock');
+    const isExists = fs.existsSync(lockFilePath);
+    const readFilePath = isExists ? lockFilePath : oldLockFilePath;
 
-    if (!isExists) {
-      lockFile = path.join(this.baseDir, 'api.lock');
-    }
+    const lockContent = await fs.readFile(readFilePath, 'utf8');
 
     const newLockContent = this.fileStructures.getLockContent();
 
-    const lockContent = await fs.readFile(lockFile, 'utf8');
-
     if (lockContent !== newLockContent) {
       this.created = true;
-      await fs.writeFile(lockFile, newLockContent);
+      await fs.writeFile(lockFilePath, newLockContent);
     }
   }
 

@@ -13,7 +13,7 @@ const clearDir = dirName => {
     if (fs.existsSync(fullpath)) {
       fs.removeSync(getPath(dirName));
     }
-  } catch (error) { }
+  } catch (error) {}
 };
 const oneline = (code: string) => code.replace(/[\s\n]/g, '');
 const exists = filepath => fs.existsSync(getPath(filepath));
@@ -25,11 +25,11 @@ const server = httpServer.createServer({
 let apidts = '';
 
 describe('pont功能测试', () => {
-  before(function (done) {
+  before(function(done) {
     // 清除路径
     clearDir('services');
 
-    server.listen(9090, async err => {
+    server.listen({ port: 9090 }, async err => {
       console.log('http server start successfull');
       await createManager('config-multiple-origins.json');
       // 读取 api.d.ts 并转换为单行
@@ -39,7 +39,7 @@ describe('pont功能测试', () => {
       done();
     });
   });
-  after(function () {
+  after(function() {
     server.close();
   });
 
@@ -78,7 +78,7 @@ describe('pont功能测试', () => {
   });
 
   it('api.d.ts should translate chinese of baseClass to english', () => {
-    let dict: { [key: string]: string } = Translator.loadDict();
+    let dict: { [key: string]: string } = Translator.dict;
     ['通用请求参数token', '输出参数vo', '查询参数', 'abc输出参数', ' 中英文 混合 带 空格 Vo '].forEach(cnKey => {
       const enKey = dict[cnKey];
       assert.ok(enKey);
@@ -96,11 +96,11 @@ describe('pont功能测试', () => {
             type: string;
           }
 
-          export type Response = defs.api1.Result<Array<object>>;
+          export type Response = defs.api1.Result<Array<ObjectMap>>;
           export const init: Response;
           export function request(
             params: Params,
-          ): Promise<defs.api1.Result<Array<object>>>;
+          ): Promise<defs.api1.Result<Array<ObjectMap>>>;
         }
     `);
 

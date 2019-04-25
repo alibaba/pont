@@ -1,5 +1,7 @@
 import * as _ from 'lodash';
 import { getDuplicateById } from './utils';
+import { compileTemplate, parseAst2StandardDataType } from './compiler';
+import { type } from 'os';
 
 // primitive type
 export enum PrimitiveType {
@@ -8,7 +10,27 @@ export enum PrimitiveType {
   boolean = 'boolean'
 }
 
-class Constructable {
+class Contextable {
+  getDsName() {
+    const context = this.getContext();
+
+    if (context && context.dataSource) {
+      return context.dataSource.name;
+    }
+
+    return '';
+  }
+
+  private context: any;
+
+  getContext() {
+    return this.context;
+  }
+
+  setContext(context) {
+    this.context = context;
+  }
+
   constructor(arg = {}) {
     _.forEach(arg, (value, key) => {
       if (value !== undefined) {
@@ -16,13 +38,22 @@ class Constructable {
       }
     });
   }
+
+  toJSON() {
+    return _.mapValues(this, (value, key) => {
+      if (key === 'context') {
+        return undefined;
+      }
+
+      return value;
+    });
+  }
 }
 
-// all the data type here
-export class DataType {
+/** deprecated */
+class DataType {
   primitiveType: PrimitiveType;
   isArr: boolean = false;
-
   customType: string = '';
 
   // reference may have generic like Pagination<BaseBO>
@@ -31,138 +62,215 @@ export class DataType {
   enum: Array<string | number> = [];
 
   isTemplateRef = false;
+}
 
-  constructor(inter: Partial<DataType>) {
-    if (inter.enum) {
-      this.enum = inter.enum;
-    }
-    if (inter.reference) {
-      this.reference = inter.reference;
-    }
-    if (inter.customType) {
-      this.customType = inter.customType;
-    }
-    if (inter.isArr) {
-      this.isArr = inter.isArr;
-    }
-    if (inter.primitiveType) {
-      this.primitiveType = inter.primitiveType;
-    }
+// 兼容性代码，将老的 datatype 转换为新的。
+function dateTypeRefs2Ast(refStr: string, originName: string) {
+  let ref = refStr.replace(new RegExp(`defs.${originName}.`, 'g'), '');
+  ref = ref.replace(/defs./g, '');
+  ref = ref.replace(/= any/g, '');
+  const PreTemplate = '«';
+  const EndTemplate = '»';
+  ref = ref.replace(/</g, PreTemplate).replace(/>/g, EndTemplate);
 
-    if (inter.isTemplateRef) {
-      this.isTemplateRef = inter.isTemplateRef;
-    }
+  const ast = compileTemplate(ref);
+
+  return ast;
+}
+
+// 兼容性代码，将老的 datatype 转换为新的。
+function dataType2StandardDataType(dataType: DataType, originName: string, defNames: string[]) {
+  let standardDataType = null as StandardDataType;
+
+  if (dataType.enum && dataType.enum.length) {
+    standardDataType = new StandardDataType([], '', false);
+    standardDataType.setEnum(dataType.enum);
+  } else if (dataType.primitiveType) {
+    standardDataType = new StandardDataType([], dataType.primitiveType, false);
+  } else if (dataType.reference) {
+    const ast = dateTypeRefs2Ast(dataType.reference, originName);
+    standardDataType = parseAst2StandardDataType(ast, defNames, []);
   }
 
-  getReference() {
-    return this.reference;
+  if (dataType.isArr) {
+    if (!standardDataType) {
+      standardDataType = new StandardDataType();
+    }
+
+    return new StandardDataType([standardDataType], 'Array', false);
+  }
+
+  if (!standardDataType) {
+    return new StandardDataType();
+  }
+
+  return standardDataType;
+}
+
+export class StandardDataType extends Contextable {
+  enum: Array<string | number> = [];
+
+  setEnum(enums: Array<string | number> = []) {
+    this.enum = enums.map(value => {
+      if (typeof value === 'string') {
+        if (!value.startsWith("'")) {
+          value = "'" + value;
+        }
+
+        if (!value.endsWith("'")) {
+          value = value + "'";
+        }
+      }
+
+      return value;
+    });
+  }
+
+  constructor(
+    public typeArgs = [] as StandardDataType[],
+    /** 例如 number,A(defs.A),Array,Object, '1' | '2' | 'a' 等 */
+    public typeName = '',
+    public isDefsType = false,
+    /** 指向类的第几个模板，-1 表示没有 */
+    public templateIndex = -1
+  ) {
+    super();
+  }
+
+  static constructorWithEnum(enums: Array<string | number> = []) {
+    const dataType = new StandardDataType();
+    dataType.setEnum(enums);
+
+    return dataType;
+  }
+
+  static constructorFromJSON(dataType: StandardDataType, originName: string, defNames: string[]) {
+    if (Object.getOwnPropertyNames(dataType).includes('reference')) {
+      return dataType2StandardDataType(dataType as any, originName, defNames);
+    }
+
+    const { isDefsType, templateIndex, typeArgs = [], typeName } = dataType;
+
+    if (typeArgs.length) {
+      const instance: StandardDataType = new StandardDataType(
+        typeArgs.map(arg => StandardDataType.constructorFromJSON(arg, originName, defNames)),
+        typeName,
+        isDefsType,
+        templateIndex
+      );
+      instance.setEnum(dataType.enum);
+      return instance;
+    }
+
+    const result = new StandardDataType([], typeName, isDefsType, templateIndex);
+    result.setEnum(dataType.enum);
+
+    return result;
+  }
+
+  setTemplateIndex(classTemplateArgs: StandardDataType[]) {
+    const codes = classTemplateArgs.map(arg => arg.generateCode());
+    const index = codes.indexOf(this.generateCode());
+
+    this.templateIndex = index;
+  }
+
+  getDefNameWithTemplate() {}
+
+  generateCodeWithTemplate() {}
+
+  getDefName(originName) {
+    let name = this.typeName;
+
+    if (this.isDefsType) {
+      name = originName ? `defs.${originName}.${this.typeName}` : `defs.${this.typeName}`;
+    }
+
+    return name;
   }
 
   getEnumType() {
-    // NOTE: fix the swagger can only export number bug in swagger transform programe
-    if (!this.enum.length) {
-      return 'string';
-    }
-
-    return this.enum
-      .map(numOrStr => {
-        if (typeof numOrStr === 'string') {
-          return `'${numOrStr}'`;
-        }
-
-        return numOrStr;
-      })
-      .join(' | ');
+    return this.enum.join(' | ') || 'string';
   }
 
-  get initialValue() {
-    if (this.isArr) {
+  /** 生成 Typescript 类型定义的代码 */
+  generateCode(originName = '') {
+    if (this.templateIndex !== -1) {
+      return `T${this.templateIndex}`;
+    }
+
+    if (this.enum.length) {
+      return this.getEnumType();
+    }
+
+    const name = this.getDefName(originName);
+
+    if (this.typeArgs.length) {
+      return `${name}<${this.typeArgs.map(arg => arg.generateCode(originName)).join(', ')}>`;
+    }
+
+    return name || 'any';
+  }
+
+  getInitialValue(usingDef = true) {
+    if (this.typeName === 'Array') {
       return '[]';
     }
 
-    if (this.reference) {
-      if (this.reference.match(/<.+>/)) {
-        const noTemplateRef = this.reference.replace(/<.+>/, '');
+    if (this.isDefsType) {
+      const originName = this.getDsName();
 
-        return `new ${noTemplateRef}()`;
+      if (!usingDef) {
+        return `new ${this.typeName}()`;
       }
 
-      if (this.isTemplateRef) {
-        return 'undefined';
-      }
+      return `new ${this.getDefName(originName)}()`;
+    }
 
-      return `new ${this.reference}()`;
+    if (this.templateIndex > -1) {
+      return 'undefined';
+    }
+
+    if (this.typeName === 'string') {
+      return "''";
+    }
+
+    if (this.typeName === 'boolean') {
+      return 'false';
     }
 
     if (this.enum && this.enum.length) {
       const str = this.enum[0];
 
       if (typeof str === 'string') {
-        return `'${str}'`;
+        return `${str}`;
       }
 
       return str + '';
     }
 
-    if (this.primitiveType) {
-      if (this.primitiveType === PrimitiveType.string) {
-        return "''";
-      }
-
-      if (this.primitiveType === PrimitiveType.boolean) {
-        return 'false';
-      }
-    }
-
     return 'undefined';
   }
 
-  get type() {
-    if (this.reference === 'Array') {
-      this.reference = 'any[]';
-    }
-
-    if (this.reference) {
-      if (this.isArr) {
-        return `${this.reference}[]`;
-      }
-
-      // todo
-      return this.reference;
-    }
-
-    if (this.customType) {
-      return `Array<${this.customType}>`;
-    }
-
-    if (this.isArr) {
-      if (this.enum && this.enum.length) {
-        return `Array<${this.getEnumType()}>`;
-      }
-
-      if (this.primitiveType) {
-        return `${this.primitiveType}[]`;
-      }
-
-      return 'any[]';
-    }
-
-    if (this.enum && this.enum.length) {
-      return this.getEnumType();
-    }
-
-    return this.primitiveType || 'any';
+  /** deprecated */
+  get initialValue() {
+    return this.getInitialValue();
   }
 }
 
 // property both in params and response
-export class Property extends Constructable {
-  dataType: DataType;
+export class Property extends Contextable {
+  dataType: StandardDataType;
   description?: string;
   name: string;
   required: boolean;
 
   in: 'query' | 'body' | 'path';
+
+  setContext(context) {
+    super.setContext(context);
+    this.dataType.setContext(context);
+  }
 
   constructor(prop: Partial<Property>) {
     super(prop);
@@ -183,34 +291,18 @@ export class Property extends Constructable {
 
     return `
       /** ${this.description || this.name} */
-      ${this.name}${optionalSignal}: ${this.dataType.type};`;
+      ${this.name}${optionalSignal}: ${this.dataType.generateCode(this.getDsName())};`;
   }
 
   toPropertyCodeWithInitValue(baseName = '') {
     const dataType = this.dataType;
-    let typeWithValue = `= ${this.dataType.initialValue}`;
+    let typeWithValue = `= ${this.dataType.getInitialValue(false)}`;
 
-    if (
-      dataType.type !== 'any' &&
-      dataType.type !== 'any[]' &&
-      !dataType.isArr
-    ) {
-      typeWithValue = `= ${dataType.initialValue}`;
-
-      if (!this.dataType.initialValue) {
-        return '';
-      }
+    if (!this.dataType.getInitialValue(false)) {
+      typeWithValue = `: ${this.dataType.generateCode(this.getDsName())}`;
     }
 
-    if (!this.dataType.initialValue) {
-      typeWithValue = `: ${this.dataType.type}`;
-    }
-
-    if (typeWithValue.includes('defs.')) {
-      typeWithValue = typeWithValue.replace(/defs.*\./g, '');
-    }
-
-    if (this.dataType.reference.includes(baseName)) {
+    if (this.dataType.typeName === baseName) {
       typeWithValue = `= {}`;
     }
 
@@ -221,21 +313,21 @@ export class Property extends Constructable {
   }
 
   toBody() {
-    return this.dataType.type;
+    return this.dataType.generateCode(this.getDsName());
   }
 }
 
-export class Interface extends Constructable {
+export class Interface extends Contextable {
   consumes: string[];
   parameters: Property[];
   description: string;
-  response: DataType;
+  response: StandardDataType;
   method: string;
   name: string;
   path: string;
 
   get responseType() {
-    return this.response.type;
+    return this.response.generateCode(this.getDsName());
   }
 
   getParamsCode(className = 'Params') {
@@ -252,7 +344,13 @@ export class Interface extends Constructable {
   getBodyParamsCode() {
     const bodyParam = this.parameters.find(param => param.in === 'body');
 
-    return (bodyParam && bodyParam.dataType.type) || '';
+    return (bodyParam && bodyParam.dataType.generateCode(this.getDsName())) || '';
+  }
+
+  setContext(context: any) {
+    super.setContext(context);
+    this.parameters.forEach(param => param.setContext(context));
+    this.response && this.response.setContext(context);
   }
 
   constructor(inter: Partial<Interface>) {
@@ -260,10 +358,15 @@ export class Interface extends Constructable {
   }
 }
 
-export class Mod extends Constructable {
+export class Mod extends Contextable {
   description: string;
   interfaces: Interface[];
   name: string;
+
+  setContext(context: any) {
+    super.setContext(context);
+    this.interfaces.forEach(inter => inter.setContext(context));
+  }
 
   constructor(mod: Partial<Mod>) {
     super(mod);
@@ -272,13 +375,15 @@ export class Mod extends Constructable {
   }
 }
 
-export class BaseClass extends Constructable {
+export class BaseClass extends Contextable {
   name: string;
   description: string;
   properties: Property[];
+  templateArgs: StandardDataType[];
 
-  get justName() {
-    return this.name.replace(/(.+)<.+/, '$1');
+  setContext(context: any) {
+    super.setContext(context);
+    this.properties.forEach(prop => prop.setContext(context));
   }
 
   constructor(base: Partial<BaseClass>) {
@@ -342,11 +447,12 @@ export class StandardDataSource {
     );
   }
 
-  constructor(standard: {
-    mods: Mod[];
-    name: string;
-    baseClasses: BaseClass[];
-  }) {
+  setContext() {
+    this.baseClasses.forEach(base => base.setContext({ dataSource: this }));
+    this.mods.forEach(mod => mod.setContext({ dataSource: this }));
+  }
+
+  constructor(standard: { mods: Mod[]; name: string; baseClasses: BaseClass[] }) {
     this.mods = standard.mods;
     if (standard.name) {
       this.name = standard.name;
@@ -354,46 +460,54 @@ export class StandardDataSource {
     this.baseClasses = standard.baseClasses;
 
     this.reOrder();
+    this.setContext();
   }
 
   static constructorFromLock(localDataObject: StandardDataSource) {
     try {
+      // 兼容性代码，将老的数据结构转换为新的。
+      const defNames = localDataObject.baseClasses.map(base => {
+        if (base.name.includes('<')) {
+          return base.name.slice(0, base.name.indexOf('<'));
+        }
+        return base.name;
+      });
       const baseClasses = localDataObject.baseClasses.map(base => {
         const props = base.properties.map(prop => {
-          const dataType = new DataType(prop.dataType);
+          const { reference, customType } = (prop.dataType as any) as DataType;
+          const dataType = new StandardDataType();
 
           return new Property({
             ...prop,
             dataType
           });
         });
+        let templateArgs = base.templateArgs;
+        let name = base.name;
+
+        if (!templateArgs && base.name.includes('<')) {
+          // 兼容性代码，将老的数据结构转换为新的。
+          const defNameAst = dateTypeRefs2Ast(base.name, localDataObject.name);
+          const dataType = parseAst2StandardDataType(defNameAst, defNames, []);
+
+          templateArgs = dataType.typeArgs;
+          name = dataType.typeName;
+        }
 
         return new BaseClass({
           description: base.description,
-          name: base.name,
+          name,
+          templateArgs,
           properties: _.unionBy(props, 'name')
         });
       });
       const mods = localDataObject.mods.map(mod => {
         const interfaces = mod.interfaces.map(inter => {
-          const response = new DataType(inter.response);
+          const response = StandardDataType.constructorFromJSON(inter.response, localDataObject.name, defNames);
+
           const parameters = inter.parameters
             .map(param => {
-              const dataType = new DataType(param.dataType);
-
-              if (param.in === 'body') {
-                const dataType = param.dataType.reference;
-                const ref = dataType.includes('defs.') ? dataType.slice(dataType.lastIndexOf('.') + 1) : dataType;
-
-                if (
-                  ref &&
-                  !baseClasses.find(
-                    base => base.name === ref || base.justName === ref
-                  )
-                ) {
-                  return;
-                }
-              }
+              const dataType = StandardDataType.constructorFromJSON(param.dataType, localDataObject.name, defNames);
 
               return new Property({
                 ...param,
