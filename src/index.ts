@@ -1,7 +1,25 @@
-export * from './manage';
-export * from './standard';
+export { Manager } from './manage';
+export { BaseClass, Interface, Mod, PrimitiveType, Property, StandardDataSource, StandardDataType } from './standard';
 
-export * from './utils';
-export * from './generators/generate';
-export * from './diff';
-export * from './LocalDictManager';
+export {
+  Config,
+  DataSourceConfig,
+  createManager,
+  format,
+  getDuplicateById,
+  getIdentifierFromOperatorId,
+  getIdentifierFromUrl,
+  getMaxSamePath,
+  getTemplate,
+  hasChinese,
+  lookForFiles,
+  toDashCase,
+  toDashDefaultCase,
+  toUpperFirstLetter,
+  transformCamelCase,
+  transformDescription,
+  transformModsName
+} from './utils';
+export { CodeGenerator, FileStructures, FilesManager } from './generators/generate';
+export { diff, Model, removeCtx } from './diff';
+export { PontDictManager } from './LocalDictManager';
