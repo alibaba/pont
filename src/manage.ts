@@ -355,6 +355,16 @@ export class Manager {
     this.fileManager.report = this.report;
   }
 
+  /** 获取报表数据 */
+  getReportData() {
+    const currProj = {
+      originUrl: this.currConfig.originUrl,
+      projectName: this.projectRoot
+    } as any;
+
+    return DsManager.getReportData(currProj);
+  }
+
   /** 打开接口变更报表 */
   openReport() {
     const currProj = {

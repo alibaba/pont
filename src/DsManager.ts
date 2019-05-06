@@ -19,7 +19,7 @@ import { PontDictManager } from './LocalDictManager';
 import { diffDses } from './utils';
 import { diff } from './diff';
 
-class Record {
+export class Record {
   saveTime = new Date();
   constructor(public filename: string) {}
 }

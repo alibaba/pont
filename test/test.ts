@@ -5,6 +5,7 @@ import * as fs from 'fs-extra';
 import { createManager } from '../src/utils';
 import { Translator } from '../src/translate';
 import { Manager } from '../src/manage';
+import { SwaggerDataSource } from '../src/scripts/swagger';
 
 const getPath = fname => path.join(__dirname, fname);
 const clearDir = dirName => {
@@ -116,5 +117,28 @@ describe('pont功能测试', () => {
     const manager = await createManager('config-single-usingMultipleOrigins.json');
     assert.ok(exists('services/api1/api.d.ts'));
     manager.stopPolling();
+  });
+
+  it('mods or base update should generate history file and report', async () => {
+    const jsonPath = getPath('fixtures/api-docs.json');
+    const originSource = fs.readFileSync(jsonPath).toString('utf8');
+
+    // 模拟后端接口变更
+    try {
+      const swaggerObj = JSON.parse(originSource) as SwaggerDataSource;
+
+      // 模拟改变参数是否必传
+      swaggerObj['paths']['/api/core/asset/credit/query/pastCreditCardBillGather']['post'][
+        'parameters'
+      ][0].required = false;
+
+      fs.writeFileSync(jsonPath, JSON.stringify(swaggerObj));
+
+      await manager.readRemoteDataSource();
+      const diffs = manager.getReportData().diffs;
+
+      assert.ok(diffs[diffs.length - 1].modDiffs.length === 1);
+      fs.writeFileSync(jsonPath, originSource);
+    } catch (e) {}
   });
 });
