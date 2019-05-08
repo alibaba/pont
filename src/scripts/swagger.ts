@@ -30,10 +30,10 @@ class SwaggerProperty {
     type?: SwaggerType;
     $ref?: string;
   };
+  additionalProperties: SwaggerProperty;
   $ref? = '';
   description? = '';
   name: string;
-  required: boolean;
 }
 
 class SwaggerParameter {
@@ -63,9 +63,10 @@ class SwaggerParameter {
 class Schema {
   enum?: string[];
   type: SwaggerType;
+  additionalProperties?: Schema;
   items: {
-    type: SwaggerType;
-    $ref: string;
+    type?: SwaggerType;
+    $ref?: string;
   };
   $ref: string;
 
@@ -74,7 +75,7 @@ class Schema {
     defNames: string[],
     classTemplateArgs = [] as StandardDataType[]
   ) {
-    const { items, $ref, type } = schema;
+    const { items, $ref, type, additionalProperties } = schema;
     let typeName = schema.type as string;
     // let primitiveType = schema.type as string;
 
@@ -128,6 +129,16 @@ class Schema {
 
     if (schema.enum) {
       return StandardDataType.constructorWithEnum(parseSwaggerEnumType(schema.enum));
+    }
+
+    if (type === 'object') {
+      if (additionalProperties) {
+        const typeArgs = [
+          new StandardDataType(),
+          Schema.parseSwaggerSchema2StandardDataType(additionalProperties, defNames, classTemplateArgs)
+        ];
+        return new StandardDataType(typeArgs, 'ObjectMap', false);
+      }
     }
 
     return new StandardDataType([], typeName, false);
@@ -199,22 +210,26 @@ class SwaggerInterface {
     const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames);
 
     const parameters = (inter.parameters || []).map(param => {
+      let paramSchema: Schema;
       const { description, items, name, type, schema = {} as Schema, required } = param;
+      // 如果请求参数在body中的话，处理方式与response保持一致，因为他们本身的结构是一样的
+      if (param.in === 'body') {
+        paramSchema = param.schema;
+      } else {
+        paramSchema = {
+          enum: param.enum,
+          items,
+          type,
+          $ref: _.get(schema, '$ref')
+        };
+      }
 
       return new Property({
         in: param.in,
         description,
         name: name.includes('/') ? name.split('/').join('') : name,
         required,
-        dataType: Schema.parseSwaggerSchema2StandardDataType(
-          {
-            enum: param.enum,
-            items,
-            type,
-            $ref: _.get(schema, '$ref')
-          } as Schema,
-          defNames
-        )
+        dataType: Schema.parseSwaggerSchema2StandardDataType(paramSchema, defNames)
       });
     });
 
@@ -342,17 +357,19 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
     const dataType = parseAst2StandardDataType(clazz.defNameAst, defNames, []);
     const templateArgs = dataType.typeArgs;
     const { description, properties } = clazz.def;
+    const requiredProps = clazz.def.required || [];
 
     const props = _.map(properties, (prop, propName) => {
-      const { $ref, description, name, type, required, items } = prop;
-      let primitiveType = (type as string) as any;
+      const { $ref, description, name, type, items, additionalProperties } = prop;
+      const required = requiredProps.includes(propName);
 
       const dataType = Schema.parseSwaggerSchema2StandardDataType(
         {
           $ref,
           enum: prop.enum,
           items,
-          type
+          type,
+          additionalProperties
         } as Schema,
         defNames,
         templateArgs

@@ -63,13 +63,13 @@ describe('pont功能测试', () => {
                         200000 入参不合法
                         400000 权限不足
                         500000 服务失败 */
-                    transCode?: number;
+                    transCode: number;
 
                     /** 错误信息。成功：“成功” 失败：“失败对应的msg” */
-                    transMessage?: string;
+                    transMessage: string;
 
                     /** 信息详情” */
-                    transMessageDetail?: string;
+                    transMessageDetail: string;
                 }
         `);
     assert.ok(apidts.includes(rightCode));

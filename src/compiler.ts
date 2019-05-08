@@ -44,6 +44,7 @@ class Parser {
     return args;
   }
 
+  // 语法分析
   parseTemplate() {
     const name = this.eat('Identifier').value;
     let templateArgs = [] as any[];
@@ -99,6 +100,7 @@ export function parseAst2StandardDataType(
 }
 
 export function compileTemplate(template: string) {
+  // 词法分析
   if (template.startsWith('#/definitions/')) {
     template = template.slice('#/definitions/'.length);
   }
