@@ -57,7 +57,14 @@ export class DataSourceConfig {
 
   constructor(config: DataSourceConfig) {
     Object.keys(config).forEach(key => {
-      this[key] = config[key];
+      if (key === 'mocks') {
+        this[key] = {
+          ...this[key],
+          ...config[key]
+        };
+      } else {
+        this[key] = config[key];
+      }
     });
   }
 }
