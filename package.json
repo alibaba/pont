@@ -1,6 +1,6 @@
 {
   "name": "pont-engine",
-  "version": "0.1.71",
+  "version": "0.1.72",
   "description": "pont swagger typescript API",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
@@ -25,6 +25,7 @@
     "typescript": "^3.4.5"
   },
   "files": [
+    "configSchema.json",
     "src",
     "lib",
     "*.md",
