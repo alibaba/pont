@@ -74,7 +74,7 @@ class Schema {
     schema: Schema,
     defNames: string[],
     classTemplateArgs = [] as StandardDataType[]
-  ) {
+  ): StandardDataType {
     const { items, $ref, type, additionalProperties } = schema;
     let typeName = schema.type as string;
     // let primitiveType = schema.type as string;
@@ -371,9 +371,9 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
           type,
           additionalProperties
         } as Schema,
-        defNames,
-        templateArgs
+        defNames
       );
+      dataType.setTemplateIndex(templateArgs);
 
       return new Property({
         dataType,
