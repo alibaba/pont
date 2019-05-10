@@ -10,6 +10,8 @@ import { FileStructures } from './generators/generate';
 import { readRemoteDataSource } from './scripts';
 import { DsManager } from './DsManager';
 
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0 as any;
+
 export class Manager {
   readonly lockFilename = 'api-lock.json';
 
