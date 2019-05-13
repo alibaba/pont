@@ -282,8 +282,7 @@ export class CodeGenerator {
       import * as defs from './baseClass';
       import './mods/';
 
-      declare var window;
-      window.defs = defs;
+      (window as any).defs = defs;
     `;
 
     // dataSource name means multiple dataSource
@@ -372,9 +371,7 @@ export class CodeGenerator {
   /** 获取所有模块的 index 入口文件 */
   getModsIndex() {
     let conclusion = `
-      declare var window;
-
-      window.API = {
+      (window as any).API = {
         ${this.dataSource.mods.map(mod => mod.name).join(', \n')}
       };
     `;

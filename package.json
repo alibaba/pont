@@ -1,6 +1,6 @@
 {
   "name": "pont-engine",
-  "version": "0.1.64",
+  "version": "0.2.1",
   "description": "pont swagger typescript API",
   "main": "lib/index.js",
   "typings": "src/index.ts",
@@ -11,7 +11,7 @@
     "pretest": "npm run build",
     "test": "mocha --timeout 15000 -r ts-node/register test/**/test.ts",
     "dev": "tsc -w",
-    "build": "tsc"
+    "build": "rm -rf lib && tsc"
   },
   "dependencies": {
     "chalk": "^2.3.0",

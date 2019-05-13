@@ -34,7 +34,6 @@ class SwaggerProperty {
   $ref? = '';
   description? = '';
   name: string;
-  required: boolean;
 }
 
 class SwaggerParameter {
@@ -358,10 +357,11 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
     const dataType = parseAst2StandardDataType(clazz.defNameAst, defNames, []);
     const templateArgs = dataType.typeArgs;
     const { description, properties } = clazz.def;
+    const requiredProps = clazz.def.required || [];
 
     const props = _.map(properties, (prop, propName) => {
-      const { $ref, description, name, type, required, items, additionalProperties } = prop;
-      let primitiveType = (type as string) as any;
+      const { $ref, description, name, type, items, additionalProperties } = prop;
+      const required = requiredProps.includes(propName);
 
       const dataType = Schema.parseSwaggerSchema2StandardDataType(
         {

@@ -463,7 +463,7 @@ export class StandardDataSource {
     this.setContext();
   }
 
-  static constructorFromLock(localDataObject: StandardDataSource) {
+  static constructorFromLock(localDataObject: StandardDataSource, originName) {
     try {
       // 兼容性代码，将老的数据结构转换为新的。
       const defNames = localDataObject.baseClasses.map(base => {
@@ -474,12 +474,9 @@ export class StandardDataSource {
       });
       const baseClasses = localDataObject.baseClasses.map(base => {
         const props = base.properties.map(prop => {
-          const { reference, customType } = (prop.dataType as any) as DataType;
-          const dataType = new StandardDataType();
-
           return new Property({
             ...prop,
-            dataType
+            dataType: StandardDataType.constructorFromJSON(prop.dataType, originName, defNames)
           });
         });
         let templateArgs = base.templateArgs;
