@@ -148,6 +148,8 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 
 - 项目 pre-commit hook 中，加上 pont check，防止本地数据源被研发人员损坏。
 
+- 很多 Swagger 所有的接口返回的类型都类似是 Result<T>，主要是囊括了约定的接口错误字段，类似 `{ errorCode: 0, data: T, errMessage: '' }`。这里建议，让后端 Swagger 的接口返回类型，去掉这个 Result 外壳。只返回 data 的 T 类型。
+
 - vscode 配置 `trigger suggest` 的快捷键(cmd K + cmd S)，传参时，用快捷键触发提醒，非常好用；
 
 - pont template 配置 API、defs 为全局变量；这样不需要 import 任何接口、实体类；使用 API 直接触发建议找到 模块、接口，非常方便
@@ -159,6 +161,12 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 - redux 项目，建议结合 [https://github.com/nefe/iron-redux](https://github.com/nefe/iron-redux)，一个致力类型完美和去冗余的轻量化 redux 库。例如类型友好的，运行安全的 get 方法：https://github.com/nefe/iron-redux#safeget
 
 - 待补充
+
+## 常见答疑问题
+
+- 1、demo中，生成代码的 pontFetch 函数，是要自己实现的吗？
+
+  答：pontFetch 是用户自己项目的请求公共方法。因为每个项目的接口有自己的业务逻辑，比如如何判断接口返回的结果是否正确，所以 pont 的默认模板并没有自己实现一套 fetch 方法。另外 Pont 生成的代码是可以用自定义模板配置的。可以在模板上更改 pontFetch 的引用路径和名字。
 
 ## 其它接口平台接入
 
