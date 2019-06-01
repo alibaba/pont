@@ -114,3 +114,49 @@ describe('pont功能测试', () => {
     assert.ok(exists('services/api1/api.d.ts'));
   });
 });
+
+describe('Swagger 1.X接口测试', () => {
+  const handleRequest = async (req, res, next) => {
+    const indexData = fs.readFileSync(getPath('mock/v1/api-docs.json'), { encoding: 'utf8' });
+    const cardealercontroller = fs.readFileSync(getPath('mock/v1/cardealercontroller.json'), { encoding: 'utf8' });
+    const groupcontroller = fs.readFileSync(getPath('mock/v1/groupcontroller.json'), { encoding: 'utf8' })
+    const shopauthcontroller = fs.readFileSync(getPath('mock/v1/shopauthcontroller.json'), { encoding: 'utf8' })
+    if (req.url === '/api-docs') {
+      console.log(indexData);
+      res.end(indexData);
+    }
+    if (req.url === '/api-docs/souche/cardealercontroller') {
+      res.end(cardealercontroller);
+    }
+    if (req.url === '/api-docs/souche/groupcontroller') {
+      res.end(groupcontroller);
+    }
+    if (req.url === '/api-docs/souche/shopauthcontroller') {
+      res.end(shopauthcontroller);
+    }
+    next();
+    console.log(req.url);
+  }
+  const server2 = httpServer.createServer({
+    before: [handleRequest]
+  });
+  before(function (done) {
+    // 清除路径
+    clearDir('services');
+
+    server2.listen({ port: 9099 }, async err => {
+      console.log('http server start on prot 9099 successfully');
+      done();
+    });
+  });
+  after(function () {
+    server2.close();
+  });
+
+  it('config-swagger-v1', async () => {
+    // 清除路径
+    clearDir('services');
+    await createManager('config-swagger-v1.json');
+    assert.ok(exists('services/api.d.ts'));
+  });
+})

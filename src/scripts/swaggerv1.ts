@@ -7,7 +7,7 @@
 
 import * as _ from 'lodash';
 import fetch from 'node-fetch';
-import { StandardDataSource, Mod, BaseClass, Property } from '../standard';
+import { Mod, BaseClass, Property, Interface, StandardDataType, StandardDataSource } from '../standard';
 import { hasChinese, DataSourceConfig, Config } from '../utils';
 // import { findDefinition } from './compiler';
 
@@ -25,32 +25,21 @@ enum SwaggerType {
   object = 'object'
 }
 
-class SwaggerProperty {
-  type: SwaggerType;
-  enum? = [] as string[];
-  items? = null as {
-    type?: SwaggerType;
-    $ref?: string;
-  };
-  $ref? = '';
-  description? = '';
-  name: string;
-  required: boolean;
-}
+const SWAGGER_TYPE = ['integer', 'string', 'file', 'array', 'number', 'boolean', 'object'];
 
 /**
  * 数据集合
  */
-export class CompatibleSwaggerDataSource {
-  definitions: { [key in string]: CompatibleModuleModel };
-  apis: CompatibleModuleApi[];
+class SwaggerV1DataSource {
+  definitions: { [key in string]: SwaggerV1ModuleModel };
+  modules: SwaggerV1ModuleAPiData[];
 }
 
 /**
  * 索引数据
  */
-export class CompatibleDataSource {
-  apis: CompatibleModuleDescription[];
+class SwaggerV1IndexDataSource {
+  apis: SwaggerV1ModuleDescription[];
   info: {
     description: string;
     title: string;
@@ -58,7 +47,7 @@ export class CompatibleDataSource {
   swaggerVersion: string;
 }
 
-export class CompatibleModuleDescription {
+class SwaggerV1ModuleDescription {
   description: string;
   path: string;
 }
@@ -66,61 +55,78 @@ export class CompatibleModuleDescription {
 /**
  * 模块数据
  */
-export class CompatibleModuleSource {
+class SwaggerV1ModuleDataSource {
   description: string;
   path: string;
-  models: { [key in string]: CompatibleModuleModel };
-  apis: CompatibleModuleApi[];
+  models: { [key in string]: SwaggerV1ModuleModel };
+  apis: SwaggerV1ModuleApi[];
   resourcePath: string;
 }
 
-class CompatibleModuleModel {
+class SwaggerV1ModuleAPiData {
   description: string;
-  id: string;
-  properties: { [key in string]: SwaggerProperty };
+  name: string;
+  interfaces: SwaggerV1ModuleApi[];
 }
 
-class CompatibleModuleApi {
+class SwaggerV1ModuleModel {
+  description: string;
+  id: string;
+  properties: { [key in string]: SwaggerV1Property };
+  static transformSwaggerV1Model2Standard() {}
+}
+
+class SwaggerV1ModuleApi {
   description: string;
   path: string;
-  operations: SwaggerInterface[];
+  operations: SwaggerV1Interface[];
+  static transformSwaggerV1Api2Standard() {}
+}
+
+class SwaggerV1Property {
+  type: string;
+  enum? = [] as string[];
+  items? = null as {
+    type: string;
+  };
+  description? = '';
+  name? = '';
+  required: boolean;
 }
 
 /**
  * api接口
  */
-class SwaggerInterface {
+class SwaggerV1Interface {
   consumes = [] as string[];
 
-  parameters = [] as SwaggerParameter[];
-
-  summary = '';
-
-  description: string;
-
-  initialValue: string;
-
-  tags = [] as string[];
-
-  response: Schema;
+  deprecated: 'true' | 'false';
 
   method: string;
 
-  name: string;
+  nickname: string;
 
-  path: string;
+  notes: string;
 
-  samePath: string;
+  parameters = [] as SwaggerV1Parameter[];
 
-  operationId: string;
+  produces: string[];
 
-  static transformSwaggerInterface2Standard() {}
+  responseMessages: SwaggerV1Response[];
+
+  summary: string;
+
+  type: string;
+
+  static transformSwaggerV1Interface2Standard() {}
 }
+
+class SwaggerV1Response {}
 
 /**
  * api入参
  */
-class SwaggerParameter {
+class SwaggerV1Parameter {
   allowMultiple: boolean;
   /** 描述 */
   description: string;
@@ -128,100 +134,214 @@ class SwaggerParameter {
   name: string;
   paramAccess: string;
   /** 传参形式 */
-  paramType: 'query' | 'body' | 'path';
+  paramType: string;
   required: boolean;
   /** 类型 */
   type: SwaggerType;
+}
+
+export function parseSwaggerEnumType(enumStrs: string[]) {
+  let enums = enumStrs as Array<string | number>;
+
+  enumStrs.forEach(str => {
+    if (!Number.isNaN(Number(str))) {
+      enums.push(Number(str));
+    }
+  });
+
+  return enums
+    .filter(str => {
+      return String(str).match(/^[0-9a-zA-Z\_\-\$]+$/);
+    })
+    .map(numOrStr => {
+      if (typeof numOrStr === 'string') {
+        return `'${numOrStr}'`;
+      }
+
+      return numOrStr;
+    });
 }
 
 class Schema {
   enum?: string[];
   type: SwaggerType;
   items: {
-    type: SwaggerType;
-    $ref: string;
+    type: string;
   };
-  $ref: string;
+  static parseSwaggerSchema2StandardDataType(
+    schema: Schema,
+    defNames: string[],
+    classTemplateArgs = [] as StandardDataType[]
+  ) {
+    const { items, type } = schema;
+    let typeName = schema.type as string;
+    if (type === 'array') {
+      let itemsType = _.get(items, 'type', '');
+      if (itemsType) {
+        if (SWAGGER_TYPE.indexOf(itemsType) === -1) {
+          // 如果是包装类型
+          const ast = compileTemplate(itemsType);
+          const contentType = parseAst2StandardDataType(ast, defNames, classTemplateArgs);
+
+          return new StandardDataType([contentType], 'Array', false, -1);
+        }
+        // 如果是基本类型
+        if (itemsType === 'integer') {
+          itemsType = 'number';
+        }
+        if (itemsType === 'file') {
+          itemsType = 'file';
+        }
+        let contentType = new StandardDataType([], itemsType, false, -1);
+        if (itemsType === 'array') {
+          contentType = new StandardDataType([new StandardDataType()], 'Array', false, -1);
+        }
+        return new StandardDataType([contentType], 'Array', false, -1);
+      }
+    }
+
+    // 如果是包装类型
+    if (SWAGGER_TYPE.indexOf(typeName) === -1) {
+      const ast = compileTemplate(typeName);
+
+      if (!ast) {
+        return new StandardDataType();
+      }
+
+      return parseAst2StandardDataType(ast, defNames, classTemplateArgs);
+    }
+    if (typeName === 'integer') {
+      typeName = 'number';
+    }
+
+    if (typeName === 'file') {
+      typeName = 'File';
+    }
+
+    if (schema.enum) {
+      return StandardDataType.constructorWithEnum(parseSwaggerEnumType(schema.enum));
+    }
+
+    return new StandardDataType([], typeName, false);
+  }
+}
+
+export function transformModuleName(_name) {
+  // 将关键词转化
+  return _name.replace('/', '_');
 }
 
 // transform function
-// export function transformCompatibleSwaggerData2Standard(
-//   swagger: CompatibleDataSource,
-//   usingOperationId = true,
-//   originName = ''
-// ) {
-//   // build mods
-//   const mods = swagger.groups.map((group, index) => {
-//     const interfaces = group.apis.reduce((allInterfaces, api) => allInterfaces.concat(api.operations), []);
+export function transformCompatibleSwaggerData2Standard(
+  swagger: SwaggerV1DataSource,
+  usingOperationId = true,
+  originName = ''
+) {
+  const { definitions, modules } = swagger;
 
-//     const standardInterfaces = interfaces.map(inter => {
-//       inter.operationId = inter.nickname;
-//       return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, '', originName);
-//     });
-//     const description = group.description;
-//     const name = group.path.match(/([a-zA-Z]+)/g).pop();
-//     return new Mod({
-//       description,
-//       interfaces: standardInterfaces,
-//       name
-//     });
-//   });
-//   // build baseClasses
-//   const baseClasses = swagger.groups.reduce((allClasses, group) => {
-//     return allClasses.concat(
-//       _.map(group.models, (value, key) => {
-//         // TODO: 格式化name
-//         const name = key;
-//         const description = value.description;
-//         const templateName = findDefinition(key);
-//         const properties = _.map(value.properties, (prop, propName) => {
-//           const { $ref, description, type, required, items } = prop;
+  const swaggerStr = JSON.stringify(swagger);
 
-//           const dataType = Schema.swaggerSchema2StandardDataType(
-//             {
-//               $ref,
-//               enum: prop.enum,
-//               items,
-//               type
-//             } as Schema,
-//             templateName,
-//             originName
-//           );
-
-//           return new Property({
-//             dataType,
-//             name: propName,
-//             description,
-//             required
-//           });
-//         });
-
-//         return new BaseClass({
-//           name,
-//           description,
-//           properties
-//         });
-//       })
-//     );
-//   }, []);
-
-//   const name = swagger.name;
-//   return new StandardDataSource({
-//     name,
-//     mods,
-//     baseClasses: _.uniqBy(baseClasses, base => base.justName)
-//   });
-// }
+  // build mods
+  const mods = _.map(modules, module => {
+    const { description, name } = module;
+    const interfaces = _.map(module.interfaces, inter => {
+      const interner = { ...inter, ...inter.operations[0] };
+      // Params,去重
+      interner.parameters = _.uniqBy(interner.parameters, 'name');
+      const consumes = interner.consumes;
+      const parameters = _.map(interner.parameters, param => {
+        const dataType = Schema.parseSwaggerSchema2StandardDataType({ type: param.type } as Schema, [], []);
+        const description = param.description;
+        const name = param.name;
+        const required = param.required;
+        return new Property({ dataType, description, name, required });
+      });
+      const description = interner.description;
+      const response = Schema.parseSwaggerSchema2StandardDataType({ type: interner.type } as Schema, [], []);
+      const method = interner.method;
+      const name = interner.nickname;
+      const path = interner.path;
+      return new Interface({
+        consumes,
+        parameters,
+        description,
+        response,
+        method,
+        name,
+        path
+      });
+    });
+    return new Mod({
+      description,
+      interfaces,
+      name: transformModuleName(name)
+    });
+  });
+  const draftClasses = _.map(definitions, (def, defName) => {
+    const defNameAst = compileTemplate(defName);
+    return {
+      name: defNameAst.name,
+      defNameAst,
+      def
+    };
+  });
+  const defNames = draftClasses.map(clazz => clazz.name);
+  const baseClasses = draftClasses.map(clazz => {
+    const dataType = parseAst2StandardDataType(clazz.defNameAst, defNames, []);
+    const templateArgs = dataType.typeArgs;
+    const { description, properties } = clazz.def;
+    const props = _.map(properties, (prop, propName) => {
+      const dataType = Schema.parseSwaggerSchema2StandardDataType(
+        { enum: prop.enum, type: prop.type, items: prop.items } as Schema,
+        defNames,
+        templateArgs
+      );
+      return new Property({
+        dataType,
+        name: propName,
+        description,
+        required: false
+      });
+    });
+    return new BaseClass({
+      description,
+      name: clazz.name,
+      properties: props,
+      templateArgs
+    });
+  });
+  const data = new StandardDataSource({
+    // baseClasses: _.uniqBy(baseClasses, base => base.name),
+    baseClasses: baseClasses,
+    mods,
+    name: originName
+  });
+  return data;
+  // const baseClasses = _.map(draftClasses, (definition, definitionName) => {
+  //   const name = definitionName;
+  //   const description = definition.description;
+  //   const properties = _.map(definition.properties, (property, propertyName) => {
+  //     const dataType = property.type;
+  //     const name = propertyName;
+  //     const required = property.required;
+  //     return new Property({
+  //       // dataType,
+  //       name,
+  //       required
+  //     });
+  //   });
+  // });
+}
 
 export class SwaggerV1Reader extends OriginBaseReader {
   /** 获取远程数据源 */
-  async fetchData(): Promise<CompatibleSwaggerDataSource> {
+  async fetchData(): Promise<SwaggerV1DataSource> {
     this.report('获取远程数据中...');
     const indexRes = await fetch(this.config.originUrl);
     const indexResStr = await indexRes.text();
-    let indexData: CompatibleDataSource = await JSON.parse(indexResStr);
+    let indexData: SwaggerV1IndexDataSource = await JSON.parse(indexResStr);
 
-    let apis = [];
+    let modules = [];
     let definitions = {};
     /** 遍历请求模块接口数据 */
     for (let i = 0; i < indexData.apis.length; i++) {
@@ -230,11 +350,16 @@ export class SwaggerV1Reader extends OriginBaseReader {
       let moduleResStr = await moduleRes.text();
       /** 翻译中文基类 */
       moduleResStr = await this.translateChinese(moduleResStr);
-      const moduleResData: CompatibleModuleSource = await JSON.parse(moduleResStr);
-      apis = apis.concat(moduleResData.apis);
+      const moduleResData: SwaggerV1ModuleDataSource = await JSON.parse(moduleResStr);
+      const moduleApiData: SwaggerV1ModuleAPiData = {
+        description: api.description,
+        interfaces: moduleResData.apis,
+        name: api.path.slice(1)
+      };
+      modules.push(moduleApiData);
       Object.assign(definitions, moduleResData.models);
     }
-    const dataSource = { apis, definitions };
+    const dataSource = { modules, definitions };
 
     return dataSource;
   }
@@ -276,11 +401,6 @@ export class SwaggerV1Reader extends OriginBaseReader {
    * @param originName
    */
   transform2Standard(data, usingOperationId: boolean, originName: string) {
-    // return transformCompatibleSwaggerData2Standard(data, usingOperationId, originName);
-    return new StandardDataSource({
-      name: '',
-      mods: [],
-      baseClasses: []
-    });
+    return transformCompatibleSwaggerData2Standard(data, usingOperationId, originName);
   }
 }

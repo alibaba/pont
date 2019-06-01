@@ -2,5 +2,5 @@
   "outDir": "services",
   "originType": "SwaggerV1",
   "templatePath": "./pontTemplate",
-  "originUrl": "http://shop-build.dasouche-inc.net/api-docs"
+  "originUrl": "http://localhost:9099/api-docs"
 }
