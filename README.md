@@ -103,6 +103,10 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 }
 ```
 
+### mocks
+
+自动化 mocks 功能开始内测，https://github.com/alibaba/pont/issues/48
+
 ## demo
 
 参考下面的例子，来体验 pont。
