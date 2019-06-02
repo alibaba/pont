@@ -289,9 +289,14 @@ export class Property extends Contextable {
       optionalSignal = '?';
     }
 
+    let name = this.name;
+    if (!name.match(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/)) {
+      name = `'${name}'`;
+    }
+
     return `
       /** ${this.description || this.name} */
-      ${this.name}${optionalSignal}: ${this.dataType.generateCode(this.getDsName())};`;
+      ${name}${optionalSignal}: ${this.dataType.generateCode(this.getDsName())};`;
   }
 
   toPropertyCodeWithInitValue(baseName = '') {
@@ -306,9 +311,14 @@ export class Property extends Contextable {
       typeWithValue = `= {}`;
     }
 
+    let name = this.name;
+    if (!name.match(/^[a-zA-Z_$][a-zA-Z0-9_$]*$/)) {
+      name = `'${name}'`;
+    }
+
     return `
       /** ${this.description || this.name} */
-      ${this.name} ${typeWithValue}
+      ${name} ${typeWithValue}
       `;
   }
 
