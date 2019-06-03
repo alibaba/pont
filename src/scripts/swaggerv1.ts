@@ -310,26 +310,11 @@ export function transformCompatibleSwaggerData2Standard(
     });
   });
   const data = new StandardDataSource({
-    // baseClasses: _.uniqBy(baseClasses, base => base.name),
-    baseClasses: baseClasses,
+    baseClasses: _.uniqBy(baseClasses, base => base.name),
     mods,
     name: originName
   });
   return data;
-  // const baseClasses = _.map(draftClasses, (definition, definitionName) => {
-  //   const name = definitionName;
-  //   const description = definition.description;
-  //   const properties = _.map(definition.properties, (property, propertyName) => {
-  //     const dataType = property.type;
-  //     const name = propertyName;
-  //     const required = property.required;
-  //     return new Property({
-  //       // dataType,
-  //       name,
-  //       required
-  //     });
-  //   });
-  // });
 }
 
 export class SwaggerV1Reader extends OriginBaseReader {

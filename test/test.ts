@@ -134,7 +134,6 @@ describe('Swagger 1.X接口测试', () => {
       res.end(shopauthcontroller);
     }
     next();
-    console.log(req.url);
   }
   const server2 = httpServer.createServer({
     before: [handleRequest]
