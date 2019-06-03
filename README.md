@@ -23,20 +23,20 @@ Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数
 
 接口检索：
 
-![屏幕快照 2019-05-28 22.35.25.png](https://intranetproxy.alipay.com/skylark/lark/0/2019/png/5137/1559545855000-b6f4aae6-7507-4e5f-a9a8-cbcd4df26e15.png)
+![屏幕快照 2019-05-28 22.35.25.png](https://img.alicdn.com/tfs/TB1HaZ3bliE3KVjSZFMXXbQhVXa-1786-742.png)
 
 接口开发：
-![pont.gif](https://intranetproxy.alipay.com/skylark/lark/0/2019/gif/5137/1559545823462-65e0a73b-96e4-4056-bba5-897422e10ef6.gif)
+![pont.gif](https://img.alicdn.com/tfs/TB1Y6w8blKw3KVjSZFOXXarDVXa-1546-1016.gif)
 
 
 ### 联调维护
 
 实时发现后端接口更新：
-![屏幕快照 2019-05-28 00.14.41.png](https://intranetproxy.alipay.com/skylark/lark/0/2019/png/5137/1559545871701-1ede136a-2c08-4202-8e81-212359617314.png) 
+![屏幕快照 2019-05-28 00.14.41.png](https://img.alicdn.com/tfs/TB1xE71bfWG3KVjSZFgXXbTspXa-1792-470.png) 
 
 
 更新接口层后，可迅速定位接口调用代码，进行调用修改。
-![屏幕快照 2019-05-28 00.13.34.png](https://intranetproxy.alipay.com/skylark/lark/0/2019/png/5137/1559545868994-69eb3bac-7fcd-4221-9421-2bcb9526d7d1.png)
+![屏幕快照 2019-05-28 00.13.34.png](https://img.alicdn.com/tfs/TB1PPE8blKw3KVjSZFOXXarDVXa-850-290.png)
 
 
 ## 快速开始
