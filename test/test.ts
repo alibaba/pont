@@ -116,22 +116,22 @@ describe('pont功能测试', () => {
 });
 
 describe('Swagger 1.X接口测试', () => {
-  const handleRequest = async (req, res, next) => {
+  const handleRequest = (req, res, next) => {
     const indexData = fs.readFileSync(getPath('mock/v1/api-docs.json'), { encoding: 'utf8' });
     const cardealercontroller = fs.readFileSync(getPath('mock/v1/cardealercontroller.json'), { encoding: 'utf8' });
     const groupcontroller = fs.readFileSync(getPath('mock/v1/groupcontroller.json'), { encoding: 'utf8' })
     const shopauthcontroller = fs.readFileSync(getPath('mock/v1/shopauthcontroller.json'), { encoding: 'utf8' })
     if (req.url === '/api-docs') {
-      res.end(indexData);
+      return res.end(indexData);
     }
     if (req.url === '/api-docs/souche/cardealercontroller') {
-      res.end(cardealercontroller);
+      return res.end(cardealercontroller);
     }
     if (req.url === '/api-docs/souche/groupcontroller') {
-      res.end(groupcontroller);
+      return res.end(groupcontroller);
     }
     if (req.url === '/api-docs/souche/shopauthcontroller') {
-      res.end(shopauthcontroller);
+      return res.end(shopauthcontroller);
     }
     next();
   }
