@@ -8,12 +8,12 @@
  */
 
 import * as _ from 'lodash';
-import { StandardDataSource, Interface, Mod, BaseClass } from './standard';
-import { Config } from './utils';
+import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
+import { Config } from '../utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { format } from './utils';
-import { info } from './debugLog';
+import { format } from '../utils';
+import { info } from '../debugLog';
 import { existsSync } from 'fs-extra';
 
 export class FileStructures {
@@ -264,6 +264,10 @@ export class CodeGenerator {
   /** 获取总的类型定义代码 */
   getDeclaration() {
     return `
+      type ObjectMap<Key extends string | number | symbol = any, Value = any> = {
+        [key in Key]: Value;
+      }
+
       ${this.getCommonDeclaration()}
 
       ${this.getBaseClassesInDeclaration()}
@@ -278,8 +282,7 @@ export class CodeGenerator {
       import * as defs from './baseClass';
       import './mods/';
 
-      declare var window;
-      window.defs = defs;
+      (window as any).defs = defs;
     `;
 
     // dataSource name means multiple dataSource
@@ -368,9 +371,7 @@ export class CodeGenerator {
   /** 获取所有模块的 index 入口文件 */
   getModsIndex() {
     let conclusion = `
-      declare var window;
-
-      window.API = {
+      (window as any).API = {
         ${this.dataSource.mods.map(mod => mod.name).join(', \n')}
       };
     `;
@@ -417,7 +418,8 @@ export class FilesManager {
     });
   }
 
-  private clearPath(path: string) {
+  /** 初始化清空路径 */
+  private initPath(path: string) {
     if (fs.existsSync(path)) {
       fs.removeSync(path);
     }
@@ -433,7 +435,7 @@ export class FilesManager {
     const files = this.fileStructures.getFileStructures();
     this.setFormat(files);
 
-    this.clearPath(this.baseDir);
+    this.initPath(this.baseDir);
     this.created = true;
     await this.generateFiles(files);
   }

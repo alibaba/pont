@@ -3,11 +3,13 @@ import { Config, getTemplate, DataSourceConfig, hasChinese } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { diff, Model } from './diff';
-import { FilesManager } from './generate';
+import { FilesManager } from './generators/generate';
 import { info as debugInfo } from './debugLog';
 import * as _ from 'lodash';
-import { FileStructures } from './generate';
+import { FileStructures } from './generators/generate';
 import { readRemoteDataSource } from './scripts';
+
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0 as any;
 
 export class Manager {
   readonly lockFilename = 'api-lock.json';
@@ -178,7 +180,7 @@ export class Manager {
       this.report('读取本地完成');
       const localDataObjects = JSON.parse(localDataStr) as StandardDataSource[];
       this.allLocalDataSources = localDataObjects.map(ldo => {
-        return StandardDataSource.constructorFromLock(ldo);
+        return StandardDataSource.constructorFromLock(ldo, ldo.name);
       });
       if (this.allLocalDataSources.length < this.allConfigs.length) {
         this.allConfigs.forEach(config => {

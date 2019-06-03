@@ -13,7 +13,7 @@ const clearDir = dirName => {
     if (fs.existsSync(fullpath)) {
       fs.removeSync(getPath(dirName));
     }
-  } catch (error) { }
+  } catch (error) {}
 };
 const oneline = (code: string) => code.replace(/[\s\n]/g, '');
 const exists = filepath => fs.existsSync(getPath(filepath));
@@ -25,7 +25,7 @@ const server = httpServer.createServer({
 let apidts = '';
 
 describe('pont功能测试', () => {
-  before(function (done) {
+  before(function(done) {
     // 清除路径
     clearDir('services');
 
@@ -39,7 +39,7 @@ describe('pont功能测试', () => {
       done();
     });
   });
-  after(function () {
+  after(function() {
     server.close();
   });
 
@@ -59,13 +59,13 @@ describe('pont功能测试', () => {
                         200000 入参不合法
                         400000 权限不足
                         500000 服务失败 */
-                    transCode?: number;
+                    transCode: number;
 
                     /** 错误信息。成功：“成功” 失败：“失败对应的msg” */
-                    transMessage?: string;
+                    transMessage: string;
 
                     /** 信息详情” */
-                    transMessageDetail?: string;
+                    transMessageDetail: string;
                 }
         `);
     assert.ok(apidts.includes(rightCode));
@@ -78,7 +78,7 @@ describe('pont功能测试', () => {
   });
 
   it('api.d.ts should translate chinese of baseClass to english', () => {
-    let dict: { [key: string]: string } = Translator.loadDict();
+    let dict: { [key: string]: string } = Translator.dict;
     ['通用请求参数token', '输出参数vo', '查询参数', 'abc输出参数', ' 中英文 混合 带 空格 Vo '].forEach(cnKey => {
       const enKey = dict[cnKey];
       assert.ok(enKey);
@@ -96,11 +96,11 @@ describe('pont功能测试', () => {
             type: string;
           }
 
-          export type Response = defs.api1.Result<Array<object>>;
+          export type Response = defs.api1.Result<Array<ObjectMap>>;
           export const init: Response;
           export function request(
             params: Params,
-          ): Promise<defs.api1.Result<Array<object>>>;
+          ): Promise<defs.api1.Result<Array<ObjectMap>>>;
         }
     `);
 

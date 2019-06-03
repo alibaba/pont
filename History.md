@@ -1,3 +1,108 @@
+0.2.1 / 2019-05-10
+==================
+
+* fix: fix code in manager
+
+0.1.70 / 2019-05-08
+==================
+
+* fix: fix swagger
+
+0.1.69 / 2019-05-08
+==================
+
+* chore: add ignore
+
+0.1.68 / 2019-05-08
+==================
+
+* chore: add ignore
+
+0.1.67 / 2019-05-05
+==================
+
+* feat: deploy 0.1.66
+
+0.1.66 / 2019-04-25
+==================
+
+* feat: deploy 0.1.65
+
+0.1.65 / 2019-04-25
+==================
+
+* feat: deploy 0.1.64
+
+0.1.64 / 2019-04-25
+==================
+
+* feat: deploy 0.1.63
+
+0.1.63 / 2019-04-24
+==================
+
+* docs: update readm
+
+0.1.62 / 2019-04-19
+==================
+
+* fix: 修复接口同时存在 summary 和description 的case
+
+0.1.61 / 2019-04-17
+==================
+
+* fix: fix enum origin value
+
+0.1.60 / 2019-04-15
+==================
+
+* deploy 0.1.58
+
+0.1.59 / 2019-04-14
+==================
+
+* feat: export diff
+
+0.1.58 / 2019-04-14
+==================
+
+* fix: fix interface name repeat in same mod
+
+0.1.57 / 2019-04-10
+==================
+
+* fix: fix ObjectMap
+
+0.1.56 / 2019-04-10
+==================
+
+* deploy 0.1.55
+
+0.1.55 / 2019-04-10
+==================
+
+* fix: fix import alias
+
+0.1.54 / 2019-04-10
+==================
+
+* Merge pull request #40 from alibaba/feat/dir
+* fix: fix no operationId
+* Merge pull request #39 from alibaba/feat/dir
+* feat: change dir
+* Update README.md
+* Merge pull request #36 from alibaba/feat/data-type
+* chore: add pretest script
+* feat: delete useless code
+* fix: fix swagger test
+* feat: delete deprecated code
+* feat: delete useless code
+* fix: fix conflict
+* fix: fix ftest
+* fix: fix test
+* fix: fix launch script
+* fix: fix data-type in pont
+
 0.1.53 / 2019-03-08
 ==================
 

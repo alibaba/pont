@@ -84,7 +84,7 @@ function dataType2StandardDataType(dataType: DataType, originName: string, defNa
 
   if (dataType.enum && dataType.enum.length) {
     standardDataType = new StandardDataType([], '', false);
-    standardDataType.enum = dataType.enum;
+    standardDataType.setEnum(dataType.enum);
   } else if (dataType.primitiveType) {
     standardDataType = new StandardDataType([], dataType.primitiveType, false);
   } else if (dataType.reference) {
@@ -111,7 +111,19 @@ export class StandardDataType extends Contextable {
   enum: Array<string | number> = [];
 
   setEnum(enums: Array<string | number> = []) {
-    this.enum = enums;
+    this.enum = enums.map(value => {
+      if (typeof value === 'string') {
+        if (!value.startsWith("'")) {
+          value = "'" + value;
+        }
+
+        if (!value.endsWith("'")) {
+          value = value + "'";
+        }
+      }
+
+      return value;
+    });
   }
 
   constructor(
@@ -127,7 +139,7 @@ export class StandardDataType extends Contextable {
 
   static constructorWithEnum(enums: Array<string | number> = []) {
     const dataType = new StandardDataType();
-    dataType.enum = enums;
+    dataType.setEnum(enums);
 
     return dataType;
   }
@@ -140,13 +152,13 @@ export class StandardDataType extends Contextable {
     const { isDefsType, templateIndex, typeArgs = [], typeName } = dataType;
 
     if (typeArgs.length) {
-      const instance = new StandardDataType(
+      const instance: StandardDataType = new StandardDataType(
         typeArgs.map(arg => StandardDataType.constructorFromJSON(arg, originName, defNames)),
         typeName,
         isDefsType,
         templateIndex
       );
-      instance.enum = dataType.enum;
+      instance.setEnum(dataType.enum);
       return instance;
     }
 
@@ -451,7 +463,7 @@ export class StandardDataSource {
     this.setContext();
   }
 
-  static constructorFromLock(localDataObject: StandardDataSource) {
+  static constructorFromLock(localDataObject: StandardDataSource, originName) {
     try {
       // 兼容性代码，将老的数据结构转换为新的。
       const defNames = localDataObject.baseClasses.map(base => {
@@ -462,12 +474,9 @@ export class StandardDataSource {
       });
       const baseClasses = localDataObject.baseClasses.map(base => {
         const props = base.properties.map(prop => {
-          const { reference, customType } = (prop.dataType as any) as DataType;
-          const dataType = new StandardDataType();
-
           return new Property({
             ...prop,
-            dataType
+            dataType: StandardDataType.constructorFromJSON(prop.dataType, originName, defNames)
           });
         });
         let templateArgs = base.templateArgs;

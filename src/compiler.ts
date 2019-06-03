@@ -44,6 +44,7 @@ class Parser {
     return args;
   }
 
+  // 语法分析
   parseTemplate() {
     const name = this.eat('Identifier').value;
     let templateArgs = [] as any[];
@@ -71,11 +72,11 @@ export function parseAst2StandardDataType(
   const { name, templateArgs } = ast;
   let typeName = name;
 
-  if (name === 'List') {
+  if (['List', 'Collection'].includes(name)) {
     typeName = 'Array';
   }
 
-  if (name === 'long') {
+  if (['long', 'double'].includes(name)) {
     typeName = 'number';
   }
 
@@ -84,7 +85,7 @@ export function parseAst2StandardDataType(
   }
 
   if (['object', 'Object', 'Map'].includes(name)) {
-    typeName = 'object';
+    typeName = 'ObjectMap';
   }
 
   const isDefsType = defNames.includes(name);
@@ -99,6 +100,7 @@ export function parseAst2StandardDataType(
 }
 
 export function compileTemplate(template: string) {
+  // 词法分析
   if (template.startsWith('#/definitions/')) {
     template = template.slice('#/definitions/'.length);
   }
