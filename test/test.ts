@@ -122,7 +122,6 @@ describe('Swagger 1.X接口测试', () => {
     const groupcontroller = fs.readFileSync(getPath('mock/v1/groupcontroller.json'), { encoding: 'utf8' })
     const shopauthcontroller = fs.readFileSync(getPath('mock/v1/shopauthcontroller.json'), { encoding: 'utf8' })
     if (req.url === '/api-docs') {
-      console.log(indexData);
       res.end(indexData);
     }
     if (req.url === '/api-docs/souche/cardealercontroller') {
@@ -153,7 +152,7 @@ describe('Swagger 1.X接口测试', () => {
     server2.close();
   });
 
-  it('config-swagger-v1', async () => {
+  it('V1.x 接口测试', async () => {
     // 清除路径
     clearDir('services');
     await createManager('config-swagger-v1.json');

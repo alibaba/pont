@@ -9,7 +9,6 @@ import * as _ from 'lodash';
 import fetch from 'node-fetch';
 import { Mod, BaseClass, Property, Interface, StandardDataType, StandardDataSource } from '../standard';
 import { hasChinese, DataSourceConfig, Config } from '../utils';
-// import { findDefinition } from './compiler';
 
 import { compileTemplate, parseAst2StandardDataType } from '../compiler';
 
