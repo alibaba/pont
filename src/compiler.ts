@@ -108,7 +108,7 @@ export function compileTemplate(template: string) {
     return null;
   }
 
-  const Identifier = /^[a-zA-Z_][a-zA-Z_0-9]*/;
+  const Identifier = /^[a-zA-Z_][a-zA-Z_0-9-]*/;
   const PreTemplate = /^«/;
   const EndTemplate = /^»/;
   const Comma = /^,/;

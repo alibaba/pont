@@ -345,6 +345,10 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
   const draftClasses = _.map(swagger.definitions, (def, defName) => {
     const defNameAst = compileTemplate(defName);
 
+    if (!defNameAst) {
+      throw new Error('compiler error in defname: ' + defName);
+    }
+
     return {
       name: defNameAst.name,
       defNameAst,
