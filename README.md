@@ -17,11 +17,27 @@ Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数
 
 ![](https://img.alicdn.com/tfs/TB15pZGI6TpK1RjSZKPXXa3UpXa-1584-1090.png)
 
-Pont 将为你的项目自动生成完美的 API 代码。
 
-![](https://cdn.nlark.com/yuque/0/2019/png/86228/1547715423432-8989c22f-974b-4c8b-b938-3a0799d54b39.png?x-oss-process=image/resize,w_837)
+### 沉浸式接口开发
 
-![](https://cdn.nlark.com/yuque/0/2019/png/86228/1547715324636-41b40b03-a80f-4dcf-b44c-f2f46dc8b336.png?x-oss-process=image/resize,w_836)
+
+接口检索：
+
+![屏幕快照 2019-05-28 22.35.25.png](https://img.alicdn.com/tfs/TB1HaZ3bliE3KVjSZFMXXbQhVXa-1786-742.png)
+
+接口开发：
+![pont.gif](https://img.alicdn.com/tfs/TB1Y6w8blKw3KVjSZFOXXarDVXa-1546-1016.gif)
+
+
+### 联调维护
+
+实时发现后端接口更新：
+![屏幕快照 2019-05-28 00.14.41.png](https://img.alicdn.com/tfs/TB1xE71bfWG3KVjSZFgXXbTspXa-1792-470.png) 
+
+
+更新接口层后，可迅速定位接口调用代码，进行调用修改。
+![屏幕快照 2019-05-28 00.13.34.png](https://img.alicdn.com/tfs/TB1PPE8blKw3KVjSZFOXXarDVXa-850-290.png)
+
 
 ## 快速开始
 
@@ -103,6 +119,10 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 }
 ```
 
+### mocks
+
+自动化 mocks 功能开始内测，https://github.com/alibaba/pont/issues/48
+
 ## demo
 
 参考下面的例子，来体验 pont。
@@ -148,6 +168,8 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 
 - 项目 pre-commit hook 中，加上 pont check，防止本地数据源被研发人员损坏。
 
+- 很多 Swagger 所有的接口返回的类型都类似是 Result<T>，主要是囊括了约定的接口错误字段，类似 `{ errorCode: 0, data: T, errMessage: '' }`。这里建议，让后端 Swagger 的接口返回类型，去掉这个 Result 外壳。只返回 data 的 T 类型。
+
 - vscode 配置 `trigger suggest` 的快捷键(cmd K + cmd S)，传参时，用快捷键触发提醒，非常好用；
 
 - pont template 配置 API、defs 为全局变量；这样不需要 import 任何接口、实体类；使用 API 直接触发建议找到 模块、接口，非常方便
@@ -160,9 +182,15 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 
 - 待补充
 
+## 常见答疑问题
+
+- 1、demo中，生成代码的 pontFetch 函数，是要自己实现的吗？
+
+  答：pontFetch 是用户自己项目的请求公共方法。因为每个项目的接口有自己的业务逻辑，比如如何判断接口返回的结果是否正确，所以 pont 的默认模板并没有自己实现一套 fetch 方法。另外 Pont 生成的代码是可以用自定义模板配置的。可以在模板上更改 pontFetch 的引用路径和名字。
+
 ## 其它接口平台接入
 
-目前 pont 暂时只支持 [Swagger V2](https://swagger.io/) 数据源。目前只需要在 scripts 中添加对应的数据格式转换文件，把对应数据格式转换为 pont 标准格式，即可适配新的数据源类型。希望社区可以踊跃贡献代码，接入更多类型的数据源！
+目前 pont 暂时只支持 [Swagger V2](https://swagger.io/) 数据源，V1 和 V3 正在开发中。目前只需要在 scripts 中添加对应的数据格式转换文件，把对应数据格式转换为 pont 标准格式，即可适配新的数据源类型。希望社区可以踊跃贡献代码，接入更多类型的数据源！
 
 ## 钉钉用户群
 

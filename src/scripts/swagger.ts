@@ -9,6 +9,7 @@ import {
   hasChinese,
   transformModsName
 } from '../utils';
+import { Omit } from '../utilTypes';
 import { compileTemplate, parseAst2StandardDataType } from '../compiler';
 
 import { OriginBaseReader } from './base';
@@ -258,15 +259,22 @@ class SwaggerInterface {
   }
 }
 
+interface SwaggerReferenceObject {
+  $ref: string;
+}
+
+// TODO: $ref, options, head
+interface SwaggerPathItemObject {
+  get?: SwaggerInterface;
+  post?: SwaggerInterface;
+  put?: SwaggerInterface;
+  patch?: SwaggerInterface;
+  delete?: SwaggerInterface;
+  parameters?: SwaggerParameter[] | SwaggerReferenceObject[];
+}
+
 export class SwaggerDataSource {
-  paths: {
-    [key in string]: {
-      put: SwaggerInterface;
-      delete: SwaggerInterface;
-      post: SwaggerInterface;
-      get: SwaggerInterface;
-    }
-  };
+  paths: { [key in string]: SwaggerPathItemObject };
   tags: { name: string; description: string }[];
   definitions: {
     [key in string]: {
@@ -280,7 +288,21 @@ export class SwaggerDataSource {
 export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[], usingOperationId: boolean) {
   const allSwaggerInterfaces = [] as SwaggerInterface[];
   _.forEach(swagger.paths, (methodInters, path) => {
-    _.forEach(methodInters, (inter, method) => {
+    const pathItemObject = _.cloneDeep(methodInters);
+
+    if (Array.isArray(pathItemObject.parameters)) {
+      ['get', 'post', 'patch', 'delete', 'put'].forEach(method => {
+        if (pathItemObject[method]) {
+          pathItemObject[method].parameters = (pathItemObject[method].parameters || []).concat(
+            pathItemObject.parameters
+          );
+        }
+      });
+
+      delete pathItemObject.parameters;
+    }
+
+    _.forEach(pathItemObject as Omit<SwaggerPathItemObject, 'parameters'>, (inter, method) => {
       inter.path = path;
       inter.method = method;
       allSwaggerInterfaces.push(inter);
@@ -344,6 +366,10 @@ export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[],
 export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperationId = true, originName = '') {
   const draftClasses = _.map(swagger.definitions, (def, defName) => {
     const defNameAst = compileTemplate(defName);
+
+    if (!defNameAst) {
+      throw new Error('compiler error in defname: ' + defName);
+    }
 
     return {
       name: defNameAst.name,

@@ -19,7 +19,7 @@
     "fs-extra": "^5.0.0",
     "lodash": "^4.17.5",
     "node-fetch": "^1.7.3",
-    "prettier": "^1.15.3",
+    "prettier": "^1.17.1",
     "translation.js": "^0.7.5",
     "ts-node": "^3.3.0",
     "typescript": "^2.9.2"
