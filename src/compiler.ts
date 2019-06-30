@@ -88,7 +88,7 @@ export function parseAst2StandardDataType(
     typeName = 'ObjectMap';
   }
 
-  const isDefsType = defNames.includes(name);
+  const isDefsType = defNames.includes(name) && typeName === name;
   const typeArgs = templateArgs.map(arg => {
     return parseAst2StandardDataType(arg, defNames, classTemplateArgs);
   });
