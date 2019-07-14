@@ -28,6 +28,14 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 }
 `;
 
+const defaultFetchMethodCode = `
+import fetch from 'node-fetch';
+
+export default function (url: string): string {
+  return fetch(url).then(res => res.text())
+}
+`;
+
 export class Config {
   originUrl? = '';
   originType = OriginType.SwaggerV2;
@@ -40,15 +48,29 @@ export class Config {
     name: string;
     usingOperationId: boolean;
     transformPath?: string;
+    fetchMethodPath?: string;
   }>;
   usingMultipleOrigins = false;
   templatePath = 'serviceTemplate';
   prettierConfig: ResolveConfigOptions;
-  transformPath: string;
+  transformPath?: string;
+  fetchMethodPath?: string;
 
   static getTransformFromConfig(config: Config | DataSourceConfig) {
     if (config.transformPath) {
       const moduleResult = getTemplate(config.transformPath, defaultTransformCode) as any;
+
+      if (moduleResult) {
+        return moduleResult.default;
+      }
+    }
+
+    return id => id;
+  }
+
+  static getFetchMethodFromConfig(config: Config | DataSourceConfig) {
+    if (config.fetchMethodPath) {
+      const moduleResult = getTemplate(config.fetchMethodPath, defaultFetchMethodCode);
 
       if (moduleResult) {
         return moduleResult.default;
@@ -101,9 +123,11 @@ export class Config {
       usingMultipleOrigins: this.usingMultipleOrigins,
       templatePath: path.join(configDir, this.templatePath),
       transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
+      fetchMethodPath: this.fetchMethodPath ? path.join(configDir, this.fetchMethodPath) : undefined,
       prettierConfig: this.prettierConfig
     };
 
+    // FIXME: origins中配的路径没有转换成绝对路径，找不到该模块
     if (this.origins && this.origins.length) {
       return this.origins.map(origin => {
         return new DataSourceConfig({
@@ -133,6 +157,7 @@ export class DataSourceConfig {
   templatePath = 'serviceTemplate';
   outDir = 'src/service';
   transformPath = 'transformTemplate';
+  fetchMethodPath = 'fetchMethodTemplate';
   prettierConfig: ResolveConfigOptions = {};
 
   constructor(config: DataSourceConfig) {
