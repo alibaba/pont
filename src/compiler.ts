@@ -121,6 +121,8 @@ export function compileTemplate(template: string) {
   while (code) {
     // 去掉空格,包括两端及中间的空格
     code = code.replace(/\s/g, '');
+    // 替换.为_
+    code = code.replace(/\./g, '_');
 
     if (code.match(Identifier)) {
       matchedText = code.match(Identifier)[0];

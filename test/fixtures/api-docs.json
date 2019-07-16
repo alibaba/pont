@@ -207,6 +207,9 @@
       },
       "description": "带数据的返回数据"
     },
+    "mod.Service": {
+      "type": "string"
+    },
     "DataTransOutput": {
       "type": "object",
       "required": ["transCode", "transMessage", "transMessageDetail"],
