@@ -9,12 +9,10 @@
 
 import * as _ from 'lodash';
 import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
-import { Config } from '../utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { format } from '../utils';
 import { info } from '../debugLog';
-import { existsSync } from 'fs-extra';
 
 export class FileStructures {
   constructor(private generators: CodeGenerator[], private usingMultipleOrigins: boolean) {}
@@ -162,7 +160,7 @@ export class CodeGenerator {
   /** 获取某个基类的类型定义代码 */
   getBaseClassInDeclaration(base: BaseClass) {
     if (base.templateArgs && base.templateArgs.length) {
-      return `class ${base.name}<${base.templateArgs.map((ignored, index) => `T${index} = any`).join(', ')}> {
+      return `class ${base.name}<${base.templateArgs.map((_, index) => `T${index} = any`).join(', ')}> {
         ${base.properties.map(prop => prop.toPropertyCode(true)).join('\n')}
       }
       `;
@@ -468,7 +466,6 @@ export class FilesManager {
       }
 
       await fs.mkdir(`${dir}/${name}`);
-      // this.report(`文件夹${name}创建成功!`);
       await this.generateFiles(value, `${dir}/${name}`);
     });
 
