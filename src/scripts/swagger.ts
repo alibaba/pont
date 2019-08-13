@@ -281,7 +281,7 @@ export class SwaggerDataSource {
       description: string;
       required?: string[];
       properties: { [key in string]: SwaggerProperty };
-    }
+    };
   };
 }
 
@@ -309,7 +309,8 @@ export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[],
     });
   });
 
-  const mods = swagger.tags
+  // swagger 2.0 中 tags属性是可选的
+  const mods = (swagger.tags || [])
     .map(tag => {
       const modInterfaces = allSwaggerInterfaces.filter(inter => {
         return (
