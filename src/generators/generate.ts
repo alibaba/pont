@@ -157,6 +157,8 @@ export class CodeGenerator {
 
   setDataSource(dataSource: StandardDataSource) {
     this.dataSource = dataSource;
+    // 将basic-resource这种命名转化成合法命名
+    this.dataSource.name = _.camelCase(this.dataSource.name);
   }
 
   /** 获取某个基类的类型定义代码 */
