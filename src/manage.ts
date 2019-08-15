@@ -5,7 +5,6 @@ import * as path from 'path';
 import { diff, Model } from './diff';
 import { FilesManager } from './generators/generate';
 import { info as debugInfo } from './debugLog';
-import * as _ from 'lodash';
 import { FileStructures } from './generators/generate';
 import { readRemoteDataSource } from './scripts';
 

@@ -1,10 +1,6 @@
-import * as _ from 'lodash';
-const { youdao, baidu, google } = require('translation.js');
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
-import * as assert from 'assert';
-import * as debugLog from './debugLog';
 
 class LocalDictManager {
   static singleInstance = null as LocalDictManager;

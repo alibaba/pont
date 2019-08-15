@@ -142,14 +142,7 @@ export class DataSourceConfig {
   }
 }
 
-function wait(timeout = 100) {
-  return new Promise(resolve => {
-    setTimeout(resolve, timeout);
-  });
-}
-
 export function format(fileContent: string, prettierOpts = {}) {
-  // return fileContent;
   try {
     return prettier.format(fileContent, {
       parser: 'typescript',
@@ -161,18 +154,6 @@ export function format(fileContent: string, prettierOpts = {}) {
     error(`代码格式化报错！${e.toString()}\n代码为：${fileContent}`);
     return fileContent;
   }
-  // try {
-  //   await wait(Math.random() * 100);
-  //   return prettier.format(fileContent, {
-  //     parser: "typescript",
-  //     trailingComma: "all",
-  //     singleQuote: true,
-  //     ...prettierOpts
-  //   });
-  // } catch (e) {
-  //   console.log("prettier format 错误", fileContent, e);
-  //   return format(fileContent, prettierOpts);
-  // }
 }
 
 export function getDuplicateById<T>(arr: T[], idKey = 'name'): null | T {
