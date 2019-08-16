@@ -43,7 +43,7 @@ export class OriginBaseReader {
   }
 
   /** 数据转换，可覆盖 */
-  transform2Standard(data, usingOperationId: boolean, originName: string) {
+  transform2Standard(data, _usingOperationId: boolean, _originName: string) {
     return data;
   }
 

@@ -387,7 +387,7 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
     const requiredProps = clazz.def.required || [];
 
     const props = _.map(properties, (prop, propName) => {
-      const { $ref, description, name, type, items, additionalProperties } = prop;
+      const { $ref, description, type, items, additionalProperties } = prop;
       const required = requiredProps.includes(propName);
 
       const dataType = Schema.parseSwaggerSchema2StandardDataType(
