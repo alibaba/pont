@@ -13,11 +13,29 @@
     "emitDecoratorMetadata": true,
     "baseUrl": ".",
     "paths": {
-      "src": ["./src"]
+      "src": [
+        "./src"
+      ]
     },
     "allowSyntheticDefaultImports": true,
-    "lib": ["dom", "es6", "es2017", "dom.iterable", "scripthost"]
+    "lib": [
+      "dom",
+      "es6",
+      "es2017",
+      "dom.iterable",
+      "scripthost"
+    ],
+    "types": [
+      "node",
+      "mocha",
+      "fs-extra"
+    ]
   },
-  "include": ["./src/**/*"],
-  "exclude": ["node_modules", "build"]
+  "include": [
+    "./src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "build"
+  ]
 }
