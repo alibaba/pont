@@ -12,8 +12,8 @@ export class OriginBaseReader {
     let retString = jsonString;
     try {
       const matchItems = jsonString
-        // 匹配中英文混合及包含 空格，«，»，- 的情况
-        .match(/"[a-z0-9\s-]*[\u4e00-\u9fa5]+[a-z0-9\s-«»\u4e00-\u9fa5]*":/gi);
+        // 匹配中英文混合及包含 空格，«，»，-, (,)的情况
+        .match(/"[a-z0-9\s-]*[\u4e00-\u9fa5]+[a-z0-9\s-«»()\u4e00-\u9fa5]*":/gi);
       if (!matchItems) {
         return retString;
       }
@@ -28,12 +28,13 @@ export class OriginBaseReader {
       chineseKeyCollect.sort((pre, next) => next.length - pre.length);
 
       let result = await Promise.all(chineseKeyCollect.map(text => Translator.translateAsync(text)));
-
+      // const normalizeRegStr = (str: string) => str.replace(/(\W)/g, '$1');
+      const toRegStr = str => str.replace(/(\W)/g, '\\$1');
       result.forEach((enKey: string, index) => {
         const chineseKey = chineseKeyCollect[index];
         this.report(chineseKey + ' ==> ' + enKey);
         if (enKey) {
-          retString = retString.replace(eval(`/${chineseKey}/g`), enKey);
+          retString = retString.replace(eval(`/${toRegStr(chineseKey)}/g`), enKey);
         }
       });
       return retString;
