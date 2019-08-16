@@ -47,7 +47,7 @@ function assert(expression: boolean, message: string) {
               });
             });
 
-            data.mods.forEach((mod, modIndex) => {
+            data.mods.forEach(mod => {
               assert(!!mod.name, `描述为 ${mod.description} 的模块没有 "name" 属性`);
 
               mod.interfaces.forEach(inter => {

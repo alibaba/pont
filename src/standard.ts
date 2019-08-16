@@ -1,7 +1,6 @@
 import * as _ from 'lodash';
 import { getDuplicateById } from './utils';
 import { compileTemplate, parseAst2StandardDataType } from './compiler';
-import { type } from 'os';
 
 // primitive type
 export enum PrimitiveType {
@@ -282,7 +281,6 @@ export class Property extends Contextable {
   }
 
   toPropertyCode(hasRequired = false, optional = false) {
-    const dataType = this.dataType;
     let optionalSignal = hasRequired && optional ? '?' : '';
 
     if (hasRequired && !this.required) {
@@ -300,7 +298,6 @@ export class Property extends Contextable {
   }
 
   toPropertyCodeWithInitValue(baseName = '') {
-    const dataType = this.dataType;
     let typeWithValue = `= ${this.dataType.getInitialValue(false)}`;
 
     if (!this.dataType.getInitialValue(false)) {

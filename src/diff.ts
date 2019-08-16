@@ -1,4 +1,4 @@
-import { Mod, Interface, BaseClass, Property } from './standard';
+import { Mod, Interface, BaseClass } from './standard';
 import * as _ from 'lodash';
 
 export interface Model extends Mod {
@@ -24,7 +24,7 @@ function analyWithName(preEntities: Entity[], nextEntities: Entity[]) {
 }
 
 function deepDifInterface(preInter: Interface, nextInter: Interface, preLabel: string): string[] {
-  const { parameters, response, description, method } = preInter;
+  const { parameters, description, method } = preInter;
   const details = [] as string[];
 
   if (description !== nextInter.description) {
