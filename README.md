@@ -17,9 +17,7 @@ Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数
 
 ![](https://img.alicdn.com/tfs/TB15pZGI6TpK1RjSZKPXXa3UpXa-1584-1090.png)
 
-
 ### 沉浸式接口开发
-
 
 接口检索：
 
@@ -28,16 +26,13 @@ Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数
 接口开发：
 ![pont.gif](https://img.alicdn.com/tfs/TB1Y6w8blKw3KVjSZFOXXarDVXa-1546-1016.gif)
 
-
 ### 联调维护
 
 实时发现后端接口更新：
-![屏幕快照 2019-05-28 00.14.41.png](https://img.alicdn.com/tfs/TB1xE71bfWG3KVjSZFgXXbTspXa-1792-470.png) 
-
+![屏幕快照 2019-05-28 00.14.41.png](https://img.alicdn.com/tfs/TB1xE71bfWG3KVjSZFgXXbTspXa-1792-470.png)
 
 更新接口层后，可迅速定位接口调用代码，进行调用修改。
 ![屏幕快照 2019-05-28 00.13.34.png](https://img.alicdn.com/tfs/TB1PPE8blKw3KVjSZFOXXarDVXa-850-290.png)
-
 
 ## 快速开始
 
@@ -119,6 +114,33 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 }
 ```
 
+### fetchMethodPath
+
+值类型：string
+
+描述： 可选项。指定获取接口文件的方法。默认为 node-fetch 的 fetch 方法，可通过自定义 fetch 方法获取带鉴权的接口的文档
+
+示例：
+
+```javascript
+import axios from 'axios';
+
+export default async function(url: string): Promise<string> {
+  const { data } = await axios.post('/api/login', {
+    username: 'my_name',
+    password: '123456'
+  });
+
+  return axios
+    .get(url, {
+      headers: {
+        Authorization: data.token
+      }
+    })
+    .then(res => JSON.stringify(res.data));
+}
+```
+
 ### mocks
 
 自动化 mocks 功能开始内测，https://github.com/alibaba/pont/issues/48
@@ -184,7 +206,7 @@ export default function(dataSource: StandardDataSource): StandardDataSource {
 
 ## 常见答疑问题
 
-- 1、demo中，生成代码的 pontFetch 函数，是要自己实现的吗？
+- 1、demo 中，生成代码的 pontFetch 函数，是要自己实现的吗？
 
   答：pontFetch 是用户自己项目的请求公共方法。因为每个项目的接口有自己的业务逻辑，比如如何判断接口返回的结果是否正确，所以 pont 的默认模板并没有自己实现一套 fetch 方法。另外 Pont 生成的代码是可以用自定义模板配置的。可以在模板上更改 pontFetch 的引用路径和名字。
 

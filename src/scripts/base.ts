@@ -47,15 +47,24 @@ export class OriginBaseReader {
     return data;
   }
 
+  /** 数据获取 */
+  fetchMethod(url: string): Promise<string> {
+    if (this.config.fetchMethodPath) {
+      const fetchMethod = Config.getFetchMethodFromConfig(this.config);
+      return fetchMethod(url);
+    }
+
+    return fetch(url).then(res => res.text());
+  }
+
   /** 获取远程数据源 */
   async fetchData() {
     // 获取数据源
     this.report('获取远程数据中...');
-    const response = await fetch(this.config.originUrl);
+    let swaggerJsonStr: string = await this.fetchMethod(this.config.originUrl);
 
     // 翻译中文类名等
     this.report('自动翻译中文基类中...');
-    let swaggerJsonStr: string = await response.text();
     swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
     this.report('自动翻译中文基类完成！');
 
