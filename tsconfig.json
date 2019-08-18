@@ -9,35 +9,19 @@
     "sourceMap": true,
     "outDir": "lib",
     "moduleResolution": "node",
+    "strictFunctionTypes": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "baseUrl": ".",
     "paths": {
-      "src": [
-        "./src"
-      ]
+      "src": ["./src"]
     },
     "allowSyntheticDefaultImports": true,
-    "lib": [
-      "dom",
-      "es6",
-      "es2017",
-      "dom.iterable",
-      "scripthost"
-    ],
-    "types": [
-      "node",
-      "mocha",
-      "fs-extra"
-    ]
+    "lib": ["dom", "es6", "es2017", "dom.iterable", "scripthost"],
+    "types": ["node", "mocha", "fs-extra"]
   },
-  "include": [
-    "./src/**/*"
-  ],
-  "exclude": [
-    "node_modules",
-    "build"
-  ]
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules", "build"]
 }
