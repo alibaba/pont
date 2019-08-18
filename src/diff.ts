@@ -167,7 +167,7 @@ export function diff(preModels: Model[], nextModels: Model[], isMod = true): Mod
     const nextEntity = _.find(nextModels, model => model.name === tEntity.name);
 
     if (isMod) {
-      const msgs = deepDifMod(preEntity, nextEntity);
+      const msgs = deepDifMod(preEntity as Mod, nextEntity as Mod);
 
       if (msgs.length) {
         updateModels.push({
@@ -176,7 +176,7 @@ export function diff(preModels: Model[], nextModels: Model[], isMod = true): Mod
         } as Model);
       }
     } else {
-      const msgs = deepDifBo(preEntity, nextEntity);
+      const msgs = deepDifBo(preEntity as BaseClass, nextEntity as BaseClass);
 
       if (msgs.length) {
         updateModels.push({
