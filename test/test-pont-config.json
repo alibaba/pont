@@ -3,11 +3,11 @@
   "templatePath": "./pontTemplate",
   "origins": [
     {
-      "originUrl": "http://localhost:9090/api-docs.json",
+      "originUrl": "http://localhost:9099/api-docs.json",
       "name": "api1"
     },
     {
-      "originUrl": "http://localhost:9090/api-docs.json",
+      "originUrl": "http://localhost:9099/api-docs.json",
       "name": "api2"
     }
   ]
