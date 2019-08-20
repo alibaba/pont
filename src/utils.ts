@@ -289,6 +289,14 @@ export function getIdentifierFromUrl(url: string, requestType: string, samePath 
     currUrl
       .split('/')
       .map(str => {
+        if (str.includes('-')) {
+          str = str.replace(/(\-\w)+/, (_match, p1) => {
+            if (p1) {
+              return p1.slice(1).toUpperCase();
+            }
+          });
+        }
+
         if (str.match(/^{.+}$/gim)) {
           return 'By' + toUpperFirstLetter(str.slice(1, str.length - 1));
         }

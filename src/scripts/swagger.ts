@@ -201,7 +201,7 @@ class SwaggerInterface {
   ) {
     let name = '';
 
-    if (!usingOperationId) {
+    if (!usingOperationId || !inter.operationId) {
       name = getIdentifierFromUrl(inter.path, inter.method, samePath);
     } else {
       name = getIdentifierFromOperatorId(inter.operationId);
@@ -305,8 +305,17 @@ export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[],
     _.forEach(pathItemObject as Omit<SwaggerPathItemObject, 'parameters'>, (inter, method) => {
       inter.path = path;
       inter.method = method;
+
+      if (!inter.tags) {
+        inter.tags = ['defaultModule'];
+      }
+
       allSwaggerInterfaces.push(inter);
     });
+  });
+  swagger.tags.push({
+    name: 'defaultModule',
+    description: 'defaultModule'
   });
 
   // swagger 2.0 中 tags属性是可选的
@@ -320,6 +329,7 @@ export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[],
           inter.tags.includes(toDashCase(tag.description))
         );
       });
+
       const samePath = getMaxSamePath(modInterfaces.map(inter => inter.path.slice(1)));
 
       const standardInterfaces = modInterfaces.map(inter => {
