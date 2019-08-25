@@ -448,3 +448,7 @@ export class SwaggerV2Reader extends OriginBaseReader {
     return transformSwaggerData2Standard(data, usingOperationId, originName);
   }
 }
+
+export class SwaggerV3Reader extends OriginBaseReader {
+  // TODO...
+}
