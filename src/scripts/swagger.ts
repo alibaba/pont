@@ -477,7 +477,7 @@ export function transformSwaggerV3Data2Standard(
     };
   });
 
-  draftClasses.map(clazz => clazz.name);
+  draftClasses.map(({ name }) => name);
 
   return {
     baseClasses: '',
