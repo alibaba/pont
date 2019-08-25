@@ -61,6 +61,7 @@ class SwaggerParameter {
 
   schema: Schema;
 }
+
 class Schema {
   enum?: string[];
   type: SwaggerType;
@@ -285,6 +286,20 @@ export class SwaggerDataSource {
   };
 }
 
+export class SwaggerV3DataSource {
+  paths: { [key in string]: SwaggerPathItemObject };
+  tags: { name: string; description: string }[];
+  components: {
+    schemas: {
+      [key in string]: {
+        description: string;
+        required?: string[];
+        properties: { [key in string]: SwaggerProperty };
+      };
+    };
+  };
+}
+
 export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[], usingOperationId: boolean) {
   const allSwaggerInterfaces = [] as SwaggerInterface[];
   _.forEach(swagger.paths, (methodInters, path) => {
@@ -443,6 +458,34 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
   });
 }
 
+export function transformSwaggerV3Data2Standard(
+  swagger: SwaggerV3DataSource,
+  usingOperationId: boolean,
+  originName = ''
+) {
+  const draftClasses = _.map(swagger.components.schemas, (def, defName) => {
+    const defNameAst = compileTemplate(defName);
+
+    if (!defNameAst) {
+      throw new Error('compiler error in defname: ' + defName);
+    }
+
+    return {
+      name: defNameAst.name,
+      defNameAst,
+      def
+    };
+  });
+
+  draftClasses.map(clazz => clazz.name);
+
+  return {
+    baseClasses: '',
+    mods: usingOperationId,
+    name: originName
+  };
+}
+
 export class SwaggerV2Reader extends OriginBaseReader {
   transform2Standard(data, usingOperationId: boolean, originName: string) {
     return transformSwaggerData2Standard(data, usingOperationId, originName);
@@ -450,5 +493,7 @@ export class SwaggerV2Reader extends OriginBaseReader {
 }
 
 export class SwaggerV3Reader extends OriginBaseReader {
-  // TODO...
+  transform2Standard(data, usingOperationId: boolean, originName: string) {
+    return transformSwaggerV3Data2Standard(data, usingOperationId, originName);
+  }
 }
