@@ -207,6 +207,7 @@ class SwaggerInterface {
     defNames: string[] = []
   ) {
     let name = '';
+    const compileTemplateKeyword = '#/components/schemas/';
 
     if (!usingOperationId || inter.operationId) {
       name = getIdentifierFromUrl(inter.path, inter.method, samePath);
@@ -223,7 +224,7 @@ class SwaggerInterface {
       responseSchema = _.get(responseSuccessContent, `${responseFormat}.schema`, {});
     }
 
-    const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames, [], '#/components/schemas/');
+    const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames, [], compileTemplateKeyword);
 
     const parameters = (inter.parameters || []).map(param => {
       let paramSchema: Schema;
@@ -245,7 +246,7 @@ class SwaggerInterface {
         description,
         name: name.includes('/') ? name.split('/').join('') : name,
         required,
-        dataType: Schema.parseSwaggerSchema2StandardDataType(paramSchema, defNames, [], '#/components/schemas/')
+        dataType: Schema.parseSwaggerSchema2StandardDataType(paramSchema, defNames, [], compileTemplateKeyword)
       });
     });
 
@@ -277,7 +278,8 @@ class SwaggerInterface {
     inter: SwaggerInterface,
     usingOperationId: boolean,
     samePath: string,
-    defNames: string[] = []
+    defNames: string[] = [],
+    compileTempateKeyword?: string
   ) {
     let name = '';
 
@@ -288,7 +290,7 @@ class SwaggerInterface {
     }
 
     const responseSchema = _.get(inter, 'responses.200.schema', {}) as Schema;
-    const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames);
+    const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames, [], compileTempateKeyword);
 
     const parameters = (inter.parameters || []).map(param => {
       let paramSchema: Schema;
@@ -473,7 +475,12 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
   return mods;
 }
 
-export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[], usingOperationId: boolean) {
+export function parseSwaggerMods(
+  swagger: SwaggerDataSource,
+  defNames: string[],
+  usingOperationId: boolean,
+  compileTempateKeyword?: string
+) {
   const allSwaggerInterfaces = [] as SwaggerInterface[];
   _.forEach(swagger.paths, (methodInters, path) => {
     const pathItemObject = _.cloneDeep(methodInters);
@@ -526,7 +533,13 @@ export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[],
       const samePath = getMaxSamePath(modInterfaces.map(inter => inter.path.slice(1)));
 
       const standardInterfaces = modInterfaces.map(inter => {
-        return SwaggerInterface.transformSwaggerInterface2Standard(inter, usingOperationId, samePath, defNames);
+        return SwaggerInterface.transformSwaggerInterface2Standard(
+          inter,
+          usingOperationId,
+          samePath,
+          defNames,
+          compileTempateKeyword
+        );
       });
 
       // 判断是否有重复的 name
@@ -567,14 +580,9 @@ export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[],
   return mods;
 }
 
-export function transformSwaggerData2Standard(
-  swagger: SwaggerDataSource,
-  usingOperationId = true,
-  originName = '',
-  compileTemplateKeyword?: string
-) {
+export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperationId = true, originName = '') {
   const draftClasses = _.map(swagger.definitions, (def, defName) => {
-    const defNameAst = compileTemplate(defName, compileTemplateKeyword);
+    const defNameAst = compileTemplate(defName);
 
     if (!defNameAst) {
       throw new Error('compiler error in defname: ' + defName);

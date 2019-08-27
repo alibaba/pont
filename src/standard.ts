@@ -78,16 +78,21 @@ function dateTypeRefs2Ast(refStr: string, originName: string, compileTemplateKey
 }
 
 // 兼容性代码，将老的 datatype 转换为新的。
-function dataType2StandardDataType(dataType: DataType, originName: string, defNames: string[]) {
+function dataType2StandardDataType(
+  dataType: DataType,
+  originName: string,
+  defNames: string[],
+  compileTemplateKeyword?: string
+) {
   let standardDataType = null as StandardDataType;
 
   if (dataType.enum && dataType.enum.length) {
-    standardDataType = new StandardDataType([], '', false);
+    standardDataType = new StandardDataType([], '', false, -1, compileTemplateKeyword);
     standardDataType.setEnum(dataType.enum);
   } else if (dataType.primitiveType) {
-    standardDataType = new StandardDataType([], dataType.primitiveType, false);
+    standardDataType = new StandardDataType([], dataType.primitiveType, false, -1, compileTemplateKeyword);
   } else if (dataType.reference) {
-    const ast = dateTypeRefs2Ast(dataType.reference, originName);
+    const ast = dateTypeRefs2Ast(dataType.reference, originName, compileTemplateKeyword);
     standardDataType = parseAst2StandardDataType(ast, defNames, []);
   }
 
@@ -96,7 +101,7 @@ function dataType2StandardDataType(dataType: DataType, originName: string, defNa
       standardDataType = new StandardDataType();
     }
 
-    return new StandardDataType([standardDataType], 'Array', false);
+    return new StandardDataType([standardDataType], 'Array', false, -1, compileTemplateKeyword);
   }
 
   if (!standardDataType) {
@@ -131,7 +136,8 @@ export class StandardDataType extends Contextable {
     public typeName = '',
     public isDefsType = false,
     /** 指向类的第几个模板，-1 表示没有 */
-    public templateIndex = -1
+    public templateIndex = -1,
+    public compileTemplateKeyword = '#/definitions/'
   ) {
     super();
   }
@@ -145,7 +151,7 @@ export class StandardDataType extends Contextable {
 
   static constructorFromJSON(dataType: StandardDataType, originName: string, defNames: string[]) {
     if (Object.getOwnPropertyNames(dataType).includes('reference')) {
-      return dataType2StandardDataType(dataType as any, originName, defNames);
+      return dataType2StandardDataType(dataType as any, originName, defNames, dataType.compileTemplateKeyword);
     }
 
     const { isDefsType, templateIndex, typeArgs = [], typeName } = dataType;

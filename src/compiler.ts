@@ -99,6 +99,7 @@ export function parseAst2StandardDataType(
   return dataType;
 }
 
+// swagger v2 中 definitions 在 OpenAPI 3 中标准化为了 components，为复用该函数，抽取去 keyword 参数
 export function compileTemplate(template: string, keyword = '#/definitions/') {
   // 词法分析
   if (template.startsWith(keyword)) {
