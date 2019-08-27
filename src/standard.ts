@@ -64,7 +64,7 @@ class DataType {
 }
 
 // 兼容性代码，将老的 datatype 转换为新的。
-function dateTypeRefs2Ast(refStr: string, originName: string) {
+function dateTypeRefs2Ast(refStr: string, originName: string, compileTemplateKeyword?: string) {
   let ref = refStr.replace(new RegExp(`defs.${originName}.`, 'g'), '');
   ref = ref.replace(/defs./g, '');
   ref = ref.replace(/= any/g, '');
@@ -72,7 +72,7 @@ function dateTypeRefs2Ast(refStr: string, originName: string) {
   const EndTemplate = '»';
   ref = ref.replace(/</g, PreTemplate).replace(/>/g, EndTemplate);
 
-  const ast = compileTemplate(ref);
+  const ast = compileTemplate(ref, compileTemplateKeyword);
 
   return ast;
 }

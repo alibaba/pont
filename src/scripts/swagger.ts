@@ -75,7 +75,8 @@ class Schema {
   static parseSwaggerSchema2StandardDataType(
     schema: Schema,
     defNames: string[],
-    classTemplateArgs = [] as StandardDataType[]
+    classTemplateArgs = [] as StandardDataType[],
+    compileTemplateKeyword?: string
   ) {
     const { items, $ref, type, additionalProperties } = schema;
     let typeName = schema.type as string;
@@ -104,7 +105,7 @@ class Schema {
       }
 
       if (itemsRef) {
-        const ast = compileTemplate(itemsRef);
+        const ast = compileTemplate(itemsRef, compileTemplateKeyword);
         const contentType = parseAst2StandardDataType(ast, defNames, classTemplateArgs);
 
         return new StandardDataType([contentType], 'Array', false, -1);
@@ -120,7 +121,7 @@ class Schema {
     }
 
     if ($ref) {
-      const ast = compileTemplate($ref);
+      const ast = compileTemplate($ref, compileTemplateKeyword);
 
       if (!ast) {
         return new StandardDataType();
@@ -137,7 +138,12 @@ class Schema {
       if (additionalProperties) {
         const typeArgs = [
           new StandardDataType(),
-          Schema.parseSwaggerSchema2StandardDataType(additionalProperties, defNames, classTemplateArgs)
+          Schema.parseSwaggerSchema2StandardDataType(
+            additionalProperties,
+            defNames,
+            classTemplateArgs,
+            compileTemplateKeyword
+          )
         ];
         return new StandardDataType(typeArgs, 'ObjectMap', false);
       }
@@ -193,6 +199,79 @@ class SwaggerInterface {
   samePath: string;
 
   operationId: string;
+
+  static transformSwaggerV3Interface2Standard(
+    inter: SwaggerInterface,
+    usingOperationId: boolean,
+    samePath: string,
+    defNames: string[] = []
+  ) {
+    let name = '';
+
+    if (!usingOperationId || inter.operationId) {
+      name = getIdentifierFromUrl(inter.path, inter.method, samePath);
+    } else {
+      name = getIdentifierFromOperatorId(inter.operationId);
+    }
+
+    const responseSuccessContent = _.get(inter, 'responses.200.content', {});
+
+    let responseSchema;
+    if (responseSuccessContent) {
+      const responseFormat = Object.keys(responseSuccessContent)[0];
+
+      responseSchema = _.get(responseSuccessContent, `${responseFormat}.schema`, {});
+    }
+
+    const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames, [], '#/components/schemas/');
+
+    const parameters = (inter.parameters || []).map(param => {
+      let paramSchema: Schema;
+      const { description, items, name, type, schema = {} as Schema, required } = param;
+      // 如果请求参数在body中的话，处理方式与response保持一致，因为他们本身的结构是一样的
+      if (param.in === 'body') {
+        paramSchema = param.schema;
+      } else {
+        paramSchema = {
+          enum: param.enum,
+          items,
+          type,
+          $ref: _.get(schema, '$ref')
+        };
+      }
+
+      return new Property({
+        in: param.in,
+        description,
+        name: name.includes('/') ? name.split('/').join('') : name,
+        required,
+        dataType: Schema.parseSwaggerSchema2StandardDataType(paramSchema, defNames, [], '#/components/schemas/')
+      });
+    });
+
+    let interDesc = inter.summary;
+
+    if (inter.description) {
+      if (interDesc) {
+        interDesc += '\n' + inter.description;
+      } else {
+        interDesc = inter.description;
+      }
+    }
+
+    const standardInterface = new Interface({
+      consumes: inter.consumes,
+      description: interDesc,
+      name,
+      method: inter.method,
+      path: inter.path,
+      response,
+      /** 后端返回的参数可能重复 */
+      parameters: _.unionBy(parameters, 'name')
+    });
+
+    return standardInterface;
+  }
 
   static transformSwaggerInterface2Standard(
     inter: SwaggerInterface,
@@ -300,6 +379,100 @@ export class SwaggerV3DataSource {
   };
 }
 
+export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: string[], usingOperationId: boolean) {
+  const allSwaggerInterfaces = [] as SwaggerInterface[];
+  _.forEach(swagger.paths, (methodInters, path) => {
+    const pathItemObject = _.cloneDeep(methodInters);
+
+    if (Array.isArray(pathItemObject.parameters)) {
+      ['get', 'post', 'patch', 'delete', 'put'].forEach(method => {
+        if (pathItemObject[method]) {
+          pathItemObject[method].parameters = (pathItemObject[method].parameters || []).concat(
+            pathItemObject.parameters
+          );
+        }
+      });
+
+      delete pathItemObject.parameters;
+    }
+
+    _.forEach(pathItemObject as Omit<SwaggerPathItemObject, 'parameters'>, (inter, method) => {
+      inter.path = path;
+      inter.method = method;
+
+      if (!inter.tags) {
+        inter.tags = ['defaultModule'];
+      }
+
+      allSwaggerInterfaces.push(inter);
+    });
+  });
+  swagger.tags.push({
+    name: 'defaultModule',
+    description: 'defaultModule'
+  });
+
+  // swagger 2.0 中 tags属性是可选的
+  const mods = (swagger.tags || [])
+    .map(tag => {
+      const modInterfaces = allSwaggerInterfaces.filter(inter => {
+        // swagger 3.0+ 中可能不存在 description 字段
+        if (tag.description === undefined || tag.description === null) {
+          tag.description = '';
+        }
+
+        return (
+          inter.tags.includes(tag.name) ||
+          inter.tags.includes(tag.name.toLowerCase()) ||
+          inter.tags.includes(tag.description.toLowerCase()) ||
+          inter.tags.includes(toDashCase(tag.description))
+        );
+      });
+
+      const samePath = getMaxSamePath(modInterfaces.map(inter => inter.path.slice(1)));
+
+      const standardInterfaces = modInterfaces.map(inter => {
+        return SwaggerInterface.transformSwaggerV3Interface2Standard(inter, usingOperationId, samePath, defNames);
+      });
+
+      // 判断是否有重复的 name
+      if (usingOperationId) {
+        const names = [] as string[];
+
+        standardInterfaces.forEach(inter => {
+          if (!names.includes(inter.name)) {
+            names.push(inter.name);
+          } else {
+            inter.name = getIdentifierFromUrl(inter.path, inter.method, samePath);
+          }
+        });
+      }
+
+      // 兼容某些项目把swagger tag的name和description弄反的情况
+      if (hasChinese(tag.name)) {
+        // 当检测到name包含中文的时候，采用description
+        return new Mod({
+          description: tag.name,
+          interfaces: _.uniqBy(standardInterfaces, 'name'),
+          name: transformCamelCase(tag.description)
+        });
+      } else {
+        return new Mod({
+          description: tag.description,
+          interfaces: _.uniqBy(standardInterfaces, 'name'),
+          name: transformCamelCase(tag.name)
+        });
+      }
+    })
+    .filter(mod => {
+      return mod.interfaces.length;
+    });
+
+  transformModsName(mods);
+
+  return mods;
+}
+
 export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[], usingOperationId: boolean) {
   const allSwaggerInterfaces = [] as SwaggerInterface[];
   _.forEach(swagger.paths, (methodInters, path) => {
@@ -337,6 +510,11 @@ export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[],
   const mods = (swagger.tags || [])
     .map(tag => {
       const modInterfaces = allSwaggerInterfaces.filter(inter => {
+        // swagger 3.0+ 中可能不存在 description 字段
+        if (tag.description === undefined || tag.description === null) {
+          tag.description = '';
+        }
+
         return (
           inter.tags.includes(tag.name) ||
           inter.tags.includes(tag.name.toLowerCase()) ||
@@ -389,9 +567,14 @@ export function parseSwaggerMods(swagger: SwaggerDataSource, defNames: string[],
   return mods;
 }
 
-export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingOperationId = true, originName = '') {
+export function transformSwaggerData2Standard(
+  swagger: SwaggerDataSource,
+  usingOperationId = true,
+  originName = '',
+  compileTemplateKeyword?: string
+) {
   const draftClasses = _.map(swagger.definitions, (def, defName) => {
-    const defNameAst = compileTemplate(defName);
+    const defNameAst = compileTemplate(defName, compileTemplateKeyword);
 
     if (!defNameAst) {
       throw new Error('compiler error in defname: ' + defName);
@@ -463,8 +646,10 @@ export function transformSwaggerV3Data2Standard(
   usingOperationId: boolean,
   originName = ''
 ) {
+  const compileTemplateKeyword = '#/components/schemas/';
+
   const draftClasses = _.map(swagger.components.schemas, (def, defName) => {
-    const defNameAst = compileTemplate(defName);
+    const defNameAst = compileTemplate(defName, compileTemplateKeyword);
 
     if (!defNameAst) {
       throw new Error('compiler error in defname: ' + defName);
@@ -477,13 +662,61 @@ export function transformSwaggerV3Data2Standard(
     };
   });
 
-  draftClasses.map(({ name }) => name);
+  const defNames = draftClasses.map(({ name }) => name);
 
-  return {
-    baseClasses: '',
-    mods: usingOperationId,
+  const baseClasses = draftClasses.map(clazz => {
+    const dataType = parseAst2StandardDataType(clazz.defNameAst, defNames, []);
+    const templateArgs = dataType.typeArgs;
+    const { description, properties } = clazz.def;
+    const requiredProps = clazz.def.required || [];
+
+    const props = _.map(properties, (prop, propName) => {
+      const { $ref, description, type, items, additionalProperties } = prop;
+      const required = requiredProps.includes(propName);
+
+      const dataType = Schema.parseSwaggerSchema2StandardDataType(
+        {
+          $ref,
+          enum: prop.enum,
+          items,
+          type,
+          additionalProperties
+        } as Schema,
+        defNames,
+        templateArgs,
+        compileTemplateKeyword
+      );
+
+      return new Property({
+        dataType,
+        name: propName,
+        description,
+        required
+      });
+    });
+
+    return new BaseClass({
+      description,
+      name: clazz.name,
+      properties: props,
+      templateArgs
+    });
+  });
+
+  baseClasses.sort((prev, next) => {
+    if (prev.name === next.name) {
+      return prev.templateArgs.length > next.templateArgs.length ? -1 : 1;
+    }
+
+    // 使用 ascii 规则排序
+    return next.name > prev.name ? 1 : -1;
+  });
+
+  return new StandardDataSource({
+    baseClasses: _.uniqBy(baseClasses, base => base.name),
+    mods: parseSwaggerV3Mods(swagger, defNames, usingOperationId),
     name: originName
-  };
+  });
 }
 
 export class SwaggerV2Reader extends OriginBaseReader {

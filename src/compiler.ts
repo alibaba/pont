@@ -99,10 +99,10 @@ export function parseAst2StandardDataType(
   return dataType;
 }
 
-export function compileTemplate(template: string) {
+export function compileTemplate(template: string, keyword = '#/definitions/') {
   // 词法分析
-  if (template.startsWith('#/definitions/')) {
-    template = template.slice('#/definitions/'.length);
+  if (template.startsWith(keyword)) {
+    template = template.slice(keyword.length);
   }
   if (!template) {
     return null;
