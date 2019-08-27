@@ -86,14 +86,14 @@ Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数
 
 配置项：
 
-```json
+```javascript
 {
-  originType: 'SwaggerV2' | 'SwaggerV3', // 注：暂不支持 SwaggerV1
-  originUrl: string,
-  name: string,
-  usingOperationId: boolean,
-  transformPath?: string,
-  fetchMethodPath?: string
+  "originType": "SwaggerV2 | SwaggerV3", // 注：暂不支持 SwaggerV1
+  "originUrl": string,
+  "name": string,
+  "usingOperationId": boolean,
+  "transformPath"?: string,
+  "fetchMethodPath"?: string
 }
 ```
 
