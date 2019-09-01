@@ -1,45 +1,20 @@
-### 🤔 这个变动的性质是？
+## What kind of change does this PR introduce(这个提交引入了什么样的变化)?
 
-- [ ] 新特性提交
-- [ ] 日常 bug 修复
-- [ ] 站点、文档改进
-- [ ] 组件样式改进
-- [ ] TypeScript 定义更新
-- [ ] 重构
-- [ ] 代码风格优化
-- [ ] 测试用例
-- [ ] 分支合并
-- [ ] 其他改动（是关于什么的改动？）
+- [ ] Bugfix(修正错误)
+- [ ] Feature(新功能)
+- [ ] Refactor(重构)
+- [ ] Build-related changes(与构建相关的更改)
+- [ ] Other, please describe(其他，请描述):
 
-### 🔗 相关 Issue
+## Does this PR introduce a breaking change(这次提交引入了一个重大变化吗)?
 
-<!--
-1. 描述相关需求的来源，如相关的 issue 讨论链接。
--->
+- [ ] Yes(是)
+- [ ] No(否)
 
-### 💡 需求背景和解决方案
+If yes, please describe the impact and migration path for existing applications(如果是，请描述现有应用程序的影响和迁移路径):
 
-<!--
-1. 要解决的具体问题。
-2. 列出最终的 API 实现和用法。
--->
+## The PR fulfills these requirements(PR 符合以下要求)
 
-### 📝 更新日志怎么写？
+- [ ] All tests are passing(所有测试都通过)
 
-<!--
-> 从用户角度描述具体变化，以及可能的 breaking change 和其他风险？
--->
-
-| 语言    | 更新描述 |
-| ------- | -------- |
-| 🇺🇸 英文 |          |
-| 🇨🇳 中文 |          |
-
-- 中文（可选）:
-
-### ☑️ 请求合并前的自查清单
-
-- [ ] 文档已补充或无须补充
-- [ ] 代码演示已提供或无须提供
-- [ ] TypeScript 定义已补充或无须补充
-- [ ] Changelog 已提供或无须提供
+## Other information(其他信息)
