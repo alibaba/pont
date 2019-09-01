@@ -1,4 +1,4 @@
-## What kind of change does this PR introduce(这个提交引入了什么样的变化)?
+## What kind of change does this PR introduce(这个 PR 引入了什么样的变化)?
 
 - [ ] Bugfix(修正错误)
 - [ ] Feature(新功能)
@@ -6,7 +6,7 @@
 - [ ] Build-related changes(与构建相关的更改)
 - [ ] Other, please describe(其他，请描述):
 
-## Does this PR introduce a breaking change(这次提交引入了一个重大变化吗)?
+## Does this PR introduce a breaking change(这次 PR 引入了一个重大变化吗)?
 
 - [ ] Yes(是)
 - [ ] No(否)
