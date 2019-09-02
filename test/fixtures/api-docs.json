@@ -148,6 +148,23 @@
           }
         }
       }
+    },
+    "/zzjy/all-msg/test-multi-dash": {
+      "post": {
+        "tags": ["credit-query-controller"],
+        "summary": "多中划线测试",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«List«Map»»"
+            }
+          }
+        }
+      }
     }
   },
   "definitions": {
