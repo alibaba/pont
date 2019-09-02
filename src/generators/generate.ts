@@ -395,6 +395,17 @@ export class CodeGenerator {
       ${conclusion}
     `;
   }
+
+  /**
+   * 获取中间态数据结构
+   * @param dataSource
+   */
+  getDataSourceCallback(dataSource?: StandardDataSource): void {
+    // 空实现, 用于对外暴露文件数据结构
+    if (dataSource) {
+      return;
+    }
+  }
 }
 
 export class FilesManager {
