@@ -3,10 +3,11 @@ import { Config, getTemplate, DataSourceConfig, hasChinese } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { diff, Model } from './diff';
-import { FilesManager } from './generators/generate';
+import { CodeGenerator, FilesManager } from './generators/generate';
 import { info as debugInfo } from './debugLog';
 import { FileStructures } from './generators/generate';
 import { readRemoteDataSource } from './scripts';
+import * as _ from 'lodash';
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0 as any;
 
@@ -262,9 +263,12 @@ export class Manager {
     const { default: Generator, FileStructures: MyFileStructures } = getTemplate(this.currConfig.templatePath);
 
     const generators = this.allLocalDataSources.map(dataSource => {
-      const generator = new Generator();
+      const generator: CodeGenerator = new Generator();
       generator.setDataSource(dataSource);
 
+      if (_.isFunction(generator.getDataSourceCallback)) {
+        generator.getDataSourceCallback(dataSource);
+      }
       return generator;
     });
     let FileStructuresClazz = FileStructures as any;

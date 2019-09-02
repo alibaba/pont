@@ -1,5 +1,4 @@
-
-import { CodeGenerator, Interface } from "../";
+import { CodeGenerator } from "../";
 
 export default class MyGenerator extends CodeGenerator {
 }
