@@ -13,6 +13,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { format } from '../utils';
 import { info } from '../debugLog';
+import * as ts from 'typescript';
 
 export class FileStructures {
   constructor(private generators: CodeGenerator[], private usingMultipleOrigins: boolean) {}
@@ -438,7 +439,7 @@ export class FilesManager {
     fs.mkdirpSync(path);
   }
 
-  async regenerate(report?: typeof info) {
+  async regenerate(report?: typeof info, usingTsCompiler?: boolean) {
     if (report) {
       this.report = report;
     }
@@ -448,7 +449,7 @@ export class FilesManager {
 
     this.initPath(this.baseDir);
     this.created = true;
-    await this.generateFiles(files);
+    await this.generateFiles(files, undefined, usingTsCompiler);
   }
 
   /** 区分lock文件是创建的还是人为更改的 */
@@ -471,17 +472,61 @@ export class FilesManager {
   }
 
   /** 根据 Codegenerator 配置生成目录和文件 */
-  async generateFiles(files: {}, dir = this.baseDir) {
+  async generateFiles(files: {}, dir = this.baseDir, usingTsCompiler = false) {
     const promises = _.map(files, async (value: Function | {}, name) => {
       if (typeof value === 'function') {
-        await fs.writeFile(`${dir}/${name}`, value());
+        const fielName = `${dir}/${name}`;
+        await fs.writeFile(fielName, value());
+        if (usingTsCompiler) {
+          await this.generateFilesToJs(fielName);
+        }
         return;
       }
 
       await fs.mkdir(`${dir}/${name}`);
-      await this.generateFiles(value, `${dir}/${name}`);
+      await this.generateFiles(value, `${dir}/${name}`, usingTsCompiler);
     });
 
     await Promise.all(promises);
+  }
+
+  /** tsc对应的ts文件 */
+  async generateFilesToJs(fielName) {
+    // Todo 添加外部参数判断是否需要输出js类型文件
+    let moduleResult;
+    // 判断是否跳过ts声明文件的编译，直接删除
+    const isTsDeclareFile = fielName.indexOf('.d.ts') < 0;
+    if (fielName.indexOf('api-lock.json') > -1) {
+      return;
+    }
+    try {
+      if (isTsDeclareFile) {
+        const tsResult = fs.readFileSync(fielName, 'utf8');
+        const jsResult = ts.transpileModule(tsResult, {
+          compilerOptions: {
+            target: ts.ScriptTarget.ES2016,
+            module: ts.ModuleKind.CommonJS
+          }
+        });
+        const jsName = fielName.replace('.ts', '.js');
+
+        // 编译到js
+        fs.writeFileSync(jsName, jsResult.outputText, 'utf8');
+
+        // 用 node require 引用编译后的 js 代码
+        moduleResult = require(jsName);
+      }
+      // 删除该文件
+      fs.removeSync(fielName);
+    } catch (e) {
+      // 删除失败，则再删除
+      if (fs.existsSync(fielName)) {
+        fs.removeSync(fielName);
+      }
+      // 没有引用，报错
+      if (!moduleResult && !isTsDeclareFile) {
+        throw new Error(e);
+      }
+    }
   }
 }
