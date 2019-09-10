@@ -517,12 +517,12 @@ export class FilesManager {
         moduleResult = require(jsName);
       }
       // 删除该文件
-      fs.removeSync(fielName);
+      // fs.removeSync(fielName);
     } catch (e) {
       // 删除失败，则再删除
-      if (fs.existsSync(fielName)) {
-        fs.removeSync(fielName);
-      }
+      // if (fs.existsSync(fielName)) {
+      //   fs.removeSync(fielName);
+      // }
       // 没有引用，报错
       if (!moduleResult && !isTsDeclareFile) {
         throw new Error(e);
