@@ -79,7 +79,6 @@ export class OriginBaseReader {
   async fetchRemoteData(): Promise<StandardDataSource> {
     try {
       const data = await this.fetchData();
-
       // 将数据源转换为标准数据源格式
       let remoteDataSource = this.transform2Standard(data, this.config.usingOperationId, this.config.name);
       this.report('远程数据解析完毕!');

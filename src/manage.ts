@@ -255,7 +255,7 @@ export class Manager {
 
   async regenerateFiles() {
     this.setFilesManager();
-    await this.fileManager.regenerate(null, this.currConfig.usingTsCompiler);
+    await this.fileManager.regenerate(null, this.currConfig.usingTsCompiler, this.currConfig.mergeDirc);
   }
 
   setFilesManager() {

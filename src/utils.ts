@@ -52,6 +52,7 @@ export class Config {
   }>;
   usingMultipleOrigins = false;
   usingTsCompiler = false;
+  mergeDirc = false;
   templatePath = 'serviceTemplate';
   prettierConfig: ResolveConfigOptions;
   transformPath?: string;
@@ -123,6 +124,7 @@ export class Config {
       outDir: path.join(configDir, this.outDir),
       usingMultipleOrigins: this.usingMultipleOrigins,
       usingTsCompiler: this.usingTsCompiler,
+      mergeDirc: this.mergeDirc,
       templatePath: path.join(configDir, this.templatePath),
       transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
       fetchMethodPath: this.fetchMethodPath ? path.join(configDir, this.fetchMethodPath) : undefined,
@@ -156,6 +158,7 @@ export class DataSourceConfig {
   usingOperationId = false;
   usingMultipleOrigins = false;
   usingTsCompiler? = false;
+  mergeDirc? = false;
   taggedByName = true;
   templatePath = 'serviceTemplate';
   outDir = 'src/service';

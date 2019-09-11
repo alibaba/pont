@@ -72,8 +72,8 @@ export class FileStructures {
 
       mod.interfaces.forEach(inter => {
         currMod[inter.name + '.ts'] = generator.getInterfaceContent.bind(generator, inter);
-        currMod['index.ts'] = generator.getModIndex.bind(generator, mod);
       });
+      currMod['index.ts'] = generator.getModIndex.bind(generator, mod);
       mods[mod.name] = currMod;
 
       mods['index.ts'] = generator.getModsIndex.bind(generator);
@@ -439,17 +439,16 @@ export class FilesManager {
     fs.mkdirpSync(path);
   }
 
-  async regenerate(report?: typeof info, usingTsCompiler?: boolean) {
+  async regenerate(report?: typeof info, usingTsCompiler?: boolean, mergeDirc?: boolean) {
     if (report) {
       this.report = report;
     }
-
     const files = this.fileStructures.getFileStructures();
     this.setFormat(files);
 
     this.initPath(this.baseDir);
     this.created = true;
-    await this.generateFiles(files, undefined, usingTsCompiler);
+    await this.generateFiles(files, undefined, usingTsCompiler, mergeDirc);
   }
 
   /** 区分lock文件是创建的还是人为更改的 */
@@ -472,43 +471,60 @@ export class FilesManager {
   }
 
   /** 根据 Codegenerator 配置生成目录和文件 */
-  async generateFiles(files: {}, dir = this.baseDir, usingTsCompiler = false) {
+  async generateFiles(files: {}, dir = this.baseDir, usingTsCompiler = false, mergeDirc = false) {
     const promises = _.map(files, async (value: Function | {}, name) => {
+      const fullPath = `${dir}/${name}`;
       if (typeof value === 'function') {
-        const fielName = `${dir}/${name}`;
-        await fs.writeFile(fielName, value());
+        await fs.writeFile(fullPath, value());
         if (usingTsCompiler) {
-          await this.generateFilesToJs(fielName);
+          await this.generateFilesToJs(fullPath);
         }
         return;
       }
+      if (mergeDirc) {
+        /** 合并mods下的每一个mod到对应的.ts文件 */
+        const pathArr = fullPath.split(/\/|\\/);
+        const pathArrLen = pathArr.length;
+        const lastPath = pathArr[pathArrLen - 1];
+        if (pathArr.findIndex(path => path === 'mods') === pathArrLen - 2 && !/\.ts$/.test(lastPath)) {
+          await this.generateFiles(
+            {
+              [`${lastPath}.ts`]: value['index.ts']
+            },
+            fullPath.substr(0, fullPath.length - 1 - lastPath.length),
+            usingTsCompiler,
+            mergeDirc
+          );
+          return;
+        }
+      }
 
-      await fs.mkdir(`${dir}/${name}`);
-      await this.generateFiles(value, `${dir}/${name}`, usingTsCompiler);
+      await fs.mkdir(fullPath);
+      await this.generateFiles(value, fullPath, usingTsCompiler, mergeDirc);
     });
 
     await Promise.all(promises);
   }
 
   /** tsc对应的ts文件 */
-  async generateFilesToJs(fielName) {
+  async generateFilesToJs(fullPath) {
     // Todo 添加外部参数判断是否需要输出js类型文件
     let moduleResult;
     // 判断是否跳过ts声明文件的编译，直接删除
-    const isTsDeclareFile = fielName.indexOf('.d.ts') < 0;
-    if (fielName.indexOf('api-lock.json') > -1) {
+    const isTsDeclareFile = fullPath.indexOf('.d.ts') < 0;
+    if (fullPath.indexOf('api-lock.json') > -1) {
       return;
     }
     try {
       if (isTsDeclareFile) {
-        const tsResult = fs.readFileSync(fielName, 'utf8');
+        const tsResult = fs.readFileSync(fullPath, 'utf8');
         const jsResult = ts.transpileModule(tsResult, {
           compilerOptions: {
             target: ts.ScriptTarget.ES2016,
             module: ts.ModuleKind.CommonJS
           }
         });
-        const jsName = fielName.replace('.ts', '.js');
+        const jsName = fullPath.replace('.ts', '.js');
 
         // 编译到js
         fs.writeFileSync(jsName, jsResult.outputText, 'utf8');
@@ -517,12 +533,12 @@ export class FilesManager {
         moduleResult = require(jsName);
       }
       // 删除该文件
-      // fs.removeSync(fielName);
+      fs.removeSync(fullPath);
     } catch (e) {
       // 删除失败，则再删除
-      // if (fs.existsSync(fielName)) {
-      //   fs.removeSync(fielName);
-      // }
+      if (fs.existsSync(fullPath)) {
+        fs.removeSync(fullPath);
+      }
       // 没有引用，报错
       if (!moduleResult && !isTsDeclareFile) {
         throw new Error(e);
