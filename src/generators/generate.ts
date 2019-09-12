@@ -13,7 +13,6 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import { format } from '../utils';
 import { info } from '../debugLog';
-import * as ts from 'typescript';
 
 export class FileStructures {
   constructor(private generators: CodeGenerator[], private usingMultipleOrigins: boolean) {}
@@ -439,7 +438,7 @@ export class FilesManager {
     fs.mkdirpSync(path);
   }
 
-  async regenerate(report?: typeof info, usingTsCompiler?: boolean, mergeDirc?: boolean) {
+  async regenerate(report?: typeof info, useJs?: boolean, mergeDirc?: boolean) {
     if (report) {
       this.report = report;
     }
@@ -448,7 +447,7 @@ export class FilesManager {
 
     this.initPath(this.baseDir);
     this.created = true;
-    await this.generateFiles(files, undefined, usingTsCompiler, mergeDirc);
+    await this.generateFiles(files, undefined, useJs, mergeDirc);
   }
 
   /** 区分lock文件是创建的还是人为更改的 */
@@ -471,18 +470,18 @@ export class FilesManager {
   }
 
   /** 根据 Codegenerator 配置生成目录和文件 */
-  async generateFiles(files: {}, dir = this.baseDir, usingTsCompiler = false, mergeDirc = false) {
+  async generateFiles(files: {}, dir = this.baseDir, useJs = false, mergeDirc = false) {
     const promises = _.map(files, async (value: Function | {}, name) => {
       const fullPath = `${dir}/${name}`;
       if (typeof value === 'function') {
         await fs.writeFile(fullPath, value());
-        if (usingTsCompiler) {
+        if (useJs) {
           await this.generateFilesToJs(fullPath);
         }
         return;
       }
       if (mergeDirc) {
-        /** 合并mods下的每一个mod到对应的.ts文件 */
+        /** 合并模块文件 */
         const pathArr = fullPath.split(/\/|\\/);
         const pathArrLen = pathArr.length;
         const lastPath = pathArr[pathArrLen - 1];
@@ -492,7 +491,7 @@ export class FilesManager {
               [`${lastPath}.ts`]: value['index.ts']
             },
             fullPath.substr(0, fullPath.length - 1 - lastPath.length),
-            usingTsCompiler,
+            useJs,
             mergeDirc
           );
           return;
@@ -500,34 +499,27 @@ export class FilesManager {
       }
 
       await fs.mkdir(fullPath);
-      await this.generateFiles(value, fullPath, usingTsCompiler, mergeDirc);
+      await this.generateFiles(value, fullPath, useJs, mergeDirc);
     });
 
     await Promise.all(promises);
   }
 
-  /** tsc对应的ts文件 */
+  /** ts文件转换成js, */
   async generateFilesToJs(fullPath) {
-    // Todo 添加外部参数判断是否需要输出js类型文件
     let moduleResult;
-    // 判断是否跳过ts声明文件的编译，直接删除
+    // ts声明文件直接删除
     const isTsDeclareFile = fullPath.indexOf('.d.ts') < 0;
     if (fullPath.indexOf('api-lock.json') > -1) {
       return;
     }
     try {
       if (isTsDeclareFile) {
-        const tsResult = fs.readFileSync(fullPath, 'utf8');
-        const jsResult = ts.transpileModule(tsResult, {
-          compilerOptions: {
-            target: ts.ScriptTarget.ES2016,
-            module: ts.ModuleKind.CommonJS
-          }
-        });
+        const result = fs.readFileSync(fullPath, 'utf8');
         const jsName = fullPath.replace('.ts', '.js');
 
         // 编译到js
-        fs.writeFileSync(jsName, jsResult.outputText, 'utf8');
+        fs.writeFileSync(fullPath.replace('.ts', '.js'), result, 'utf8');
 
         // 用 node require 引用编译后的 js 代码
         moduleResult = require(jsName);
