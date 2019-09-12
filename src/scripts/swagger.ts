@@ -294,7 +294,7 @@ class SwaggerInterface {
 
     const parameters = (inter.parameters || []).map(param => {
       let paramSchema: Schema;
-      const { description, items, name, type, schema = {} as Schema, required } = param;
+      const { description, items, name = '', type, schema = {} as Schema, required } = param;
       // 如果请求参数在body中的话，处理方式与response保持一致，因为他们本身的结构是一样的
       if (param.in === 'body') {
         paramSchema = param.schema;
