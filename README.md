@@ -241,7 +241,7 @@ export default async function(url: string): Promise<string> {
 
 ## 其它接口平台接入
 
-目前 pont 暂时只支持 [Swagger V2](https://swagger.io/) 数据源，V1 和 V3 正在开发中。目前只需要在 scripts 中添加对应的数据格式转换文件，把对应数据格式转换为 pont 标准格式，即可适配新的数据源类型。希望社区可以踊跃贡献代码，接入更多类型的数据源！
+目前 pont 支持 [Swagger](https://swagger.io/) V1 V2 V3 三种数据源。其他类型数据源只需要在 scripts 中添加对应的数据格式转换文件，把对应数据格式转换为 pont 标准格式，即可适配新的数据源类型。希望社区可以踊跃贡献代码，接入更多类型的数据源！
 
 ## 钉钉用户群
 
