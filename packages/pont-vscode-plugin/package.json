@@ -1,0 +1,62 @@
+{
+  "name": "vscode-pont",
+  "displayName": "pont",
+  "description": "",
+  "version": "0.2.3",
+  "publisher": "jasonHzq",
+  "engines": {
+    "vscode": "^1.24.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "*"
+  ],
+  "main": "./out/extension",
+  "contributes": {
+    "jsonValidation": [
+      {
+        "fileMatch": "pont-config.json",
+        "url": "./configSchema.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "pont.findInterface",
+        "title": "find pont interface"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "pont.findInterface",
+        "key": "cmd+ctrl+p",
+        "mac": "cmd+ctrl+p"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "yarn && tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "engine": "yarn add pont-engine && git add . && git commit -m 'chore: update engine' && npm version patch -m 'chore: upgrade pont-engine' && vsce publish --yarn && git push origin master",
+    "postinstall": "node ./node_modules/vscode/bin/install",
+    "test": "npm run compile && node ./node_modules/vscode/bin/test"
+  },
+  "devDependencies": {
+    "@types/lodash": "^4.14.110",
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^7.0.43",
+    "typescript": "^2.9.2",
+    "vsce": "^1.50.0",
+    "vscode": "^1.1.18"
+  },
+  "dependencies": {
+    "pont-engine": "^0.2.2"
+  },
+  "icon": "logo.png",
+  "repository": {
+    "url": "git@github.com:nefe/vscode-pont.git",
+    "type": "git"
+  }
+}

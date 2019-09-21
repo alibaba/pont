@@ -1,0 +1,349 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "",
+    "version": "1.0",
+    "title": "接口文档",
+    "termsOfService": "http://localhost",
+    "contact": {
+      "name": "管理平台",
+      "url": "http://localhost",
+      "email": "67890211@qq.com"
+    },
+    "license": {
+      "name": "license",
+      "url": "http://localhost"
+    }
+  },
+  "host": "http://localhost",
+  "basePath": "/",
+  "tags": [
+    {
+      "name": "credit-query-controller",
+      "description": "Credit Query Controller"
+    }
+  ],
+  "paths": {
+    "/api/core/asset/credit/query/pastCreditCardBillGather": {
+      "post": {
+        "tags": ["credit-query-controller"],
+        "summary": "往期账单汇总",
+        "description": "往期账单汇总",
+        "operationId": "pastCreditCardBillGatherUsingPOST",
+        "consumes": ["application/json;charset=UTF-8"],
+        "produces": ["application/json;charset=UTF-8"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "requestParamVo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/通用请求参数«查询参数»"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/DataTransOutput"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      },
+      "put": {
+        "tags": ["credit-query-controller"],
+        "summary": "往期账单汇总",
+        "description": "往期账单汇总",
+        "operationId": "exportUsingPut",
+        "consumes": ["application/json;charset=UTF-8"],
+        "produces": ["application/json;charset=UTF-8"],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "body",
+            "description": "requestParamVo",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/通用请求参数«查询参数»"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/DataTransOutput"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/zzjy/all-msg/getAllMsgForMap": {
+      "post": {
+        "tags": ["credit-query-controller"],
+        "summary": "站址经营-汇总首页",
+        "operationId": "getAllMsgForMapUsingPOST",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [
+          {
+            "name": "accountTime",
+            "in": "query",
+            "description": "accountTime",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "type",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«List«Map»»"
+            }
+          },
+          "201": {
+            "description": "Created"
+          },
+          "401": {
+            "description": "Unauthorized"
+          },
+          "403": {
+            "description": "Forbidden"
+          },
+          "404": {
+            "description": "Not Found"
+          }
+        }
+      }
+    },
+    "/zzjy/all-msg/test-multi-dash": {
+      "post": {
+        "tags": ["credit-query-controller"],
+        "summary": "多中划线测试",
+        "consumes": ["application/json"],
+        "produces": ["*/*"],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/Result«List«Map»»"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "输出参数vo": {
+      "type": "object",
+      "required": ["dueDay", "requestChannel"],
+      "properties": {
+        "dueDay": {
+          "type": "string",
+          "description": "开卡日"
+        },
+        "requestChannel": {
+          "type": "string",
+          "description": "进件渠道"
+        }
+      }
+    },
+    "abc输出参数": {
+      "type": "object",
+      "required": ["dueDay", "requestChannel"],
+      "properties": {
+        "dueDay": {
+          "type": "string",
+          "description": "开卡日"
+        },
+        "requestChannel": {
+          "type": "string",
+          "description": "进件渠道"
+        }
+      }
+    },
+    " 中英文 混合 带 空格 Vo ": {
+      "type": "object",
+      "required": ["dueDay", "requestChannel"],
+      "properties": {
+        "dueDay": {
+          "type": "string",
+          "description": "开卡日"
+        },
+        "requestChannel": {
+          "type": "string",
+          "description": "进件渠道"
+        }
+      }
+    },
+    "查询参数": {
+      "type": "object",
+      "required": ["dueDay", "requestChannel"],
+      "properties": {
+        "dueDay": {
+          "type": "string",
+          "description": "开卡日"
+        },
+        "requestChannel": {
+          "type": "string",
+          "description": "进件渠道"
+        },
+        "data": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "$ref": "#/definitions/DataTransOutput"
+          }
+        }
+      }
+    },
+    "通用请求参数token«输出参数vo»": {
+      "type": "object",
+      "properties": {
+        "bizParamVo": {
+          "$ref": "#/definitions/输出参数vo"
+        }
+      }
+    },
+    "DataTransOutput«输出参数vo»": {
+      "type": "object",
+      "required": ["transCode", "transMessage", "transMessageDetail"],
+      "properties": {
+        "data": {
+          "description": "返回数据",
+          "$ref": "#/definitions/输出参数vo"
+        },
+        "transCode": {
+          "type": "integer",
+          "format": "int32",
+          "description": "错误码。\n100000 成功\n200000 入参不合法\n400000 权限不足\n500000 服务失败"
+        },
+        "transMessage": {
+          "type": "string",
+          "description": "错误信息。成功：“成功” 失败：“失败对应的msg”"
+        },
+        "transMessageDetail": {
+          "type": "string",
+          "description": "信息详情”"
+        }
+      },
+      "description": "带数据的返回数据"
+    },
+    "mod.Service": {
+      "type": "string"
+    },
+    "DataTransOutput": {
+      "type": "object",
+      "required": ["transCode", "transMessage", "transMessageDetail"],
+      "properties": {
+        "data": {
+          "type": "object",
+          "description": "返回数据"
+        },
+        "transCode": {
+          "type": "integer",
+          "format": "int32",
+          "description": "错误码。\n100000 成功\n200000 入参不合法\n400000 权限不足\n500000 服务失败"
+        },
+        "transMessage": {
+          "type": "string",
+          "description": "错误信息。成功：“成功” 失败：“失败对应的msg”"
+        },
+        "transMessageDetail": {
+          "type": "string",
+          "description": "信息详情”"
+        }
+      },
+      "description": "带数据的返回数据"
+    },
+    "Result«List«Map»»": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Map"
+          }
+        },
+        "returnCode": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
+    "查询还款中(未结清)还款信息AO": {
+      "type": "object",
+      "required": ["assetInfoStatus", "dueDate", "pageNum", "pageSize", "requestType"],
+      "properties": {
+        "assetInfoStatus": {
+          "type": "string",
+          "description": "进件状态,eg:正常还款->PROCESSING、逾期->OVER_DUE、结清->REPAID（包含提前结清,逾期结清和正常结清）",
+          "allowEmptyValue": false
+        },
+        "assetRepayPlanStatus": {
+          "type": "string"
+        },
+        "dueDate": {
+          "type": "string",
+          "description": "账单日：格式 yyyy-MM-dd HH:mm:ss",
+          "allowEmptyValue": false
+        },
+        "pageNum": {
+          "type": "integer",
+          "format": "int32",
+          "description": "当前第几页，从1开始",
+          "allowEmptyValue": false
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32",
+          "description": "每页多少行",
+          "allowEmptyValue": false
+        },
+        "requestType": {
+          "type": "string",
+          "description": "渠道大类,eg:个贷输入->LEND,钱站输入->JA",
+          "allowEmptyValue": false
+        }
+      },
+      "title": "查询还款中(未结清)还款信息AO"
+    }
+  }
+}
