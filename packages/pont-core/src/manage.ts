@@ -179,9 +179,16 @@ export class Manager {
 
       this.report('读取本地完成');
       const localDataObjects = JSON.parse(localDataStr) as StandardDataSource[];
+
       this.allLocalDataSources = localDataObjects.map(ldo => {
         return StandardDataSource.constructorFromLock(ldo, ldo.name);
       });
+
+      // Filter name changed origin
+      this.allLocalDataSources = this.allLocalDataSources.filter(ldo => {
+        return Boolean(this.allConfigs.find(config => config.name === ldo.name));
+      });
+
       if (this.allLocalDataSources.length < this.allConfigs.length) {
         this.allConfigs.forEach(config => {
           if (!this.allLocalDataSources.find(ds => ds.name === config.name)) {
