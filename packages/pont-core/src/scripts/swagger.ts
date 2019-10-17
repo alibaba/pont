@@ -409,6 +409,11 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
       allSwaggerInterfaces.push(inter);
     });
   });
+
+  if (!swagger.tags) {
+    swagger.tags = []
+  }
+
   swagger.tags.push({
     name: 'defaultModule',
     description: 'defaultModule'
