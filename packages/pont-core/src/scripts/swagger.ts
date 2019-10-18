@@ -209,7 +209,7 @@ class SwaggerInterface {
     let name = '';
     const compileTemplateKeyword = '#/components/schemas/';
 
-    if (!usingOperationId || inter.operationId) {
+    if (!usingOperationId || !inter.operationId) {
       name = getIdentifierFromUrl(inter.path, inter.method, samePath);
     } else {
       name = getIdentifierFromOperatorId(inter.operationId);
@@ -667,7 +667,7 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
 
 export function transformSwaggerV3Data2Standard(
   swagger: SwaggerV3DataSource,
-  usingOperationId: boolean,
+  usingOperationId = true,
   originName = ''
 ) {
   const compileTemplateKeyword = '#/components/schemas/';
