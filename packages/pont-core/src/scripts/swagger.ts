@@ -410,8 +410,19 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
     });
   });
 
+  // 不存在顶层 tags 时使用 operation-object 下的 tags 并集
+  // https://github.com/OAI/OpenAPI-Specification/blob/OpenAPI.next/versions/3.0.0.md#operation-object
   if (!swagger.tags) {
-    swagger.tags = []
+    swagger.tags = [];
+    allSwaggerInterfaces.forEach(({ tags }) => {
+      if (tags && tags.length) {
+        tags.forEach(tag => {
+          if (!swagger.tags.some(u => u.name == tag)) {
+            swagger.tags.push({ name: tag, description: '' });
+          }
+        });
+      }
+    });
   }
 
   swagger.tags.push({
