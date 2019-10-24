@@ -651,6 +651,13 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
   });
 
   baseClasses.sort((pre, next) => {
+    if (pre.name === next.name && pre.templateArgs.length === next.templateArgs.length) {
+      return pre.templateArgs.filter(({ isDefsType }) => isDefsType).length >
+        next.templateArgs.filter(({ isDefsType }) => isDefsType).length
+        ? -1
+        : 1;
+    }
+
     if (pre.name === next.name) {
       return pre.templateArgs.length > next.templateArgs.length ? -1 : 1;
     }

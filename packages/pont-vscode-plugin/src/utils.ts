@@ -3,7 +3,6 @@ import { Manager } from 'pont-engine';
 import * as path from 'path';
 import * as child_process from 'child_process';
 import * as fs from 'fs';
-import * as _ from 'lodash';
 
 export function wait(ttl = 500) {
   return new Promise(resolve => {
@@ -35,24 +34,16 @@ export function showProgress(title: string, manager: Manager, task: (report?: (i
 
 export async function syncNpm() {
   try {
-    const projectPkgJson = require(path.join(vscode.workspace.rootPath, 'package.json'));
-
-    // Try to find pont-engine version in devDependencies
-    let currVersion = _.get(projectPkgJson, 'devDependencies', {})['pont-engine'];
-
-    // // Try to find pont-engine version in dependencies
-    if (!currVersion) {
-      currVersion = _.get(projectPkgJson, 'dependencies', {})['pont-engine'];
-    }
-
-    // Use built in pont-engine version
-    if (!currVersion) {
-      currVersion = require(path.join(__dirname, '../node_modules/pont-engine/package.json')).version;
-    }
+    const currVersion = require(path.join(
+      __dirname,
+      "../node_modules/pont-engine/package.json"
+    )).version;
+    const projectVersionPath = path.join(
+      vscode.workspace.rootPath,
+      "node_modules/pont-engine/package.json"
+    );
+    const yarnPath = path.join(vscode.workspace.rootPath, "yarn.lock");
     
-    const projectVersionPath = path.join(vscode.workspace.rootPath, 'node_modules/pont-engine/package.json');
-    const yarnPath = path.join(vscode.workspace.rootPath, 'yarn.lock');
-
     const hasProjectVersion = fs.existsSync(projectVersionPath);
     const useYarn = fs.existsSync(yarnPath);
 
