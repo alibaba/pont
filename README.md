@@ -240,9 +240,10 @@ export default async function(url: string): Promise<string> {
   }
   ```
 
-- 3、defs 等全局变量找不到
+- 3、API、defs 全局变量找不到
 
- 答：将 pont 生成的 api.d.ts 塞到 tsconfig.json 中的 includes 数组最前面。
+     答：将 pont 生成的 api.d.ts 塞到 tsconfig.json 中的 includes 数组最前面。并在项目入口处 import pont 生成的入口文件。
+     
 
 ## 其它接口平台接入
 
