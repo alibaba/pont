@@ -222,6 +222,7 @@ export default async function(url: string): Promise<string> {
 - 1、demo 中，生成代码的 pontFetch 函数，是要自己实现的吗？
 
   答：pontFetch 是用户自己项目的请求公共方法。因为每个项目的接口有自己的业务逻辑，比如如何判断接口返回的结果是否正确，所以 pont 的默认模板并没有自己实现一套 fetch 方法。另外 Pont 生成的代码是可以用自定义模板配置的。可以在模板上更改 pontFetch 的引用路径和名字。
+
 - 2、nestjs 搭配的Swagger JSON生成出来的pont文件为什么没有mods?
 
   答：nestjs 中的 Swagger 必须在每个 Controller 上添加 ApiUseTags 装饰器，并且在每个控制器的方法上添加 ApiOperation 装饰器 才能正确输出带 Tags 以及 operationId 的 Swagger JSON。Tags 和 operationId 是 pont 必需的（@nestjs/swagger 自动生成的 default Tags 暂时不被兼容）。
@@ -238,6 +239,10 @@ export default async function(url: string): Promise<string> {
     getDog() {}
   }
   ```
+
+- 3、defs 等全局变量找不到
+
+ 答：将 pont 生成的 api.d.ts 塞到 tsconfig.json 中的 includes 数组最前面。
 
 ## 其它接口平台接入
 
