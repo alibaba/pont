@@ -1,6 +1,6 @@
 {
   "name": "pont-engine",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "description": "pont swagger typescript API",
   "main": "lib/index.js",
   "typings": "src/index.ts",
@@ -40,7 +40,7 @@
     "@types/node": "^10.3.6",
     "http-server": "^0.11.1",
     "husky": "^1.1.3",
-    "lint-staged": "^8.1.0",
+    "lint-staged": "^9.4.2",
     "mocha": "^6.0.1",
     "pont-engine": "0.1.55",
     "ts-node": "^3.3.0"

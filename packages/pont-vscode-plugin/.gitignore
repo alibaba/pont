@@ -1,6 +1,0 @@
-node_modules
-.vscode-test/
-.vsix
-out
-yarn.lock
-yarn-error.log

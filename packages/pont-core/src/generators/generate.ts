@@ -478,7 +478,7 @@ export class FilesManager {
         return;
       }
 
-      await fs.mkdir(`${dir}/${name}`);
+      this.initPath(`${dir}/${name}`);
       await this.generateFiles(value, `${dir}/${name}`);
     });
 

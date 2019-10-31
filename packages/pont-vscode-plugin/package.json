@@ -2,7 +2,7 @@
   "name": "vscode-pont",
   "displayName": "pont",
   "description": "",
-  "version": "0.3.1",
+  "version": "0.3.3",
   "publisher": "jasonHzq",
   "engines": {
     "vscode": "^1.24.0"
@@ -52,7 +52,7 @@
     "vscode": "^1.1.18"
   },
   "dependencies": {
-    "pont-engine": "^0.3.1"
+    "pont-engine": "^0.3.3"
   },
   "icon": "logo.png",
   "repository": {
