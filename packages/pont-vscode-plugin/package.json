@@ -37,7 +37,7 @@
   },
   "scripts": {
     "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
+    "compile": "yarn && tsc -p ./",
     "watch": "tsc -watch -p ./",
     "engine": "yarn add pont-engine && git add . && git commit -m 'chore: update engine' && npm version patch -m 'chore: upgrade pont-engine' && vsce publish --yarn && git push origin master",
     "postinstall": "node ./node_modules/vscode/bin/install",
