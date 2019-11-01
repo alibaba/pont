@@ -49,13 +49,18 @@ export class Manager {
   }
 
   makeAllSame() {
-    const remoteName = this.remoteDataSource.name;
-
-    const remoteDsIndex = this.allLocalDataSources.findIndex(ds => ds.name === remoteName);
-    if (remoteDsIndex === -1) {
-      this.allLocalDataSources.push(this.remoteDataSource);
+    if (this.allConfigs.length <= 1) {
+      // Compatible with single origin without origin name
+      this.allLocalDataSources[0] = this.remoteDataSource;
     } else {
-      this.allLocalDataSources[remoteDsIndex] = this.remoteDataSource;
+      const remoteName = this.remoteDataSource.name;
+
+      const remoteDsIndex = this.allLocalDataSources.findIndex(ds => ds.name === remoteName);
+      if (remoteDsIndex === -1) {
+        this.allLocalDataSources.push(this.remoteDataSource);
+      } else {
+        this.allLocalDataSources[remoteDsIndex] = this.remoteDataSource;
+      }
     }
     this.currLocalDataSource = this.remoteDataSource;
     this.setFilesManager();
