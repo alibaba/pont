@@ -524,13 +524,18 @@ export function parseSwaggerMods(
       allSwaggerInterfaces.push(inter);
     });
   });
+
+  if (!swagger.tags) {
+    swagger.tags = [];
+  }
+
   swagger.tags.push({
     name: 'defaultModule',
     description: 'defaultModule'
   });
 
   // swagger 2.0 中 tags属性是可选的
-  const mods = (swagger.tags || [])
+  const mods = swagger.tags
     .map(tag => {
       const modInterfaces = allSwaggerInterfaces.filter(inter => {
         // swagger 3.0+ 中可能不存在 description 字段
