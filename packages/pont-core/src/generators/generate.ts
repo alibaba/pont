@@ -73,7 +73,14 @@ export class FileStructures {
         currMod[inter.name + '.ts'] = generator.getInterfaceContent.bind(generator, inter);
         currMod['index.ts'] = generator.getModIndex.bind(generator, mod);
       });
-      mods[mod.name] = currMod;
+      // .replace(/\//g, '.').replace(/^\./, '').replace(/\./g, '_') 转换 / .为下划线
+      // exp: /api/v1/users  => api_v1_users
+      // exp: api.v1.users => api_v1_users
+      const modName = mod.name
+        .replace(/\//g, '.')
+        .replace(/^\./, '')
+        .replace(/\./g, '_');
+      mods[modName] = currMod;
 
       mods['index.ts'] = generator.getModsIndex.bind(generator);
     });
@@ -144,7 +151,11 @@ export class FileStructures {
   }
 
   getLockContent() {
-    return JSON.stringify(this.generators.map(ge => ge.dataSource), null, 2);
+    return JSON.stringify(
+      this.generators.map(ge => ge.dataSource),
+      null,
+      2
+    );
   }
 }
 
@@ -232,7 +243,9 @@ export class CodeGenerator {
   /** 获取模块的类型定义代码，一个 namespace ，一般不需要覆盖 */
   getModsDeclaration() {
     const mods = this.dataSource.mods;
-
+    // .replace(/\//g, '.').replace(/^\./, '') 转换 / 为.
+    // exp: /api/v1/users  => api.v1.users
+    // exp: api/v1/users => api.v1.users
     const content = `namespace ${this.dataSource.name || 'API'} {
         ${mods
           .map(
@@ -240,7 +253,7 @@ export class CodeGenerator {
           /**
            * ${mod.description}
            */
-          export namespace ${mod.name} {
+          export namespace ${mod.name.replace(/\//g, '.').replace(/^\./, '')} {
             ${mod.interfaces.map(this.getInterfaceInDeclaration.bind(this)).join('\n')}
           }
         `
@@ -367,28 +380,71 @@ export class CodeGenerator {
       }
     `;
   }
+  /**
+   *  获得模块初始化语句
+   *  例:
+   *  输入
+   *      apiValue:  API
+   *      name /v1/test/users
+   *  输出
+   *      API.v1 = API.v1 || {};
+   *      API.v1.test = API.v1.test || {};
+   *      API.v1.test.users = API.v1.test.users || {};
+   *      API.v1.test.users = v1_test_users;
+   */
+  getModInitStatement(apiValue: string, name: string) {
+    // .replace(/\//g, '.').replace(/^\./, '') 转换 / 为.
+    // exp: /api/v1/users  => api.v1.users
+    // exp: api/v1/users => api.v1.users
+    const modNS = name.replace(/\//g, '.').replace(/^\./, '');
+    let ns = '';
+    return modNS
+      .split('.')
+      .map((val, idx, arr) => {
+        ns += '.' + val;
+        if (idx + 1 >= arr.length) {
+          // .replace(/\//g, '.').replace(/^\./, '').replace(/\./g, '_') 转换 / .为下划线
+          // exp: /api/v1/users  => api_v1_users
+          // exp: api.v1.users => api_v1_users
+          const modName = name
+            .replace(/\//g, '.')
+            .replace(/^\./, '')
+            .replace(/\./g, '_');
+          return `${apiValue}${ns} = ${modName};`;
+        } else {
+          return `${apiValue}${ns} = ${apiValue}${ns} || {};`;
+        }
+      })
+      .join('\n');
+  }
 
   /** 获取所有模块的 index 入口文件 */
   getModsIndex() {
     let conclusion = `
-      (window as any).API = {
-        ${this.dataSource.mods.map(mod => mod.name).join(', \n')}
-      };
+      const API: any = {};
+      ${this.dataSource.mods.map(mod => this.getModInitStatement('API', mod.name)).join('\n')}
+      (window as any).API = API;
     `;
 
     // dataSource name means multiple dataSource
     if (this.dataSource.name) {
       conclusion = `
-        export const ${this.dataSource.name} = {
-          ${this.dataSource.mods.map(mod => mod.name).join(', \n')}
-        };
+        export const ${this.dataSource.name}: any = {};
+        ${this.dataSource.mods.map(mod => this.getModInitStatement(this.dataSource.name, mod.name)).join('\n')}
       `;
     }
 
     return `
       ${this.dataSource.mods
         .map(mod => {
-          return `import * as ${mod.name} from './${mod.name}';`;
+          // .replace(/\//g, '.').replace(/^\./, '').replace(/\./g, '_') 转换 / .为下划线
+          // exp: /api/v1/users  => api_v1_users
+          // exp: api.v1.users => api_v1_users
+          const modName = mod.name
+            .replace(/\//g, '.')
+            .replace(/^\./, '')
+            .replace(/\./g, '_');
+          return `import * as ${modName} from './${modName}';`;
         })
         .join('\n')}
 
