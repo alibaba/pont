@@ -241,7 +241,7 @@ export class StandardDataType extends Contextable {
     }
 
     if (this.typeName === 'number') {
-      return '0';
+      return "0";
     }
 
     if (this.typeName === 'boolean') {
