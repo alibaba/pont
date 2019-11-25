@@ -240,6 +240,10 @@ export class StandardDataType extends Contextable {
       return "''";
     }
 
+    if (this.typeName === 'number') {
+      return '0';
+    }
+
     if (this.typeName === 'boolean') {
       return 'false';
     }
