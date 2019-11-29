@@ -21,6 +21,10 @@
     {
       "name": "credit-query-controller",
       "description": "Credit Query Controller"
+    },
+    {
+      "name": "/v1/users-controller",
+      "description": "User Controller V1"
     }
   ],
   "paths": {
@@ -164,6 +168,20 @@
             }
           }
         }
+      }
+    },
+    "v1/users/{uid}": {
+      "get": {
+        "summary": "获取用户信息",
+        "operationId": "findUser",
+        "parameters": [{ "type": "string", "name": "uid", "required": true, "in": "path" }],
+        "responses": {
+          "200": { "description": "用户信息获取成功!", "schema": { "$ref": "#/definitions/User" } },
+          "404": { "description": "获取用户信息失败, 没有找到该用户!" }
+        },
+        "tags": ["/v1/users-controller"],
+        "produces": ["application/json"],
+        "consumes": ["application/json"]
       }
     }
   },
@@ -344,6 +362,16 @@
         }
       },
       "title": "查询还款中(未结清)还款信息AO"
+    },
+    "User": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "用户名", "example": "张三" },
+        "sex": { "type": "number", "description": "性别 1:男 2:女 3:未知", "example": 2 },
+        "headUrl": { "type": "string", "description": "头像Url", "example": "http://img.comg/test.png" },
+        "signature": { "type": "string", "description": "用户个性签名", "example": "你也在网上冲浪啊!" }
+      },
+      "required": ["name", "sex", "headUrl", "signature"]
     }
   }
 }
