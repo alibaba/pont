@@ -787,10 +787,10 @@ performance-now@^2.1.0:
   resolved "https://registry.yarnpkg.com/performance-now/-/performance-now-2.1.0.tgz#6309f4e0e5fa913ec1c69307ae364b4b377c9e7b"
   integrity sha1-Ywn04OX6kT7BxpMHrjZLSzd8nns=
 
-pont-engine@^0.3.4:
-  version "0.3.4"
-  resolved "https://registry.yarnpkg.com/pont-engine/-/pont-engine-0.3.4.tgz#0592318c9edaeccc9c911108e2f7b388d90e118e"
-  integrity sha512-JIR5J3JzBsEiTpUhR3/J15TSpEIsdiCouo/0C72axkoXDuQ5x31P5JLHgXOjTQmPoCLuj/ONsrthTlHOwf9fhQ==
+pont-engine@^0.3.5:
+  version "0.3.5"
+  resolved "https://registry.yarnpkg.com/pont-engine/-/pont-engine-0.3.5.tgz#3be5246a2891376208d4263490567e6baa1d2768"
+  integrity sha512-EFdyNqXIfMhN5Gfnaohb2SkJ+tdIHobo/6QC6ggNQUJiadl7K+h+Oc6yWd+J3F9tZfR6iIeRJkAt/CAx1BU+kg==
   dependencies:
     chalk "^2.3.0"
     commander "^2.19.0"
