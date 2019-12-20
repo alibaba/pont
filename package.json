@@ -8,16 +8,12 @@
   ],
   "scripts": {
     "test": "jest pont",
+    "changelog": "node -r esm scripts/changelog.js",
     "build": "lerna run build",
     "clean": "lerna clean && rimraf ./node_modules",
     "lint": "prettier --write --parser typescript \"packages/**/*.ts\"",
     "release": "node scripts/release.js",
     "release:dry": "node scripts/release.js --dry"
-  },
-  "config": {
-    "commitizen": {
-      "path": "node_modules/cz-lerna-changelog"
-    }
   },
   "repository": {
     "type": "git",
@@ -47,9 +43,8 @@
     "@types/lodash": "^4.14.110",
     "@types/node": "^10.3.6",
     "@types/semver": "^6.2.0",
-    "cz-customizable": "^6.2.0",
-    "cz-lerna-changelog": "^2.0.2",
     "enquirer": "^2.3.2",
+    "esm": "^3.2.25",
     "http-server": "^0.11.1",
     "jest": "^24.9.0",
     "lerna": "^3.16.4",
