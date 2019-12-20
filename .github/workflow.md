@@ -75,7 +75,7 @@
 
 ```bash
 
-运行构建 -> 单元测试 -> prettier格式化代码 -> commit格式较验
+prettier格式化代码 -> commit格式较验
 
 ```
 

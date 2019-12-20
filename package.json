@@ -11,7 +11,7 @@
     "build": "lerna run build",
     "clean": "lerna clean && rimraf ./node_modules",
     "lint": "prettier --write --parser typescript \"packages/**/*.ts\"",
-    "release": "node scripts/release.js --skipBuild --skipTests",
+    "release": "node scripts/release.js",
     "release:dry": "node scripts/release.js --dry"
   },
   "config": {
@@ -30,7 +30,7 @@
   "gitHooks": {
     "commit-msg": "node ./scripts/verifyCommit.js",
     "post-merge": "yarn",
-    "pre-commit": "npm run build && npm run test && lint-staged"
+    "pre-commit": "lint-staged"
   },
   "lint-staged": {
     "packages/{src}/**/*.ts": [
