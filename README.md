@@ -113,17 +113,44 @@ Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数
 
 值类型：string
 
-描述：可选项。指定数据源预处理路径（使用相对路径指定）。一旦指定，Pont 将生成一份默认的数据预处理器。
+描述：可选项。指定数据源预处理路径（使用相对路径指定）。一旦指定，Pont 将生成一份默认的数据预处理器。Pont 将 Swagger.josn 数据转换为内部标准数据源之后会尝试调用由`transformPath`指定的转换程序,这样用户就有机会对数据进行一些处理。
 
 数据预处理器示例：
 
-```javascript
+```typescript
+// transfrom.ts 根据 Mod.name进行过滤
 import { StandardDataSource } from 'pont-engine';
 
-export default function(dataSource: StandardDataSource): StandardDataSource {
-  dataSource.mods = dataSource.mods.filter(mod => mod.name !== 'user');
+export default function transform(data: StandardDataSource) {
+  if (data.name === 'fooapi') {
+    const filterMods = ['modName1', 'modName2', 'modName3'];
+    let { mods, baseClasses } = filterModsAndBaseClass(filterMods, data);
+    data.mods = mods;
+    data.baseClasses = baseClasses;
+  }
+  return data;
+}
 
-  return dataSource;
+/**
+ * 过滤mod及所依赖的baseClass
+ * @param filterMods Mod.name数组
+ * @param data StandardDataSource
+ */
+function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) {
+  let mods = data.mods.filter(mod => {
+    return filterMods.includes(mod.name);
+  });
+  // 获取所有typeName
+  let typeNames = JSON.stringify(mods).match(/"typeName":".+?"/g);
+
+  typeNames = Array.from(new Set(typeNames)) // 去重
+    // 取typeName的值
+    .map(item => item.split(':')[1].replace(/\"/g, ''));
+
+  // 过滤baseClasses
+  let baseClasses = data.baseClasses.filter(cls => typeNames.includes(cls.name));
+
+  return { mods, baseClasses };
 }
 ```
 
@@ -223,10 +250,11 @@ export default async function(url: string): Promise<string> {
 
   答：pontFetch 是用户自己项目的请求公共方法。因为每个项目的接口有自己的业务逻辑，比如如何判断接口返回的结果是否正确，所以 pont 的默认模板并没有自己实现一套 fetch 方法。另外 Pont 生成的代码是可以用自定义模板配置的。可以在模板上更改 pontFetch 的引用路径和名字。
 
-- 2、nestjs 搭配的Swagger JSON生成出来的pont文件为什么没有mods?
+- 2、nestjs 搭配的 Swagger JSON 生成出来的 pont 文件为什么没有 mods?
 
   答：nestjs 中的 Swagger 必须在每个 Controller 上添加 ApiUseTags 装饰器，并且在每个控制器的方法上添加 ApiOperation 装饰器 才能正确输出带 Tags 以及 operationId 的 Swagger JSON。Tags 和 operationId 是 pont 必需的（@nestjs/swagger 自动生成的 default Tags 暂时不被兼容）。
   示例如下
+
   ```
   import { Controller } from '@nestjs/common';
   import { ApiUseTags, ApiOperation, ApiOkResponse } from '@nestjs/swagger';
@@ -242,8 +270,7 @@ export default async function(url: string): Promise<string> {
 
 - 3、API、defs 全局变量找不到
 
-     答：将 pont 生成的 api.d.ts 塞到 tsconfig.json 中的 includes 数组最前面。并在项目入口处 import pont 生成的入口文件。
-     
+  答：将 pont 生成的 api.d.ts 塞到 tsconfig.json 中的 includes 数组最前面。并在项目入口处 import pont 生成的入口文件。
 
 ## 其它接口平台接入
 
