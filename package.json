@@ -10,7 +10,6 @@
     "test": "jest pont",
     "build": "lerna run build",
     "clean": "lerna clean && rimraf ./node_modules",
-    "commit": "git-cz",
     "lint": "prettier --write --parser typescript \"packages/**/*.ts\"",
     "release": "node scripts/release.js --skipBuild --skipTests",
     "release:dry": "node scripts/release.js --dry"
