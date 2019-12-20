@@ -9,7 +9,6 @@
   },
   "scripts": {
     "pretest": "npm run build",
-    "test": "mocha --timeout 15000 -r ts-node/register test/**/test.ts",
     "dev": "tsc -w",
     "build": "rm -rf lib && tsc"
   },
@@ -21,8 +20,7 @@
     "node-fetch": "^1.7.3",
     "prettier": "^1.17.1",
     "translation.js": "^0.7.5",
-    "ts-node": "^3.3.0",
-    "typescript": "3.5.3"
+    "typescript": "^3.5.3"
   },
   "files": [
     "src",
@@ -30,34 +28,6 @@
     "*.md",
     "bin"
   ],
-  "devDependencies": {
-    "@commitlint/cli": "^7.5.2",
-    "@types/chai": "^4.1.7",
-    "@types/fs-extra": "^5.0.5",
-    "@types/http-server": "^0.10.0",
-    "@types/lodash": "^4.14.110",
-    "@types/mocha": "^5.2.6",
-    "@types/node": "^10.3.6",
-    "http-server": "^0.11.1",
-    "husky": "^1.1.3",
-    "lint-staged": "^9.4.2",
-    "mocha": "^6.0.1",
-    "pont-engine": "0.1.55",
-    "ts-node": "^3.3.0"
-  },
-  "husky": {
-    "hooks": {
-      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS",
-      "post-merge": "yarn",
-      "pre-commit": "npm run build && npm run test && lint-staged"
-    }
-  },
-  "lint-staged": {
-    "{src, test}/**/*.ts": [
-      "prettier --write",
-      "git add"
-    ]
-  },
   "keywords": [
     "pont",
     "swagger",

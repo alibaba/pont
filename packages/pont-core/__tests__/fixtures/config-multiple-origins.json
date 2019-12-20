@@ -1,6 +1,7 @@
 {
-  "outDir": "services",
+  "outDir": "../services",
   "templatePath": "./pontTemplate",
+  "transformPath": "./transform",
   "origins": [
     {
       "originUrl": "http://127.0.0.1:9099/api-docs.json",

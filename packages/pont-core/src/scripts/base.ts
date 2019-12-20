@@ -32,7 +32,7 @@ export class OriginBaseReader {
       const toRegStr = str => str.replace(/(\W)/g, '\\$1');
       result.forEach((enKey: string, index) => {
         const chineseKey = chineseKeyCollect[index];
-        this.report(chineseKey + ' ==> ' + enKey);
+        // this.report(chineseKey + ' ==> ' + enKey);
         if (enKey) {
           retString = retString.replace(eval(`/${toRegStr(chineseKey)}/g`), enKey);
         }
@@ -65,7 +65,6 @@ export class OriginBaseReader {
     let swaggerJsonStr: string = await this.fetchMethod(this.config.originUrl);
 
     // 翻译中文类名等
-    this.report('自动翻译中文基类中...');
     swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
     this.report('自动翻译中文基类完成！');
 

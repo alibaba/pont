@@ -35,7 +35,10 @@ function assert(expression: boolean, message: string) {
         try {
           const localDatas = JSON.parse(fileContent) as StandardDataSource[];
           if (localDatas.length > 1) {
-            assert(localDatas.every(data => !!data.name), '多数据源每个数据源应该有 "name"');
+            assert(
+              localDatas.every(data => !!data.name),
+              '多数据源每个数据源应该有 "name"'
+            );
           }
 
           localDatas.forEach(data => {

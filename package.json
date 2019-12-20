@@ -1,7 +1,25 @@
 {
   "name": "pont",
   "private": true,
+  "version": "0.3.5",
   "license": "MIT",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "test": "jest pont",
+    "build": "lerna run build",
+    "clean": "lerna clean && rimraf ./node_modules",
+    "commit": "git-cz",
+    "lint": "prettier --write --parser typescript \"packages/**/*.ts\"",
+    "release": "node scripts/release.js --skipBuild --skipTests",
+    "release:dry": "node scripts/release.js --dry"
+  },
+  "config": {
+    "commitizen": {
+      "path": "node_modules/cz-lerna-changelog"
+    }
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/alibaba/pont.git"
@@ -10,7 +28,37 @@
     "url": "https://github.com/alibaba/pont/issues"
   },
   "homepage": "https://github.com/alibaba/pont#readme",
+  "gitHooks": {
+    "commit-msg": "node ./scripts/verifyCommit.js",
+    "post-merge": "yarn",
+    "pre-commit": "npm run build && npm run test && lint-staged"
+  },
+  "lint-staged": {
+    "packages/{src}/**/*.ts": [
+      "prettier --write",
+      "git add"
+    ]
+  },
   "devDependencies": {
-    "lerna": "^3.16.4"
+    "@commitlint/cli": "^7.5.2",
+    "@types/chai": "^4.1.7",
+    "@types/fs-extra": "^5.0.5",
+    "@types/http-server": "^0.10.0",
+    "@types/jest": "latest",
+    "@types/lodash": "^4.14.110",
+    "@types/node": "^10.3.6",
+    "@types/semver": "^6.2.0",
+    "cz-customizable": "^6.2.0",
+    "cz-lerna-changelog": "^2.0.2",
+    "enquirer": "^2.3.2",
+    "http-server": "^0.11.1",
+    "jest": "^24.9.0",
+    "lerna": "^3.16.4",
+    "lint-staged": "^9.4.2",
+    "minimist": "^1.2.0",
+    "semver": "^7.1.1",
+    "ts-jest": "^24.0.2",
+    "typescript": "^3.7.3",
+    "yorkie": "^2.0.0"
   }
 }
