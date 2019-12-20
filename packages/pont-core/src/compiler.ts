@@ -76,7 +76,7 @@ export function parseAst2StandardDataType(
     typeName = 'Array';
   }
 
-  if (['long', 'double'].includes(name)) {
+  if (['long', 'double', 'integer', 'int'].includes(name)) {
     typeName = 'number';
   }
 
