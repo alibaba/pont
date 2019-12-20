@@ -3,14 +3,18 @@
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
   "properties": {
+    "transformPath": {
+      "description": "the custom transfrom programe, a ts file",
+      "type": "string",
+      "default": "./transfrom"
+    },
     "templatePath": {
       "description": "the code generator template, a ts file",
       "type": "string",
       "default": "./template"
     },
     "outDir": {
-      "description":
-        "the directory code generated to, a relative path to the config file",
+      "description": "the directory code generated to, a relative path to the config file",
       "type": "string",
       "default": "./services"
     },

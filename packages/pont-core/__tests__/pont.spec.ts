@@ -25,13 +25,14 @@ const server = httpServer.createServer({
 let apidts = '';
 
 describe('pont功能测试', () => {
-  before(function(done) {
+  beforeAll(function(done) {
     // 清除路径
     clearDir('services');
 
     server.listen({ port: 9099 }, async () => {
       console.log('http server start successfull');
-      await createManager('config-multiple-origins.json');
+      let m = await createManager('config-multiple-origins.json');
+      m.diffs;
       // 读取 api.d.ts 并转换为单行
       const codeBuffer = await fs.readFile(getPath('services/api1/api.d.ts'));
       apidts = oneline(codeBuffer.toString('utf8'));
@@ -39,16 +40,17 @@ describe('pont功能测试', () => {
       done();
     });
   });
-  after(function() {
+  afterAll(function() {
+    clearDir('services');
     server.close();
   });
 
-  it('api.d.ts should exists', () => {
+  test('api.d.ts should exists', () => {
     assert.ok(exists('services/api.d.ts'));
     assert.ok(exists('services/api1/api.d.ts'));
     assert.ok(exists('services/api2/api.d.ts'));
   });
-  it('api.d.ts should export class DataTransOutput<T0=any>', () => {
+  test('api.d.ts should export class DataTransOutput<T0=any>', () => {
     let rightCode = oneline(`
             export class DataTransOutput<T0=any> {
                     /** 返回数据 */
@@ -71,13 +73,13 @@ describe('pont功能测试', () => {
     assert.ok(apidts.includes(rightCode));
   });
 
-  it('api.d.ts should not export class DataTransOutput', () => {
+  test('api.d.ts should not export class DataTransOutput', () => {
     let wrongCode = oneline(`export class DataTransOutput {`);
 
     assert.ok(!apidts.includes(wrongCode));
   });
 
-  it('api.d.ts should translate chinese of baseClass to english', () => {
+  test('api.d.ts should translate chinese of baseClass to english', () => {
     let dict: { [key: string]: string } = Translator.dict;
     ['通用请求参数token', '输出参数vo', '查询参数', 'abc输出参数', ' 中英文 混合 带 空格 Vo '].forEach(cnKey => {
       const enKey = dict[cnKey];
@@ -86,31 +88,32 @@ describe('pont功能测试', () => {
     });
   });
 
-  it('api.d.ts should transform Map without template params to object', () => {
+  test('api.d.ts should transform Map without template params to object', () => {
     let rightCode = oneline(`
-      export namespace getAllMsgForMap {
-          export class Params {
-            /** accountTime */
-            accountTime: string;
-            /** type */
-            type: string;
-          }
+    export namespace getAllMsgForMap {
+      export class Params {
+        /** accountTime */
+        accountTime: string;
+        /** type */
+        type: string;
+      }
 
-          export type Response = defs.api1.Result<Array<ObjectMap>>;
-          export const init: Response;
-          export function request(
-            params: Params,
-          ): Promise<defs.api1.Result<Array<ObjectMap>>>;
-        }
+      export type Response = defs.api1.Result<Array<objectMap>>;
+      export const init: Response;
+      export function request(
+        params: Params,
+      ): Promise<defs.api1.Result<Array<objectMap>>>;
+    }
     `);
 
     assert.ok(apidts.includes(rightCode));
   });
 
-  it('config-single-usingMultipleOrigins should has multiple origin fileStructure', async () => {
+  test('config-single-usingMultipleOrigins should has multiple origin fileStructure', async () => {
     // 清除路径
     clearDir('services');
     await createManager('config-single-usingMultipleOrigins.json');
     assert.ok(exists('services/api1/api.d.ts'));
+    assert.ok(!exists('services/api2/api.d.ts'));
   });
 });

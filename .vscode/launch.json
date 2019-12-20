@@ -2,61 +2,48 @@
 {
   "version": "0.1.0",
   "configurations": [
-      {
-          "name": "debug:vscode-plugin",
-          "type": "extensionHost",
-          "request": "launch",
-          "runtimeExecutable": "${execPath}",
-          "args": [
-              "--extensionDevelopmentPath=${workspaceFolder}/packages/pont-vscode-plugin"
-          ],
-          "stopOnEntry": false,
-          "sourceMaps": true,
-          "outFiles": [
-              "${workspaceFolder}/packages/pont-vscode-plugin/out/**/*.js"
-          ]
-      },
-      {
-          "name": "test:vscode-plugin",
-          "type": "extensionHost",
-          "request": "launch",
-          "runtimeExecutable": "${execPath}",
-          "args": [
-              "--extensionDevelopmentPath=${workspaceFolder}/packages/pont-vscode-plugin",
-              "--extensionTestsPath=${workspaceFolder}/packages/pont-vscode-plugin/out/test"
-          ],
-          "stopOnEntry": false,
-          "sourceMaps": true
-      },
-      {
-        "type": "node",
-        "request": "launch",
-        "name": "test:pont-core",
-        "program": "${workspaceFolder}/packages/pont-core/node_modules/mocha/bin/_mocha",
-        "args": [
-          "-r",
-          "ts-node/register",
-          "--timeout",
-          "15000",
-          "--colors",
-          "${workspaceFolder}/packages/pont-core/test/test.ts"
-        ],
-        "console": "integratedTerminal",
-        "internalConsoleOptions": "neverOpen",
-        "protocol": "inspector"
-      },
-      {
-        "type": "node",
-        "request": "launch",
-        "name": "debug:pont-core",
-        "program": "${workspaceFolder}/packages/pont-core/lib/cmd.js",
-        "args": [
-          "generate"
-        ],
-        "cwd": "${workspaceFolder}/packages/pont-core/",
-        "console": "integratedTerminal",
-        "internalConsoleOptions": "neverOpen",
-        "protocol": "inspector"
-      }
+    {
+      "name": "debug:vscode-plugin",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/pont-vscode-plugin"],
+      "stopOnEntry": false,
+      "sourceMaps": true,
+      "outFiles": ["${workspaceFolder}/packages/pont-vscode-plugin/out/**/*.js"]
+    },
+    {
+      "name": "test:vscode-plugin",
+      "type": "extensionHost",
+      "request": "launch",
+      "runtimeExecutable": "${execPath}",
+      "args": [
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/pont-vscode-plugin",
+        "--extensionTestsPath=${workspaceFolder}/packages/pont-vscode-plugin/out/test"
+      ],
+      "stopOnEntry": false,
+      "sourceMaps": true
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "test:pont-core",
+      "program": "${workspaceFolder}/scripts/jest.js",
+      "args": ["pont-core", "--colors"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "protocol": "inspector"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "debug:pont-core",
+      "program": "${workspaceFolder}/packages/pont-core/lib/cmd.js",
+      "args": [""],
+      "cwd": "${workspaceFolder}/packages/pont-core/",
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "protocol": "inspector"
+    }
   ]
 }

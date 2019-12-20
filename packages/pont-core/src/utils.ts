@@ -275,7 +275,10 @@ export function getMaxSamePath(paths: string[], samePath = '') {
   });
 
   if (segs.every((seg, index) => index === 0 || seg.firstSeg === segs[index - 1].firstSeg)) {
-    return getMaxSamePath(segs.map(seg => seg.restSegs.join('/')), samePath + '/' + segs[0].firstSeg);
+    return getMaxSamePath(
+      segs.map(seg => seg.restSegs.join('/')),
+      samePath + '/' + segs[0].firstSeg
+    );
   }
 
   return samePath;

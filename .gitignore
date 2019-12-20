@@ -19,3 +19,5 @@ lib/
 yarn-error.log
 
 packages/pont-vscode-plugin/out
+
+.vscode-test/

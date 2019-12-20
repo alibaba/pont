@@ -20,7 +20,7 @@
     },
     "allowSyntheticDefaultImports": true,
     "lib": ["dom", "es6", "es2017", "dom.iterable", "scripthost"],
-    "types": ["node", "mocha", "fs-extra"]
+    "types": ["node", "jest", "fs-extra"]
   },
   "include": ["./src/**/*"],
   "exclude": ["node_modules", "build"]

@@ -27,13 +27,8 @@ export async function createManager(configPath: string) {
 
 export async function activate(context: vscode.ExtensionContext) {
   console.log('Congratulations, your extension "pont" is now active!');
-  const configPath = await lookForFiles(
-    vscode.workspace.rootPath,
-    'pont-config.json'
-  );
-  const fileWatcher = vscode.workspace.createFileSystemWatcher(
-    '**/pont-config.json'
-  );
+  const configPath = await lookForFiles(vscode.workspace.rootPath, 'pont-config.json');
+  const fileWatcher = vscode.workspace.createFileSystemWatcher('**/pont-config.json');
 
   if (configPath) {
     createManager(configPath);

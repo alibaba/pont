@@ -34,16 +34,10 @@ export function showProgress(title: string, manager: Manager, task: (report?: (i
 
 export async function syncNpm() {
   try {
-    const currVersion = require(path.join(
-      __dirname,
-      "../node_modules/pont-engine/package.json"
-    )).version;
-    const projectVersionPath = path.join(
-      vscode.workspace.rootPath,
-      "node_modules/pont-engine/package.json"
-    );
-    const yarnPath = path.join(vscode.workspace.rootPath, "yarn.lock");
-    
+    const currVersion = require(path.join(__dirname, '../node_modules/pont-engine/package.json')).version;
+    const projectVersionPath = path.join(vscode.workspace.rootPath, 'node_modules/pont-engine/package.json');
+    const yarnPath = path.join(vscode.workspace.rootPath, 'yarn.lock');
+
     const hasProjectVersion = fs.existsSync(projectVersionPath);
     const useYarn = fs.existsSync(yarnPath);
 

@@ -37,23 +37,16 @@
     ]
   },
   "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "yarn && tsc -p ./",
+    "build": "rimraf ./out && tsc",
     "watch": "tsc -watch -p ./",
-    "engine": "yarn add pont-engine && git add . && git commit -m 'chore: update engine' && npm version patch -m 'chore: upgrade pont-engine' && vsce publish --yarn && git push origin master",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test"
-  },
-  "devDependencies": {
-    "@types/lodash": "^4.14.110",
-    "@types/mocha": "^2.2.42",
-    "@types/node": "^7.0.43",
-    "typescript": "^3.6.4",
-    "vsce": "^1.50.0",
-    "vscode": "^1.1.18"
+    "test": "npm run build && node ../../node_modules/vscode/bin/test"
   },
   "dependencies": {
     "pont-engine": "^0.3.5"
+  },
+  "devDependencies": {
+    "vsce": "^1.50.0",
+    "vscode": "^1.1.18"
   },
   "icon": "logo.png",
   "repository": {

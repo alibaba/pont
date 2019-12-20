@@ -20,26 +20,14 @@ export class UI {
   geBar: vscode.StatusBarItem;
 
   constructor(control: Control) {
-    this.originBar = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Left
-    );
+    this.originBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
     this.originBar.command = control.commands.switchOrigin;
 
-    this.syncBar = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Left
-    );
-    this.allBar = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Left
-    );
-    this.modBar = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Left
-    );
-    this.boBar = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Left
-    );
-    this.geBar = vscode.window.createStatusBarItem(
-      vscode.StatusBarAlignment.Left
-    );
+    this.syncBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+    this.allBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+    this.modBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+    this.boBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+    this.geBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
 
     this.syncBar.command = control.commands.syncRemote;
     this.allBar.command = control.commands.updateAll;
@@ -67,8 +55,7 @@ export class UI {
     const diffs = this.control.manager.diffs;
 
     this.allBar.text = 'all';
-    this.allBar.color =
-      diffs.boDiffs.length || diffs.modDiffs.length ? 'yellow' : 'white';
+    this.allBar.color = diffs.boDiffs.length || diffs.modDiffs.length ? 'yellow' : 'white';
     this.allBar.tooltip = '更新本地所有';
     this.allBar.show();
 

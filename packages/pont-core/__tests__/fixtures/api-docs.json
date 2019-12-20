@@ -30,12 +30,18 @@
   "paths": {
     "/api/core/asset/credit/query/pastCreditCardBillGather": {
       "post": {
-        "tags": ["credit-query-controller"],
+        "tags": [
+          "credit-query-controller"
+        ],
         "summary": "往期账单汇总",
         "description": "往期账单汇总",
         "operationId": "pastCreditCardBillGatherUsingPOST",
-        "consumes": ["application/json;charset=UTF-8"],
-        "produces": ["application/json;charset=UTF-8"],
+        "consumes": [
+          "application/json;charset=UTF-8"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
         "parameters": [
           {
             "in": "body",
@@ -69,12 +75,18 @@
         }
       },
       "put": {
-        "tags": ["credit-query-controller"],
+        "tags": [
+          "credit-query-controller"
+        ],
         "summary": "往期账单汇总",
         "description": "往期账单汇总",
         "operationId": "exportUsingPut",
-        "consumes": ["application/json;charset=UTF-8"],
-        "produces": ["application/json;charset=UTF-8"],
+        "consumes": [
+          "application/json;charset=UTF-8"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
         "parameters": [
           {
             "in": "body",
@@ -108,13 +120,44 @@
         }
       }
     },
+    "/api/DataTransOutputWithint": {
+      "get": {
+        "tags": [
+          "credit-query-controller"
+        ],
+        "summary": "往期账单汇总",
+        "description": "往期账单汇总",
+        "operationId": "DataTransOutputWithint",
+        "consumes": [
+          "application/json;charset=UTF-8"
+        ],
+        "produces": [
+          "application/json;charset=UTF-8"
+        ],
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/DataTransOutput«int»"
+            }
+          }
+        }
+      }
+    },
     "/zzjy/all-msg/getAllMsgForMap": {
       "post": {
-        "tags": ["credit-query-controller"],
+        "tags": [
+          "credit-query-controller"
+        ],
         "summary": "站址经营-汇总首页",
         "operationId": "getAllMsgForMapUsingPOST",
-        "consumes": ["application/json"],
-        "produces": ["*/*"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
         "parameters": [
           {
             "name": "accountTime",
@@ -155,10 +198,16 @@
     },
     "/zzjy/all-msg/test-multi-dash": {
       "post": {
-        "tags": ["credit-query-controller"],
+        "tags": [
+          "credit-query-controller"
+        ],
         "summary": "多中划线测试",
-        "consumes": ["application/json"],
-        "produces": ["*/*"],
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "*/*"
+        ],
         "parameters": [],
         "responses": {
           "200": {
@@ -174,21 +223,44 @@
       "get": {
         "summary": "获取用户信息",
         "operationId": "findUser",
-        "parameters": [{ "type": "string", "name": "uid", "required": true, "in": "path" }],
+        "parameters": [
+          {
+            "type": "string",
+            "name": "uid",
+            "required": true,
+            "in": "path"
+          }
+        ],
         "responses": {
-          "200": { "description": "用户信息获取成功!", "schema": { "$ref": "#/definitions/User" } },
-          "404": { "description": "获取用户信息失败, 没有找到该用户!" }
+          "200": {
+            "description": "用户信息获取成功!",
+            "schema": {
+              "$ref": "#/definitions/User"
+            }
+          },
+          "404": {
+            "description": "获取用户信息失败, 没有找到该用户!"
+          }
         },
-        "tags": ["/v1/users-controller"],
-        "produces": ["application/json"],
-        "consumes": ["application/json"]
+        "tags": [
+          "/v1/users-controller"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "consumes": [
+          "application/json"
+        ]
       }
     }
   },
   "definitions": {
     "输出参数vo": {
       "type": "object",
-      "required": ["dueDay", "requestChannel"],
+      "required": [
+        "dueDay",
+        "requestChannel"
+      ],
       "properties": {
         "dueDay": {
           "type": "string",
@@ -202,7 +274,10 @@
     },
     "abc输出参数": {
       "type": "object",
-      "required": ["dueDay", "requestChannel"],
+      "required": [
+        "dueDay",
+        "requestChannel"
+      ],
       "properties": {
         "dueDay": {
           "type": "string",
@@ -216,7 +291,10 @@
     },
     " 中英文 混合 带 空格 Vo ": {
       "type": "object",
-      "required": ["dueDay", "requestChannel"],
+      "required": [
+        "dueDay",
+        "requestChannel"
+      ],
       "properties": {
         "dueDay": {
           "type": "string",
@@ -230,7 +308,10 @@
     },
     "查询参数": {
       "type": "object",
-      "required": ["dueDay", "requestChannel"],
+      "required": [
+        "dueDay",
+        "requestChannel"
+      ],
       "properties": {
         "dueDay": {
           "type": "string",
@@ -259,7 +340,11 @@
     },
     "DataTransOutput«输出参数vo»": {
       "type": "object",
-      "required": ["transCode", "transMessage", "transMessageDetail"],
+      "required": [
+        "transCode",
+        "transMessage",
+        "transMessageDetail"
+      ],
       "properties": {
         "data": {
           "description": "返回数据",
@@ -286,7 +371,11 @@
     },
     "DataTransOutput": {
       "type": "object",
-      "required": ["transCode", "transMessage", "transMessageDetail"],
+      "required": [
+        "transCode",
+        "transMessage",
+        "transMessageDetail"
+      ],
       "properties": {
         "data": {
           "type": "object",
@@ -326,9 +415,33 @@
         }
       }
     },
+    "Result«int»": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Map"
+          }
+        },
+        "returnCode": {
+          "type": "integer",
+          "format": "int32"
+        }
+      }
+    },
     "查询还款中(未结清)还款信息AO": {
       "type": "object",
-      "required": ["assetInfoStatus", "dueDate", "pageNum", "pageSize", "requestType"],
+      "required": [
+        "assetInfoStatus",
+        "dueDate",
+        "pageNum",
+        "pageSize",
+        "requestType"
+      ],
       "properties": {
         "assetInfoStatus": {
           "type": "string",
@@ -366,12 +479,33 @@
     "User": {
       "type": "object",
       "properties": {
-        "name": { "type": "string", "description": "用户名", "example": "张三" },
-        "sex": { "type": "number", "description": "性别 1:男 2:女 3:未知", "example": 2 },
-        "headUrl": { "type": "string", "description": "头像Url", "example": "http://img.comg/test.png" },
-        "signature": { "type": "string", "description": "用户个性签名", "example": "你也在网上冲浪啊!" }
+        "name": {
+          "type": "string",
+          "description": "用户名",
+          "example": "张三"
+        },
+        "sex": {
+          "type": "number",
+          "description": "性别 1:男 2:女 3:未知",
+          "example": 2
+        },
+        "headUrl": {
+          "type": "string",
+          "description": "头像Url",
+          "example": "http://img.comg/test.png"
+        },
+        "signature": {
+          "type": "string",
+          "description": "用户个性签名",
+          "example": "你也在网上冲浪啊!"
+        }
       },
-      "required": ["name", "sex", "headUrl", "signature"]
+      "required": [
+        "name",
+        "sex",
+        "headUrl",
+        "signature"
+      ]
     }
   }
 }
