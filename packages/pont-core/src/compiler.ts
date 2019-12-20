@@ -1,5 +1,5 @@
 import { StandardDataType } from './standard';
-import { PrimitiveTypeMap } from 'src/primitiveTypeMap';
+import { PrimitiveTypeMap } from './primitiveTypeMap';
 
 class Token {
   constructor(public type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma', public value = '') {}
