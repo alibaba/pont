@@ -1,4 +1,5 @@
 import { StandardDataType } from './standard';
+import { PrimitiveTypeMap } from 'src/primitiveTypeMap';
 
 class Token {
   constructor(public type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma', public value = '') {}
@@ -70,23 +71,8 @@ export function parseAst2StandardDataType(
   classTemplateArgs: StandardDataType[] = []
 ): StandardDataType {
   const { name, templateArgs } = ast;
-  let typeName = name;
-
-  if (['List', 'Collection'].includes(name)) {
-    typeName = 'Array';
-  }
-
-  if (['long', 'double', 'integer', 'int'].includes(name)) {
-    typeName = 'number';
-  }
-
-  if (['void', 'Void'].includes(name)) {
-    typeName = 'void';
-  }
-
-  if (['object', 'Object', 'Map'].includes(name)) {
-    typeName = 'ObjectMap';
-  }
+  // 怪异类型兼容
+  let typeName = PrimitiveTypeMap[name] || name;
 
   const isDefsType = defNames.includes(name);
   const typeArgs = templateArgs.map(arg => {
