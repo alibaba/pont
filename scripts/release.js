@@ -85,6 +85,10 @@ async function main() {
     // and packages built
     console.log('Dry run finished.');
   } else {
+    // update changelog
+    console.log('update changelog...');
+    await run('npm', ['run', 'changelog']);
+
     // commit all changes
     console.log('Committing changes...');
     await run('git', ['add', '-A']);

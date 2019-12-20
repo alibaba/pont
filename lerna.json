@@ -1,5 +1,6 @@
 {
   "lerna": "3.16.4",
+  "useWorkspaces": true,
   "packages": [
     "packages/*"
   ],
