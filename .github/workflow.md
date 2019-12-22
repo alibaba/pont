@@ -26,7 +26,11 @@
 
 ### `yarn lint`
 
-手动格式化代码
+prettier 手动格式化代码
+
+### `yarn changelog`
+
+根据上一次 tag 到当前日期之间的所有提交，自动生成 `CHANGELOG.MD` (feat,refactor,fix,chore)
 
 ### `yarn release`
 
@@ -51,6 +55,9 @@
       判断是否为dry模式（否：继续执行 是： 到此中止）
           |
           v
+      更新CHANGELOG.MD(yarn changelog)
+          |
+          v
       git本地提交
           |
           v
@@ -71,7 +78,7 @@
 
 ## 提交信息规范
 
-用户每次提交时都会触发如下动作
+每次执行`git commit`时都会触发如下动作
 
 ```bash
 
@@ -79,16 +86,59 @@ prettier格式化代码 -> commit格式较验
 
 ```
 
-### commit 格式较验规则
+### 目的
+
+- 为了清楚的表示每一次提交所做的更改
+- 发布时生成友好的 changelog 文档
+
+### 格式较验规则
 
 ```js
-/^(release: )?(revert: )?(feat|fix|docs|refactor|perf|test|workflow|build|ci|chore|wip|release)(\(.+\))?: .{1,50}/;
+/^(revert: )?(feat|fix|docs|refactor|perf|test|workflow|build|ci|chore|wip|release)(\(.+\))?: .{1,50}/;
 ```
 
-- 正确的提交格式如下
+### 规范：
+
+提交格式为：
 
 ```
-  fix(pont-core): int convert to number (close #128)
-
-  chore(doc): add transformPath example code
+action(scope): message(支持换行，但字数不超过50)
 ```
+
+- 有关`packages`目录下的任何修改，`必须指定scope`，`scope为子包名称`
+
+示例：
+
+```bash
+
+fix(pont-core): 修复了pont-core的什么问题 #issues(本次提交相关的issus)
+
+feat(pont-core): 对pont-core增加了什么特性 #issuse(本次提交相关的issus)
+
+test(pont-core): 对pont-core的测试做了什么更改
+
+fix(pont-vscode): 修复了pont-vscode的什么问题 #issues(本次提交相关的issus)
+
+feat(pont-vscode): 对pont-vscode增加了什么特性 #issuse(本次提交相关的issus)
+
+refactor(pont-vscode) 对pont-vscode做了哪些重构工作 #issuse(本次提交相关的issus)
+
+```
+
+- 未涉及到`packages`的修改，比如工作流、脚本、依赖包更新等，可不指定 scope
+
+示例：
+
+```bash
+
+docs: 对文档做了什么修改（增加，修改）
+
+chore: 杂项比如更新了依赖包版本
+
+chore: 修改了哪些脚本
+
+ci: 持续集成相关的改动
+
+```
+
+- 发布时必须以 `release: 版本号`提交， 注意： `yarn release` 会自动生成符合规范的提交信息
