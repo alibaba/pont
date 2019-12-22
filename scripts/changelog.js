@@ -14,7 +14,7 @@ const types = {
   test: { title: '👓 Tests' }
 };
 
-const knownAuthors = ['jasonHzq', 'gaoletian', 'linningmii', 'inJs', 'ShawDanon', 'DBvc', 'capdiem', 'outh95'];
+const knownAuthors = [];
 
 const isKnownAuthor = name => Boolean(knownAuthors.find(n => name.toLowerCase().includes(n)));
 
