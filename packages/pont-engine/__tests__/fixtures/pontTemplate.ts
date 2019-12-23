@@ -1,5 +1,5 @@
-import * as Pont from 'pont-engine';
-import { CodeGenerator, Interface } from 'pont-engine';
+import * as Pont from '../../';
+import { CodeGenerator, Interface } from '../../';
 
 export class FileStructures extends Pont.FileStructures {}
 

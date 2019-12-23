@@ -42,7 +42,7 @@
     "test": "npm run build && node ../../node_modules/vscode/bin/test"
   },
   "dependencies": {
-    "pont-engine": "^0.3.5"
+    "pont-engine": "0.3.5"
   },
   "devDependencies": {
     "vsce": "^1.50.0",

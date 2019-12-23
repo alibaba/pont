@@ -18,6 +18,6 @@ test/services/
 lib/
 yarn-error.log
 
-packages/pont-vscode-plugin/out
+packages/vscode-pont/out/
 
 .vscode-test/
