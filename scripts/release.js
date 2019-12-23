@@ -138,7 +138,7 @@ async function publish(pkgName, releaseTag) {
   const pkgRoot = getPkgRoot(pkgName);
   const pkg = readPkg(pkgRoot);
   if (!pkg.private) {
-    await run('yarn', ['publish', '--tag', releaseTag], {
+    await run('yarn', ['publish', '--non-interactive', '--tag', releaseTag], {
       cwd: pkgRoot
     });
   }
