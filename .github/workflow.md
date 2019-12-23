@@ -111,17 +111,17 @@ action(scope): message(支持换行，但字数不超过50)
 
 ```bash
 
-fix(pont-core): 修复了pont-core的什么问题 #issues(本次提交相关的issus)
+fix(pont-engine): 修复了pont-engine的什么问题 #issues(本次提交相关的issus)
 
-feat(pont-core): 对pont-core增加了什么特性 #issuse(本次提交相关的issus)
+feat(pont-engine): 对pont-engine增加了什么特性 #issuse(本次提交相关的issus)
 
-test(pont-core): 对pont-core的测试做了什么更改
+test(pont-engine): 对pont-engine的测试做了什么更改
 
-fix(pont-vscode): 修复了pont-vscode的什么问题 #issues(本次提交相关的issus)
+fix(vscode-pont): 修复了vscode-pont的什么问题 #issues(本次提交相关的issus)
 
-feat(pont-vscode): 对pont-vscode增加了什么特性 #issuse(本次提交相关的issus)
+feat(vscode-pont): 对vscode-pont增加了什么特性 #issuse(本次提交相关的issus)
 
-refactor(pont-vscode) 对pont-vscode做了哪些重构工作 #issuse(本次提交相关的issus)
+refactor(vscode-pont) 对vscode-pont做了哪些重构工作 #issuse(本次提交相关的issus)
 
 ```
 
