@@ -7,6 +7,7 @@
     "packages/*"
   ],
   "scripts": {
+    "pretest": "yarn build",
     "test": "jest pont",
     "changelog": "node -r esm scripts/changelog.js",
     "build": "lerna run build",
