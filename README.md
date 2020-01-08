@@ -119,7 +119,7 @@ Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数
 
 ```typescript
 // transfrom.ts 根据 Mod.name进行过滤
-import { StandardDataSource } from 'pont-engine';
+import { StandardDataSource, Mod, BaseClass } from 'pont-engine';
 
 export default function transform(data: StandardDataSource) {
   if (data.name === 'fooapi') {
@@ -137,20 +137,31 @@ export default function transform(data: StandardDataSource) {
  * @param data StandardDataSource
  */
 function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) {
-  let mods = data.mods.filter(mod => {
-    return filterMods.includes(mod.name);
-  });
+  // 过滤mod
+  let mods = data.mods.filter(mod => filterMods.includes(mod.name));
   // 获取所有typeName
-  let typeNames = JSON.stringify(mods).match(/"typeName":".+?"/g);
-
-  typeNames = Array.from(new Set(typeNames)) // 去重
-    // 取typeName的值
-    .map(item => item.split(':')[1].replace(/\"/g, ''));
+  let typeNames = getTypeNames(mods);
 
   // 过滤baseClasses
   let baseClasses = data.baseClasses.filter(cls => typeNames.includes(cls.name));
+  // 收集baseClasses 内部嵌套的 baseClasse
+  typeNames = getTypeNames(baseClasses);
+  baseClasses = [...baseClasses, ...data.baseClasses.filter(cls => typeNames.includes(cls.name))];
 
   return { mods, baseClasses };
+}
+
+/**
+ * 获取所有typeName
+ * @param modsOrBaseClasses
+ */
+function getTypeNames(modsOrBaseClasses: Mod[] | BaseClass[]) {
+  // 获取所有typeName
+  let typeNames = JSON.stringify(modsOrBaseClasses).match(/"typeName":".+?"/g);
+  typeNames = Array.from(new Set(typeNames)) // 去重
+    // 取typeName的值
+    .map(item => item.split(':')[1].replace(/\"/g, ''));
+  return typeNames;
 }
 ```
 
