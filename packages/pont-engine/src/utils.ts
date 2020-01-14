@@ -5,9 +5,10 @@ import * as prettier from 'prettier';
 import * as ts from 'typescript';
 import { ResolveConfigOptions } from 'prettier';
 import { error } from './debugLog';
-import { Mod } from './standard';
+import { Mod, StandardDataSource } from './standard';
 import { Manager } from './manage';
 import { OriginType } from './scripts';
+import { diff } from './diff';
 
 const defaultTemplateCode = `
 import * as Pont from 'pont-engine';
@@ -36,12 +37,49 @@ export default function (url: string): string {
 }
 `;
 
-export class Config {
+export class Mocks {
+  enable = true;
+  host = 8080;
+  basePath = '';
+  wrapper = `{
+      "code": 0,
+      "data": {response},
+      "message": ""
+    }`;
+}
+
+export class DataSourceConfig {
   originUrl? = '';
   originType = OriginType.SwaggerV2;
-  usingOperationId: boolean;
+  name?: string;
+  usingOperationId = true;
+  usingMultipleOrigins = false;
   taggedByName = true;
-  outDir = 'service';
+  templatePath = 'serviceTemplate';
+  outDir = 'src/service';
+  transformPath = '';
+  fetchMethodPath = '';
+  prettierConfig: ResolveConfigOptions = {};
+  /** 单位为秒，默认 20 分钟 */
+  pollingTime = 60 * 20;
+  mocks = new Mocks();
+
+  constructor(config: DataSourceConfig) {
+    Object.keys(config).forEach(key => {
+      if (key === 'mocks') {
+        this[key] = {
+          ...this[key],
+          ...config[key]
+        };
+      } else {
+        this[key] = config[key];
+      }
+    });
+  }
+}
+
+export class Config extends DataSourceConfig {
+  originType = OriginType.SwaggerV2;
   origins? = [] as Array<{
     originType: OriginType;
     originUrl: string;
@@ -50,11 +88,13 @@ export class Config {
     transformPath?: string;
     fetchMethodPath?: string;
   }>;
-  usingMultipleOrigins = false;
-  templatePath = 'serviceTemplate';
-  prettierConfig: ResolveConfigOptions;
-  transformPath?: string;
-  fetchMethodPath?: string;
+  transformPath: string;
+  fetchMethodPath: string;
+
+  constructor(config: Config) {
+    super(config);
+    this.origins = config.origins || [];
+  }
 
   static getTransformFromConfig(config: Config | DataSourceConfig) {
     if (config.transformPath) {
@@ -78,10 +118,6 @@ export class Config {
     }
 
     return id => id;
-  }
-
-  constructor(config: Config) {
-    Object.keys(config).forEach(key => (this[key] = config[key]));
   }
 
   validate() {
@@ -116,15 +152,13 @@ export class Config {
   }
 
   getDataSourcesConfig(configDir: string) {
+    const { origins, ...rest } = this;
     const commonConfig = {
-      usingOperationId: this.usingOperationId,
-      taggedByName: this.taggedByName,
+      ...rest,
       outDir: path.join(configDir, this.outDir),
-      usingMultipleOrigins: this.usingMultipleOrigins,
-      templatePath: path.join(configDir, this.templatePath),
+      templatePath: this.templatePath ? path.join(configDir, this.templatePath) : undefined,
       transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
-      fetchMethodPath: this.fetchMethodPath ? path.join(configDir, this.fetchMethodPath) : undefined,
-      prettierConfig: this.prettierConfig
+      fetchMethodPath: this.fetchMethodPath ? path.join(configDir, this.fetchMethodPath) : undefined
     };
 
     // FIXME: origins中配的路径没有转换成绝对路径，找不到该模块
@@ -137,33 +171,7 @@ export class Config {
       });
     }
 
-    return [
-      new DataSourceConfig({
-        ...commonConfig,
-        originUrl: this.originUrl,
-        originType: this.originType
-      })
-    ];
-  }
-}
-
-export class DataSourceConfig {
-  originUrl: string;
-  originType = OriginType.SwaggerV2;
-  name?: string;
-  usingOperationId = false;
-  usingMultipleOrigins = false;
-  taggedByName = true;
-  templatePath = 'serviceTemplate';
-  outDir = 'src/service';
-  transformPath = 'transformTemplate';
-  fetchMethodPath = 'fetchMethodTemplate';
-  prettierConfig: ResolveConfigOptions = {};
-
-  constructor(config: DataSourceConfig) {
-    Object.keys(config).forEach(key => {
-      this[key] = config[key];
-    });
+    return [new DataSourceConfig(commonConfig)];
   }
 }
 
@@ -436,9 +444,21 @@ export async function createManager(configFile = CONFIG_FILE) {
   const configPath = await lookForFiles(PROJECT_ROOT, configFile);
 
   const config = Config.createFromConfigPath(configPath);
-  const manager = new Manager(config, path.dirname(configPath));
+  const manager = new Manager(PROJECT_ROOT, config, path.dirname(configPath));
 
   await manager.ready();
 
   return manager;
+}
+
+export function diffDses(ds1: StandardDataSource, ds2: StandardDataSource) {
+  const mapModel = model => Object.assign({}, model, { details: [] }) as any;
+
+  const modDiffs = diff(ds1.mods.map(mapModel), ds2.mods.map(mapModel));
+  const boDiffs = diff(ds1.baseClasses.map(mapModel), ds2.baseClasses.map(mapModel));
+
+  return {
+    modDiffs,
+    boDiffs
+  };
 }

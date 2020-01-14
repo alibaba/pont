@@ -2,12 +2,13 @@
   "title": "JSON schema for rap2ts configuration files",
   "$schema": "http://json-schema.org/draft-04/schema#",
   "type": "object",
+  "definitions": {
+    "originUrl": {
+      "description": "the API documents data request URL",
+      "type": "string"
+    }
+  },
   "properties": {
-    "transformPath": {
-      "description": "the custom transfrom programe, a ts file",
-      "type": "string",
-      "default": "./transfrom"
-    },
     "templatePath": {
       "description": "the code generator template, a ts file",
       "type": "string",
@@ -19,12 +20,57 @@
       "default": "./services"
     },
     "originUrl": {
-      "description": "the API documents data request URL",
-      "type": "string"
+      "$ref": "#/definitions/originUrl"
     },
     "prettierConfig": {
       "type": "object",
       "properties": {}
+    },
+    "usingMultipleOrigins": {
+      "type": "boolean",
+      "description": "是否开启多数据源模式"
+    },
+    "mocks": {
+      "type": "object",
+      "description": "自动化mock服务，mocks 数据可以在 .mocks/mocks.ts 下自定义编辑。",
+      "properties": {
+        "enable": {
+          "type": "boolean",
+          "default": true,
+          "description": "是否开启"
+        },
+        "host": {
+          "type": "number",
+          "default": 8080,
+          "description": "mock服务端口号"
+        },
+        "wrapper": {
+          "type": "string",
+          "description": "是否把接口返回的数据包在固定格式下, {response} 表示返回数据结构",
+          "default": "{\"code\": 0, \"data\": {response}, \"message\": \"\"}"
+        },
+        "basePath": {
+          "type": "string",
+          "default": "",
+          "description": "接口基础路径"
+        }
+      }
+    },
+    "origins": {
+      "type": "array",
+      "description": "数据源列表",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "数据源名"
+          },
+          "originUrl": {
+            "$ref": "#/definitions/originUrl"
+          }
+        }
+      }
     }
   }
 }

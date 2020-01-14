@@ -3,7 +3,7 @@
   "version": "0.3.5",
   "description": "pont swagger typescript API",
   "main": "lib/index.js",
-  "typings": "src/index.ts",
+  "typings": "lib/index.d.ts",
   "bin": {
     "pont": "bin/init.js"
   },
@@ -23,6 +23,7 @@
     "typescript": "^3.5.3"
   },
   "files": [
+    "configSchema.json",
     "src",
     "lib",
     "*.md",

@@ -177,6 +177,8 @@ export class StandardDataType extends Contextable {
     const codes = classTemplateArgs.map(arg => arg.generateCode());
     const index = codes.indexOf(this.generateCode());
 
+    this.typeArgs.forEach(arg => arg.setTemplateIndex(classTemplateArgs));
+
     this.templateIndex = index;
   }
 

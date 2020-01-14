@@ -19,13 +19,17 @@
     "jsonValidation": [
       {
         "fileMatch": "pont-config.json",
-        "url": "./configSchema.json"
+        "url": "./node_modules/pont-engine/configSchema.json"
       }
     ],
     "commands": [
       {
         "command": "pont.findInterface",
         "title": "find pont interface"
+      },
+      {
+        "command": "pont.jumpToMocks",
+        "title": "jump to mock position"
       }
     ],
     "keybindings": [
@@ -34,7 +38,15 @@
         "key": "cmd+ctrl+p",
         "mac": "cmd+ctrl+p"
       }
-    ]
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "group": "navigation",
+          "command": "pont.jumpToMocks"
+        }
+      ]
+    }
   },
   "scripts": {
     "build": "rimraf ./out && tsc",
@@ -42,7 +54,10 @@
     "test": "npm run build && node ../../node_modules/vscode/bin/test"
   },
   "dependencies": {
-    "pont-engine": "0.3.5"
+    "pont-engine": "0.3.5",
+    "@types/fs-extra": "^5.1.0",
+    "fs-extra": "^7.0.1",
+    "mockjs": "^1.0.1-beta3"
   },
   "devDependencies": {
     "vsce": "^1.50.0",

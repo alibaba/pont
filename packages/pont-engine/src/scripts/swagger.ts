@@ -722,6 +722,7 @@ export function transformSwaggerV3Data2Standard(
         templateArgs,
         compileTemplateKeyword
       );
+      dataType.setTemplateIndex(templateArgs);
 
       return new Property({
         dataType,

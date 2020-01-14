@@ -4,8 +4,9 @@
 import * as vscode from 'vscode';
 import { Manager, Config, lookForFiles } from 'pont-engine';
 import * as path from 'path';
-import { Control } from './ui';
+import { Control } from './UI';
 import { syncNpm } from './utils';
+import { MocksServer } from './mocks';
 
 export async function createManager(configPath: string) {
   try {
@@ -17,7 +18,14 @@ export async function createManager(configPath: string) {
       vscode.window.showErrorMessage(errMsg);
       return;
     }
-    const manager = new Manager(config, path.dirname(configPath));
+    const manager = new Manager(vscode.workspace.rootPath, config, path.dirname(configPath));
+    manager.beginPolling();
+
+    await Control.getSingleInstance(manager).initInstance();
+
+    if (config.mocks && config.mocks.enable) {
+      MocksServer.getSingleInstance(manager).run();
+    }
 
     Control.getSingleInstance(manager);
   } catch (e) {

@@ -37,6 +37,19 @@
     {
       "type": "node",
       "request": "launch",
+      "name": "debug:test-pont-core",
+      "program": "${workspaceFolder}/node_modules/.bin/jest",
+      "args": ["--runInBand"],
+      "console": "integratedTerminal",
+      "internalConsoleOptions": "neverOpen",
+      "disableOptimisticBPs": true,
+      "windows": {
+        "program": "${workspaceFolder}/node_modules/jest/bin/jest"
+      }
+    },
+    {
+      "type": "node",
+      "request": "launch",
       "name": "debug:pont-core",
       "program": "${workspaceFolder}/packages/pont-core/lib/cmd.js",
       "args": [""],
