@@ -27,9 +27,9 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "test:pont-core",
+      "name": "test:pont-engine",
       "program": "${workspaceFolder}/scripts/jest.js",
-      "args": ["pont-core", "--colors"],
+      "args": ["pont-engine", "--colors"],
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "protocol": "inspector"
@@ -37,7 +37,7 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "debug:test-pont-core",
+      "name": "debug:test-pont-engine",
       "program": "${workspaceFolder}/node_modules/.bin/jest",
       "args": ["--runInBand"],
       "console": "integratedTerminal",
@@ -50,10 +50,10 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "debug:pont-core",
-      "program": "${workspaceFolder}/packages/pont-core/lib/cmd.js",
+      "name": "debug:pont-engine",
+      "program": "${workspaceFolder}/packages/pont-engine/lib/cmd.js",
       "args": [""],
-      "cwd": "${workspaceFolder}/packages/pont-core/",
+      "cwd": "${workspaceFolder}/packages/pont-engine/",
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen",
       "protocol": "inspector"
