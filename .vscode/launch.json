@@ -3,23 +3,23 @@
   "version": "0.1.0",
   "configurations": [
     {
-      "name": "debug:vscode-plugin",
+      "name": "debug:vscode-pont",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
-      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/pont-vscode-plugin"],
+      "args": ["--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-pont"],
       "stopOnEntry": false,
       "sourceMaps": true,
-      "outFiles": ["${workspaceFolder}/packages/pont-vscode-plugin/out/**/*.js"]
+      "outFiles": ["${workspaceFolder}/packages/vscode-pont/out/**/*.js"]
     },
     {
-      "name": "test:vscode-plugin",
+      "name": "test:vscode-pont",
       "type": "extensionHost",
       "request": "launch",
       "runtimeExecutable": "${execPath}",
       "args": [
-        "--extensionDevelopmentPath=${workspaceFolder}/packages/pont-vscode-plugin",
-        "--extensionTestsPath=${workspaceFolder}/packages/pont-vscode-plugin/out/test"
+        "--extensionDevelopmentPath=${workspaceFolder}/packages/vscode-pont",
+        "--extensionTestsPath=${workspaceFolder}/packages/vscode-pont/out/test"
       ],
       "stopOnEntry": false,
       "sourceMaps": true

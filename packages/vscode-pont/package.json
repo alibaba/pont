@@ -19,7 +19,7 @@
     "jsonValidation": [
       {
         "fileMatch": "pont-config.json",
-        "url": "./node_modules/pont-engine/configSchema.json"
+        "url": "./configSchema.json"
       }
     ],
     "commands": [
@@ -30,6 +30,10 @@
       {
         "command": "pont.jumpToMocks",
         "title": "jump to mock position"
+      },
+      {
+        "command": "pont.visitMocks",
+        "title": "visit mocks interface"
       }
     ],
     "keybindings": [
@@ -44,6 +48,10 @@
         {
           "group": "navigation",
           "command": "pont.jumpToMocks"
+        },
+        {
+          "group": "navigation",
+          "command": "pont.visitMocks"
         }
       ]
     }

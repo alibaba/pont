@@ -217,14 +217,15 @@ export class MocksServer {
 
         ds.mods.forEach(mod => {
           mod.interfaces.forEach(async inter => {
+            // 把 url int path 的参数，转换为匹配参数的正则表达式
             const reg = new RegExp(inter.path.replace(/\//g, '\\/').replace(/{.+?}/g, '[0-9a-zA-Z_-]+?'));
 
             if (req.url.match(reg) && req.method.toUpperCase() === inter.method.toUpperCase()) {
               const wrapperRes = JSON.stringify(Mock.mock(mocksData[mod.name][inter.name]));
               res.writeHead(200, {
-                'Content-Type': 'text/json'
+                'Content-Type': 'text/json;charset=UTF-8'
               });
-              res.end(wrapperRes, 'utf-8');
+              res.end(wrapperRes, 'utf8');
             }
           });
         });
@@ -239,7 +240,3 @@ export class MocksServer {
     await this.createServer();
   }
 }
-
-export default {
-  a: 3
-};

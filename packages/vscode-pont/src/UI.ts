@@ -153,7 +153,7 @@ export class Control {
     this.manager = manager;
 
     this.watchLocalFile();
-    createMenuCommand();
+    createMenuCommand(this.manager);
   }
 
   get isMultiple() {
