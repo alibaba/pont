@@ -34,6 +34,14 @@ Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数
 更新接口层后，可迅速定位接口调用代码，进行调用修改。
 ![屏幕快照 2019-05-28 00.13.34.png](https://img.alicdn.com/tfs/TB1PPE8blKw3KVjSZFOXXarDVXa-850-290.png)
 
+### 自动化 mocks 服务
+
+mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提供所有接口的 mocks 服务。此外 IDE 提供如下功能
+
+- 1、右键 pont 接口代码，可以跳转(jump to mock position)去编辑接口的返回值
+
+- 2、右键 pont 接口代码，可以访问(visit mocks interface) GET 类型的 mocks 接口。
+
 ## 快速开始
 
 - 1、在 vscode 中安装 vscode 插件 pont。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
@@ -181,9 +189,18 @@ export default async function(url: string): Promise<string> {
 }
 ```
 
-### mocks
+#### mocks
 
-自动化 mocks 功能开始内测，https://github.com/alibaba/pont/issues/48
+值类型：object
+
+子字段：
+
+- 字段名："enable" 类型：boolean 默认值： true 含义：是否生效
+- 字段名："basePath" 类型：string 默认值："" 含义：接口的 basePath
+
+- 字段名： "host" 类型：string 默认值：8080 含义：mocks 服务的端口号
+
+- 字段名 "wrapper" 类型：string 默认值："{\"code\": 0, \"data\": {response}, \"message\": \"\"}" 含义：接口返回结构，pont 可以计算返回数据类型(比如此处会替换到 {response})，此处可以指定接口返回结构。
 
 ## demo
 
