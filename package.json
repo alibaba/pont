@@ -11,6 +11,7 @@
     "test": "jest pont",
     "changelog": "node -r esm scripts/changelog.js",
     "build": "lerna run build",
+    "watch": "lerna run watch",
     "clean": "lerna clean && rimraf ./node_modules",
     "lint": "prettier --write --parser typescript \"packages/**/*.ts\"",
     "release": "node scripts/release.js",
