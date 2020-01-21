@@ -59,7 +59,7 @@ function formatRapV2PropertiesToTree(rapV2Properties: RapV2Property[]) {
 
 // TODO: 待更换，临时转换中文里的特殊字符，让中文可用
 function normalizeName(text) {
-  return text.replace(/(\/|\ |-|\||\.|【|】|（|）|\(|\)|\[|\]|，)/g, '_');
+  return text.replace(/(\/|\ |-|\||\.|【|】|（|）|\(|\)|\[|\]|，|&|——|—)/g, '_');
 }
 
 function createObjectDataTypeByPontProperties(properties: Property[]) {
@@ -82,7 +82,7 @@ function getRapV2PropertyDataType(rapV2Property: RapV2Property): StandardDataTyp
     if (rapV2Property.children) {
       const contentType = createObjectDataTypeByPontProperties(
         // 格式化成 PontProperty
-        rapV2Property.children.map(mapRapV2Property2PontProperty)
+        rapV2Property.children?.map(mapRapV2Property2PontProperty)
       );
       return new StandardDataType([contentType], 'Array');
     }
@@ -90,10 +90,12 @@ function getRapV2PropertyDataType(rapV2Property: RapV2Property): StandardDataTyp
 
   if (rapV2PropertyType === 'Object') {
     // 这种情况基本不可能出现
-    // if (!rapV2Property.children) {}
+    if (!rapV2Property.children) {
+      return createObjectDataTypeByPontProperties([]);
+    }
     return createObjectDataTypeByPontProperties(
       // 格式化成 PontProperty
-      rapV2Property.children.map(mapRapV2Property2PontProperty)
+      rapV2Property.children?.map(mapRapV2Property2PontProperty)
     );
   }
 
