@@ -133,12 +133,7 @@ export function removeCtx(data) {
       return rest;
     });
   } else if (typeof data === 'object') {
-    // 除去item上不存在context的情况
-    if (!Object.prototype.hasOwnProperty.apply(data, ['context'])) {
-      return data;
-    }
     const { context, ...rest } = data;
-
     Object.keys(rest).forEach(key => {
       rest[key] = removeCtx(rest[key]);
     });
