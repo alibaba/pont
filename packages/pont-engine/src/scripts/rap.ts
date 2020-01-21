@@ -64,7 +64,7 @@ function normalizeName(text) {
 
 function createObjectDataTypeByPontProperties(properties: Property[]) {
   const contentType = new StandardDataType();
-  contentType.typePropertie(s = properties;
+  contentType.typeProperties = properties;
   return contentType;
 }
 
