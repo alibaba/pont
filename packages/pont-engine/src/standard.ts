@@ -130,6 +130,8 @@ export class StandardDataType extends Contextable {
     });
   }
 
+  typeProperties: Property[] = [];
+
   constructor(
     public typeArgs = [] as StandardDataType[],
     /** 例如 number,A(defs.A),Array,Object, '1' | '2' | 'a' 等 */
@@ -154,7 +156,7 @@ export class StandardDataType extends Contextable {
       return dataType2StandardDataType(dataType as any, originName, defNames, dataType.compileTemplateKeyword);
     }
 
-    const { isDefsType, templateIndex, typeArgs = [], typeName } = dataType;
+    const { isDefsType, templateIndex, typeArgs = [], typeName, typeProperties } = dataType;
 
     if (typeArgs.length) {
       const instance: StandardDataType = new StandardDataType(
@@ -169,6 +171,7 @@ export class StandardDataType extends Contextable {
 
     const result = new StandardDataType([], typeName, isDefsType, templateIndex);
     result.setEnum(dataType.enum);
+    result.typeProperties = typeProperties.map(prop => new Property(prop));
 
     return result;
   }
@@ -212,6 +215,17 @@ export class StandardDataType extends Contextable {
 
     if (this.typeArgs.length) {
       return `${name}<${this.typeArgs.map(arg => arg.generateCode(originName)).join(', ')}>`;
+    }
+
+    if (this.typeProperties.length) {
+      const interfaceCode = `{${this.typeProperties.map(property => property.toPropertyCode()).join('')}
+      }`;
+
+      if (name) {
+        return `${name}<${interfaceCode}>`;
+      }
+
+      return interfaceCode;
     }
 
     return name || 'any';
