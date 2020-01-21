@@ -1,10 +1,9 @@
 import { StandardDataSource, Interface, Mod, Property, StandardDataType } from '../standard';
 import { OriginBaseReader } from './base';
-import * as _ from 'lodash';
 
 // 支持的格式
 const SupportedRapV2PropertyTypes = ['String', 'Number', 'Boolean', 'Object', 'Array'] as const;
-
+type SupportedRapV2PropertyTypes = typeof SupportedRapV2PropertyTypes[number];
 interface RapV2Property {
   id: number;
   scope: string;
@@ -28,18 +27,13 @@ interface RapV2Property {
 type RapV2DataSource = any;
 type RapV2Mod = any;
 type RapV2Interface = any;
-type SupportedRapV2PropertyTypes = typeof SupportedRapV2PropertyTypes[number];
 
 // 一维数组生成树
 function formatRapV2PropertiesToTree(rapV2Properties: RapV2Property[]) {
-  //  将没有父节点的元素分离
   let parents = rapV2Properties.filter(value => value.parentId === -1);
   let children = rapV2Properties.filter(value => value.parentId !== -1);
-  //  定义遍历的方法
   let translator = (parents, children) => {
-    //  遍历父节点的数组
     parents.forEach(parent => {
-      //  遍历子节点的数组
       children.forEach((current, index) => {
         //  找到父节点对应的子节点
         if (current.parentId === parent.id) {
@@ -50,121 +44,116 @@ function formatRapV2PropertiesToTree(rapV2Properties: RapV2Property[]) {
           //  让当前子节点作为唯一的父节点，去递归查找其对应的子节点
           translator([current], temp);
           //  把找到子节点放入父节点的children属性中
-          typeof parent.children !== 'undefined' ? parent.children.push(current) : (parent.children = [current]);
+          if (typeof parent.children !== 'undefined') {
+            parent.children.push(current);
+          } else {
+            parent.children = [current];
+          }
         }
       });
     });
   };
-  //  调用转换方法
   translator(parents, children);
   return parents;
 }
 
 // TODO: 待更换，临时转换中文里的特殊字符，让中文可用
 function normalizeName(text) {
-  return text.replace(/(\/|\ |-|\||\.|【|】)/g, '_');
+  return text.replace(/(\/|\ |-|\||\.|【|】|（|）|\(|\)|\[|\]|，)/g, '_');
 }
 
-function transformRapV2ParameterToStandard(rapV2Property: RapV2Property) {
+function createObjectDataTypeByPontProperties(properties: Property[]) {
+  const contentType = new StandardDataType();
+  contentType.typePropertie(s = properties;
+  return contentType;
+}
+
+function getRapV2PropertyDataType(rapV2Property: RapV2Property): StandardDataType {
   const rapV2PropertyType = rapV2Property.type;
 
-  // TODO: object/array的处理
-  // if (rapV2PropertyType === 'array') {
-  //   contentType = new StandardDataType([new StandardDataType()], 'Array', false, -1);
-  // }
+  if (rapV2PropertyType === 'Array') {
+    // Enum类型 Array<string|number>
+    if (!rapV2Property.children) {
+      // TODO: ？？？根据rapV2Property的初始值给定类型
+      // 缺省值为string
+      return new StandardDataType([new StandardDataType([], 'string')], 'Array');
+    }
+    // Collection类型 Array<T>
+    if (rapV2Property.children) {
+      const contentType = createObjectDataTypeByPontProperties(
+        // 格式化成 PontProperty
+        rapV2Property.children.map(mapRapV2Property2PontProperty)
+      );
+      return new StandardDataType([contentType], 'Array');
+    }
+  }
 
+  if (rapV2PropertyType === 'Object') {
+    // 这种情况基本不可能出现
+    // if (!rapV2Property.children) {}
+    return createObjectDataTypeByPontProperties(
+      // 格式化成 PontProperty
+      rapV2Property.children.map(mapRapV2Property2PontProperty)
+    );
+  }
+
+  return new StandardDataType([], rapV2PropertyType.toLowerCase(), false);
+}
+
+function mapRapV2Property2PontProperty(rapV2Property: RapV2Property) {
+  const dataType = getRapV2PropertyDataType(rapV2Property);
   return new Property({
     // Rap里无此属性定义，暂定缺省值
     in: 'query',
     description: rapV2Property.description,
     name: rapV2Property.name,
     required: false,
-    dataType: new StandardDataType([], rapV2PropertyType.toLowerCase(), false)
+    dataType
   });
 }
 
-function parseRapV2Properties(rapV2Properties: RapV2Property[]) {
-  let target: any = {};
-  const objectMap = _.keyBy(rapV2Properties, 'name');
-  _.forEach(objectMap, (prop, key) => {
-    const propType = prop.type;
-    switch (propType) {
-      case 'String':
-        target[key] = '';
-        break;
-      case 'Boolean':
-        target[key] = false;
-        break;
-      case 'Number':
-        target[key] = 0;
-        break;
-      case 'Array':
-        // Array<number|string> 类型
-        if (!prop.children) {
-          target[key] = [];
-        }
-        // Collection类型
-        if (prop.children) {
-          target[key] = [];
-          parseRapV2Properties(prop.children);
-          // target[key] = [];
-          // TODO: contentType
-          // return new StandardDataType([], 'Array');
-        }
-        break;
-      case 'Object':
-        const objectMap = _.keyBy(prop.children, 'name');
-        break;
-
-      default:
-        break;
-    }
-  });
-}
-
-function transformRapV2InterfacesToStandard(rapV2Interface: RapV2Interface) {
-  const requestProperties = rapV2Interface.properties.filter(prop => prop.scope === 'request');
-  const responseProperties = rapV2Interface.properties
-    .filter(prop => prop.scope === 'response')
-    .map(prop => ({
+function mapRapV2Interfaces2PontInterface(rapV2Interface: RapV2Interface) {
+  const rapV2TreeProps = formatRapV2PropertiesToTree(
+    rapV2Interface.properties.map(prop => ({
       ...prop,
       // 响应参数里，不支持的类型默认为string
       type: SupportedRapV2PropertyTypes.includes(prop.type) ? prop.type : 'String'
-    }));
+    }))
+  );
+
+  const responseDataType = createObjectDataTypeByPontProperties(
+    rapV2TreeProps.filter(prop => prop.scope === 'response').map(mapRapV2Property2PontProperty)
+  );
+  const requestDataType = rapV2TreeProps.filter(prop => prop.scope === 'request').map(mapRapV2Property2PontProperty);
 
   return new Interface({
     // RAP无此属性定义，缺省值设置为'application/json'
     consumes: ['application/json'],
     description: rapV2Interface.description,
     // TIPS: StandardDataType.generateCode用于生成Typescript
-    // TODO
-    response: new StandardDataType([], 'string'),
+    response: responseDataType,
     method: rapV2Interface.method,
     name: normalizeName(rapV2Interface.name),
     path: rapV2Interface.url,
-    parameters: requestProperties.map(transformRapV2ParameterToStandard)
+    parameters: requestDataType
   });
 }
 
-function transformRapV2ModToStandard(rapV2Mod: RapV2Mod) {
+function mapRapV2Mod2PontMod(rapV2Mod: RapV2Mod) {
   return new Mod({
     description: rapV2Mod.description,
-    interfaces: rapV2Mod.interfaces.map(transformRapV2InterfacesToStandard),
+    interfaces: rapV2Mod.interfaces.map(mapRapV2Interfaces2PontInterface),
     name: normalizeName(rapV2Mod.name)
   });
 }
 
-function transformRapV2DataToStandard(rapV2DataSource: RapV2DataSource) {
-  return new StandardDataSource({
-    // 暂无基础类
-    baseClasses: [],
-    mods: rapV2DataSource.data.modules.map(transformRapV2ModToStandard),
-    name: normalizeName(rapV2DataSource.data.name)
-  });
-}
-
 export class RapV2Reader extends OriginBaseReader {
-  transform2Standard(data) {
-    return transformRapV2DataToStandard(data);
+  transform2Standard(rapV2DataSource: RapV2DataSource) {
+    return new StandardDataSource({
+      // 暂无基础类
+      baseClasses: [],
+      mods: rapV2DataSource.data.modules.map(mapRapV2Mod2PontMod),
+      name: normalizeName(rapV2DataSource.data.name)
+    });
   }
 }
