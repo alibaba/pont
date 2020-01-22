@@ -121,6 +121,10 @@ function deepDifBo(preBo: BaseClass, nextBo: BaseClass): string[] {
 export function removeCtx(data) {
   if (Array.isArray(data)) {
     return data.map(item => {
+      // 除去item上不存在context的情况
+      if (!Object.prototype.hasOwnProperty.apply(item, ['context'])) {
+        return item;
+      }
       const { context, ...rest } = item;
       Object.keys(rest).forEach(key => {
         rest[key] = removeCtx(rest[key]);
@@ -130,7 +134,6 @@ export function removeCtx(data) {
     });
   } else if (typeof data === 'object') {
     const { context, ...rest } = data;
-
     Object.keys(rest).forEach(key => {
       rest[key] = removeCtx(rest[key]);
     });
