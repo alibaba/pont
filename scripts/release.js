@@ -96,7 +96,7 @@ async function main() {
 
     // publish packages
     const releaseTag = Array.isArray(semver.prerelease(targetVersion))
-      ? Array.isArray(semver.prerelease(targetVersion))[0]
+      ? semver.prerelease(targetVersion)[0]
       : 'latest';
 
     for (const pkg of packages) {
