@@ -6,7 +6,6 @@ import { wait, showProgress, createMenuCommand } from './utils';
 import * as events from 'events';
 import { syncNpm } from './utils';
 import { MocksServer } from './mocks';
-import * as fs from 'fs-extra';
 
 export class UI {
   private control: Control;

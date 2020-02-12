@@ -1,5 +1,5 @@
 import { StandardDataSource } from './standard';
-import { Config, getTemplate, DataSourceConfig, hasChinese, diffDses, format } from './utils';
+import { Config, getTemplate, DataSourceConfig, hasChinese, diffDses } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { diff, Model } from './diff';
@@ -372,7 +372,8 @@ export class Manager {
   }
 
   async regenerateFiles() {
-    await this.fileManager.regenerate(this.getGeneratedFiles());
+    const files = this.getGeneratedFiles();
+    await this.fileManager.regenerate(files);
   }
 
   setFilesManager() {
