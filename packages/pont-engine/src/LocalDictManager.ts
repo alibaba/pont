@@ -37,7 +37,7 @@ class LocalDictManager {
   }
 
   loadJsonFileIfExistsSync(filename: string) {
-    const fileContent = this.loadJsonFileIfExistsSync(filename);
+    const fileContent = this.loadFileIfExistsSync(filename);
 
     if (fileContent) {
       return JSON.parse(fileContent);
@@ -76,18 +76,18 @@ class LocalDictManager {
 
   async saveFile(filename: string, content: string) {
     const filePath = path.join(this.localDictDir, filename);
-    const dirname = path.dirname(filename);
+    const dirname = path.dirname(filePath);
 
     if (!fs.pathExistsSync(dirname)) {
       fs.mkdirpSync(dirname);
     }
 
-    return fs.writeFile(filePath, content);
+    return fs.writeFileSync(filePath, content);
   }
 
   saveFileSync(filename: string, content: string) {
     const filePath = path.join(this.localDictDir, filename);
-    const dirname = path.dirname(filename);
+    const dirname = path.dirname(filePath);
 
     if (!fs.pathExistsSync(dirname)) {
       fs.mkdirpSync(dirname);

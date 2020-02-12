@@ -1,9 +1,13 @@
+jest.setTimeout(300000);
+
 import * as assert from 'assert';
 import * as path from 'path';
 import httpServer = require('http-server');
 import * as fs from 'fs-extra';
 import { createManager } from '../src/utils';
 import { Translator } from '../src/translate';
+import { Manager } from '../src/manage';
+import { SwaggerDataSource } from '../src/scripts/swagger';
 
 const getPath = fname => path.join(__dirname, fname);
 const clearDir = dirName => {
@@ -25,24 +29,32 @@ const server = httpServer.createServer({
 let apidts = '';
 
 describe('pont功能测试', () => {
+  let manager: Manager;
   beforeAll(function(done) {
     // 清除路径
     clearDir('services');
 
     server.listen({ port: 9099 }, async () => {
       console.log('http server start successfull');
-      let m = await createManager('config-multiple-origins.json');
-      m.diffs;
+      manager = await createManager('config-multiple-origins.json');
+      manager.diffs;
       // 读取 api.d.ts 并转换为单行
       const codeBuffer = await fs.readFile(getPath('services/api1/api.d.ts'));
       apidts = oneline(codeBuffer.toString('utf8'));
 
-      done();
+      setTimeout(() => {
+        console.log('done');
+        done();
+      }, 8000);
     });
   });
   afterAll(function() {
     clearDir('services');
     server.close();
+    manager.stopPolling();
+  });
+  afterEach(() => {
+    delete (global as any).__mobxInstanceCount; // prevent warnings
   });
 
   test('api.d.ts should exists', () => {
@@ -112,8 +124,32 @@ describe('pont功能测试', () => {
   test('config-single-usingMultipleOrigins should has multiple origin fileStructure', async () => {
     // 清除路径
     clearDir('services');
-    await createManager('config-single-usingMultipleOrigins.json');
+    const manager = await createManager('config-single-usingMultipleOrigins.json');
     assert.ok(exists('services/api1/api.d.ts'));
     assert.ok(!exists('services/api2/api.d.ts'));
+    manager.stopPolling();
+  });
+
+  it('mods or base update should generate history file and report', async () => {
+    const jsonPath = getPath('fixtures/api-docs.json');
+    const originSource = fs.readFileSync(jsonPath).toString('utf8');
+
+    // 模拟后端接口变更
+    try {
+      const swaggerObj = JSON.parse(originSource) as SwaggerDataSource;
+
+      // 模拟改变参数是否必传
+      swaggerObj['paths']['/api/core/asset/credit/query/pastCreditCardBillGather']['post'][
+        'parameters'
+      ][0].required = false;
+
+      fs.writeFileSync(jsonPath, JSON.stringify(swaggerObj));
+
+      await manager.readRemoteDataSource();
+      const diffs = manager.getReportData().diffs;
+
+      assert.ok(diffs[diffs.length - 1].modDiffs.length === 1);
+      fs.writeFileSync(jsonPath, originSource);
+    } catch (e) {}
   });
 });

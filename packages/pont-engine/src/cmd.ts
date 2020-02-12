@@ -102,6 +102,7 @@ function assert(expression: boolean, message: string) {
       .description('更新基类')
       .action(boName => {
         manager.makeSameBase(boName);
+        manager.regenerateFiles();
       });
 
     program
@@ -109,6 +110,7 @@ function assert(expression: boolean, message: string) {
       .description('更新模块')
       .action(modName => {
         manager.makeSameMod(modName);
+        manager.regenerateFiles();
       });
 
     program

@@ -11,7 +11,7 @@ import * as _ from 'lodash';
 import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { format } from '../utils';
+import { format, reviseModName } from '../utils';
 import { info } from '../debugLog';
 
 export class FileStructures {
@@ -73,28 +73,25 @@ export class FileStructures {
         currMod[inter.name + '.ts'] = generator.getInterfaceContent.bind(generator, inter);
         currMod['index.ts'] = generator.getModIndex.bind(generator, mod);
       });
-      // .replace(/\//g, '.').replace(/^\./, '').replace(/\./g, '_') 转换 / .为下划线
-      // exp: /api/v1/users  => api_v1_users
-      // exp: api.v1.users => api_v1_users
-      const modName = mod.name
-        .replace(/\//g, '.')
-        .replace(/^\./, '')
-        .replace(/\./g, '_');
+      const modName = reviseModName(mod.name);
       mods[modName] = currMod;
 
       mods['index.ts'] = generator.getModsIndex.bind(generator);
     });
 
-    generator.getBaseClassesInDeclaration = this.getBaseClassesInDeclaration.bind(
-      this,
-      generator.getBaseClassesInDeclaration(),
-      usingMultipleOrigins
-    );
-    generator.getModsDeclaration = this.getModsDeclaration.bind(
-      this,
-      generator.getModsDeclaration(),
-      usingMultipleOrigins
-    );
+    if (!generator.hasContextBund) {
+      generator.getBaseClassesInDeclaration = this.getBaseClassesInDeclaration.bind(
+        this,
+        generator.getBaseClassesInDeclaration(),
+        usingMultipleOrigins
+      );
+      generator.getModsDeclaration = this.getModsDeclaration.bind(
+        this,
+        generator.getModsDeclaration(),
+        usingMultipleOrigins
+      );
+      generator.hasContextBund = true;
+    }
 
     const result = {
       'baseClass.ts': generator.getBaseClassesIndex.bind(generator),
@@ -161,6 +158,8 @@ export class FileStructures {
 
 export class CodeGenerator {
   dataSource: StandardDataSource;
+
+  hasContextBund = false;
 
   constructor() {}
 
@@ -243,9 +242,6 @@ export class CodeGenerator {
   /** 获取模块的类型定义代码，一个 namespace ，一般不需要覆盖 */
   getModsDeclaration() {
     const mods = this.dataSource.mods;
-    // .replace(/\//g, '.').replace(/^\./, '') 转换 / 为.
-    // exp: /api/v1/users  => api.v1.users
-    // exp: api/v1/users => api.v1.users
     const content = `namespace ${this.dataSource.name || 'API'} {
         ${mods
           .map(
@@ -253,7 +249,7 @@ export class CodeGenerator {
           /**
            * ${mod.description}
            */
-          export namespace ${mod.name.replace(/\//g, '.').replace(/^\./, '')} {
+          export namespace ${reviseModName(mod.name)} {
             ${mod.interfaces.map(this.getInterfaceInDeclaration.bind(this)).join('\n')}
           }
         `
@@ -380,70 +376,28 @@ export class CodeGenerator {
       }
     `;
   }
-  /**
-   *  获得模块初始化语句
-   *  例:
-   *  输入
-   *      apiValue:  API
-   *      name /v1/test/users
-   *  输出
-   *      API.v1 = API.v1 || {};
-   *      API.v1.test = API.v1.test || {};
-   *      API.v1.test.users = API.v1.test.users || {};
-   *      API.v1.test.users = v1_test_users;
-   */
-  getModInitStatement(apiValue: string, name: string) {
-    // .replace(/\//g, '.').replace(/^\./, '') 转换 / 为.
-    // exp: /api/v1/users  => api.v1.users
-    // exp: api/v1/users => api.v1.users
-    const modNS = name.replace(/\//g, '.').replace(/^\./, '');
-    let ns = '';
-    return modNS
-      .split('.')
-      .map((val, idx, arr) => {
-        ns += '.' + val;
-        if (idx + 1 >= arr.length) {
-          // .replace(/\//g, '.').replace(/^\./, '').replace(/\./g, '_') 转换 / .为下划线
-          // exp: /api/v1/users  => api_v1_users
-          // exp: api.v1.users => api_v1_users
-          const modName = name
-            .replace(/\//g, '.')
-            .replace(/^\./, '')
-            .replace(/\./g, '_');
-          return `${apiValue}${ns} = ${modName};`;
-        } else {
-          return `${apiValue}${ns} = ${apiValue}${ns} || {};`;
-        }
-      })
-      .join('\n');
-  }
 
   /** 获取所有模块的 index 入口文件 */
   getModsIndex() {
     let conclusion = `
-      const API: any = {};
-      ${this.dataSource.mods.map(mod => this.getModInitStatement('API', mod.name)).join('\n')}
-      (window as any).API = API;
+      (window as any).API = {
+        ${this.dataSource.mods.map(mod => reviseModName(mod.name)).join(', \n')}
+      };
     `;
 
     // dataSource name means multiple dataSource
     if (this.dataSource.name) {
       conclusion = `
-        export const ${this.dataSource.name}: any = {};
-        ${this.dataSource.mods.map(mod => this.getModInitStatement(this.dataSource.name, mod.name)).join('\n')}
+        export const ${this.dataSource.name} = {
+          ${this.dataSource.mods.map(mod => reviseModName(mod.name)).join(', \n')}
+        };
       `;
     }
 
     return `
       ${this.dataSource.mods
         .map(mod => {
-          // .replace(/\//g, '.').replace(/^\./, '').replace(/\./g, '_') 转换 / .为下划线
-          // exp: /api/v1/users  => api_v1_users
-          // exp: api.v1.users => api_v1_users
-          const modName = mod.name
-            .replace(/\//g, '.')
-            .replace(/^\./, '')
-            .replace(/\./g, '_');
+          const modName = reviseModName(mod.name);
           return `import * as ${modName} from './${modName}';`;
         })
         .join('\n')}
@@ -469,42 +423,43 @@ export class FilesManager {
   report = info;
   prettierConfig: {};
 
-  constructor(private fileStructures: FileStructures, private baseDir: string) {}
-
-  private setFormat(files: {}) {
-    _.forEach(files, (value: Function | {}, name: string) => {
-      if (name.endsWith('.json') || name.endsWith('.lock')) {
-        return;
-      }
-
-      if (typeof value === 'function') {
-        files[name] = (content: string) => format(value(content), this.prettierConfig);
-      }
-
-      this.setFormat(value);
-    });
-  }
+  constructor(public fileStructures: FileStructures, private baseDir: string) {}
 
   /** 初始化清空路径 */
   private initPath(path: string) {
-    if (fs.existsSync(path)) {
-      fs.removeSync(path);
+    if (!fs.existsSync(path)) {
+      fs.mkdirpSync(path);
     }
-
-    fs.mkdirpSync(path);
   }
 
-  async regenerate(report?: typeof info) {
-    if (report) {
-      this.report = report;
-    }
-
-    const files = this.fileStructures.getFileStructures();
-    this.setFormat(files);
+  async regenerate(files: {}, oldFiles?: {}) {
+    // if (report) {
+    //   this.report = report;
+    // }
 
     this.initPath(this.baseDir);
     this.created = true;
-    await this.generateFiles(files);
+
+    if (oldFiles && Object.keys(oldFiles || {}).length) {
+      const updateTask = this.diffFiles(files, oldFiles);
+      if (updateTask.deletes && updateTask.deletes.length) {
+        this.report(`删除${updateTask.deletes.length}个文件及文件夹`);
+        await Promise.all(
+          updateTask.deletes.map(filePath => {
+            fs.unlink(filePath);
+          })
+        );
+      }
+
+      if (updateTask.updateCnt) {
+        this.report(`更新${updateTask.updateCnt}个文件`);
+        console.time(`更新${updateTask.updateCnt}个文件`);
+        await this.updateFiles(updateTask.files);
+        console.timeEnd(`更新${updateTask.updateCnt}个文件`);
+      }
+    } else {
+      await this.generateFiles(files);
+    }
   }
 
   /** 区分lock文件是创建的还是人为更改的 */
@@ -526,16 +481,151 @@ export class FilesManager {
     }
   }
 
-  /** 根据 Codegenerator 配置生成目录和文件 */
-  async generateFiles(files: {}, dir = this.baseDir) {
-    const promises = _.map(files, async (value: Function | {}, name) => {
-      if (typeof value === 'function') {
-        await fs.writeFile(`${dir}/${name}`, value());
+  diffFiles(newFiles: {}, lastFiles: {}, dir = this.baseDir) {
+    const task = {
+      deletes: [] as string[],
+      files: {},
+      updateCnt: 0
+    };
+
+    // 待删除、待更新
+    _.map(lastFiles, (lastValue: string | {}, name) => {
+      const currPath = `${dir}/${name}`;
+      const newValue = newFiles[name];
+
+      // 待删除
+      if (!newValue) {
+        task.deletes.push(currPath);
         return;
       }
 
-      this.initPath(`${dir}/${name}`);
-      await this.generateFiles(value, `${dir}/${name}`);
+      // 文件转文件夹
+      if (typeof newValue === 'object' && typeof lastValue === 'string') {
+        task.deletes.push(currPath);
+        const fileTask = this.diffFiles(newValue, {}, currPath);
+
+        if (fileTask.updateCnt) {
+          task.files = { ...task.files, [currPath]: undefined, ...fileTask.files };
+          task.updateCnt += fileTask.updateCnt + 1;
+        }
+        return;
+      }
+
+      // 文件夹转文件
+      if (typeof newValue === 'string' && typeof lastValue === 'object') {
+        task.deletes.push(currPath);
+        return;
+      }
+
+      // 待更新
+      if (typeof lastValue === 'string') {
+        // 文件更新
+        if (newValue !== lastValue) {
+          task.files[currPath] = newValue;
+          task.updateCnt++;
+        }
+      } else {
+        // 文件夹更新
+        const fileTask = this.diffFiles(newValue, lastValue, currPath);
+        task.deletes.push(...fileTask.deletes);
+        if (fileTask.updateCnt) {
+          task.updateCnt += fileTask.updateCnt;
+          task.files = { ...task.files, ...fileTask.files };
+        }
+      }
+    });
+
+    // 待增加
+    _.map(newFiles, (newValue: string | {}, name) => {
+      const currPath = `${dir}/${name}`;
+      const lastValue = lastFiles[name];
+
+      if (!lastValue) {
+        if (typeof newValue === 'string') {
+          task.files[currPath] = newValue;
+          task.updateCnt += 1;
+        } else {
+          const fileTask = this.diffFiles(newValue, {}, currPath);
+
+          if (fileTask.updateCnt) {
+            task.updateCnt += fileTask.updateCnt + 1;
+            task.files = { ...task.files, [currPath]: undefined, ...fileTask.files };
+          }
+        }
+      }
+    });
+
+    return task;
+  }
+
+  public formatFile(code: string, name = '') {
+    if (name && name.endsWith('.json')) {
+      return code;
+    }
+
+    return format(code, this.prettierConfig);
+  }
+
+  async updateFiles(files: {}) {
+    await Promise.all(
+      _.map(files, async (value: string, filePath) => {
+        if (value === undefined) {
+          return fs.mkdir(filePath);
+        }
+        if (filePath.endsWith('.json')) {
+          return fs.writeFile(filePath, value);
+        }
+        return fs.writeFile(filePath, this.formatFile(value));
+      })
+    );
+  }
+
+  /** 根据 Codegenerator 配置生成目录和文件 */
+  async generateFiles(files: {}, dir = this.baseDir) {
+    const currFiles = await fs.readdir(dir);
+
+    const promises = _.map(files, async (value: string | {}, name) => {
+      const currPath = `${dir}/${name}`;
+
+      if (typeof value === 'string') {
+        if (currFiles.includes(name)) {
+          const state = await fs.lstat(currPath);
+
+          if (state.isDirectory()) {
+            await fs.unlink(currPath);
+            return fs.writeFile(currPath, this.formatFile(value, name));
+          } else {
+            const newValue = this.formatFile(value);
+            const currValue = await fs.readFile(currPath, 'utf8');
+
+            if (newValue !== currValue) {
+              return fs.writeFile(currPath, this.formatFile(value, name));
+            }
+
+            return;
+          }
+        } else {
+          return fs.writeFile(currPath, this.formatFile(value, name));
+        }
+      }
+
+      // 新路径为文件夹
+      if (currFiles.includes(name)) {
+        const state = await fs.lstat(currPath);
+
+        if (state.isDirectory()) {
+          return this.generateFiles(files[name], currPath);
+        } else {
+          await fs.unlink(currPath);
+          await fs.mkdir(currPath);
+
+          return this.generateFiles(files[name], currPath);
+        }
+      } else {
+        await fs.mkdir(currPath);
+
+        return this.generateFiles(files[name], currPath);
+      }
     });
 
     await Promise.all(promises);
