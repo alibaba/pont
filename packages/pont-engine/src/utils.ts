@@ -462,3 +462,13 @@ export function diffDses(ds1: StandardDataSource, ds2: StandardDataSource) {
     boDiffs
   };
 }
+
+export function reviseModName(modName: string) {
+  // .replace(/\//g, '.').replace(/^\./, '').replace(/\./g, '_') 转换 / .为下划线
+  // exp: /api/v1/users  => api_v1_users
+  // exp: api.v1.users => api_v1_users
+  return modName
+    .replace(/\//g, '.')
+    .replace(/^\./, '')
+    .replace(/\./g, '_');
+}

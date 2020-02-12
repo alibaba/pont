@@ -186,7 +186,7 @@ export class MocksServer {
 
   getMocksCode() {
     const wrapper = this.manager.currConfig.mocks.wrapper;
-    const wrapperRes = data => wrapper.replace(/\{response\}/, data);
+    const wrapperRes = data => data;
 
     const code = new Mocks(this.manager.currLocalDataSource).getMocksCode(wrapperRes);
     return format(code, this.manager.currConfig.prettierConfig);

@@ -258,6 +258,7 @@ export class Control {
         description: `${item.details[0]}等 ${item.details.length} 条更新`
       } as vscode.QuickPickItem;
     });
+    const oldFiles = this.manager.getGeneratedFiles();
 
     vscode.window.showQuickPick(items).then(
       thenItems => {
@@ -282,6 +283,7 @@ export class Control {
 
                 this.manager.calDiffs();
                 this.ui.reRender();
+                await this.manager.update(oldFiles);
 
                 p.report({ message: '更新成功！' });
                 vscode.window.showInformationMessage(modName + '更新成功!');
@@ -299,6 +301,7 @@ export class Control {
 
   updateBo() {
     const boDiffs = this.manager.diffs.boDiffs;
+    const oldFiles = this.manager.getGeneratedFiles();
 
     const items = boDiffs.map(item => {
       return {
@@ -330,6 +333,7 @@ export class Control {
 
                 this.manager.calDiffs();
                 this.ui.reRender();
+                await this.manager.update(oldFiles);
 
                 p.report({ message: '更新成功！' });
                 vscode.window.showInformationMessage(boName + '更新成功!');

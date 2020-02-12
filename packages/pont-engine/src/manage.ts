@@ -1,5 +1,5 @@
 import { StandardDataSource } from './standard';
-import { Config, getTemplate, DataSourceConfig, hasChinese, diffDses } from './utils';
+import { Config, getTemplate, DataSourceConfig, hasChinese, diffDses, format } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { diff, Model } from './diff';
@@ -338,9 +338,41 @@ export class Manager {
     await this.fileManager.saveLock();
   }
 
-  async regenerateFiles() {
+  dispatch(files: {}) {
+    return _.mapValues(files, (value: Function | {}) => {
+      if (typeof value === 'function') {
+        return value();
+      }
+
+      if (typeof value === 'object') {
+        return this.dispatch(value);
+      }
+
+      return value;
+    });
+  }
+
+  getGeneratedFiles() {
     this.setFilesManager();
-    await this.fileManager.regenerate();
+
+    const files = this.fileManager.fileStructures.getFileStructures();
+
+    return this.dispatch(files);
+  }
+
+  async update(oldFiles: {}) {
+    const files = this.getGeneratedFiles();
+
+    try {
+      await this.fileManager.regenerate(files, oldFiles);
+    } catch (e) {
+      console.log(e.stack);
+      throw new Error(e);
+    }
+  }
+
+  async regenerateFiles() {
+    await this.fileManager.regenerate(this.getGeneratedFiles());
   }
 
   setFilesManager() {
