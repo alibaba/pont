@@ -1,14 +1,7 @@
 ### 🐛 Bug Fixes
 
 - `general`
-  - Fix mocks default config
-
-
-### 🚀 Features
-
-- `general`
-  - Update reademe
-  - Add publish vscode code
+  - Fix port field name; fix mocks default config
 
 
 ### 💖 Thanks to
