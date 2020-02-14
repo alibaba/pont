@@ -171,7 +171,7 @@ export class StandardDataType extends Contextable {
 
     const result = new StandardDataType([], typeName, isDefsType, templateIndex);
     result.setEnum(dataType.enum);
-    result.typeProperties = typeProperties.map(prop => new Property(prop));
+    result.typeProperties = (typeProperties || []).map(prop => new Property(prop));
 
     return result;
   }
