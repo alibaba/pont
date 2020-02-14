@@ -9,6 +9,7 @@ import { Mod, StandardDataSource } from './standard';
 import { Manager } from './manage';
 import { OriginType } from './scripts';
 import { diff } from './diff';
+import { getTemplateByTemplateType } from './templates';
 
 const defaultTemplateCode = `
 import * as Pont from 'pont-engine';
@@ -56,6 +57,7 @@ export class DataSourceConfig {
   usingMultipleOrigins = false;
   taggedByName = true;
   templatePath = 'serviceTemplate';
+  templateType = '';
   outDir = 'src/service';
   transformPath = '';
   fetchMethodPath = '';
@@ -98,7 +100,7 @@ export class Config extends DataSourceConfig {
 
   static getTransformFromConfig(config: Config | DataSourceConfig) {
     if (config.transformPath) {
-      const moduleResult = getTemplate(config.transformPath, defaultTransformCode) as any;
+      const moduleResult = getTemplate(config.transformPath, config.templatePath, defaultTransformCode) as any;
 
       if (moduleResult) {
         return moduleResult.default;
@@ -110,7 +112,7 @@ export class Config extends DataSourceConfig {
 
   static getFetchMethodFromConfig(config: Config | DataSourceConfig) {
     if (config.fetchMethodPath) {
-      const moduleResult = getTemplate(config.fetchMethodPath, defaultFetchMethodCode);
+      const moduleResult = getTemplate(config.fetchMethodPath, config.templatePath, defaultFetchMethodCode);
 
       if (moduleResult) {
         return moduleResult.default;
@@ -333,9 +335,9 @@ export function getIdentifierFromOperatorId(operationId: string) {
   return REPLACE_WORDS[index];
 }
 
-export function getTemplate(templatePath, defaultValue = defaultTemplateCode) {
+export function getTemplate(templatePath, templateType, defaultValue = defaultTemplateCode) {
   if (!fs.existsSync(templatePath + '.ts')) {
-    fs.writeFileSync(templatePath + '.ts', defaultValue);
+    fs.writeFileSync(templatePath + '.ts', getTemplateByTemplateType(templateType) || defaultValue);
   }
   const tsResult = fs.readFileSync(templatePath + '.ts', 'utf8');
   const jsResult = ts.transpileModule(tsResult, {

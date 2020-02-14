@@ -378,7 +378,10 @@ export class Manager {
 
   setFilesManager() {
     this.report('文件生成器创建中...');
-    const { default: Generator, FileStructures: MyFileStructures } = getTemplate(this.currConfig.templatePath);
+    const { default: Generator, FileStructures: MyFileStructures } = getTemplate(
+      this.currConfig.templatePath,
+      this.currConfig.templateType
+    );
 
     const generators = this.allLocalDataSources.map(dataSource => {
       const generator: CodeGenerator = new Generator();
