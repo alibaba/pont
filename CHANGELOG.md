@@ -1,6 +1,7 @@
 ### 🐛 Bug Fixes
 
 - `general`
+  - Fix standard code
   - Fix code
   - Vscode的launch.json更新
   - 文档链接错误修正
@@ -17,6 +18,7 @@
 ### 🚀 Features
 
 - `general`
+  - Merge remote
   - Code
   - Add lazy generate
   - Add CONTRIBUTING.md
@@ -36,6 +38,9 @@
 
 ### 🏡 Chore
 
+- `release`
+  - Update release script
+  - Update release script
 - `general`
   - Update docs
   - 添加 lerna run watch
@@ -60,3 +65,4 @@
 - sinchang
 - zongquan.hzq
 - 非壹
+- 高乐天
