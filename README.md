@@ -266,7 +266,7 @@ export default async function(url: string): Promise<string> {
 - 字段名："enable" 类型：boolean 默认值： true 含义：是否生效
 - 字段名："basePath" 类型：string 默认值："" 含义：接口的 basePath
 
-- 字段名： "host" 类型：string 默认值：8080 含义：mocks 服务的端口号
+- 字段名： "port" 类型：string 默认值：8080 含义：mocks 服务的端口号
 
 - 字段名 "wrapper" 类型：string 默认值："{\"code\": 0, \"data\": {response}, \"message\": \"\"}" 含义：接口返回结构，pont 可以计算返回数据类型(比如此处会替换到 {response})，此处可以指定接口返回结构。
 

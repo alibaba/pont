@@ -39,7 +39,7 @@
           "default": true,
           "description": "是否开启"
         },
-        "host": {
+        "port": {
           "type": "number",
           "default": 8080,
           "description": "mock服务端口号"

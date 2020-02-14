@@ -8,7 +8,19 @@ import { Control } from './UI';
 import { syncNpm } from './utils';
 import { MocksServer } from './mocks';
 
+const cleanUps = [];
+
+export function doCleanUp() {
+  if (cleanUps.length) {
+    const cleanUp = cleanUps.shift();
+
+    cleanUp();
+    doCleanUp();
+  }
+}
+
 export async function createManager(configPath: string) {
+  doCleanUp();
   try {
     await syncNpm();
     const config = Config.createFromConfigPath(configPath);
@@ -20,11 +32,13 @@ export async function createManager(configPath: string) {
     }
     const manager = new Manager(vscode.workspace.rootPath, config, path.dirname(configPath));
     manager.beginPolling();
+    cleanUps.push(() => manager.stopPolling());
 
     await Control.getSingleInstance(manager).initInstance();
 
     if (config.mocks && config.mocks.enable) {
-      MocksServer.getSingleInstance(manager).run();
+      const closeServer = await MocksServer.getSingleInstance(manager).run();
+      cleanUps.push(closeServer);
     }
 
     Control.getSingleInstance(manager);
@@ -44,4 +58,8 @@ export async function activate(context: vscode.ExtensionContext) {
 
   fileWatcher.onDidCreate(uri => createManager(uri.fsPath));
   fileWatcher.onDidChange(uri => createManager(uri.fsPath));
+}
+
+export async function deactivate() {
+  doCleanUp();
 }

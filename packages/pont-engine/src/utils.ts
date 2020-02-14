@@ -39,7 +39,7 @@ export default function (url: string): string {
 
 export class Mocks {
   enable = false;
-  host = 8080;
+  port = 8080;
   basePath = '';
   wrapper = `{
       "code": 0,
