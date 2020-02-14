@@ -95,7 +95,10 @@ async function main() {
     await run('git', ['commit', '-m', `release: v${targetVersion}`]);
 
     // publish packages
-    const releaseTag = semver.prerelease(targetVersion)[0] || 'latest';
+    const releaseTag = Array.isArray(semver.prerelease(targetVersion))
+      ? semver.prerelease(targetVersion)[0]
+      : 'latest';
+
     for (const pkg of packages) {
       await publish(pkg, releaseTag);
     }
