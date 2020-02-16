@@ -11,142 +11,136 @@ const isDryRun = args.dry;
 const skipTests = args.skipTests;
 const skipBuild = args.skipBuild;
 const packages = fs
-  .readdirSync(path.resolve(__dirname, '../packages'))
-  .filter(p => !p.endsWith('.ts') && !p.startsWith('.'));
+	.readdirSync(path.resolve(__dirname, '../packages'))
+	.filter((p) => !p.endsWith('.ts') && !p.startsWith('.'));
 
-const versionIncrements = ['patch', 'minor', 'major', 'prepatch', 'preminor', 'premajor', 'prerelease'];
+const versionIncrements = [ 'patch', 'minor', 'major', 'prepatch', 'preminor', 'premajor', 'prerelease' ];
 
-const inc = i => semver.inc(currentVersion, i, preId);
-const bin = name => path.resolve(__dirname, '../node_modules/.bin/' + name);
+const inc = (i) => semver.inc(currentVersion, i, preId);
+const bin = (name) => path.resolve(__dirname, '../node_modules/.bin/' + name);
 const run = (bin, args, opts = {}) => execa(bin, args, { stdio: 'inherit', ...opts });
-const getPkgRoot = pkg => path.resolve(__dirname, '../packages/' + pkg);
-
-// console.log(args);
-
-// process.exit(0);
+const getPkgRoot = (pkg) => path.resolve(__dirname, '../packages/' + pkg);
 
 async function main() {
-  let targetVersion = args._[0];
+	let targetVersion = args._[0];
 
-  if (!targetVersion) {
-    // no explicit version, offer suggestions
-    const { release } = await prompt({
-      type: 'select',
-      name: 'release',
-      message: 'Select release type',
-      choices: versionIncrements.map(i => `${i} (${inc(i)})`).concat(['custom'])
-    });
+	if (!targetVersion) {
+		// no explicit version, offer suggestions
+		const { release } = await prompt({
+			type: 'select',
+			name: 'release',
+			message: 'Select release type',
+			choices: versionIncrements.map((i) => `${i} (${inc(i)})`).concat([ 'custom' ])
+		});
 
-    if (release === 'custom') {
-      targetVersion = (
-        await prompt({
-          type: 'input',
-          name: 'version',
-          message: 'Input custom version',
-          initial: currentVersion
-        })
-      ).version;
-    } else {
-      targetVersion = release.match(/\((.*)\)/)[1];
-    }
-  }
+		if (release === 'custom') {
+			targetVersion = (await prompt({
+				type: 'input',
+				name: 'version',
+				message: 'Input custom version',
+				initial: currentVersion
+			})).version;
+		} else {
+			targetVersion = release.match(/\((.*)\)/)[1];
+		}
+	}
 
-  if (!semver.valid(targetVersion)) {
-    throw new Error(`invalid target version: ${targetVersion}`);
-  }
+	if (!semver.valid(targetVersion)) {
+		throw new Error(`invalid target version: ${targetVersion}`);
+	}
 
-  const { yes } = await prompt({
-    type: 'confirm',
-    name: 'yes',
-    message: `Releasing v${targetVersion}. Confirm?`
-  });
+	const { yes } = await prompt({
+		type: 'confirm',
+		name: 'yes',
+		message: `Releasing v${targetVersion}. Confirm?`
+	});
 
-  if (!yes) {
-    return;
-  }
+	if (!yes) {
+		return;
+	}
 
-  // run tests before release
-  if (!skipTests) {
-    await run(bin('jest'), ['--clearCache']);
-    await run('yarn', ['test']);
-  }
+	// run tests before release
+	if (!skipTests) {
+		await run(bin('jest'), [ '--clearCache' ]);
+		await run('yarn', [ 'test' ]);
+	}
 
-  // update all package versions and inter-dependencies
-  updateVersions(targetVersion);
+	// update all package versions and inter-dependencies
+	updateVersions(targetVersion);
 
-  // build all packages with types
-  if (!skipBuild) {
-    await run('yarn', ['build']);
-  }
+	// build all packages with types
+	if (!skipBuild) {
+		await run('yarn', [ 'build' ]);
+	}
 
-  // all good...
-  if (isDryRun) {
-    // stop here so we can inspect changes to be committed
-    // and packages built
-    console.log('Dry run finished.');
-  } else {
-    // update changelog
-    console.log('update changelog...');
-    await run('yarn', ['run', 'changelog']);
+	// all good...
+	if (isDryRun) {
+		// stop here so we can inspect changes to be committed
+		// and packages built
+		console.log('Dry run finished.');
+	} else {
+		// update changelog
+		console.log('update changelog...');
+		await run('yarn', [ 'run', 'changelog', targetVersion ]);
 
-    // commit all changes
-    console.log('Committing changes...');
-    await run('git', ['add', '-A']);
-    await run('git', ['commit', '-m', `release: v${targetVersion}`]);
+		// commit all changes
+		console.log('Committing changes...');
+		await run('git', [ 'add', '-A' ]);
+		await run('git', [ 'commit', '-m', `release: v${targetVersion}` ]);
 
-    // publish packages
-    const releaseTag = Array.isArray(semver.prerelease(targetVersion))
-      ? semver.prerelease(targetVersion)[0]
-      : 'latest';
+		// publish packages
+		const releaseTag = Array.isArray(semver.prerelease(targetVersion))
+			? semver.prerelease(targetVersion)[0]
+			: 'latest';
 
-    for (const pkg of packages) {
-      await publish(pkg, releaseTag);
-    }
+		for (const pkg of packages) {
+			await publish(pkg, releaseTag);
+		}
 
-    // push to GitHub
-    await run('git', ['tag', `v${targetVersion}`]);
-    await run('git', ['push', 'origin', `refs/tags/v${targetVersion}`]);
-    await run('git', ['push']);
-  }
+		// push to GitHub
+		await run('git', [ 'tag', `v${targetVersion}` ]);
+		await run('git', [ 'push', 'origin', `refs/tags/v${targetVersion}` ]);
+		await run('git', [ 'push' ]);
+	}
 }
 
 function updateVersions(version) {
-  console.log('Updating versions...');
-  // 1. update root package.json
-  updatePackage(path.resolve(__dirname, '..'), version);
-  // 2. update all packages
-  packages.forEach(p => updatePackage(getPkgRoot(p), version));
+	console.log('Updating versions...');
+	// 1. update root package.json
+	updatePackage(path.resolve(__dirname, '..'), version);
+	// 2. update all packages
+	packages.forEach((p) => updatePackage(getPkgRoot(p), version));
 }
 
 function updatePackage(pkgRoot, version) {
-  const pkgPath = path.resolve(pkgRoot, 'package.json');
-  const pkg = readPkg(pkgRoot);
-  pkg.version = version;
-  if (pkg.dependencies) {
-    Object.keys(pkg.dependencies).forEach(dep => {
-      if (packages.includes(dep)) {
-        pkg.dependencies[dep] = version;
-      }
-    });
-  }
-  fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
+	const pkgPath = path.resolve(pkgRoot, 'package.json');
+	const pkg = readPkg(pkgRoot);
+	pkg.version = version;
+	if (pkg.dependencies) {
+		Object.keys(pkg.dependencies).forEach((dep) => {
+			if (packages.includes(dep)) {
+				pkg.dependencies[dep] = version;
+			}
+		});
+	}
+	fs.writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + '\n');
 }
 
 function readPkg(pkgRoot) {
-  const pkgPath = path.resolve(pkgRoot, 'package.json');
-  return JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
+	const pkgPath = path.resolve(pkgRoot, 'package.json');
+	return JSON.parse(fs.readFileSync(pkgPath, 'utf-8'));
 }
 
 async function publish(pkgName, releaseTag) {
-  const pkgRoot = getPkgRoot(pkgName);
-  const pkg = readPkg(pkgRoot);
-  if (!pkg.private) {
-    await run('yarn', ['publish', '--non-interactive', '--tag', releaseTag], {
-      cwd: pkgRoot
-    });
-  }
+	const pkgRoot = getPkgRoot(pkgName);
+	const pkg = readPkg(pkgRoot);
+	if (!pkg.private) {
+		await run('yarn', [ 'publish', '--non-interactive', '--tag', releaseTag ], {
+			cwd: pkgRoot
+		});
+	}
 }
 
-main().catch(err => {
-  console.error(err);
+main().catch((err) => {
+	console.error(err);
 });
