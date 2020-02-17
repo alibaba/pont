@@ -4,4 +4,4 @@
  * Not using node_modules/.bin/jest due to cross platform issues, see
  * https://github.com/microsoft/vscode-recipes/issues/107
  */
-require('jest').run(process.argv)
+require('jest').run(process.argv);
