@@ -56,6 +56,11 @@
         }
       }
     },
+    "templateType": {
+      "type": "string",
+      "description": "可选的内置模板",
+      "enum": ["react"]
+    },
     "origins": {
       "type": "array",
       "description": "数据源列表",
