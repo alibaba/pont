@@ -1,7 +1,7 @@
 {
   "name": "pont",
   "private": true,
-  "version": "0.3.7",
+  "version": "0.3.9",
   "license": "MIT",
   "workspaces": [
     "packages/*"
@@ -14,7 +14,8 @@
     "clean": "lerna clean && rimraf ./node_modules",
     "lint": "prettier --write --parser typescript \"packages/**/*.ts\"",
     "release": "node scripts/release.js",
-    "release:dry": "node scripts/release.js --dry"
+    "release:dry": "node scripts/release.js --dry",
+    "release:vscode": "sh scripts/releaseVscode.sh"
   },
   "repository": {
     "type": "git",

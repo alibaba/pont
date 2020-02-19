@@ -39,7 +39,7 @@
           "default": true,
           "description": "是否开启"
         },
-        "host": {
+        "port": {
           "type": "number",
           "default": 8080,
           "description": "mock服务端口号"
@@ -55,6 +55,11 @@
           "description": "接口基础路径"
         }
       }
+    },
+    "templateType": {
+      "type": "string",
+      "description": "可选的内置模板",
+      "enum": ["react"]
     },
     "origins": {
       "type": "array",

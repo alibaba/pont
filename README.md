@@ -50,6 +50,74 @@ mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提�
 
 - 3、在项目中任何位置添加 `pont-config.json` 文件，vscode-pont 检测到项目中有合法的 `pont-config.json`，插件马上启动。
 
+## vscode 使用方法
+
+一旦检测到项目中存在有效的 `pont-config.json` 配置文件，插件便会启动。你将在插件底部看到如下状态栏：
+
+![](https://img.alicdn.com/tfs/TB1kr7SGhjaK1RjSZFAXXbdLFXa-682-70.png)
+
+#### sync
+
+重新请求远程接口数据，重新计算本地接口数据和远程接口数据在接口模块和接口返回对象（基类）上的差异。
+
+#### all
+
+将本地所有接口模块、接口返回对象与远程已更新数据保持一致。
+
+#### mod
+
+选择并同步本地接口模块，与远程接口数据保持一致。
+
+点击插件的 mod(差异量) 后，插件将显示本地与远程数据有差异的模块，如下图：
+![](https://img.alicdn.com/tfs/TB1o_oxGmrqK1RjSZK9XXXyypXa-1746-386.png)
+
+选择你想更新的模块进行更新，并懒生成对应接口层代码。
+
+#### bo
+
+选择并同步本地基类，与远程接口数据保持一致。
+
+点击插件的 bo(差异量) 后，插件将显示本地与远程数据有差异的基类，如下图：
+![](https://img.alicdn.com/tfs/TB15SUIGXzqK1RjSZSgXXcpAVXa-1762-680.png)
+
+选择你想更新的基类进行更新，并懒生成对应接口层代码。
+
+#### generate
+
+以本地接口模块、基类生成接口层代码。
+
+## 命令行使用方法
+
+目前 pont 以 vscode 扩展 —— vscode-pont 来提供 pont 的元数据能力。其它 IDE 的插件也将逐渐提供，这里非常渴望社区的力量。
+
+为了避免一部分用户和技术团队不使用 vscode-pont，pont 可以以命令行命令的方式来提供服务。
+
+命令行提供的命令目前还比较基础，提供命令如下：
+
+#### pont check
+
+校验本地的 pont-lock.json 文件是否缺失、损坏。建议用户在项目中，在 pre-commit 里加上 pont check 命令，以防止在团队协作过程中，pont-lock.json 被误删、解决该文件冲突时被损坏等情况。
+
+#### pont ls
+
+查看所有数据源
+
+#### pont select [dsName]
+
+切换当前数据源
+
+#### pont diff
+
+查看远程数据和本地数据在模块、基类上的差异，以作针对性、选择性同步。
+
+#### pont updateBo [boName]
+
+选择性更新本地的基类
+
+#### pont updateMod [modName]
+
+选择性更新本地的模块
+
 ## `pont-config.json` 配置项
 
 对于 pont-config.json 的配置，在 vscode-pont 插件中已经做了自动提示、自动补全、配置项描述提醒等功能。具体配置项介绍如下：
@@ -198,7 +266,7 @@ export default async function(url: string): Promise<string> {
 - 字段名："enable" 类型：boolean 默认值： true 含义：是否生效
 - 字段名："basePath" 类型：string 默认值："" 含义：接口的 basePath
 
-- 字段名： "host" 类型：string 默认值：8080 含义：mocks 服务的端口号
+- 字段名： "port" 类型：string 默认值：8080 含义：mocks 服务的端口号
 
 - 字段名 "wrapper" 类型：string 默认值："{\"code\": 0, \"data\": {response}, \"message\": \"\"}" 含义：接口返回结构，pont 可以计算返回数据类型(比如此处会替换到 {response})，此处可以指定接口返回结构。
 
@@ -210,38 +278,6 @@ export default async function(url: string): Promise<string> {
 - [nuxt-ts-pont-demo](https://github.com/gaoletian/nuxt-ts-pont-demo)
 
 持续丰富中...
-
-## 命令行使用方法
-
-目前 pont 以 vscode 扩展 —— vscode-pont 来提供 pont 的元数据能力。其它 IDE 的插件也将逐渐提供，这里非常渴望社区的力量。
-
-为了避免一部分用户和技术团队不使用 vscode-pont，pont 可以以命令行命令的方式来提供服务。
-
-命令行提供的命令目前还比较基础，提供命令如下：
-
-#### pont check
-
-校验本地的 pont-lock.json 文件是否缺失、损坏。建议用户在项目中，在 pre-commit 里加上 pont check 命令，以防止在团队协作过程中，pont-lock.json 被误删、解决该文件冲突时被损坏等情况。
-
-#### pont ls
-
-查看所有数据源
-
-#### pont select [dsName]
-
-切换当前数据源
-
-#### pont diff
-
-查看远程数据和本地数据在模块、基类上的差异，以作针对性、选择性同步。
-
-#### pont updateBo [boName]
-
-选择性更新本地的基类
-
-#### pont updateMod [modName]
-
-选择性更新本地的模块
 
 ## 最佳实践建议
 

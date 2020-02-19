@@ -15,8 +15,10 @@ import { format, reviseModName } from '../utils';
 import { info } from '../debugLog';
 
 export class FileStructures {
+  // @朱亮，增加属性
   constructor(private generators: CodeGenerator[], private usingMultipleOrigins: boolean) {}
 
+  // @朱亮，后缀名
   getMultipleOriginsFileStructures() {
     const files = {};
     this.generators.forEach(generator => {
@@ -62,6 +64,7 @@ export class FileStructures {
     `;
   }
 
+  // @朱亮，后缀名
   getOriginFileStructures(generator: CodeGenerator, usingMultipleOrigins = false) {
     let mods = {};
     const dataSource = generator.dataSource;
@@ -115,6 +118,7 @@ export class FileStructures {
     }
   }
 
+  // @朱亮，改代码 js or ts。
   getDataSourcesTs() {
     const dsNames = this.generators.map(ge => ge.dataSource.name);
 
@@ -161,6 +165,7 @@ export class CodeGenerator {
 
   hasContextBund = false;
 
+  // @朱亮，增加对应属性
   constructor() {}
 
   setDataSource(dataSource: StandardDataSource) {
@@ -333,6 +338,7 @@ export class CodeGenerator {
     return clsCodes.map(cls => `export ${cls}`).join('\n');
   }
 
+  // @朱亮，判断 js or ts 改代码。
   /** 获取接口实现内容的代码 */
   getInterfaceContent(inter: Interface) {
     const bodyParams = inter.getBodyParamsCode();

@@ -357,7 +357,12 @@ export class Manager {
 
     const files = this.fileManager.fileStructures.getFileStructures();
 
-    return this.dispatch(files);
+    try {
+      return this.dispatch(files);
+    } catch (err) {
+      debugger;
+      return {};
+    }
   }
 
   async update(oldFiles: {}) {
@@ -384,6 +389,7 @@ export class Manager {
     );
 
     const generators = this.allLocalDataSources.map(dataSource => {
+      // @朱亮 传入 js or ts 属性
       const generator: CodeGenerator = new Generator();
       generator.setDataSource(dataSource);
 
@@ -399,6 +405,7 @@ export class Manager {
     }
 
     this.fileManager = new FilesManager(
+      // @朱亮，传入js or ts
       new FileStructuresClazz(generators, this.currConfig.usingMultipleOrigins),
       this.currConfig.outDir
     );

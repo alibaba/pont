@@ -302,6 +302,7 @@ export class Property extends Contextable {
     }
   }
 
+  // @朱亮 对应 js or ts 判断
   toPropertyCode(hasRequired = false, optional = false) {
     let optionalSignal = hasRequired && optional ? '?' : '';
 
@@ -359,6 +360,7 @@ export class Interface extends Contextable {
     return this.response.generateCode(this.getDsName());
   }
 
+  // @朱亮 对应 js or ts 判断
   getParamsCode(className = 'Params') {
     return `
       class ${className} {

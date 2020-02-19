@@ -159,6 +159,8 @@ export class MocksServer {
       return MocksServer.singleInstance;
     }
 
+    MocksServer.singleInstance.manager = manager;
+
     return MocksServer.singleInstance;
   }
 
@@ -209,9 +211,9 @@ export class MocksServer {
 
   createServer() {
     const ds = this.manager.currLocalDataSource;
-    const host = this.manager.currConfig.mocks.host;
+    const port = this.manager.currConfig.mocks.port;
 
-    http
+    return http
       .createServer(async (req, res) => {
         const mocksData = await this.getCurrMocksData();
 
@@ -232,11 +234,15 @@ export class MocksServer {
         res.writeHead(404);
         res.end();
       })
-      .listen(host);
+      .listen(port);
   }
 
   async run() {
     await this.checkMocksPath();
-    await this.createServer();
+    const server = this.createServer();
+
+    return () => {
+      server.close();
+    };
   }
 }
