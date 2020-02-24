@@ -38,7 +38,7 @@ Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数
 
 mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提供所有接口的 mocks 服务。此外 IDE 提供如下功能
 
-- 1、右键 pont 接口代码，可以跳转(jump to mock position)去编辑接口的返回值
+- 1、右键 pont 接口代码，可以跳转(jump to mock position)去编辑接口的mocks数据
 
 - 2、右键 pont 接口代码，可以访问(visit mocks interface) GET 类型的 mocks 接口。
 
