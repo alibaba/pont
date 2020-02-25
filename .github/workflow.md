@@ -28,9 +28,17 @@
 
 prettier 手动格式化代码
 
-### `yarn changelog`
+### `yarn changelog [targetVersion]`
 
-根据上一次 tag 到当前日期之间的所有提交，自动生成 `CHANGELOG.MD` (feat,refactor,fix,chore)
+显示自上一次 tag 的所有更改，如果指定了版本号则自动写入到 `CHANGELOG.MD`。
+
+```bash
+# 只显示自上一次 tag 的所有更改，不写入 `CHANGELOG.MD`
+yarn changelog
+
+# 显示自上一次 tag 的所有更改，并写入到 `CHANGELOG.MD`。
+yarn changelog 0.3.10
+```
 
 ### `yarn release`
 
@@ -55,7 +63,7 @@ prettier 手动格式化代码
       判断是否为dry模式（否：继续执行 是： 到此中止）
           |
           v
-      更新CHANGELOG.MD(yarn changelog)
+      更新CHANGELOG.MD(yarn changelog targetVersion)
           |
           v
       git本地提交
@@ -70,7 +78,7 @@ prettier 手动格式化代码
 
 参数选项
 
-#### `--dry` dry 模式
+#### `--dry` 空运行模式, 预览 release 流程，不提交 git,也不发布 npm。
 
 #### `--skipTest` 跳过测试
 

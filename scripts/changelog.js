@@ -2,7 +2,8 @@ import execa from 'execa';
 import groupBy from 'lodash/groupBy';
 import sortBy from 'lodash/sortBy';
 import uniq from 'lodash/uniq';
-import { writeFile } from 'fs-extra';
+import { writeFile, readFileSync } from 'fs-extra';
+const args = require('minimist')(process.argv.slice(2));
 
 const types = {
   fix: { title: '🐛 Bug Fixes' },
@@ -15,6 +16,7 @@ const types = {
 };
 
 const knownAuthors = [];
+const ignoreScopes = ['deps'];
 
 const isKnownAuthor = name => Boolean(knownAuthors.find(n => name.toLowerCase().includes(n)));
 
@@ -35,13 +37,29 @@ async function main() {
   commits = parseCommits(commits);
 
   // Filter commits
-  commits = commits.filter(c => allowedTypes.includes(c.type) && c.scope !== 'deps');
+  commits = commits.filter(c => allowedTypes.includes(c.type));
 
   // Generate markdown
   const markdown = generateMarkDown(commits);
 
+  // Show in console
   process.stdout.write('\n\n' + markdown + '\n\n');
-  await writeFile('CHANGELOG.md', markdown, 'utf-8');
+
+  // Write to CHANGELOG.md
+  const targetVersion = args._[0];
+
+  if (targetVersion) {
+    const title = `v${targetVersion} / ${getDate()}` + '\n===================';
+    let oldMarkdown = readFileSync('CHANGELOG.md', { encoding: 'utf8' });
+    await writeFile('CHANGELOG.md', title + '\n\n' + markdown + '\n\n' + oldMarkdown, 'utf-8');
+  }
+}
+
+function getDate(split = '-') {
+  const t = new Date();
+  const twoDig = num => ('0' + num).slice(-2);
+  const r = [t.getFullYear(), twoDig(t.getMonth() + 1), twoDig(t.getDate())];
+  return r.join(split);
 }
 
 function execCommand(cmd, args) {
@@ -93,12 +111,7 @@ function parseCommits(commits) {
 
       // Extract scope from type
       let scope = type.match(/\((.*)\)/);
-      if (scope) {
-        scope = scope[1];
-      }
-      if (!scope) {
-        scope = 'general';
-      }
+      scope = !scope ? 'general' : scope[1];
       type = type.split('(')[0];
 
       return {

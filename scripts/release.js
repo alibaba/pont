@@ -21,10 +21,6 @@ const bin = name => path.resolve(__dirname, '../node_modules/.bin/' + name);
 const run = (bin, args, opts = {}) => execa(bin, args, { stdio: 'inherit', ...opts });
 const getPkgRoot = pkg => path.resolve(__dirname, '../packages/' + pkg);
 
-// console.log(args);
-
-// process.exit(0);
-
 async function main() {
   let targetVersion = args._[0];
 
@@ -87,7 +83,7 @@ async function main() {
   } else {
     // update changelog
     console.log('update changelog...');
-    await run('yarn', ['run', 'changelog']);
+    await run('yarn', ['run', 'changelog', targetVersion]);
 
     // commit all changes
     console.log('Committing changes...');
@@ -95,9 +91,7 @@ async function main() {
     await run('git', ['commit', '-m', `release: v${targetVersion}`]);
 
     // publish packages
-    const releaseTag = Array.isArray(semver.prerelease(targetVersion))
-      ? semver.prerelease(targetVersion)[0]
-      : 'latest';
+    const releaseTag = Array.isArray(semver.prerelease(targetVersion)) ? semver.prerelease(targetVersion)[0] : 'latest';
 
     for (const pkg of packages) {
       await publish(pkg, releaseTag);
