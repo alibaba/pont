@@ -4,6 +4,7 @@ import * as fs from 'fs-extra';
 import * as debugLog from './debugLog';
 import { createManager } from './utils';
 import { StandardDataSource } from './standard';
+import { generatePontConfig } from './scripts/start';
 
 const packageFilePath = path.join(__dirname, '..', 'package.json');
 const packageInfo = JSON.parse(fs.readFileSync(packageFilePath, 'utf8'));
@@ -24,6 +25,13 @@ function assert(expression: boolean, message: string) {
 (async function() {
   try {
     const manager = await createManager();
+
+    program
+      .command('start')
+      .description('pont配置文件生成')
+      .action(() => {
+        generatePontConfig();
+      });
 
     program
       .command('check')

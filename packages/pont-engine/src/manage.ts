@@ -389,8 +389,7 @@ export class Manager {
     );
 
     const generators = this.allLocalDataSources.map(dataSource => {
-      // @朱亮 传入 js or ts 属性
-      const generator: CodeGenerator = new Generator();
+      const generator: CodeGenerator = new Generator(this.currConfig.surrounding);
       generator.setDataSource(dataSource);
 
       if (_.isFunction(generator.getDataSourceCallback)) {
@@ -405,8 +404,7 @@ export class Manager {
     }
 
     this.fileManager = new FilesManager(
-      // @朱亮，传入js or ts
-      new FileStructuresClazz(generators, this.currConfig.usingMultipleOrigins),
+      new FileStructuresClazz(generators, this.currConfig.usingMultipleOrigins, this.currConfig.surrounding),
       this.currConfig.outDir
     );
     this.fileManager.prettierConfig = this.currConfig.prettierConfig;

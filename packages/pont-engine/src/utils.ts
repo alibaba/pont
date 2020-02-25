@@ -49,6 +49,16 @@ export class Mocks {
     }`;
 }
 
+export enum Surrounding {
+  typeScript = 'typeScript',
+  javaScript = 'javaScript'
+}
+
+export enum SurroundingFileName {
+  javaScript = 'js',
+  typeScript = 'ts'
+}
+
 export class DataSourceConfig {
   originUrl? = '';
   originType = OriginType.SwaggerV2;
@@ -58,6 +68,7 @@ export class DataSourceConfig {
   taggedByName = true;
   templatePath = 'serviceTemplate';
   templateType = '';
+  surrounding = Surrounding.typeScript;
   outDir = 'src/service';
   transformPath = '';
   fetchMethodPath = '';
@@ -100,7 +111,7 @@ export class Config extends DataSourceConfig {
 
   static getTransformFromConfig(config: Config | DataSourceConfig) {
     if (config.transformPath) {
-      const moduleResult = getTemplate(config.transformPath, config.templatePath, defaultTransformCode) as any;
+      const moduleResult = getTemplate(config.transformPath, '', defaultTransformCode) as any;
 
       if (moduleResult) {
         return moduleResult.default;
@@ -112,7 +123,7 @@ export class Config extends DataSourceConfig {
 
   static getFetchMethodFromConfig(config: Config | DataSourceConfig) {
     if (config.fetchMethodPath) {
-      const moduleResult = getTemplate(config.fetchMethodPath, config.templatePath, defaultFetchMethodCode);
+      const moduleResult = getTemplate(config.fetchMethodPath, '', defaultFetchMethodCode);
 
       if (moduleResult) {
         return moduleResult.default;
@@ -382,7 +393,6 @@ export async function lookForFiles(dir: string, fileName: string): Promise<strin
     const currName = path.join(dir, file);
 
     const info = await fs.lstat(currName);
-
     if (info.isDirectory()) {
       if (file === '.git' || file === 'node_modules') {
         continue;
@@ -440,10 +450,14 @@ export function hasChinese(str: string) {
 }
 
 const PROJECT_ROOT = process.cwd();
-const CONFIG_FILE = 'pont-config.json';
+export const CONFIG_FILE = 'pont-config.json';
 
 export async function createManager(configFile = CONFIG_FILE) {
   const configPath = await lookForFiles(PROJECT_ROOT, configFile);
+
+  if (!configPath) {
+    return;
+  }
 
   const config = Config.createFromConfigPath(configPath);
   const manager = new Manager(PROJECT_ROOT, config, path.dirname(configPath));
@@ -473,4 +487,15 @@ export function reviseModName(modName: string) {
     .replace(/\//g, '.')
     .replace(/^\./, '')
     .replace(/\./g, '_');
+}
+
+/** 获取文件名名称 */
+export function getFileName(fileName: string, surrounding: string) {
+  const isInvalidSurrounding = Surrounding[surrounding];
+
+  if (isInvalidSurrounding) {
+    return `${fileName}.${SurroundingFileName[isInvalidSurrounding]}`;
+  }
+
+  return `${fileName}.ts`;
 }

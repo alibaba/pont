@@ -30,6 +30,16 @@
       "type": "boolean",
       "description": "是否开启多数据源模式"
     },
+    "templateType": {
+      "type": "string",
+      "description": "可选的内置模板",
+      "enum": ["react"]
+    },
+    "surrounding": {
+      "type": "string",
+      "description": "pont生成代码的运行环境（无需更改）",
+      "enum": ["typeScript", "javaScript"]
+    },
     "mocks": {
       "type": "object",
       "description": "自动化mock服务，mocks 数据可以在 .mocks/mocks.ts 下自定义编辑。",

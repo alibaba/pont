@@ -1,9 +1,9 @@
-import { CodeGenerator, Interface, BaseClass, Property } from 'pont-engine';
+import { Interface, BaseClass, Property, CodeGenerator } from 'pont-engine';
 
 export default class MyGenerator extends CodeGenerator {
   getInterfaceContentInDeclaration(inter: Interface) {
     const paramsCode = inter
-      .getParamsCode()
+      .getParamsCode('Params', this.surrounding)
       .replace('lock: number', 'lock?: number')
       .replace(': file', ': FormData');
     const bodyParamsCode = inter.getBodyParamsCode();
@@ -19,11 +19,10 @@ export default class MyGenerator extends CodeGenerator {
       bodyParamsCode ? `, bodyParams: ${bodyParamsCode}` : ''
     }): Promise<Response>;
 
-      export function createFetchAction<Key>(types: FetchTypes<Key>, stateKey?: string): (params${
-        bodyParamsCode ? '' : '?'
-      }: Params${bodyParamsCode ? `, bodyParams: ${bodyParamsCode}` : ''}, meta?)
-        => { type: Key; payload?: Response; params?: Params; url: string; types: string[]; meta } & Promise<Response>
-        `;
+    export function createFetchAction(params${bodyParamsCode ? '' : '?'}: Params${
+      bodyParamsCode ? `, bodyParams: ${bodyParamsCode}` : ''
+    }, meta?):  {  payload?: Response; params?: Params; url: string; meta } & Promise<Response>
+      `;
   }
 
   getBaseClassInDeclaration(base: BaseClass) {
@@ -58,7 +57,7 @@ export default class MyGenerator extends CodeGenerator {
   }
 
   getInterfaceContent(inter: Interface) {
-    const paramsCode = inter.getParamsCode().replace(': file', ': FormData');
+    const paramsCode = inter.getParamsCode('Params', this.surrounding).replace(': file', ': FormData');
     const bodyParamsCode = inter.getBodyParamsCode();
     const method = inter.method.toUpperCase();
 
@@ -74,18 +73,14 @@ export default class MyGenerator extends CodeGenerator {
 
     export const init = ${inter.response.initialValue};
 
-    export function createFetchAction(types, stateKey) {
-      return (params = {}${bodyParamsCode ? `, bodyParams` : ''}, meta?: any) => {
+    export function createFetchAction(params = {}${bodyParamsCode ? `, bodyParams` : ''}, meta = {}){
         return {
-          types,
           meta,
-          stateKey,
           method: "${method}",
           url: getUrl("${inter.path}", params, "${method}"),
           ${bodyParamsCode ? 'params: bodyParams,' : 'params,'}
           init,
         };
-      };
     }
    `;
   }

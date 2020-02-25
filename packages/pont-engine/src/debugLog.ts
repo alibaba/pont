@@ -19,3 +19,7 @@ export function error(info: string) {
 export function warn(info: string) {
   log(chalk.bold.yellow(info));
 }
+
+export function success(info: string) {
+  log(chalk.bold.green(info));
+}

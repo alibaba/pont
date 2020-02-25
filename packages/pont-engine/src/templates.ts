@@ -1,22 +1,25 @@
 /**
- * @author wangyou
+ * @author LeonZhu
  * @description 内置模板
  */
 import * as fs from 'fs-extra';
 import * as _ from 'lodash';
 
-const templateRegistion = [
+export const templateRegistion = [
   {
     templateType: 'react',
     templatePath: '/react.ts'
   }
 ];
 
-export function getTemplateByTemplateType(templateType: string) {
+export function getTemplateByTemplateType(templateType = 'react') {
   const templateObj = templateRegistion.find(template => templateType === template.templateType);
 
   if (templateObj) {
-    return fs.readFileSync(__dirname.replace('/lib', '/templates') + templateObj.templatePath, 'utf8');
+    return fs.readFileSync(
+      __dirname.substring(0, __dirname.lastIndexOf('lib')) + '/templates' + templateObj.templatePath,
+      'utf8'
+    );
   }
 
   return '';
