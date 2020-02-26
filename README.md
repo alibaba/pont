@@ -38,17 +38,29 @@ Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数
 
 mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提供所有接口的 mocks 服务。此外 IDE 提供如下功能
 
-- 1、右键 pont 接口代码，可以跳转(jump to mock position)去编辑接口的mocks数据
+- 1、右键 pont 接口代码，可以跳转(jump to mock position)去编辑接口的 mocks 数据
 
 - 2、右键 pont 接口代码，可以访问(visit mocks interface) GET 类型的 mocks 接口。
 
 ## 快速开始
 
-- 1、在 vscode 中安装 vscode 插件 pont。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
+- 1、全局安装 pont-engine
 
-- 2、确保服务端使用 Swagger（目前只支持 Swagger），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下即可。
+```bash
+npm i -g pont-engine
+```
 
-- 3、在项目中任何位置添加 `pont-config.json` 文件，vscode-pont 检测到项目中有合法的 `pont-config.json`，插件马上启动。
+```bash
+yarn global add pont-engine
+```
+
+- 2、 在项目的任意位置使用 `pont start` 命令，生成 `pont-config.json` 文件（vscode-pont 检测到项目中有合法的 `pont-config.json` ，插件将马上启动）
+
+Tips:
+
+- 推荐使用 vscode 插件 pont。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
+
+- 确保服务端使用 Swagger（目前只支持 Swagger），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下即可。
 
 ## vscode 使用方法
 
@@ -93,6 +105,10 @@ mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提�
 为了避免一部分用户和技术团队不使用 vscode-pont，pont 可以以命令行命令的方式来提供服务。
 
 命令行提供的命令目前还比较基础，提供命令如下：
+
+#### pont start
+
+生成`pont-config.json`配置文件，若本地存在配置文件，将覆盖重复的配置项。
 
 #### pont check
 
@@ -269,6 +285,14 @@ export default async function(url: string): Promise<string> {
 - 字段名： "port" 类型：string 默认值：8080 含义：mocks 服务的端口号
 
 - 字段名 "wrapper" 类型：string 默认值："{\"code\": 0, \"data\": {response}, \"message\": \"\"}" 含义：接口返回结构，pont 可以计算返回数据类型(比如此处会替换到 {response})，此处可以指定接口返回结构。
+
+### templateType
+
+值类型：字符串
+
+可选值：'react'
+
+描述：可选项。用于生成 pont 内置模板，目前仅支持 React 模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件。
 
 ## demo
 
