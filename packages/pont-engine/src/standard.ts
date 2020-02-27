@@ -1,5 +1,5 @@
 import * as _ from 'lodash';
-import { getDuplicateById } from './utils';
+import { getDuplicateById, Surrounding } from './utils';
 import { compileTemplate, parseAst2StandardDataType } from './compiler';
 
 // primitive type
@@ -302,7 +302,7 @@ export class Property extends Contextable {
     }
   }
 
-  toPropertyCode(hasRequired = false, optional = false) {
+  toPropertyCode(surrounding = Surrounding.typeScript, hasRequired = false, optional = false) {
     let optionalSignal = hasRequired && optional ? '?' : '';
 
     if (hasRequired && !this.required) {
@@ -314,9 +314,14 @@ export class Property extends Contextable {
       name = `'${name}'`;
     }
 
+    const fieldTypeDeclaration =
+      surrounding === Surrounding.typeScript
+        ? `${optionalSignal}: ${this.dataType.generateCode(this.getDsName())}`
+        : '';
+
     return `
       /** ${this.description || this.name} */
-      ${name}${optionalSignal}: ${this.dataType.generateCode(this.getDsName())};`;
+      ${name}${fieldTypeDeclaration};`;
   }
 
   toPropertyCodeWithInitValue(baseName = '') {
@@ -359,12 +364,12 @@ export class Interface extends Contextable {
     return this.response.generateCode(this.getDsName());
   }
 
-  getParamsCode(className = 'Params') {
+  getParamsCode(className = 'Params', surrounding = Surrounding.typeScript) {
     return `
       class ${className} {
         ${this.parameters
           .filter(param => param.in !== 'body')
-          .map(param => param.toPropertyCode(true))
+          .map(param => param.toPropertyCode(surrounding, true))
           .join('')}
       }
     `;

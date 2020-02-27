@@ -11,11 +11,15 @@ import * as _ from 'lodash';
 import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { format, reviseModName } from '../utils';
+import { format, reviseModName, Surrounding, getFileName } from '../utils';
 import { info } from '../debugLog';
 
 export class FileStructures {
-  constructor(private generators: CodeGenerator[], private usingMultipleOrigins: boolean) {}
+  constructor(
+    private generators: CodeGenerator[],
+    private usingMultipleOrigins: boolean,
+    private surrounding = Surrounding.typeScript
+  ) {}
 
   getMultipleOriginsFileStructures() {
     const files = {};
@@ -28,7 +32,7 @@ export class FileStructures {
 
     return {
       ...files,
-      'index.ts': this.getDataSourcesTs.bind(this),
+      [getFileName('index', this.surrounding)]: this.getDataSourcesTs.bind(this),
       'api.d.ts': this.getDataSourcesDeclarationTs.bind(this),
       'api-lock.json': this.getLockContent.bind(this)
     };
@@ -66,17 +70,19 @@ export class FileStructures {
     let mods = {};
     const dataSource = generator.dataSource;
 
+    const indexFileName = getFileName('index', this.surrounding);
+
     dataSource.mods.forEach(mod => {
       const currMod = {};
 
       mod.interfaces.forEach(inter => {
-        currMod[inter.name + '.ts'] = generator.getInterfaceContent.bind(generator, inter);
-        currMod['index.ts'] = generator.getModIndex.bind(generator, mod);
+        currMod[getFileName(inter.name, this.surrounding)] = generator.getInterfaceContent.bind(generator, inter);
+        currMod[indexFileName] = generator.getModIndex.bind(generator, mod);
       });
       const modName = reviseModName(mod.name);
       mods[modName] = currMod;
 
-      mods['index.ts'] = generator.getModsIndex.bind(generator);
+      mods[indexFileName] = generator.getModsIndex.bind(generator);
     });
 
     if (!generator.hasContextBund) {
@@ -94,9 +100,9 @@ export class FileStructures {
     }
 
     const result = {
-      'baseClass.ts': generator.getBaseClassesIndex.bind(generator),
+      [getFileName('baseClass', this.surrounding)]: generator.getBaseClassesIndex.bind(generator),
       mods: mods,
-      'index.ts': generator.getIndex.bind(generator),
+      [indexFileName]: generator.getIndex.bind(generator),
       'api.d.ts': generator.getDeclaration.bind(generator)
     };
 
@@ -118,6 +124,8 @@ export class FileStructures {
   getDataSourcesTs() {
     const dsNames = this.generators.map(ge => ge.dataSource.name);
 
+    const generatedCode = this.surrounding === Surrounding.typeScript ? '(window as any)' : 'window';
+
     return `
       ${dsNames
         .map(name => {
@@ -126,10 +134,10 @@ export class FileStructures {
         })
         .join('\n')}
 
-      (window as any).defs = {
+      ${generatedCode}.defs = {
         ${dsNames.map(name => `${name}: ${name}Defs,`).join('\n')}
       };
-      (window as any).API = {
+      ${generatedCode}.API = {
         ${dsNames.join(',\n')}
       };
     `;
@@ -161,7 +169,7 @@ export class CodeGenerator {
 
   hasContextBund = false;
 
-  constructor() {}
+  constructor(public surrounding = Surrounding.typeScript) {}
 
   setDataSource(dataSource: StandardDataSource) {
     this.dataSource = dataSource;
@@ -173,17 +181,19 @@ export class CodeGenerator {
   getBaseClassInDeclaration(base: BaseClass) {
     if (base.templateArgs && base.templateArgs.length) {
       return `class ${base.name}<${base.templateArgs.map((_, index) => `T${index} = any`).join(', ')}> {
-        ${base.properties.map(prop => prop.toPropertyCode(true)).join('\n')}
+        ${base.properties.map(prop => prop.toPropertyCode(Surrounding.typeScript, true)).join('\n')}
       }
       `;
     }
     return `class ${base.name} {
-      ${base.properties.map(prop => prop.toPropertyCode(true)).join('\n')}
+      ${base.properties.map(prop => prop.toPropertyCode(Surrounding.typeScript, true)).join('\n')}
     }
     `;
   }
 
-  /** 获取所有基类的类型定义代码，一个 namespace */
+  /** 获取所有基类的类型定义代码，一个 namespace
+   * surrounding, 优先级高于this.surrounding,用于生成api.d.ts时强制保留类型
+   */
   getBaseClassesInDeclaration() {
     const content = `namespace ${this.dataSource.name || 'defs'} {
       ${this.dataSource.baseClasses
@@ -219,7 +229,7 @@ export class CodeGenerator {
     const requestParams = bodyParams ? `params: Params, bodyParams: ${bodyParams}` : `params: Params`;
 
     return `
-      export ${inter.getParamsCode()}
+      export ${inter.getParamsCode('Params', this.surrounding)}
 
       export type Response = ${inter.responseType};
       export const init: Response;
@@ -291,7 +301,7 @@ export class CodeGenerator {
       import * as defs from './baseClass';
       import './mods/';
 
-      (window as any).defs = defs;
+      ${this.surrounding === Surrounding.typeScript ? '(window as any)' : 'window'}.defs = defs;
     `;
 
     // dataSource name means multiple dataSource
@@ -346,7 +356,7 @@ export class CodeGenerator {
     import * as defs from '../../baseClass';
     import pontFetch from 'src/utils/pontFetch';
 
-    export ${inter.getParamsCode()}
+    export ${inter.getParamsCode('Params', this.surrounding)}
     export const init = ${inter.response.getInitialValue()};
 
     export async function request(${requestParams}) {
@@ -380,7 +390,7 @@ export class CodeGenerator {
   /** 获取所有模块的 index 入口文件 */
   getModsIndex() {
     let conclusion = `
-      (window as any).API = {
+      ${this.surrounding === Surrounding.typeScript ? '(window as any)' : 'window'}.API = {
         ${this.dataSource.mods.map(mod => reviseModName(mod.name)).join(', \n')}
       };
     `;

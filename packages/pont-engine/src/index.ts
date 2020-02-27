@@ -18,7 +18,8 @@ export {
   toUpperFirstLetter,
   transformCamelCase,
   transformDescription,
-  transformModsName
+  transformModsName,
+  Surrounding
 } from './utils';
 export { CodeGenerator, FileStructures, FilesManager } from './generators/generate';
 export { diff, Model, removeCtx } from './diff';

@@ -357,7 +357,11 @@ export class Manager {
 
     const files = this.fileManager.fileStructures.getFileStructures();
 
-    return this.dispatch(files);
+    try {
+      return this.dispatch(files);
+    } catch (err) {
+      return {};
+    }
   }
 
   async update(oldFiles: {}) {
@@ -378,10 +382,13 @@ export class Manager {
 
   setFilesManager() {
     this.report('文件生成器创建中...');
-    const { default: Generator, FileStructures: MyFileStructures } = getTemplate(this.currConfig.templatePath);
+    const { default: Generator, FileStructures: MyFileStructures } = getTemplate(
+      this.currConfig.templatePath,
+      this.currConfig.templateType
+    );
 
     const generators = this.allLocalDataSources.map(dataSource => {
-      const generator: CodeGenerator = new Generator();
+      const generator: CodeGenerator = new Generator(this.currConfig.surrounding);
       generator.setDataSource(dataSource);
 
       if (_.isFunction(generator.getDataSourceCallback)) {
@@ -396,7 +403,7 @@ export class Manager {
     }
 
     this.fileManager = new FilesManager(
-      new FileStructuresClazz(generators, this.currConfig.usingMultipleOrigins),
+      new FileStructuresClazz(generators, this.currConfig.usingMultipleOrigins, this.currConfig.surrounding),
       this.currConfig.outDir
     );
     this.fileManager.prettierConfig = this.currConfig.prettierConfig;
