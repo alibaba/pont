@@ -60,7 +60,7 @@ yarn global add pont-engine
 
 Tips:
 
-- 确保服务端使用 Swagger（目前只支持 Swagger V1,V2,V3），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下即可。
+- 确保服务端使用 Swagger（目前只支持 Swagger V1、V2、V3），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下即可。
 
 ## vscode 使用方法
 
