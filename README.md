@@ -42,6 +42,10 @@ mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提�
 
 - 2、右键 pont 接口代码，可以访问(visit mocks interface) GET 类型的 mocks 接口。
 
+### 跨语言
+
+- pont 天然支持 Javascript 项目及 Typescript 项目。如您使用 `Java`、`C++` 等语言，需定制代码生成器
+
 ## 快速开始
 
 - 1、在 vscode 中安装 vscode 插件 pont。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
