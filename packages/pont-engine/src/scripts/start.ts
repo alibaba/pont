@@ -51,7 +51,6 @@ const promptList = [
 ];
 
 export async function generatePontConfig() {
-  console.log(__dirname);
   const configPath = await lookForFiles(process.cwd(), CONFIG_FILE);
 
   if (configPath) {
@@ -67,7 +66,7 @@ export async function generatePontConfig() {
     }
   }
 
-  debugLog.info('配置文件生成中。。。');
+  debugLog.info('配置文件生成中...');
 
   const answers = await inquirer.prompt(promptList);
 
