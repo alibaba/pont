@@ -360,7 +360,6 @@ export class Manager {
     try {
       return this.dispatch(files);
     } catch (err) {
-      debugger;
       return {};
     }
   }

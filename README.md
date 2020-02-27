@@ -44,7 +44,9 @@ mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提�
 
 ## 快速开始
 
-- 1、全局安装 pont-engine
+- 1、在 vscode 中安装 vscode 插件 pont。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
+
+- 2、全局安装 pont-engine
 
 ```bash
 npm i -g pont-engine
@@ -54,13 +56,11 @@ npm i -g pont-engine
 yarn global add pont-engine
 ```
 
-- 2、 在项目的任意位置使用 `pont start` 命令，生成 `pont-config.json` 文件（vscode-pont 检测到项目中有合法的 `pont-config.json` ，插件将马上启动）
+- 3、 在对应项目中使用 `pont start` 命令，生成 `pont-config.json` 文件，vscode-pont 检测到项目中有合法的 `pont-config.json`，插件马上启动。
 
 Tips:
 
-- 推荐使用 vscode 插件 pont。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
-
-- 确保服务端使用 Swagger（目前只支持 Swagger），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下即可。
+- 确保服务端使用 Swagger（目前只支持 Swagger V1,V2,V3），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下即可。
 
 ## vscode 使用方法
 
