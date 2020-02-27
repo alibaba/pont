@@ -1,3 +1,39 @@
+v0.3.11 / 2020-02-27
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Fix pont start info
+
+
+### 🚀 Features
+
+- `general`
+  - Update readme
+  - Update readme
+  - 增加新功能readme
+  - Merge branch 'master' into feat/templates
+  - 增加内置模板支持，生成代码支持js
+  - Merge branch 'feat/generator-js' into feat/templates
+  - Generate js flow
+  - Add templates
+
+
+### 🏡 Chore
+
+- `general`
+  - Use prettier-vscode formater and reformart
+- `scripts`
+  - Update changelog,release script
+
+
+### 💖 Thanks to
+
+- Leon1Zhu
+- jasonHzq
+- 高乐天
+
 v0.3.10 / 2020-02-27
 ===================
 
