@@ -331,8 +331,8 @@ export function getIdentifierFromUrl(url: string, requestType: string, samePath 
 }
 
 /** some reversed keyword in js but not in java */
-const TS_KEYWORDS = ['delete', 'export', 'import', 'new'];
-const REPLACE_WORDS = ['remove', 'exporting', 'importing', 'create'];
+const TS_KEYWORDS = ['delete', 'export', 'import', 'new', 'function'];
+const REPLACE_WORDS = ['remove', 'exporting', 'importing', 'create', 'functionLoad'];
 
 export function getIdentifierFromOperatorId(operationId: string) {
   const identifier = operationId.replace(/(.+)(Using.+)/, '$1');
