@@ -357,7 +357,7 @@ export default async function(url: string): Promise<string> {
 
 [Pont 对外用户群](https://qr.dingtalk.com/action/joingroup?code=v1,k1,zyeunCjwfx1zC9lk6bBWDLa2PwkPi9oiRBW0+Eqgj64=&_dt_no_comment=1&origin=11)
 
-<img src="https://img.alicdn.com/tfs/TB17EwzHFzqK1RjSZFvXXcB7VXa-696-688.png" height="300">
+<img src="https://img.alicdn.com/tfs/TB1O1pkw4D1gK0jSZFKXXcJrVXa-957-974.png" height="300">
 
 ## 谁在使用
 
