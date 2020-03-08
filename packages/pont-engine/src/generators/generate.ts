@@ -356,12 +356,6 @@ export class CodeGenerator {
 
     const bodyParams = inter.getBodyParamsCode();
 
-    const headers = {};
-
-    if (['POST', 'PUT'].indexOf(method) > -1) {
-      headers['Content-Type'] = 'application/json';
-    }
-
     return `
     /**
      * @desc ${inter.description}
@@ -381,7 +375,6 @@ export class CodeGenerator {
       return pontCore.fetch(pontCore.getUrl("${inter.path}", params, "${method}"), {
         method: "${method}",
         body: ${bodyParams ? 'bodyParams' : 'null'},
-        headers: ${JSON.stringify(headers)}
       });
     }
    `;
