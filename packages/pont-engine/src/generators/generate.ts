@@ -11,14 +11,15 @@ import * as _ from 'lodash';
 import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { format, reviseModName, Surrounding, getFileName } from '../utils';
+import { format, reviseModName, Surrounding, getFileName, getTemplatesDirFile } from '../utils';
 import { info } from '../debugLog';
 
 export class FileStructures {
   constructor(
     private generators: CodeGenerator[],
     private usingMultipleOrigins: boolean,
-    private surrounding = Surrounding.typeScript
+    private surrounding = Surrounding.typeScript,
+    private baseDir: string
   ) {}
 
   getMultipleOriginsFileStructures() {
@@ -114,11 +115,17 @@ export class FileStructures {
   }
 
   getFileStructures() {
-    if (this.usingMultipleOrigins || this.generators.length > 1) {
-      return this.getMultipleOriginsFileStructures();
-    } else {
-      return this.getOriginFileStructures(this.generators[0]);
+    const result =
+      this.usingMultipleOrigins || this.generators.length > 1
+        ? this.getMultipleOriginsFileStructures()
+        : this.getOriginFileStructures(this.generators[0]);
+
+    // js环境时，默认为新用户，生成pontCore文件
+    if (this.surrounding === Surrounding.javaScript && !fs.existsSync(this.baseDir + '/pontCore.js')) {
+      result['pontCore.js'] = getTemplatesDirFile('pontCore.js');
     }
+
+    return result;
   }
 
   getDataSourcesTs() {
@@ -345,8 +352,15 @@ export class CodeGenerator {
 
   /** 获取接口实现内容的代码 */
   getInterfaceContent(inter: Interface) {
+    const method = inter.method.toUpperCase();
+
     const bodyParams = inter.getBodyParamsCode();
-    const requestParams = bodyParams ? `params, bodyParams` : `params`;
+
+    const headers = {};
+
+    if (['POST', 'PUT'].indexOf(method) > -1) {
+      headers['Content-Type'] = 'application/json';
+    }
 
     return `
     /**
@@ -354,16 +368,20 @@ export class CodeGenerator {
      */
 
     import * as defs from '../../baseClass';
-    import pontFetch from 'src/utils/pontFetch';
+    import { pontCore } from '../../pontCore';
 
     export ${inter.getParamsCode('Params', this.surrounding)}
+
     export const init = ${inter.response.getInitialValue()};
 
-    export async function request(${requestParams}) {
-      return pontFetch({
-        url: '${inter.path}',
-        ${bodyParams ? 'params: bodyParams' : 'params'},
-        method: '${inter.method}',
+    ${bodyParams ? `// export bodyParams = new ${bodyParams}();` : ''} 
+
+    export function request(${bodyParams ? `params = {}, bodyParams = null` : 'params = {}'}) {
+
+      return pontCore.fetch(pontCore.getUrl("${inter.path}", params, "${method}"), {
+        method: "${method}",
+        body: ${bodyParams ? 'bodyParams' : 'null'},
+        headers: ${JSON.stringify(headers)}
       });
     }
    `;

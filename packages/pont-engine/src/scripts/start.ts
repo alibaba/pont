@@ -7,14 +7,21 @@ import * as inquirer from 'inquirer';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as debugLog from '../debugLog';
-import { CONFIG_FILE, lookForFiles, DataSourceConfig, Mocks, Surrounding } from '../utils';
+import { CONFIG_FILE, lookForFiles, DataSourceConfig, Mocks, Surrounding, judgeIsVaildUrl } from '../utils';
 import { templateRegistion } from '../templates';
 
 const promptList = [
   {
     type: 'input',
     message: '请设置数据源地址',
-    name: 'originUrl'
+    name: 'originUrl',
+    validate: originUrl => {
+      if (!judgeIsVaildUrl(originUrl)) {
+        return '请输入正确的数据源地址';
+      }
+
+      return true;
+    }
   },
   {
     type: 'input',

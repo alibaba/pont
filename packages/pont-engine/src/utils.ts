@@ -386,6 +386,10 @@ export function getTemplate(templatePath, templateType, defaultValue = defaultTe
   return moduleResult;
 }
 
+export function getTemplatesDirFile(fileName) {
+  return fs.readFileSync(__dirname.substring(0, __dirname.lastIndexOf('lib')) + 'templates/' + fileName, 'utf8');
+}
+
 export async function lookForFiles(dir: string, fileName: string): Promise<string> {
   const files = await fs.readdir(dir);
 
@@ -498,4 +502,9 @@ export function getFileName(fileName: string, surrounding: string) {
   }
 
   return `${fileName}.ts`;
+}
+
+/** 检测是否是合法url */
+export function judgeIsVaildUrl(url: string) {
+  return /^(http|https):.*?$/.test(url);
 }

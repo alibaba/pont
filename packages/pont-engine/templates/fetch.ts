@@ -15,14 +15,8 @@ export default class MyGenerator extends CodeGenerator {
 
       export const init: Response;
 
-      export function request(params${bodyParamsCode ? '' : '?'}: Params${
-      bodyParamsCode ? `, bodyParams: ${bodyParamsCode}` : ''
-    }): Promise<Response>;
-
-    export function createFetchAction(params${bodyParamsCode ? '' : '?'}: Params${
-      bodyParamsCode ? `, bodyParams: ${bodyParamsCode}` : ''
-    }, meta?):  {  payload?: Response; params?: Params; url: string; meta } & Promise<Response>
-      `;
+      export function request(params, bodyParams = null): Promise<Response>;
+    `;
   }
 
   getBaseClassInDeclaration(base: BaseClass) {
@@ -57,30 +51,30 @@ export default class MyGenerator extends CodeGenerator {
   }
 
   getInterfaceContent(inter: Interface) {
-    const paramsCode = inter.getParamsCode('Params', this.surrounding).replace(': file', ': FormData');
-    const bodyParamsCode = inter.getBodyParamsCode();
     const method = inter.method.toUpperCase();
 
+    const bodyParams = inter.getBodyParamsCode();
+
     return `
-      /**
-      * @description ${inter.description}
-      */
+    /**
+     * @desc ${inter.description}
+     */
 
-    import { getUrl } from 'src/utils/Url';
     import * as defs from '../../baseClass';
+    import { pontCore } from '../../pontCore';
 
-    export ${paramsCode}
+    export ${inter.getParamsCode('Params', this.surrounding)}
 
-    export const init = ${inter.response.initialValue};
+    export const init = ${inter.response.getInitialValue()};
 
-    export function createFetchAction(params = {}${bodyParamsCode ? `, bodyParams` : ''}, meta = {}){
-        return {
-          meta,
-          method: "${method}",
-          url: getUrl("${inter.path}", params, "${method}"),
-          ${bodyParamsCode ? 'params: bodyParams,' : 'params,'}
-          init,
-        };
+    ${bodyParams ? `// export bodyParams = new ${bodyParams}();` : ''} 
+
+    export function request(${bodyParams ? `params = {}, bodyParams = null` : 'params = {}'}) {
+
+      return pontCore.fetch(pontCore.getUrl("${inter.path}", params, "${method}"), {
+        method: "${method}",
+        body: ${bodyParams ? 'bodyParams' : 'null'},
+      });
     }
    `;
   }

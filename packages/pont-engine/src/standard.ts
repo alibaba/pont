@@ -366,13 +366,13 @@ export class Interface extends Contextable {
 
   getParamsCode(className = 'Params', surrounding = Surrounding.typeScript) {
     return `
-      class ${className} {
-        ${this.parameters
-          .filter(param => param.in !== 'body')
-          .map(param => param.toPropertyCode(surrounding, true))
-          .join('')}
-      }
-    `;
+    class ${className} {
+      ${this.parameters
+        .filter(param => param.in !== 'body')
+        .map(param => param.toPropertyCode(surrounding, true))
+        .join('')}
+    }
+  `;
   }
 
   getBodyParamsCode() {

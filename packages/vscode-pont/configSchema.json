@@ -59,7 +59,7 @@
     "templateType": {
       "type": "string",
       "description": "可选的内置模板",
-      "enum": ["react"]
+      "enum": ["fetch"]
     },
     "origins": {
       "type": "array",

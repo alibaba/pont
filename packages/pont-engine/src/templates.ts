@@ -2,24 +2,21 @@
  * @author LeonZhu
  * @description 内置模板
  */
-import * as fs from 'fs-extra';
 import * as _ from 'lodash';
+import { getTemplatesDirFile } from './utils';
 
 export const templateRegistion = [
   {
-    templateType: 'react',
-    templatePath: '/react.ts'
+    templateType: 'fetch',
+    templateFileName: 'fetch.ts'
   }
 ];
 
-export function getTemplateByTemplateType(templateType = 'react') {
+export function getTemplateByTemplateType(templateType = 'fetch') {
   const templateObj = templateRegistion.find(template => templateType === template.templateType);
 
   if (templateObj) {
-    return fs.readFileSync(
-      __dirname.substring(0, __dirname.lastIndexOf('lib')) + '/templates' + templateObj.templatePath,
-      'utf8'
-    );
+    return getTemplatesDirFile(templateObj.templateFileName);
   }
 
   return '';

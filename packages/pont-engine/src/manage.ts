@@ -388,7 +388,7 @@ export class Manager {
     );
 
     const generators = this.allLocalDataSources.map(dataSource => {
-      const generator: CodeGenerator = new Generator(this.currConfig.surrounding);
+      const generator: CodeGenerator = new Generator(this.currConfig.surrounding, this.currConfig.outDir);
       generator.setDataSource(dataSource);
 
       if (_.isFunction(generator.getDataSourceCallback)) {
@@ -407,6 +407,7 @@ export class Manager {
       this.currConfig.outDir
     );
     this.fileManager.prettierConfig = this.currConfig.prettierConfig;
+
     this.report('文件生成器创建成功！');
     this.fileManager.report = this.report;
   }
