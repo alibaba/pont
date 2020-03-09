@@ -19,7 +19,7 @@ export class FileStructures {
     private generators: CodeGenerator[],
     private usingMultipleOrigins: boolean,
     private surrounding = Surrounding.typeScript,
-    private baseDir: string
+    private baseDir = 'src/service'
   ) {}
 
   getMultipleOriginsFileStructures() {
@@ -367,8 +367,6 @@ export class CodeGenerator {
     export ${inter.getParamsCode('Params', this.surrounding)}
 
     export const init = ${inter.response.getInitialValue()};
-
-    ${bodyParams ? `// export bodyParams = new ${bodyParams}();` : ''} 
 
     export function request(${bodyParams ? `params = {}, bodyParams = null` : 'params = {}'}) {
 

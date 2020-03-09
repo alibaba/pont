@@ -67,8 +67,6 @@ export default class MyGenerator extends CodeGenerator {
 
     export const init = ${inter.response.getInitialValue()};
 
-    ${bodyParams ? `// export bodyParams = new ${bodyParams}();` : ''} 
-
     export function request(${bodyParams ? `params = {}, bodyParams = null` : 'params = {}'}) {
 
       return pontCore.fetch(pontCore.getUrl("${inter.path}", params, "${method}"), {
