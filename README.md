@@ -48,7 +48,7 @@ mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提�
 
 ## 快速开始
 
-- 1、在 vscode 中安装 vscode 插件 pont。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
+- 1、在 vscode 中安装 vscode 插件 pont 以获得 pont 的全部能力。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
 
 - 2、全局安装 pont-engine
 
@@ -60,11 +60,25 @@ npm i -g pont-engine
 yarn global add pont-engine
 ```
 
-- 3、 在对应项目中使用 `pont start` 命令，生成 `pont-config.json` 文件，vscode-pont 检测到项目中有合法的 `pont-config.json`，插件马上启动。
+- 3、 在项目中安装 pont-engine
+
+```bash
+npm i pont-engine
+```
+
+```bash
+yarn add pont-engine
+```
+
+- 4、 在对应项目中使用 `pont start` 命令，按照命令行提示输入配置。
+
+- 5、 pont 将自动在`outDir`路径中生成单例文件`pontCore.js`,`pontCore`提供基本的 fetch 方法，配合内置模板，即可完成接入。
 
 Tips:
 
-- 确保服务端使用 Swagger（目前只支持 Swagger V1、V2、V3），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下即可。
+- 确保服务端使用 Swagger（目前只支持 Swagger V1、V2、V3），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下，或者使用 fetchMethodPath 配置，通过自定义 fetch 方法获取带鉴权的接口的文档。
+
+- 若需要自定义请求方法过程，在项目入口处通过`pontCore.useFetch`传入即可生效。
 
 ## vscode 使用方法
 
@@ -112,7 +126,7 @@ Tips:
 
 #### pont start
 
-生成`pont-config.json`配置文件，若本地存在配置文件，将覆盖重复的配置项。
+一键接入 pont，若本地存在`pont-config.json`配置文件，将覆盖重复的配置项。
 
 #### pont check
 
@@ -294,9 +308,9 @@ export default async function(url: string): Promise<string> {
 
 值类型：字符串
 
-可选值：'react'
+可选值：'fetch'
 
-描述：可选项。用于生成 pont 内置模板，目前仅支持 React 模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件。
+描述：可选项。用于生成 pont 内置模板，目前仅支持 fetch 模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件。
 
 ## demo
 
