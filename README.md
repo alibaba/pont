@@ -48,7 +48,7 @@ mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提�
 
 ## 快速开始
 
-- 1、在 vscode 中安装 vscode 插件 pont 以获得 pont 的全部能力。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
+- 1、在 vscode 中安装 vscode 插件 pont 以获取 pont 的全部能力。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
 
 - 2、全局安装 pont-engine
 
