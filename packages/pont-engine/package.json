@@ -29,7 +29,8 @@
     "lib",
     "*.md",
     "bin",
-    "templates"
+    "templates",
+    "useRequest"
   ],
   "keywords": [
     "pont",

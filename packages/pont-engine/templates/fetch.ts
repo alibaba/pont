@@ -3,10 +3,9 @@ import { Interface, BaseClass, Property, CodeGenerator } from 'pont-engine';
 export default class MyGenerator extends CodeGenerator {
   getInterfaceContentInDeclaration(inter: Interface) {
     const paramsCode = inter
-      .getParamsCode('Params', this.surrounding)
+      .getParamsCode()
       .replace('lock: number', 'lock?: number')
       .replace(': file', ': FormData');
-    const bodyParamsCode = inter.getBodyParamsCode();
 
     return `
       export ${paramsCode}
@@ -15,7 +14,7 @@ export default class MyGenerator extends CodeGenerator {
 
       export const init: Response;
 
-      export function request(params, bodyParams = null): Promise<Response>;
+      export function request(params?: Params, option = {}): Promise<Response>;
     `;
   }
 
@@ -35,21 +34,6 @@ export default class MyGenerator extends CodeGenerator {
     return result;
   }
 
-  getCommonDeclaration() {
-    return `
-    interface FetchTypes<key> {
-			error: 'error',
-			success: key,
-			loading: 'loading',
-		};
-
-		interface FetchAction<BO, key> {
-			type: key,
-			payload: BO,
-    }
-    `;
-  }
-
   getInterfaceContent(inter: Interface) {
     const method = inter.method.toUpperCase();
 
@@ -67,11 +51,11 @@ export default class MyGenerator extends CodeGenerator {
 
     export const init = ${inter.response.getInitialValue()};
 
-    export function request(${bodyParams ? `params = {}, bodyParams = null` : 'params = {}'}) {
+    export function request(params = {}, option  = {}) {
 
       return pontCore.fetch(pontCore.getUrl("${inter.path}", params, "${method}"), {
+        ...option,
         method: "${method}",
-        body: ${bodyParams ? 'bodyParams' : 'null'},
       });
     }
    `;

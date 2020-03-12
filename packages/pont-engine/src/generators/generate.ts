@@ -11,15 +11,24 @@ import * as _ from 'lodash';
 import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { format, reviseModName, Surrounding, getFileName, getTemplatesDirFile } from '../utils';
+import {
+  format,
+  reviseModName,
+  Surrounding,
+  getFileName,
+  getTemplatesDirFile,
+  judgeTemplatesDirFileExists
+} from '../utils';
 import { info } from '../debugLog';
+import { templateRegistion } from '../templates';
 
 export class FileStructures {
   constructor(
     private generators: CodeGenerator[],
     private usingMultipleOrigins: boolean,
     private surrounding = Surrounding.typeScript,
-    private baseDir = 'src/service'
+    private baseDir = 'src/service',
+    private templateType = ''
   ) {}
 
   getMultipleOriginsFileStructures() {
@@ -121,11 +130,36 @@ export class FileStructures {
         : this.getOriginFileStructures(this.generators[0]);
 
     // js环境时，默认为新用户，生成pontCore文件
-    if (this.surrounding === Surrounding.javaScript && !fs.existsSync(this.baseDir + '/pontCore.js')) {
-      result['pontCore.js'] = getTemplatesDirFile('pontCore.js');
+    if (this.surrounding === Surrounding.javaScript) {
+      if (!fs.existsSync(this.baseDir + '/pontCore.js')) {
+        result['pontCore.js'] = getTemplatesDirFile('pontCore.js', 'useRequest/');
+      }
+
+      if (this.templateType) {
+        const templateRequestFileContent = this.generateTemplateRequestFileContent();
+        if (templateRequestFileContent) {
+          result[`${this.templateType}.js`] = templateRequestFileContent;
+        }
+      }
     }
 
     return result;
+  }
+
+  /** 生成当前模板对应的request文件 */
+  generateTemplateRequestFileContent() {
+    const templateTypesWithOutFetch = templateRegistion.map(item => item.templateType).filter(item => item !== 'fetch');
+    // 模板配置可能需要搭配对应的request请求文件，在这里做统一加载
+    // 加载规则： 检测和模板名称一致的request文件，若存在，在outDir目录生成
+    if (
+      templateTypesWithOutFetch.includes(this.templateType) &&
+      judgeTemplatesDirFileExists(`${this.templateType}.js`, 'useRequest/') &&
+      !fs.existsSync(this.baseDir + `${this.templateType}.js`)
+    ) {
+      return getTemplatesDirFile(`${this.templateType}.js`, 'useRequest/');
+    }
+
+    return null;
   }
 
   getDataSourcesTs() {
