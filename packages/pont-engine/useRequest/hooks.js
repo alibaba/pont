@@ -24,8 +24,8 @@ const defaultOptions = {
 /**
  * 基于swr的取数hooks
  * @param url 请求地址
- * @param userSWROptions 用户当前传入的swr配置
- * @param fetchOptions fetch的请求配置
+ * @param params 请求参数
+ * @param options 配置信息
  */
 export function Request(url, params = {}, options = {}) {
   return baseRequest(url, params, options);
@@ -35,8 +35,8 @@ export function Request(url, params = {}, options = {}) {
  * 仅在非 GET 的取数接口时调用
  *
  * @param url 请求地址
- * @param userSWROptions 用户当前传入的swr配置
- * @param fetchOptions fetch的请求配置
+ * @param params 请求参数
+ * @param options 配置信息
  */
 export function DeprecatedRequest(url, params = {}, options = {}) {
   return baseRequest(url, params, options);

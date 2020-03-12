@@ -14,9 +14,9 @@ export default class MyGenerator extends CodeGenerator {
 
       export type Response = ${inter.responseType}
 
-      export function useMutate(newValue?);
+      export function useMutate(params?: any, newValue? any, shouldRevalidate = true);
   
-      export function useTrigger();
+      export function useTrigger(params?: any, shouldRevalidate = true);
 
       export function ${getHooksReuqestNameByMethod(method)}(params?: Params, options?: Options): Promise<Response>;
 
