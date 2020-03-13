@@ -110,11 +110,11 @@ describe('pont功能测试', () => {
         type: string;
       }
 
-      export type Response = defs.api1.Result<Array<objectMap>>;
+      export type Response = defs.api1.Result<Array<ObjectMap>>;
       export const init: Response;
       export function request(
         params: Params,
-      ): Promise<defs.api1.Result<Array<objectMap>>>;
+      ): Promise<defs.api1.Result<Array<ObjectMap>>>;
     }
     `);
 
