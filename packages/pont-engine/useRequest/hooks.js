@@ -3,31 +3,21 @@
  */
 
 import useSWR from 'swr';
-import SWRConfigContext from 'swr/esm/swr-config-context';
 import { useContext } from 'react';
 import { pontCore } from './pontCore';
 
 const defaultOptions = {
   /** 错误重试，默认关闭 */
-  shouldRetryOnError: false,
-
-  /** 防抖间隔，默认3秒 */
-  dedupingInterval: 3000,
-
-  /** 节流间隔，默认3秒 */
-  focusThrottleInterval: 3000,
-
-  /** 超时时间，默认5秒 */
-  loadingTimeout: 5000
+  shouldRetryOnError: false
 };
 
 /**
- * 基于swr的取数hooks
+ * 基于 swr 的取数 hooks
  * @param url 请求地址
  * @param params 请求参数
  * @param options 配置信息
  */
-export function Request(url, params = {}, options = {}) {
+export function useRequest(url, params = {}, options = {}) {
   return baseRequest(url, params, options);
 }
 
@@ -38,34 +28,18 @@ export function Request(url, params = {}, options = {}) {
  * @param params 请求参数
  * @param options 配置信息
  */
-export function DeprecatedRequest(url, params = {}, options = {}) {
+export function useDeprecatedRequest(url, params = {}, options = {}) {
   return baseRequest(url, params, options);
 }
 
-function baseRequest(url, params = {}, options = {}) {
-  let fetchUrl;
-
-  // 优先级 用户传入的配置 > swr的全局配置 > 默认配置
-  const config = Object.assign({}, defaultOptions, useContext(SWRConfigContext), options);
-
-  if (typeof params === 'function') {
-    try {
-      fetchUrl = getDependentUrl(url, params(), options.fetchOption.method);
-    } catch (err) {
-      fetchUrl = '';
-    }
-  } else {
-    fetchUrl = pontCore.getUrl(url, params, options.fetchOption.method);
-  }
-
-  const fetcher = requestUrl => pontCore.fetch(requestUrl, options.fetchOption);
-
-  const { data, error, isValidating } = useSWR(fetchUrl, fetcher, config);
+function baseRequest(url, swrOptions = {}, fetchOptions = {}) {
+  const fetcher = requestUrl => pontCore.fetch(requestUrl, fetchOption);
+  const { data, error, isValidating } = useSWR(url, fetcher, swrOptions);
 
   return {
     data,
     error,
-    loading: data === undefined || isValidating
+    isLoading: data === undefined || isValidating
   };
 }
 

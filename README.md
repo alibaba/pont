@@ -50,17 +50,21 @@ mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提�
 
 - 1、在 vscode 中安装 vscode 插件 pont 以获取 pont 的全部能力。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
 
-- 2、全局安装 pont-engine
+- 2、添加 pont-config.json
+
+pont 一旦检测到有效的 pont-config.json 文件即可启动。pont 支持 pont start 命令快速生成 pont-config.json 配置文件。
+
+全局安装 pont-engine
 
 ```bash
+// npm
 npm i -g pont-engine
-```
 
-```bash
+// 或yarn
 yarn global add pont-engine
 ```
 
-- 3、 在对应项目中使用 `pont start` 命令，按照命令行提示输入配置即可完成接入。
+在你的项目中运行 `pont start` 命令，按照提示输入配置完成接入。
 
 Tips:
 

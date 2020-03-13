@@ -22,8 +22,7 @@ export default class MyGenerator extends CodeGenerator {
 
       export const method: string;
 
-      ${method === 'GET' ? '' : 'export function request(params?: Params, option = {}): Promise<Response>;'}
-      
+      export function request(params?: Params, option = {}): Promise<Response>;
     `;
   }
 
@@ -89,10 +88,7 @@ export default class MyGenerator extends CodeGenerator {
      */
 
     import * as defs from '../../baseClass';
-    import { ${getHooksReuqestNameByMethod(method).replace(
-      'use',
-      ''
-    )}, mutateRequest, triggerRequest } from '../../hooks';
+    import * as Hooks from '../../hooks';
 
     import { mutate, trigger } from 'swr';
 
@@ -102,36 +98,33 @@ export default class MyGenerator extends CodeGenerator {
 
     export const method = "${method}";
 
-    export function useMutate(params = {}, newValue = undefined, shouldRevalidate = true) {
+    export function mutate(params = {}, newValue = undefined, shouldRevalidate = true) {
       return mutate(pontCore.getUrl("${inter.path}", params, "${method}"), newValue, shouldRevalidate);
     }
 
-    export function useTrigger(params = {}, shouldRevalidate = true) {
+    export function trigger(params = {}, shouldRevalidate = true) {
       return trigger(pontCore.getUrl("${inter.path}", params, "${method}"), shouldRevalidate);
     }
 
-    export function ${getHooksReuqestNameByMethod(method)}(params = {}, options = {}) {
-      return ${getHooksReuqestNameByMethod(method).replace('use', '')}("${inter.path}", params, {
-        ...options,
-        fetchOption: {
-          ...(options.fetchOption || {}),
-          method: "${method}"
-        }
-      });
-    };
-
     ${
       method === 'GET'
-        ? ''
-        : `export function request(params = {}, option  = {}) {
+        ? `
+      export function useRequest(params = {}, swrOptions = {}) {
+        return Hooks.useRequest("${inter.path}", params, swrOptions);
+      };`
+        : `
+      export function useDeprecatedRequest(params = {}, swrOptions = {}) {
+        return Hooks.useDeprecatedRequest("${inter.path}", params, swrOptions, { method: ${method} });
+      }
+      `
+    }
+
+    export function request(params = {}, option  = {}) {
       return pontCore.fetch(pontCore.getUrl("${inter.path}", params, "${method}"), {
         ...option,
         method: "${method}",
       });
-    }`
-    }
-
-   `;
+    }`;
   }
 }
 
