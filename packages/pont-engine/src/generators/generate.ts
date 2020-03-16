@@ -11,14 +11,24 @@ import * as _ from 'lodash';
 import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { format, reviseModName, Surrounding, getFileName } from '../utils';
+import {
+  format,
+  reviseModName,
+  Surrounding,
+  getFileName,
+  getTemplatesDirFile,
+  judgeTemplatesDirFileExists
+} from '../utils';
 import { info } from '../debugLog';
+import { templateRegistion } from '../templates';
 
 export class FileStructures {
   constructor(
     private generators: CodeGenerator[],
     private usingMultipleOrigins: boolean,
-    private surrounding = Surrounding.typeScript
+    private surrounding = Surrounding.typeScript,
+    private baseDir = 'src/service',
+    private templateType = ''
   ) {}
 
   getMultipleOriginsFileStructures() {
@@ -114,11 +124,38 @@ export class FileStructures {
   }
 
   getFileStructures() {
-    if (this.usingMultipleOrigins || this.generators.length > 1) {
-      return this.getMultipleOriginsFileStructures();
-    } else {
-      return this.getOriginFileStructures(this.generators[0]);
+    const result =
+      this.usingMultipleOrigins || this.generators.length > 1
+        ? this.getMultipleOriginsFileStructures()
+        : this.getOriginFileStructures(this.generators[0]);
+
+    // js环境时，默认为新用户，生成pontCore文件
+    if (this.surrounding === Surrounding.javaScript) {
+      if (!fs.existsSync(this.baseDir + '/pontCore.js')) {
+        result['pontCore.js'] = getTemplatesDirFile('pontCore.js', 'pontCore/');
+        result['pontCore.d.ts'] = getTemplatesDirFile('pontCore.d.ts', 'pontCore/');
+      }
+
+      if (this.templateType && this.checkHasTemplateFetch()) {
+        result[`${this.templateType}.js`] = getTemplatesDirFile(`${this.templateType}.js`, 'pontCore/');
+        result[`${this.templateType}.d.ts`] = getTemplatesDirFile(`${this.templateType}.d.ts`, 'pontCore/');
+      }
     }
+
+    return result;
+  }
+
+  private checkHasTemplateFetch() {
+    const templateTypesWithOutFetch = templateRegistion.map(item => item.templateType).filter(item => item !== 'fetch');
+
+    if (
+      templateTypesWithOutFetch.includes(this.templateType) &&
+      judgeTemplatesDirFileExists(`${this.templateType}.js`, 'pontCore/')
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   getDataSourcesTs() {
@@ -345,8 +382,9 @@ export class CodeGenerator {
 
   /** 获取接口实现内容的代码 */
   getInterfaceContent(inter: Interface) {
+    const method = inter.method.toUpperCase();
+
     const bodyParams = inter.getBodyParamsCode();
-    const requestParams = bodyParams ? `params, bodyParams` : `params`;
 
     return `
     /**
@@ -354,16 +392,17 @@ export class CodeGenerator {
      */
 
     import * as defs from '../../baseClass';
-    import pontFetch from 'src/utils/pontFetch';
+    import { pontCore } from '../../pontCore';
 
     export ${inter.getParamsCode('Params', this.surrounding)}
+
     export const init = ${inter.response.getInitialValue()};
 
-    export async function request(${requestParams}) {
-      return pontFetch({
-        url: '${inter.path}',
-        ${bodyParams ? 'params: bodyParams' : 'params'},
-        method: '${inter.method}',
+    export function request(${bodyParams ? `params = {}, bodyParams = null` : 'params = {}'}) {
+
+      return pontCore.fetch(pontCore.getUrl("${inter.path}", params, "${method}"), {
+        method: "${method}",
+        body: ${bodyParams ? 'bodyParams' : 'null'},
       });
     }
    `;
