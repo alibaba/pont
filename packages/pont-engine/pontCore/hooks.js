@@ -30,7 +30,11 @@ var React = require("react");
 var pontCore_1 = require("./pontCore");
 var defaultOptions = {
     /** 错误重试，默认关闭 */
-    shouldRetryOnError: false
+    shouldRetryOnError: false,
+    /** 获取焦点时，不重新请求 */
+    revalidateOnFocus: false,
+    /** 接口缓存 1 分钟 */
+    dedupingInterval: 60000
 };
 exports.SWRProvider = function (props) {
     var children = props.children, options = __rest(props, ["children"]);
