@@ -11,7 +11,9 @@ yarn-error.log*
 services/
 lib/services/
 /examples/demo1/node_modules/
-.mocks/examples/hooks/node_modules
+.mocks/
+
+examples/hooks/node_modules
 
 .idea/
 test/services/
