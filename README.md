@@ -42,6 +42,8 @@ mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提�
 
 - 2、右键 pont 接口代码，可以访问(visit mocks interface) GET 类型的 mocks 接口。
 
+mocks 自动生成所有 mocks 数据，你也可以自由更新 mocks 数据，支持 [mocksjs](http://mockjs.com/examples.html) 语法更新 mocks 数据。
+
 ### 跨语言
 
 - pont 天然支持 Javascript 项目及 Typescript 项目。如您使用 `Java`、`C++` 等语言，需定制代码生成器
