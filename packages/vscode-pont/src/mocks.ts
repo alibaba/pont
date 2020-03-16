@@ -225,7 +225,10 @@ export class MocksServer {
             if (req.url.match(reg) && req.method.toUpperCase() === inter.method.toUpperCase()) {
               const wrapperRes = JSON.stringify(Mock.mock(mocksData[mod.name][inter.name]));
               res.writeHead(200, {
-                'Content-Type': 'text/json;charset=UTF-8'
+                'Content-Type': 'text/json;charset=UTF-8',
+                'Access-Control-Allow-Origin': '*',
+                'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
+                'Access-Control-Max-Age': 2592000 // 30 days
               });
               res.end(wrapperRes, 'utf8');
             }
