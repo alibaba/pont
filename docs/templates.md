@@ -55,18 +55,43 @@ fetch 模板会对外暴露如下属性:
 
 ### hooks
 
-> hooks 模板基于 swr，所以使用之前需要先安装 swr
-> hooks 模板会对外暴露如下属性：
+> hooks 模板基于 [swr](https://github.com/zeit/swr)，所以使用之前需要在项目中安装 swr
 
-- Response: 返回值类型
+```sh
+yarn add swr
+
+# npm
+npm i -S swr
+```
+
+> hooks 模板提供如下方法：
+
 - mutate: 乐观更新
 - trigger: 手动取数
-- useRequest: 基于 swr 的取数接口，接口类型为 GET 时对外暴露
-- useDeprecatedRequest: 基于 swr 的取数接口，接口类型非 GET 时对外暴露
+- useRequest: 基于 swr 的取数接口。接口 method 为 GET。
+- useDeprecatedRequest: 基于 swr 的取数接口，接口 method 为非 GET。注意 SWR 只支持取数型接口调用！！！
 
-> 我们不建议使用 GET 以外的方法进行取数
+> 非 GET 方法接口，请使用正常取数方法：
 
 - request: 非 hooks 的正常取数接口
+
+### swr 功能简介
+
+- 轮询取数
+
+- 接口缓存
+
+- React Hooks 声明式取数
+
+- 乐观更新
+
+- Suspense mode
+
+- 声明式接口依赖
+
+- 失败重试等...
+
+详情参看 [swr](https://github.com/zeit/swr)
 
 ### demo
 
