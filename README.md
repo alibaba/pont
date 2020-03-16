@@ -70,7 +70,7 @@ Tips:
 
 - 确保服务端使用 Swagger（目前只支持 Swagger V1、V2、V3），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下，或者使用 fetchMethodPath 配置，通过自定义 fetch 方法获取带鉴权的接口的文档。
 
-- 若需替换默认的请求信息，请参阅[pontCore](#pontCore)。
+- 若需替换默认的请求信息，请参阅[pontCore](https://github.com/alibaba/pont/tree/master/docs/pontCore.md)。
 
 ## vscode 使用方法
 
@@ -302,13 +302,7 @@ export default async function(url: string): Promise<string> {
 
 可选值：'fetch' | 'hooks'
 
-描述：可选项。用于生成 pont 内置模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件。
-
-### <span id="pontCore">pontCore</span>
-
-描述: pont 配置生成后，将自动在 `outDir` 的路径中生成单例文件 `pontCore.js` , `pontCore` 是 pont 对外暴露的单例类实体, 提供基本的 fetch 方法，pont 所有内置模板生成的接口都通过 `pontCore` 完成请求。若需要定制请求信息，在项目入口处使用 `pontCore.useFetch` 传入即可.
-
-![demo](https://img.alicdn.com/tfs/TB14mnkxYr1gK0jSZR0XXbP8XXa-592-167.png)
+描述：可选项。用于生成 pont 内置模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件，内置模板具体使用介绍，请参考[内置模板](https://github.com/alibaba/pont/tree/master/docs/templates.md)。
 
 ## demo
 
