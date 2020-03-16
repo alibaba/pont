@@ -14,11 +14,11 @@ export const PrimitiveTypeMap = {
   Void: 'void',
   void: 'void',
 
-  /* objectMap is defined by pont internal datatype just like object  */
-  object: 'objectMap',
-  Object: 'objectMap',
-  Map: 'objectMap',
-  map: 'objectMap',
+  /* ObjectMap is defined by pont internal datatype just like object  */
+  object: 'ObjectMap',
+  Object: 'ObjectMap',
+  Map: 'ObjectMap',
+  map: 'ObjectMap',
 
   /* Array */
   List: 'Array',
