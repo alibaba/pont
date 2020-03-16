@@ -11,6 +11,7 @@ yarn-error.log*
 services/
 lib/services/
 /examples/demo1/node_modules/
+.mocks/examples/hooks/node_modules
 
 .idea/
 test/services/
@@ -21,4 +22,3 @@ yarn-error.log
 packages/vscode-pont/out/
 
 .vscode-test/
-.mocks/
