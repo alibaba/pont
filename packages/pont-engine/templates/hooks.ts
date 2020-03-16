@@ -14,13 +14,13 @@ export default class MyGenerator extends CodeGenerator {
 
       export type Response = ${inter.responseType}
 
-      export function useMutate(params?: any, newValue? any, shouldRevalidate = true);
+      export function mutate(params?: any, newValue?:any, shouldRevalidate = true);
   
-      export function useTrigger(params?: any, shouldRevalidate = true);
+      export function trigger(params?: any, shouldRevalidate = true);
 
-      export function ${getHooksReuqestNameByMethod(method)}(params?: Params, options?: Options): Promise<Response>;
-
-      export const method: string;
+      export function ${getHooksReuqestNameByMethod(
+        method
+      )}(params?: Params, swrOptions?: ConfigInterface): Promise<Response>;
 
       export function request(params?: Params, option = {}): Promise<Response>;
     `;
@@ -59,26 +59,6 @@ export default class MyGenerator extends CodeGenerator {
     `;
   }
 
-  getCommonDeclaration() {
-    return `
-    interface Options<Data, Error> extends ConfigInterface<Data, Error> {
-      /** 请求函数 */ 
-      fetcher?: (url: string, meta?: any) => Promise<Data>,
-    
-      /** 扩展swr的options, 请求相关元数据 */
-      fetchOption: {
-        /** 请求方法 */
-        method?: string;
-    
-        /** 请求头 */ 
-        headers?: any,
-    
-        [key: string]: any
-      };
-    }
-    `;
-  }
-
   getInterfaceContent(inter: Interface) {
     const method = inter.method.toUpperCase();
 
@@ -90,20 +70,18 @@ export default class MyGenerator extends CodeGenerator {
     import * as defs from '../../baseClass';
     import * as Hooks from '../../hooks';
 
-    import { mutate, trigger } from 'swr';
+    import * as swr from 'swr';
 
     import { pontCore } from '../../pontCore'
 
     export ${inter.getParamsCode('Params', this.surrounding)}
 
-    export const method = "${method}";
-
     export function mutate(params = {}, newValue = undefined, shouldRevalidate = true) {
-      return mutate(pontCore.getUrl("${inter.path}", params, "${method}"), newValue, shouldRevalidate);
+      return swr.mutate(pontCore.getUrl("${inter.path}", params, "${method}"), newValue, shouldRevalidate);
     }
 
     export function trigger(params = {}, shouldRevalidate = true) {
-      return trigger(pontCore.getUrl("${inter.path}", params, "${method}"), shouldRevalidate);
+      return swr.trigger(pontCore.getUrl("${inter.path}", params, "${method}"), shouldRevalidate);
     }
 
     ${
@@ -113,8 +91,8 @@ export default class MyGenerator extends CodeGenerator {
         return Hooks.useRequest("${inter.path}", params, swrOptions);
       };`
         : `
-      export function useDeprecatedRequest(params = {}, swrOptions = {}) {
-        return Hooks.useDeprecatedRequest("${inter.path}", params, swrOptions, { method: ${method} });
+      export function useDeprecatedRequest(params = {}, swrOptions = {},fetchOptions = {},) {
+        return Hooks.useDeprecatedRequest("${inter.path}", params, swrOptions,Object.assign(fetchOptions, { method: "${method}" }));
       }
       `
     }
