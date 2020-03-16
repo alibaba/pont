@@ -58,5 +58,8 @@
     "ts-jest": "^24.0.2",
     "typescript": "^3.7.3",
     "yorkie": "^2.0.0"
+  },
+  "dependencies": {
+    "prettier": "^1.19.1"
   }
 }
