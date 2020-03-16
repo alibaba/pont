@@ -132,34 +132,30 @@ export class FileStructures {
     // js环境时，默认为新用户，生成pontCore文件
     if (this.surrounding === Surrounding.javaScript) {
       if (!fs.existsSync(this.baseDir + '/pontCore.js')) {
-        result['pontCore.js'] = getTemplatesDirFile('pontCore.js', 'useRequest/');
+        result['pontCore.js'] = getTemplatesDirFile('pontCore.js', 'pontCore/');
+        result['pontCore.d.ts'] = getTemplatesDirFile('pontCore.d.ts', 'pontCore/');
       }
 
-      if (this.templateType) {
-        const templateRequestFileContent = this.generateTemplateRequestFileContent();
-        if (templateRequestFileContent) {
-          result[`${this.templateType}.js`] = templateRequestFileContent;
-        }
+      if (this.templateType && this.checkHasTemplateFetch()) {
+        result[`${this.templateType}.js`] = getTemplatesDirFile(`${this.templateType}.js`, 'pontCore/');
+        result[`${this.templateType}.d.ts`] = getTemplatesDirFile(`${this.templateType}.d.ts`, 'pontCore/');
       }
     }
 
     return result;
   }
 
-  /** 生成当前模板对应的request文件 */
-  generateTemplateRequestFileContent() {
+  private checkHasTemplateFetch() {
     const templateTypesWithOutFetch = templateRegistion.map(item => item.templateType).filter(item => item !== 'fetch');
-    // 模板配置可能需要搭配对应的request请求文件，在这里做统一加载
-    // 加载规则： 检测和模板名称一致的request文件，若存在，在outDir目录生成
+
     if (
       templateTypesWithOutFetch.includes(this.templateType) &&
-      judgeTemplatesDirFileExists(`${this.templateType}.js`, 'useRequest/') &&
-      !fs.existsSync(this.baseDir + `${this.templateType}.js`)
+      judgeTemplatesDirFileExists(`${this.templateType}.js`, 'pontCore/')
     ) {
-      return getTemplatesDirFile(`${this.templateType}.js`, 'useRequest/');
+      return true;
     }
 
-    return null;
+    return false;
   }
 
   getDataSourcesTs() {

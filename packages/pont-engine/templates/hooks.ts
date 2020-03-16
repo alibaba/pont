@@ -5,20 +5,29 @@ export default class MyGenerator extends CodeGenerator {
     const method = inter.method.toUpperCase();
 
     const paramsCode = inter
-      .getParamsCode('Params', this.surrounding)
+      .getParamsCode('Params')
       .replace('lock: number', 'lock?: number')
       .replace(': file', ': FormData');
 
     return `
       export ${paramsCode}
 
+      export type HooksParams = Params | function(): Params;
+
       export type Response = ${inter.responseType}
 
-      export function useMutate(params?: any, newValue? any, shouldRevalidate = true);
+      export function mutate(params?: HooksParams, newValue?: any, shouldRevalidate = true);
   
-      export function useTrigger(params?: any, shouldRevalidate = true);
+      export function trigger(params?: HooksParams, shouldRevalidate = true);
 
-      export function ${getHooksReuqestNameByMethod(method)}(params?: Params, options?: Options): Promise<Response>;
+      ${
+        method === 'GET'
+          ? `
+        export function useRequest(params?: HooksParams, options?: ConfigInterface): { isLoading: boolean; data: Response, error: Error };`
+          : `
+        export function useRequest(params?: HooksParams, options?: ConfigInterface): { isLoading: boolean; data: Response, error: Error };
+        `
+      }
 
       export const method: string;
 
@@ -42,40 +51,9 @@ export default class MyGenerator extends CodeGenerator {
     return result;
   }
 
-  /** 获取总的类型定义代码 */
-  getDeclaration() {
-    return `
-      import { ConfigInterface } from 'swr/dist/types';
-
-      type ObjectMap<Key extends string | number | symbol = any, Value = any> = {
-        [key in Key]: Value;
-      }
-
-      ${this.getCommonDeclaration()}
-
-      ${super.getBaseClassesInDeclaration()}
-
-      ${super.getModsDeclaration()}
-    `;
-  }
-
   getCommonDeclaration() {
     return `
-    interface Options<Data, Error> extends ConfigInterface<Data, Error> {
-      /** 请求函数 */ 
-      fetcher?: (url: string, meta?: any) => Promise<Data>,
-    
-      /** 扩展swr的options, 请求相关元数据 */
-      fetchOption: {
-        /** 请求方法 */
-        method?: string;
-    
-        /** 请求头 */ 
-        headers?: any,
-    
-        [key: string]: any
-      };
-    }
+    declare type ConfigInterface = import("swr").ConfigInterface;
     `;
   }
 
@@ -90,20 +68,20 @@ export default class MyGenerator extends CodeGenerator {
     import * as defs from '../../baseClass';
     import * as Hooks from '../../hooks';
 
-    import { mutate, trigger } from 'swr';
+    import * as SWR from 'swr';
 
-    import { pontCore } from '../../pontCore'
+    import { PontCore } from '../../pontCore'
 
     export ${inter.getParamsCode('Params', this.surrounding)}
 
     export const method = "${method}";
 
     export function mutate(params = {}, newValue = undefined, shouldRevalidate = true) {
-      return mutate(pontCore.getUrl("${inter.path}", params, "${method}"), newValue, shouldRevalidate);
+      return SWR.mutate(Hooks.getUrlKey("${inter.path}", params, "${method}"), newValue, shouldRevalidate);
     }
 
     export function trigger(params = {}, shouldRevalidate = true) {
-      return trigger(pontCore.getUrl("${inter.path}", params, "${method}"), shouldRevalidate);
+      return SWR.trigger(Hooks.getUrlKey("${inter.path}", params, "${method}"), shouldRevalidate);
     }
 
     ${
@@ -114,20 +92,16 @@ export default class MyGenerator extends CodeGenerator {
       };`
         : `
       export function useDeprecatedRequest(params = {}, swrOptions = {}) {
-        return Hooks.useDeprecatedRequest("${inter.path}", params, swrOptions, { method: ${method} });
+        return Hooks.useRequest("${inter.path}", params, swrOptions, { method: ${method} });
       }
       `
     }
 
     export function request(params = {}, option  = {}) {
-      return pontCore.fetch(pontCore.getUrl("${inter.path}", params, "${method}"), {
+      return PontCore.fetch(PontCore.getUrl("${inter.path}", params, "${method}"), {
         ...option,
         method: "${method}",
       });
     }`;
   }
-}
-
-function getHooksReuqestNameByMethod(method: string) {
-  return method === 'GET' ? 'useRequest' : 'useDeprecatedRequest';
 }

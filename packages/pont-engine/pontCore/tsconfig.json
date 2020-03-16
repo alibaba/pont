@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+    "jsx": "react",
+    "declaration": true,
+    "target": "ES5",
+    "skipLibCheck": true
+  },
+  "include": ["./*.ts", "./*.tsx"]
+}

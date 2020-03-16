@@ -21,3 +21,4 @@ yarn-error.log
 packages/vscode-pont/out/
 
 .vscode-test/
+.mocks/
