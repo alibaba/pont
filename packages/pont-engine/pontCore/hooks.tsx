@@ -8,7 +8,11 @@ import { PontCore } from './pontCore';
 
 const defaultOptions = {
   /** 错误重试，默认关闭 */
-  shouldRetryOnError: false
+  shouldRetryOnError: false,
+  /** 获取焦点时，不重新请求 */
+  revalidateOnFocus: false,
+  /** 接口缓存 1 分钟 */
+  dedupingInterval: 60000
 };
 
 export const SWRProvider: React.FC<ConfigInterface> = props => {
