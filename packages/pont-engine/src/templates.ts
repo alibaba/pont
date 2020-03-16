@@ -9,6 +9,10 @@ export const templateRegistion = [
   {
     templateType: 'fetch',
     templateFileName: 'fetch.ts'
+  },
+  {
+    templateType: 'hooks',
+    templateFileName: 'hooks.ts'
   }
 ];
 

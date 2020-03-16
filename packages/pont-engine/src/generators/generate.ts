@@ -11,15 +11,24 @@ import * as _ from 'lodash';
 import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { format, reviseModName, Surrounding, getFileName, getTemplatesDirFile } from '../utils';
+import {
+  format,
+  reviseModName,
+  Surrounding,
+  getFileName,
+  getTemplatesDirFile,
+  judgeTemplatesDirFileExists
+} from '../utils';
 import { info } from '../debugLog';
+import { templateRegistion } from '../templates';
 
 export class FileStructures {
   constructor(
     private generators: CodeGenerator[],
     private usingMultipleOrigins: boolean,
     private surrounding = Surrounding.typeScript,
-    private baseDir = 'src/service'
+    private baseDir = 'src/service',
+    private templateType = ''
   ) {}
 
   getMultipleOriginsFileStructures() {
@@ -121,11 +130,32 @@ export class FileStructures {
         : this.getOriginFileStructures(this.generators[0]);
 
     // js环境时，默认为新用户，生成pontCore文件
-    if (this.surrounding === Surrounding.javaScript && !fs.existsSync(this.baseDir + '/pontCore.js')) {
-      result['pontCore.js'] = getTemplatesDirFile('pontCore.js');
+    if (this.surrounding === Surrounding.javaScript) {
+      if (!fs.existsSync(this.baseDir + '/pontCore.js')) {
+        result['pontCore.js'] = getTemplatesDirFile('pontCore.js', 'pontCore/');
+        result['pontCore.d.ts'] = getTemplatesDirFile('pontCore.d.ts', 'pontCore/');
+      }
+
+      if (this.templateType && this.checkHasTemplateFetch()) {
+        result[`${this.templateType}.js`] = getTemplatesDirFile(`${this.templateType}.js`, 'pontCore/');
+        result[`${this.templateType}.d.ts`] = getTemplatesDirFile(`${this.templateType}.d.ts`, 'pontCore/');
+      }
     }
 
     return result;
+  }
+
+  private checkHasTemplateFetch() {
+    const templateTypesWithOutFetch = templateRegistion.map(item => item.templateType).filter(item => item !== 'fetch');
+
+    if (
+      templateTypesWithOutFetch.includes(this.templateType) &&
+      judgeTemplatesDirFileExists(`${this.templateType}.js`, 'pontCore/')
+    ) {
+      return true;
+    }
+
+    return false;
   }
 
   getDataSourcesTs() {

@@ -403,7 +403,13 @@ export class Manager {
     }
 
     this.fileManager = new FilesManager(
-      new FileStructuresClazz(generators, this.currConfig.usingMultipleOrigins, this.currConfig.surrounding),
+      new FileStructuresClazz(
+        generators,
+        this.currConfig.usingMultipleOrigins,
+        this.currConfig.surrounding,
+        this.currConfig.outDir,
+        this.currConfig.templateType
+      ),
       this.currConfig.outDir
     );
     this.fileManager.prettierConfig = this.currConfig.prettierConfig;
