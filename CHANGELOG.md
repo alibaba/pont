@@ -1,3 +1,56 @@
+v0.3.12 / 2020-03-16
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Fix code
+  - Code
+  - Fix code
+  - Fix deprecated
+  - Fix ignore
+  - Code
+  - Fix code
+  - Fix pont hooks
+  - Fix pont template
+  - Fix code
+- `pont-engine`
+  - #148 Pont 内部定义的对象类型 ObjectMap, 但是生成的是objectMap close
+
+
+### 🚀 Features
+
+- `general`
+  - Code
+  - Add hooks-app
+  - Code
+  - Merge
+  - Merge pont-hooks
+  - Add templates.md
+  - Update code
+  - Add hooks templates
+  - Update Readme
+  - Update Readme
+  - Merge branch 'master' into pont-zl
+  - Update Readme
+  - Update code
+  - Update code
+  - Update quick-start
+  - Update qrcode
+
+
+### 🏡 Chore
+
+- `script`
+  - Fix release when get latest tag bug
+
+
+### 💖 Thanks to
+
+- Leon1Zhu
+- jasonHzq
+- 高乐天
+
 v0.3.11 / 2020-02-27
 ===================
 
