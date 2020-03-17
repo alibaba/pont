@@ -55,6 +55,8 @@ fetch 模板会对外暴露如下属性:
 
 ### hooks
 
+#### 接入方法
+
 1、新项目将 templateType 置为 hooks。老项目需要删除原有 pont template，并将 templateType 置为 hooks。
 
 2、安装 swr
