@@ -55,51 +55,89 @@ fetch 模板会对外暴露如下属性:
 
 ### hooks
 
-> hooks 模板基于 [swr](https://github.com/zeit/swr)，所以使用之前需要在项目中安装 swr
+> hooks 模板基于 [swr](https://github.com/zeit/swr)，使用 Hooks 模板，请在项目中安装 swr。
 
 ```sh
+# yarn
 yarn add swr
 
 # npm
 npm i -S swr
 ```
 
-> hooks 模板提供如下方法：
+> hooks 模板新增如下方法
 
-- mutate: 乐观更新
-- trigger: 手动取数
-- useRequest: 基于 swr 的取数接口。接口 method 为 GET。
-- useDeprecatedRequest: 基于 swr 的取数接口，接口 method 为非 GET。注意 SWR 只支持取数型接口调用！！！
+- useRequest
 
-> 非 GET 方法接口，请使用正常取数方法：
+基于 swr 的取数接口。注意 SWR 只支持取数型接口调用！
 
-- request: 非 hooks 的正常取数接口
+- 普通调用
 
-### swr 功能简介
+```jsx
+const List: React.FC<ListProps> = props => {
+  const { data, isLoading, error } = API.mod.getList.useRequest({ param: paramValue });
 
-- 轮询取数
+  return <div>{isLoading ? <span>loading....</span> : <span>{data.name}</span>}</div>;
+};
+```
 
-- 接口缓存
+- 声明式接口依赖调用
 
-- React Hooks 声明式取数
+```jsx
+const List: React.FC<ListProps> = props => {
+  const { data, isLoading, error } = API.mod.getList.useRequest({ param: paramValue });
+  const { data: data2 } = API.mod.getList2.useRequest(() => ({ param: data.id }));
 
-- 乐观更新
+  return ...
+}
+```
 
-- Suspense mode
+- 搜索
 
-- 声明式接口依赖
+```jsx
+const List: React.FC<ListProps> = props => {
+  const [keyword, changeKeyword] = useState('');
+  const { data, isLoading, error } = API.mod.getList.useRequest({ keyword });
 
-- 失败重试等...
+  return ...
+}
+```
 
-详情参看 [swr](https://github.com/zeit/swr)
+- 轮询
 
-### demo
+```jsx
+const List: React.FC<ListProps> = props => {
+  const { data, isLoading, error } = API.mod.getList.useRequest({ param: paramValue }, { refreshInterval: 3000 });
 
-参考下面的例子，来体验内置模板。
+  return ...
+}
+```
+
+更多用法请参看 [swr](https://github.com/zeit/swr)
+
+- useDeprecatedRequest
+
+基于 swr 的取数接口。当接口 method 为 POST，DELETE，PUT 等，但仍然是取数接口（后端定义不规范），可以调用 useDeprecatedRequest 方法。
+
+- mutate
+
+乐观更新
+
+- trigger
+
+手动触发重新取数
+
+- request
+
+原正常取数接口
+
+#### hooks demo
+
+参考如下使用 hooks 模板的例子，来体验内置模板：
 
 - [hooks-demo](https://github.com/alibaba/pont/tree/master/examples/hooks-app)
 
-## 模板接入流程
+## 内置模板贡献流程
 
 > 如果你有好的想法或者好的模板，非常欢迎来给我们提 PR，我们非常渴望利用社区的力量来共建 Pont。
 
