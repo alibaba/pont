@@ -26,6 +26,7 @@
     "typescript": "^3.5.3"
   },
   "files": [
+    "pontCore",
     "configSchema.json",
     "src",
     "lib",
