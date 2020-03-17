@@ -89,7 +89,7 @@ const App: React.FC<AppProps> = props => {
 
 - useRequest
 
-基于 swr 的取数接口。注意 SWR 只支持取数型接口调用！
+基于 swr 的取数接口。注意 SWR 只支持取数型接口调用！useRequest 功能强大，主要功能列举如下：
 
 - 普通调用
 
