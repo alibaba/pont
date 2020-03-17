@@ -304,7 +304,9 @@ export default async function(url: string): Promise<string> {
 
 可选值：'fetch' | 'hooks'
 
-描述：可选项。用于生成 pont 内置模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件，内置模板具体使用介绍，请参考[内置模板](https://github.com/alibaba/pont/tree/master/docs/templates.md)。
+描述：可选项。用于生成 pont 内置模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件。
+
+内置模板功能强大，使用方法请参看[内置模板使用方法及贡献流程](https://github.com/alibaba/pont/tree/master/docs/templates.md)。
 
 ## demo
 
