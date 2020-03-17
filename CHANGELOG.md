@@ -1,3 +1,46 @@
+v0.3.13 / 2020-03-17
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Update surrounding
+
+
+### 🚀 Features
+
+- `general`
+  - Code
+  - Code
+  - Code
+  - Code
+  - Update mod
+  - Merge yarn
+  - Update docs
+  - Update docs
+  - Md
+  - Add md
+  - Update readme
+  - Merge branch 'master' into pont-zl
+  - Merge branch 'master' into pont-zl
+
+
+### 🏡 Chore
+
+- `deps`
+  - Bump eslint-utils in /examples/hooks-app
+  - Bump acorn from 5.7.3 to 5.7.4 in /examples/hooks-app
+  - Bump acorn from 5.7.3 to 5.7.4
+- `deps-dev`
+  - Bump minimist from 1.2.0 to 1.2.2
+
+
+### 💖 Thanks to
+
+- Leon1Zhu
+- dependabot[bot]
+- jasonHzq
+
 v0.3.12 / 2020-03-16
 ===================
 
