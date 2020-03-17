@@ -43,7 +43,7 @@ yarn add pont-engine
 
 > 若需要修改默认的 pontCore 提供的默认请求，请参考[pontCore 文档]()
 
-## 模板使用教程
+## 内置模板列表
 
 ### fetch
 
