@@ -94,22 +94,32 @@ const App: React.FC<AppProps> = props => {
 - 普通调用
 
 ```jsx
-const List: React.FC<ListProps> = props => {
-  const { data, isLoading, error } = API.mod.getList.useRequest({ param: paramValue });
+const UserList: React.FC<ListProps> = props => {
+  const { data: userList, error, isLoading } = API.common.getUserList.useRequest({ userName: 'hupu' });
 
-  return <div>{isLoading ? <span>loading....</span> : <span>{data.name}</span>}</div>;
+  if (error) return <div>error</div>;
+  if (isLoading) return <div>loading...</div>;
+
+  return userList.map(item => <div key={item.name}>{item.name}</div>);
 };
 ```
 
 - 声明式接口依赖调用
 
 ```jsx
-const List: React.FC<ListProps> = props => {
-  const { data, isLoading, error } = API.mod.getList.useRequest({ param: paramValue });
-  const { data: data2 } = API.mod.getList2.useRequest(() => ({ param: data.id }));
+const MyProjects: React.FC<Props> = props => {
+  const { data: user } = API.common.getUserDetail.useRequest({ userName: 'hupu' });
+  const { data: projects, isLoading } = API.common.getProjectList.useRequest(() => ({
+    type: 'stream',
+    userId: user.id
+  }));
 
-  return ...
-}
+  if (isLoading) {
+    return 'loading...';
+  }
+
+  return 'You have ' + projects.length + ' projects';
+};
 ```
 
 - 搜索
@@ -133,6 +143,8 @@ const List: React.FC<ListProps> = props => {
 }
 ```
 
+其它如：页面重获焦点，自动重新请求；优先使用缓存数据快速渲染；支持 Suspense 取数模式；
+
 更多用法请参看 [swr](https://github.com/zeit/swr)
 
 - useDeprecatedRequest
@@ -143,9 +155,54 @@ const List: React.FC<ListProps> = props => {
 
 乐观更新
 
+```jsx
+const Profile: React.FC<Props> = () => {
+  const { data, isLoading } = API.common.getUserList.useRequest({ userName: 'hupu' });
+
+  if (isLoading) {
+    return <span>loading...</span>;
+  }
+
+  return (
+    <div>
+      <h1>My name is {data.name}.</h1>
+      <button
+        onClick={async () => {
+          const newName = data.name.toUpperCase();
+          // update the local data immediately and revalidate (refetch)
+          API.common.getUserList.mutate({ userName: 'hupu' }, { ...data, name: newName });
+          // send a request to the API to update the data
+          await API.common.putUserName.request({ name: newName });
+        }}>
+        Uppercase my name!
+      </button>
+    </div>
+  );
+};
+```
+
 - trigger
 
 手动触发重新取数
+
+```jsx
+const App: React.FC<AppProps> = props => {
+  return (
+    <div>
+      <Profile />
+      <button
+        onClick={() => {
+          // set the cookie as expired
+          document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          // tell all SWRs with this key to revalidate
+          API.common.getUserList.trigger({ userName: 'hupu' });
+        }}>
+        Logout
+      </button>
+    </div>
+  );
+};
+```
 
 - request
 
