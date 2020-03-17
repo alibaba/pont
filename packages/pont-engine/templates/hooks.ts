@@ -12,7 +12,7 @@ export default class MyGenerator extends CodeGenerator {
     return `
       export ${paramsCode}
 
-      export type HooksParams = () => Params | Params;
+      export type HooksParams = (() => Params) | Params;
 
       export type Response = ${inter.responseType}
 

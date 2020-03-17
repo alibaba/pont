@@ -13,6 +13,7 @@
     "watch": "lerna run watch",
     "clean": "lerna clean && rimraf ./node_modules",
     "lint": "prettier --write --parser typescript \"packages/**/*.ts\"",
+    "release:all": "npm run release && npm run release:vscode",
     "release": "node scripts/release.js",
     "release:dry": "node scripts/release.js --dry",
     "release:vscode": "sh scripts/releaseVscode.sh"
