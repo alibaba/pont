@@ -55,7 +55,11 @@ fetch 模板会对外暴露如下属性:
 
 ### hooks
 
-> hooks 模板基于 [swr](https://github.com/zeit/swr)，使用 Hooks 模板，请在项目中安装 swr。
+1、新项目将 templateType 置为 hooks。老项目需要删除原有 pont template，并将 templateType 置为 hooks。
+
+2、安装 swr
+
+hooks 模板基于 [swr](https://github.com/zeit/swr)。因此使用 hooks 模板，请在项目中安装 swr：
 
 ```sh
 # yarn
@@ -65,7 +69,21 @@ yarn add swr
 npm i -S swr
 ```
 
-> hooks 模板新增如下方法
+3、在根组件使用 SWRProvider，声明默认配置。
+
+```jsx
+const App: React.FC<AppProps> = props => {
+  // ... your code here
+
+  return (
+    <SWRProvider {...your custom default options}>
+      <your children here...>
+    </SWRProvider>
+  );
+}
+```
+
+#### hooks 模板提供如下方法进行接口请求
 
 - useRequest
 
