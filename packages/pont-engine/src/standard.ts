@@ -315,9 +315,9 @@ export class Property extends Contextable {
     }
 
     const fieldTypeDeclaration =
-      surrounding === Surrounding.typeScript
-        ? `${optionalSignal}: ${this.dataType.generateCode(this.getDsName())}`
-        : '';
+      surrounding === Surrounding.javaScript
+        ? ''
+        : `${optionalSignal}: ${this.dataType.generateCode(this.getDsName())}`;
 
     return `
       /** ${this.description || this.name} */
