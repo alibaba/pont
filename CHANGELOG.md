@@ -1,3 +1,16 @@
+v0.3.19 / 2020-03-19
+===================
+
+### 🚀 Features
+
+- `general`
+  - Add refresh mocks data
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
 v0.3.18 / 2020-03-19
 ===================
 
