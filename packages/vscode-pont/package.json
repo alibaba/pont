@@ -34,6 +34,10 @@
       {
         "command": "pont.visitMocks",
         "title": "visit mocks interface"
+      },
+      {
+        "command": "pont.refreshMocks",
+        "title": "refresh mocks data"
       }
     ],
     "keybindings": [
@@ -41,6 +45,11 @@
         "command": "pont.findInterface",
         "key": "cmd+ctrl+p",
         "mac": "cmd+ctrl+p"
+      },
+      {
+        "command": "pont.refreshMocks",
+        "key": "cmd+ctrl+m",
+        "mac": "cmd+ctrl+m"
       }
     ],
     "menus": {
