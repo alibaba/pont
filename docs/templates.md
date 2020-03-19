@@ -43,7 +43,7 @@ yarn add pont-engine
 
 > 若需要修改默认的 pontCore 提供的默认请求，请参考[pontCore 文档]()
 
-## 模板使用教程
+## 内置模板列表
 
 ### fetch
 
@@ -55,26 +55,166 @@ fetch 模板会对外暴露如下属性:
 
 ### hooks
 
-> hooks 模板基于 swr，所以使用之前需要先安装 swr
-> hooks 模板会对外暴露如下属性：
+#### 接入方法
 
-- Response: 返回值类型
-- mutate: 乐观更新
-- trigger: 手动取数
-- useRequest: 基于 swr 的取数接口，接口类型为 GET 时对外暴露
-- useDeprecatedRequest: 基于 swr 的取数接口，接口类型非 GET 时对外暴露
+1、新项目将 templateType 置为 hooks。老项目需要删除原有 pont template，并将 templateType 置为 hooks。
 
-> 我们不建议使用 GET 以外的方法进行取数
+2、安装 swr
 
-- request: 非 hooks 的正常取数接口
+hooks 模板基于 [swr](https://github.com/zeit/swr)。因此使用 hooks 模板，请在项目中安装 swr：
 
-### demo
+```sh
+# yarn
+yarn add swr
 
-参考下面的例子，来体验内置模板。
+# npm
+npm i -S swr
+```
+
+3、在根组件使用 SWRProvider，声明默认配置。
+
+```jsx
+const App: React.FC<AppProps> = props => {
+  // ... your code here
+
+  return (
+    <SWRProvider {...your custom default options}>
+      <your children here...>
+    </SWRProvider>
+  );
+}
+```
+
+#### hooks 模板提供如下方法进行接口请求
+
+- useRequest
+
+基于 swr 的取数接口。注意 SWR 只支持取数型接口调用！useRequest 功能强大，主要功能列举如下：
+
+- 普通调用
+
+```jsx
+const UserList: React.FC<ListProps> = props => {
+  const { data: userList, error, isLoading } = API.common.getUserList.useRequest({ userName: 'hupu' });
+
+  if (error) return <div>error</div>;
+  if (isLoading) return <div>loading...</div>;
+
+  return userList.map(item => <div key={item.name}>{item.name}</div>);
+};
+```
+
+- 声明式接口依赖调用
+
+```jsx
+const MyProjects: React.FC<Props> = props => {
+  const { data: user } = API.common.getUserDetail.useRequest({ userName: 'hupu' });
+  const { data: projects, isLoading } = API.common.getProjectList.useRequest(() => ({
+    type: 'stream',
+    userId: user.id
+  }));
+
+  if (isLoading) {
+    return 'loading...';
+  }
+
+  return 'You have ' + projects.length + ' projects';
+};
+```
+
+- 搜索
+
+```jsx
+const List: React.FC<ListProps> = props => {
+  const [keyword, changeKeyword] = useState('');
+  const { data, isLoading, error } = API.mod.getList.useRequest({ keyword });
+
+  return ...
+}
+```
+
+- 轮询
+
+```jsx
+const List: React.FC<ListProps> = props => {
+  const { data, isLoading, error } = API.mod.getList.useRequest({ param: paramValue }, { refreshInterval: 3000 });
+
+  return ...
+}
+```
+
+其它如：页面重获焦点，自动重新请求；优先使用缓存数据快速渲染；支持 Suspense 取数模式；
+
+更多用法请参看 [swr](https://github.com/zeit/swr)
+
+- useDeprecatedRequest
+
+基于 swr 的取数接口。当接口 method 为 POST，DELETE，PUT 等，但仍然是取数接口（后端定义不规范），可以调用 useDeprecatedRequest 方法。
+
+- mutate
+
+乐观更新
+
+```jsx
+const Profile: React.FC<Props> = () => {
+  const { data, isLoading } = API.common.getUserList.useRequest({ userName: 'hupu' });
+
+  if (isLoading) {
+    return <span>loading...</span>;
+  }
+
+  return (
+    <div>
+      <h1>My name is {data.name}.</h1>
+      <button
+        onClick={async () => {
+          const newName = data.name.toUpperCase();
+          // update the local data immediately and revalidate (refetch)
+          API.common.getUserList.mutate({ userName: 'hupu' }, { ...data, name: newName });
+          // send a request to the API to update the data
+          await API.common.putUserName.request({ name: newName });
+        }}>
+        Uppercase my name!
+      </button>
+    </div>
+  );
+};
+```
+
+- trigger
+
+手动触发重新取数
+
+```jsx
+const App: React.FC<AppProps> = props => {
+  return (
+    <div>
+      <Profile />
+      <button
+        onClick={() => {
+          // set the cookie as expired
+          document.cookie = 'token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+          // tell all SWRs with this key to revalidate
+          API.common.getUserList.trigger({ userName: 'hupu' });
+        }}>
+        Logout
+      </button>
+    </div>
+  );
+};
+```
+
+- request
+
+原正常取数接口
+
+#### hooks demo
+
+参考如下使用 hooks 模板的例子，来体验内置模板：
 
 - [hooks-demo](https://github.com/alibaba/pont/tree/master/examples/hooks-app)
 
-## 模板接入流程
+## 内置模板贡献流程
 
 > 如果你有好的想法或者好的模板，非常欢迎来给我们提 PR，我们非常渴望利用社区的力量来共建 Pont。
 

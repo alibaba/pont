@@ -92,7 +92,7 @@ export default class MyGenerator extends CodeGenerator {
       };`
         : `
       export function useDeprecatedRequest(params = {}, swrOptions = {}) {
-        return Hooks.useRequest("${inter.path}", params, swrOptions, { method: "${method}" });
+        return Hooks.useRequest("${inter.path}", params, swrOptions, { method: ${method} });
       }
       `
     }

@@ -42,6 +42,8 @@ mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提�
 
 - 2、右键 pont 接口代码，可以访问(visit mocks interface) GET 类型的 mocks 接口。
 
+mocks 自动生成所有 mocks 数据，你也可以自由更新 mocks 数据，支持 [mocksjs](http://mockjs.com/examples.html) 语法更新 mocks 数据。
+
 ### 跨语言
 
 - pont 天然支持 Javascript 项目及 Typescript 项目。如您使用 `Java`、`C++` 等语言，需定制代码生成器
@@ -302,7 +304,9 @@ export default async function(url: string): Promise<string> {
 
 可选值：'fetch' | 'hooks'
 
-描述：可选项。用于生成 pont 内置模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件，内置模板具体使用介绍，请参考[内置模板](https://github.com/alibaba/pont/tree/master/docs/templates.md)。
+描述：可选项。用于生成 pont 内置模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件。
+
+内置模板功能强大，使用方法请参看[内置模板使用方法及贡献流程](https://github.com/alibaba/pont/tree/master/docs/templates.md)。
 
 ## demo
 
