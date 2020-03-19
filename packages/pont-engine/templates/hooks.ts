@@ -59,18 +59,19 @@ export default class MyGenerator extends CodeGenerator {
 
   getInterfaceContent(inter: Interface) {
     const method = inter.method.toUpperCase();
+    const relativePath = this.usingMultipleOrigins ? '../../../' : '../../';
 
     return `
     /**
      * @desc ${inter.description}
      */
 
-    import * as defs from '../../baseClass';
-    import * as Hooks from '../../hooks';
-
     import * as SWR from 'swr';
 
-    import { PontCore } from '../../pontCore'
+    import * as defs from '${relativePath}baseClass';
+    import * as Hooks from '${relativePath}hooks';
+    import { PontCore } from '${relativePath}pontCore';
+
 
     export ${inter.getParamsCode('Params', this.surrounding)}
 
