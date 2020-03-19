@@ -68,7 +68,7 @@ export default class MyGenerator extends CodeGenerator {
 
     import * as SWR from 'swr';
 
-    import * as defs from '${relativePath}baseClass';
+    import * as defs from '../../baseClass';
     import * as Hooks from '${relativePath}hooks';
     import { PontCore } from '${relativePath}pontCore';
 
