@@ -308,6 +308,8 @@ export default async function(url: string): Promise<string> {
 
 内置模板功能强大，使用方法请参看[内置模板使用方法及贡献流程](https://github.com/alibaba/pont/tree/master/docs/templates.md)。
 
+> 使用内置模板时， `pont-config.json` 中 `surrounding` 需要设置为 `javaScript`
+
 ## demo
 
 参考下面的例子，来体验 pont。

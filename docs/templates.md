@@ -4,6 +4,8 @@
 
 Pont 提供多种内置模板，目前已支持 Fetch、 基于 swr 的 Hooks 模板。
 
+> 使用内置模板时， `pont-config.json` 中 `surrounding` 需要设置为 `javaScript`
+
 ## 模板接入流程
 
 > 这里以 create-react-app 为例
