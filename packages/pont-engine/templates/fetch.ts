@@ -34,7 +34,7 @@ export default class MyGenerator extends CodeGenerator {
 
   getInterfaceContent(inter: Interface) {
     const method = inter.method.toUpperCase();
-    const requestParams = inter.getRequestParams(Surrounding.typeScript);
+    const requestParams = inter.getRequestParams(this.surrounding);
     const paramsCode = inter.getParamsCode('Params', this.surrounding);
 
     return `
