@@ -188,10 +188,25 @@ export class MocksServer {
 
   getMocksCode() {
     const wrapper = this.manager.currConfig.mocks.wrapper;
-    const wrapperRes = data => data;
+    const wrapperFn = wrapper ? dataCode => wrapper.replace(/{response}/g, dataCode) : data => data;
 
-    const code = new Mocks(this.manager.currLocalDataSource).getMocksCode(wrapperRes);
+    const code = new Mocks(this.manager.currLocalDataSource).getMocksCode(wrapperFn);
     return format(code, this.manager.currConfig.prettierConfig);
+  }
+
+  async refreshMocksCode() {
+    const rootPath = vscode.workspace.rootPath;
+    const mockPath = path.join(rootPath, '.mocks/mocks.ts');
+
+    const code = this.getMocksCode();
+    if (!fs.existsSync(path.join(rootPath, '.mocks'))) {
+      fs.mkdirSync(path.join(rootPath, '.mocks'));
+    } else {
+      fs.unlinkSync(path.join(rootPath, '.mocks'));
+      fs.mkdirSync(path.join(rootPath, '.mocks'));
+    }
+
+    await fs.writeFile(mockPath, code);
   }
 
   async checkMocksPath() {

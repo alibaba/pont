@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
+    "@alife/dt-hooks": "^0.1.0",
     "@babel/core": "7.4.3",
     "@svgr/webpack": "4.1.0",
     "@types/jest": "24.0.15",
@@ -135,7 +136,7 @@
     ]
   },
   "devDependencies": {
-    "pont-engine": "0.3.11",
+    "pont-engine": "0.3.14",
     "prettier": "^1.19.1"
   }
 }

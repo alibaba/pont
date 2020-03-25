@@ -390,6 +390,7 @@ export class Manager {
     const generators = this.allLocalDataSources.map(dataSource => {
       const generator: CodeGenerator = new Generator(this.currConfig.surrounding, this.currConfig.outDir);
       generator.setDataSource(dataSource);
+      generator.usingMultipleOrigins = this.currConfig.usingMultipleOrigins;
 
       if (_.isFunction(generator.getDataSourceCallback)) {
         generator.getDataSourceCallback(dataSource);

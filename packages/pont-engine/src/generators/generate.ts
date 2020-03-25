@@ -202,6 +202,8 @@ export class FileStructures {
 }
 
 export class CodeGenerator {
+  usingMultipleOrigins = false;
+
   dataSource: StandardDataSource;
 
   hasContextBund = false;
