@@ -6,9 +6,9 @@
 
 目前 Pont 中已经内置了 `fetch` 、 `hooks`两种模板。 并在 `pont--config.json` 中新增了对应的 `templateType` 配置项来开启对应的内置模板。
 
-为了不影响已经接入 Pont 的项目，除了 `templateType`， 我们还增加了 `surrounding`(javaScript | typeScript) 配置项来声明当前项目环境（默认为 typeScript），`surrounding` 为 typeScript 时 , [pontCore](https://github.com/alibaba/pont/tree/master/docs/pontCore.md) 等内置文件将不会生成，所以内置模板将不会生效。
+为了不影响已经接入 Pont 的项目，除了 `templateType`， 我们还增加了 `surrounding`( javaScript | typeScript ) 配置项来声明当前项目环境（默认为 typeScript），`surrounding` 为 typeScript 时 , [pontCore](https://github.com/alibaba/pont/tree/master/docs/pontCore.md) 等内置文件将不会生成，所以内置模板将不会生效。
 
-如果你已经接入 Pont 并想体验内置模板，请在 `pont-config.json` 中将 `surrounding` 设置为 `javaScript`，再配置内置模板。
+如果你已经接入 Pont 并想切换为内置模板，请在 `pont-config.json` 中将 `surrounding` 设置为 `javaScript`，再配置内置模板。
 
 > 新接入 Pont 的用户无需关心 `surrounding`配置， 通过 [pont start](https://github.com/alibaba/pont#%E5%BF%AB%E9%80%9F%E5%BC%80%E5%A7%8B)接入项目 `surrounding` 将自动置为 `javaScript`。
 
@@ -22,13 +22,13 @@
 >
 > - 2、 删除原有的 pontTemplate 文件。
 
-2、在 `pont-config.json` 将 `templateType` 设置为对应的内置模板(fetch | hooks)即可。
+2、在 `pont-config.json` 中将 `templateType` 设置为对应的内置模板( fetch | hooks )即可。
 
 > hooks 模板依赖 swr, 使用命令之前需要先安装 swr, 具体步骤请参考[Hooks 模板接入流程](https://github.com/alibaba/pont/blob/master/docs/templates.md#%E6%8E%A5%E5%85%A5%E6%96%B9%E6%B3%95)
 
 > 若需要修改默认的 pontCore 提供的默认请求，请参考[pontCore 使用说明](https://github.com/alibaba/pont/tree/master/docs/pontCore.md)
 
-## 模板列表
+## 内置模板列表
 
 ### fetch
 
@@ -199,7 +199,7 @@ const App: React.FC<AppProps> = props => {
 
 - [hooks-demo](https://github.com/alibaba/pont/tree/master/examples/hooks-app)
 
-## 贡献流程
+## 内置模板贡献流程
 
 > 如果你有好的想法或者好的模板，非常欢迎来给我们提 PR，我们非常渴望利用社区的力量来共建 Pont。
 
