@@ -25,7 +25,7 @@
 2、在 `pont-config.json` 中将 `templateType` 设置为对应的内置模板( fetch | hooks )即可。
 
 > hooks 模板依赖 swr, 使用命令之前需要先安装 swr, 具体步骤请参考[Hooks 模板接入流程](https://github.com/alibaba/pont/blob/master/docs/templates.md#%E6%8E%A5%E5%85%A5%E6%96%B9%E6%B3%95)
-
+>
 > 若需要修改默认的 pontCore 提供的默认请求，请参考[pontCore 使用说明](https://github.com/alibaba/pont/tree/master/docs/pontCore.md)
 
 ## 内置模板列表
