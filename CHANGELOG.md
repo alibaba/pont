@@ -1,3 +1,16 @@
+v1.0.2 / 2020-04-09
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Add mutate; check is params null
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
 v1.0.1 / 2020-03-25
 ===================
 

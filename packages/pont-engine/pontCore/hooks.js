@@ -54,10 +54,11 @@ function useRequest(url, params, swrOptions, fetchOptions) {
     var fetcher = function (requestUrl) { return pontCore_1.PontCore.fetch(requestUrl, fetchOptions); };
     var method = ((_a = fetchOptions) === null || _a === void 0 ? void 0 : _a.method) || 'GET';
     var urlKey = getUrlKey(url, params, method);
-    var _b = swr_1.default(urlKey, fetcher, swrOptions), data = _b.data, error = _b.error, isValidating = _b.isValidating;
+    var _b = swr_1.default(urlKey, fetcher, swrOptions), data = _b.data, error = _b.error, isValidating = _b.isValidating, mutate = _b.mutate;
     return {
         data: data,
         error: error,
+        mutate: mutate,
         isLoading: data === undefined || isValidating
     };
 }
@@ -66,9 +67,11 @@ function getUrlKey(url, params, method) {
     if (params === void 0) { params = {}; }
     var urlKey = typeof params === 'function'
         ? function () {
-            return pontCore_1.PontCore.getUrl(url, params(), method);
+            return params ? pontCore_1.PontCore.getUrl(url, params(), method) : null;
         }
-        : pontCore_1.PontCore.getUrl(url, params, method);
+        : params
+            ? pontCore_1.PontCore.getUrl(url, params, method)
+            : null;
     return urlKey;
 }
 exports.getUrlKey = getUrlKey;
