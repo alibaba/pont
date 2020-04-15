@@ -123,7 +123,10 @@ export class Config extends DataSourceConfig {
 
   static getFetchMethodFromConfig(config: Config | DataSourceConfig) {
     if (config.fetchMethodPath) {
-      const moduleResult = getTemplate(path.join(process.cwd(), config.fetchMethodPath), '', defaultFetchMethodCode);
+      const fetchMethodPath = path.isAbsolute(config.fetchMethodPath)
+        ? config.fetchMethodPath
+        : path.join(process.cwd(), config.fetchMethodPath;
+      const moduleResult = getTemplate(fetchMethodPath), '', defaultFetchMethodCode);
 
       if (moduleResult) {
         return moduleResult.default;
