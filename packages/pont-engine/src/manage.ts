@@ -197,17 +197,26 @@ export class Manager {
       lockFile = path.join(this.currConfig.outDir, 'api.lock');
     }
 
-    const localDataStr = await fs.readFile(lockFile, {
-      encoding: 'utf8'
-    });
+    try {
+      const localDataStr = await fs.readFile(lockFile, {
+        encoding: 'utf8'
+      });
+      return localDataStr;
+    } catch (error) {
+      return ''
+    }
 
-    return localDataStr;
+
+
   }
 
   async readLocalDataSource() {
     try {
       this.report('读取本地数据中...');
       const localDataStr = await this.readLockFile();
+      if (!localDataStr) {
+        return;
+      }
 
       this.report('读取本地完成');
       const localDataObjects = JSON.parse(localDataStr) as StandardDataSource[];
@@ -388,7 +397,8 @@ export class Manager {
     );
 
     const generators = this.allLocalDataSources.map(dataSource => {
-      const generator: CodeGenerator = new Generator(this.currConfig.surrounding, this.currConfig.outDir);
+      const config = this.getConfigByDataSourceName(dataSource.name);
+      const generator: CodeGenerator = new Generator(this.currConfig.surrounding, config?.outDir);
       generator.setDataSource(dataSource);
       generator.usingMultipleOrigins = this.currConfig.usingMultipleOrigins;
 
@@ -427,6 +437,16 @@ export class Manager {
     } as any;
 
     return DsManager.getReportData(currProj);
+  }
+
+  /** 获取当前dataSource对应的config */
+  getConfigByDataSourceName(name: string) {
+    if (name) {
+      return this.allConfigs.find(config => config.name === name) || this.currConfig;
+    }
+
+    // 没有name时，表示是单数据源
+    return this.currConfig;
   }
 
   /** 打开接口变更报表 */

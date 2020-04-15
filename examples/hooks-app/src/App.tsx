@@ -4,7 +4,6 @@ import logo from "./logo.svg";
 import "./App.css";
 import { PontCore } from "./services/pontCore";
 import { SWRProvider } from "./services/hooks";
-import { useCombineHooks } from "@alife/dt-hooks";
 
 PontCore.useFetch((url, options) => {
   return fetch("http://localhost:8080" + url).then(res => res.json());
@@ -47,10 +46,10 @@ const App: React.FC = () => {
         {isPetsLoading ? (
           <span>loading ...</span>
         ) : (
-          pets.map((pet, petIndex) => {
-            return <li key={petIndex}>{pet.name}</li>;
-          })
-        )}
+            pets.map((pet, petIndex) => {
+              return <li key={petIndex}>{pet.name}</li>;
+            })
+          )}
       </div>
     </SWRProvider>
   );
