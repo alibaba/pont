@@ -119,6 +119,7 @@ export class Control {
     updateAll: 'pont.updateAll',
     syncRemote: 'pont.syncRemote',
     findInterface: 'pont.findInterface',
+    refreshMocks: 'pont.refreshMocks',
     regenerate: 'pont.regenerate'
   };
   dispose: Function;
@@ -163,6 +164,12 @@ export class Control {
     _.forEach(this.commands, (value, key) => {
       vscode.commands.registerCommand(value, this[key].bind(this));
     });
+  }
+
+  refreshMocks() {
+    if (MocksServer.singleInstance) {
+      MocksServer.singleInstance.refreshMocksCode();
+    }
   }
 
   findInterface(ignoreEdit = false) {

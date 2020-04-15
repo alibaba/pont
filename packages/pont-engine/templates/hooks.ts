@@ -3,16 +3,13 @@ import { Interface, BaseClass, Property, CodeGenerator } from 'pont-engine';
 export default class MyGenerator extends CodeGenerator {
   getInterfaceContentInDeclaration(inter: Interface) {
     const method = inter.method.toUpperCase();
-
-    const paramsCode = inter
-      .getParamsCode('Params')
-      .replace('lock: number', 'lock?: number')
-      .replace(': file', ': FormData');
+    const paramsCode = inter.getParamsCode('Params');
+    const requestParams = inter.getRequestParams();
 
     return `
       export ${paramsCode}
 
-      export type HooksParams = () => Params | Params;
+      export type HooksParams = (() => Params) | Params;
 
       export type Response = ${inter.responseType}
 
@@ -31,7 +28,7 @@ export default class MyGenerator extends CodeGenerator {
 
       export const method: string;
 
-      export function request(params?: Params, option = {}): Promise<Response>;
+      export function request(${requestParams}): Promise<Response>;
     `;
   }
 
@@ -59,18 +56,20 @@ export default class MyGenerator extends CodeGenerator {
 
   getInterfaceContent(inter: Interface) {
     const method = inter.method.toUpperCase();
+    const relativePath = this.usingMultipleOrigins ? '../../../' : '../../';
+    const requestParams = inter.getRequestParams(this.surrounding);
 
     return `
     /**
      * @desc ${inter.description}
      */
 
-    import * as defs from '../../baseClass';
-    import * as Hooks from '../../hooks';
-
     import * as SWR from 'swr';
 
-    import { PontCore } from '../../pontCore'
+    import * as defs from '../../baseClass';
+    import * as Hooks from '${relativePath}hooks';
+    import { PontCore } from '${relativePath}pontCore';
+
 
     export ${inter.getParamsCode('Params', this.surrounding)}
 
@@ -97,11 +96,8 @@ export default class MyGenerator extends CodeGenerator {
       `
     }
 
-    export function request(params = {}, option  = {}) {
-      return PontCore.fetch(PontCore.getUrl("${inter.path}", params, "${method}"), {
-        ...option,
-        method: "${method}",
-      });
+    export function request(${requestParams}) {
+      return PontCore.fetch(PontCore.getUrl("${inter.path}", params, "${method}"), ${inter.getRequestContent()});
     }`;
   }
 }

@@ -1,3 +1,168 @@
+v1.0.2 / 2020-04-09
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Add mutate; check is params null
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
+v1.0.1 / 2020-03-25
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Fix fetch template
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
+v1.0.0 / 2020-03-24
+===================
+
+
+
+v0.3.20 / 2020-03-19
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Fix template
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
+v0.3.19 / 2020-03-19
+===================
+
+### 🚀 Features
+
+- `general`
+  - Add refresh mocks data
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
+v0.3.18 / 2020-03-19
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Fix wrapper
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
+v0.3.17 / 2020-03-19
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Fix hooks template
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
+v0.3.16 / 2020-03-19
+===================
+
+### 🚀 Features
+
+- `general`
+  - Commit
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
+v0.3.15 / 2020-03-17
+===================
+
+### 🚀 Features
+
+- `general`
+  - Udpate package
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
+v0.3.14 / 2020-03-17
+===================
+
+### 🚀 Features
+
+- `general`
+  - Code
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
+v0.3.13 / 2020-03-17
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Update surrounding
+
+
+### 🚀 Features
+
+- `general`
+  - Code
+  - Code
+  - Code
+  - Code
+  - Update mod
+  - Merge yarn
+  - Update docs
+  - Update docs
+  - Md
+  - Add md
+  - Update readme
+  - Merge branch 'master' into pont-zl
+  - Merge branch 'master' into pont-zl
+
+
+### 🏡 Chore
+
+- `deps`
+  - Bump eslint-utils in /examples/hooks-app
+  - Bump acorn from 5.7.3 to 5.7.4 in /examples/hooks-app
+  - Bump acorn from 5.7.3 to 5.7.4
+- `deps-dev`
+  - Bump minimist from 1.2.0 to 1.2.2
+
+
+### 💖 Thanks to
+
+- Leon1Zhu
+- dependabot[bot]
+- jasonHzq
+
 v0.3.12 / 2020-03-16
 ===================
 

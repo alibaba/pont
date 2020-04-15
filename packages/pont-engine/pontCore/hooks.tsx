@@ -32,11 +32,12 @@ export function useRequest(url: any, params = {} as any, swrOptions = {} as any,
   const method = fetchOptions?.method || 'GET';
 
   const urlKey = getUrlKey(url, params, method);
-  const { data, error, isValidating } = useSWR(urlKey, fetcher, swrOptions);
+  const { data, error, isValidating, mutate } = useSWR(urlKey, fetcher, swrOptions);
 
   return {
     data,
     error,
+    mutate,
     isLoading: data === undefined || isValidating
   };
 }
@@ -45,9 +46,11 @@ export function getUrlKey(url: any, params = {} as any, method: string) {
   const urlKey =
     typeof params === 'function'
       ? () => {
-          return PontCore.getUrl(url, params(), method);
+          return params ? PontCore.getUrl(url, params(), method) : null;
         }
-      : PontCore.getUrl(url, params, method);
+      : params
+      ? PontCore.getUrl(url, params, method)
+      : null;
 
   return urlKey;
 }

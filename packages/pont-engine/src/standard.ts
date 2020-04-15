@@ -286,7 +286,7 @@ export class Property extends Contextable {
   name: string;
   required: boolean;
 
-  in: 'query' | 'body' | 'path';
+  in: 'query' | 'body' | 'path' | 'formData' | 'header';
 
   setContext(context) {
     super.setContext(context);
@@ -367,11 +367,65 @@ export class Interface extends Contextable {
   getParamsCode(className = 'Params', surrounding = Surrounding.typeScript) {
     return `class ${className} {
       ${this.parameters
-        .filter(param => param.in !== 'body')
+        .filter(param => param.in === 'path' || param.in === 'query')
         .map(param => param.toPropertyCode(surrounding, true))
         .join('')}
     }
   `;
+  }
+
+  getParamList() {
+    const form = !!this.parameters.find(param => param.in === 'formData');
+    const paramList = [
+      {
+        paramKey: 'params',
+        paramType: 'Params'
+      },
+      {
+        paramKey: 'form',
+        paramType: form ? 'FormData' : ''
+      },
+      {
+        paramKey: 'body',
+        paramType: this.getBodyParamsCode()
+      },
+      {
+        paramKey: 'options',
+        optional: true,
+        paramType: 'any',
+        initialValue: '{}'
+      }
+    ];
+
+    return paramList;
+  }
+
+  getRequestContent() {
+    const paramList = this.getParamList().filter(param => param.paramType);
+    const method = this.method.toUpperCase();
+
+    const hasForm = paramList.map(param => param.paramKey).includes('form');
+    const hasBody = paramList.map(param => param.paramKey).includes('body');
+    const hasOptions = paramList.map(param => param.paramKey).includes('options');
+
+    return `{
+      method: "${method}",
+      ${hasForm ? 'body: form,' : ''}
+      ${hasBody ? 'body,' : ''}
+      ${hasOptions ? '...options,' : ''}
+    }`;
+  }
+
+  getRequestParams(surrounding = Surrounding.typeScript) {
+    const paramList = this.getParamList().filter(param => param.paramType);
+
+    if (surrounding === Surrounding.typeScript) {
+      return paramList.map(param => `${param.paramKey}${param.optional ? '?' : ''}: ${param.paramType}`).join(', ');
+    }
+
+    return paramList
+      .map(param => `${param.paramKey}${param.initialValue ? ` = ${param.initialValue}` : ''}`)
+      .join(', ');
   }
 
   getBodyParamsCode() {

@@ -13,6 +13,7 @@ export declare const SWRProvider: React.FC<ConfigInterface>;
 export declare function useRequest(url: any, params?: any, swrOptions?: any, fetchOptions?: any): {
     data: any;
     error: any;
+    mutate: (data?: any, shouldRevalidate?: boolean) => Promise<any>;
     isLoading: boolean;
 };
 export declare function getUrlKey(url: any, params: any, method: string): string | (() => string);
