@@ -43,14 +43,14 @@ export default class MyGenerator extends CodeGenerator {
      */
 
     import * as defs from '../../baseClass';
-    import { pontCore } from '../../pontCore';
+    import { PontCore } from '../../pontCore';
 
     export ${paramsCode}
 
     export const init = ${inter.response.getInitialValue()};
 
     export function request(${requestParams}) {
-      return pontCore.fetch(pontCore.getUrl("${inter.path}", params, "${method}"), ${inter.getRequestContent()});
+      return PontCore.fetch(PontCore.getUrl("${inter.path}", params, "${method}"), ${inter.getRequestContent()});
     }
    `;
   }
