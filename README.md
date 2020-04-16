@@ -262,11 +262,14 @@ function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) 
 
 值类型：string
 
-描述： 可选项。用于 Swagger 数据源需要登录才能请求成功的场景，可指定获取 Swagger 源数据的方法。默认为 node-fetch 的 fetch 方法，可通过自定义 fetch 方法获取带鉴权的接口的文档
+描述： 可选项, 相对项目根目录路径。用于 Swagger 数据源需要登录才能请求成功的场景，可指定获取 Swagger 源数据的方法。默认为 node-fetch 的 fetch 方法，可通过自定义 fetch 方法获取带鉴权的接口的文档
 
 示例：
 
+注意：此文件目前只能使用 `.ts` 后缀
+
 ```javascript
+// ./myFetchMethod.ts
 import axios from 'axios';
 
 export default async function(url: string): Promise<string> {
@@ -282,6 +285,17 @@ export default async function(url: string): Promise<string> {
       }
     })
     .then(res => JSON.stringify(res.data));
+}
+```
+
+配置项示例：
+
+注意：路径字段不需要加 `.ts` 后缀
+
+```javascript
+{
+  // ...
+  "fetchMethodPath": "./myFetchMethod", 
 }
 ```
 
