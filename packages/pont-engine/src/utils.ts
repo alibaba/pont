@@ -126,8 +126,8 @@ export class Config extends DataSourceConfig {
     if (config.fetchMethodPath) {
       const fetchMethodPath = path.isAbsolute(config.fetchMethodPath)
         ? config.fetchMethodPath
-        : path.join(process.cwd(), config.fetchMethodPath;
-      const moduleResult = getTemplate(fetchMethodPath), '', defaultFetchMethodCode);
+        : path.join(process.cwd(), config.fetchMethodPath);
+      const moduleResult = getTemplate(fetchMethodPath, '', defaultFetchMethodCode);
 
       if (moduleResult) {
         return moduleResult.default;
