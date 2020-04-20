@@ -1,3 +1,31 @@
+v1.0.3 / 2020-04-20
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - 修复路径生成时的括号错位问题
+
+
+### 🚀 Features
+
+- `general`
+  - 多数据源时，支持分别配置outDir
+  - Merge branch 'master' into pont-zl
+  - Merge branch 'master' into pont-zl
+
+
+### 🔥 Performance
+
+- `general`
+  - FetchMethodPath as relative
+
+
+### 💖 Thanks to
+
+- Leon1Zhu
+- { Chao }
+
 v1.0.2 / 2020-04-09
 ===================
 
