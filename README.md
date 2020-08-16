@@ -371,7 +371,7 @@ export default async function(url: string): Promise<string> {
 - 2、nestjs 搭配的 Swagger JSON 生成出来的 pont 文件为什么没有 mods?
 
   答：nestjs 中的 Swagger 必须在每个 Controller 上添加 ApiUseTags 装饰器，并且在每个控制器的方法上添加 ApiOperation 装饰器 才能正确输出带 Tags 以及 operationId 的 Swagger JSON。Tags 和 operationId 是 pont 必需的（@nestjs/swagger 自动生成的 default Tags 暂时不被兼容）。
-  示例如下
+  示例如下 (`@nestjs/swagger@^3`)
 
   ```
   import { Controller } from '@nestjs/common';
@@ -381,6 +381,31 @@ export default async function(url: string): Promise<string> {
   @Controller('pet')
   export class PetController {
     @ApiOperation({ title: 'getDog', operationId: 'getDog' })
+    @Get()
+    getDog() {}
+  }
+  ```
+  
+  对于 `@nestjs/swagger@^4`，需要如下配置来手动注册 Tag
+  
+  ``` ts main.ts
+  // ...
+  const options = new DocumentBuilder()
+    .setTitle('your app')
+    .addTag('pet')
+    .build()
+  const document = SwaggerModule.createDocument(app, options)
+  SwaggerModule.setup('/api', app, document)
+  ```
+  
+  ``` ts pet.controller.ts
+  import { Controller } from '@nestjs/common';
+  import { ApiTags, ApiOperation } from '@nestjs/swagger';
+
+  @ApiTags('pet')
+  @Controller('pet')
+  export class PetController {
+    @ApiOperation({ summary: 'getDog', operationId: 'getDog' })
     @Get()
     getDog() {}
   }
