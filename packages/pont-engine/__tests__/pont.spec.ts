@@ -152,4 +152,14 @@ describe('pont功能测试', () => {
       fs.writeFileSync(jsonPath, originSource);
     } catch (e) {}
   });
+
+  test('config-openapi-v3 should got requestBody type correct', async () => {
+    clearDir('services')
+    const manager = await createManager('config-openapi-v3.json');
+    assert.ok(exists('services/api.d.ts'))
+    const codeBuffer = await fs.readFile(getPath('services/api.d.ts'));
+    const apidts = oneline(codeBuffer.toString('utf-8'))
+    assert.ok(apidts.includes(oneline('bodyParams: defs.api3.Pet')))
+    manager.stopPolling();
+  })
 });

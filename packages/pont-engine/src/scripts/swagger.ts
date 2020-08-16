@@ -175,10 +175,26 @@ export function parseSwaggerEnumType(enumStrs: string[]) {
     });
 }
 
+class SwaggerRequestBody {
+  description: string = '';
+
+  required: boolean = false;
+
+  content: {
+    [acceptMeta: string]: {
+      schema: {
+        $ref: string;
+      }
+    }
+  }
+}
+
 class SwaggerInterface {
   consumes = [] as string[];
 
   parameters = [] as SwaggerParameter[];
+
+  requestBody: SwaggerRequestBody;
 
   summary = '';
 
@@ -225,6 +241,25 @@ class SwaggerInterface {
     }
 
     const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames, [], compileTemplateKeyword);
+
+    if (inter.requestBody?.content) {
+      let { schema } = Object.values(inter.requestBody.content)[0];
+      const name = (schema.$ref && compileTemplate(schema.$ref, compileTemplateKeyword).name) || ''
+      const parameter: SwaggerParameter = {
+        in: 'body',
+        name,
+        description: inter.requestBody.description,
+        required: inter.requestBody.required,
+        schema: schema as Schema,
+        type: SwaggerType.object,
+        enum: [],
+      }
+      if (inter.parameters) {
+        inter.parameters.push(parameter)
+      } else {
+        inter.parameters = [parameter]
+      }
+    }
 
     const parameters = (inter.parameters || []).map(param => {
       let paramSchema: Schema;

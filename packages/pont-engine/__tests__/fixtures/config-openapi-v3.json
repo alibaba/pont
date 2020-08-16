@@ -1,0 +1,11 @@
+{
+  "outDir": "../services",
+  "templatePath": "./pontTemplate",
+  "origins": [
+    {
+      "originUrl": "http://127.0.0.1:9099/open-api.json",
+      "name": "api3",
+      "originType": "SwaggerV3"
+    }
+  ]
+}
