@@ -1,0 +1,143 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "CMS",
+    "description": "",
+    "version": "0.1.0"
+  },
+  "tags": [
+    {
+      "name": "Auth",
+      "description": ""
+    },
+    {
+      "name": "User",
+      "description": ""
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearer": {
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "type": "http"
+      }
+    },
+    "schemas": {
+      "RegisterDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "example": "foo@example.com"
+          },
+          "username": {
+            "type": "string",
+            "example": "username"
+          },
+          "password": {
+            "type": "string",
+            "example": "123456"
+          }
+        },
+        "required": [
+          "email",
+          "username",
+          "password"
+        ]
+      },
+      "AuthData": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "number",
+            "example": 1
+          },
+          "email": {
+            "type": "string",
+            "example": "foo@example.com"
+          },
+          "username": {
+            "type": "string",
+            "example": "foo"
+          },
+          "createdAt": {
+            "type": "string",
+            "example": "2020-08-16T00:04:59.343Z"
+          },
+          "updatedAt": {
+            "type": "string",
+            "example": "2020-08-16T00:04:59.343Z"
+          },
+          "bio": {
+            "type": "string",
+            "example": "male"
+          },
+          "image": {
+            "type": "string",
+            "example": "https://picsum.photos/200"
+          },
+          "token": {
+            "type": "string",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjIsImVtYWlsIjoiZm9vQGV4YW1wbGUuY29tIiwiaWF0IjoxNTk3NTY1MDk5fQ.qRFuw88Zw7l5KY3TSuyr8hpan0fzH9HcDtkKYrLvQRQ"
+          }
+        },
+        "required": [
+          "id",
+          "email",
+          "username",
+          "createdAt",
+          "updatedAt",
+          "bio",
+          "image",
+          "token"
+        ]
+      },
+      "AuthRO": {
+        "type": "object",
+        "properties": {
+          "user": {
+            "$ref": "#/components/schemas/AuthData"
+          }
+        },
+        "required": [
+          "user"
+        ]
+      }
+    }
+  },
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "operationId": "register",
+        "summary": "register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthRO"
+                }
+              }
+            }
+          }
+        },
+        "tags": [
+          "Auth"
+        ]
+      }
+    }
+  }
+}

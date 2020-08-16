@@ -215,7 +215,8 @@ class SwaggerInterface {
       name = getIdentifierFromOperatorId(inter.operationId);
     }
 
-    const responseSuccessContent = _.get(inter, 'responses.200.content', {});
+    const responseSuccessContent = _.get(inter, 'responses.200.content', null) ||
+      _.get(inter, 'responses.201.content', {});
 
     let responseSchema;
     if (responseSuccessContent) {
