@@ -312,6 +312,19 @@ export default async function(url: string): Promise<string> {
 
 - 字段名 "wrapper" 类型：string 默认值："{\"code\": 0, \"data\": {response}, \"message\": \"\"}" 含义：接口返回结构，pont 可以计算返回数据类型(比如此处会替换到 {response})，此处可以指定接口返回结构。
 
+如：
+
+```json
+{
+  "mocks": {
+    "enable": true,
+    "basePath": "",
+    "port": 8080,
+    "wrapper": "{\"code\": 0, \"data\": {response}, \"message\": \"\"}"
+  }
+}
+```
+
 ### templateType
 
 值类型：字符串
