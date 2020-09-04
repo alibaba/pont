@@ -1,3 +1,22 @@
+v1.0.4 / 2020-09-04
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Fix mock path
+
+
+### 🚀 Features
+
+- `general`
+  - Docs
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
 v1.0.3 / 2020-04-20
 ===================
 
