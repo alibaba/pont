@@ -142,6 +142,14 @@ export class FileStructures {
         result[`${this.templateType}.js`] = getTemplatesDirFile(`${this.templateType}.js`, 'pontCore/');
         result[`${this.templateType}.d.ts`] = getTemplatesDirFile(`${this.templateType}.d.ts`, 'pontCore/');
       }
+    } else if (this.surrounding === Surrounding.typeScript) {
+      if (!fs.existsSync(this.baseDir + '/pontCore.ts')) {
+        result['pontCore.ts'] = getTemplatesDirFile('pontCore.ts', 'pontCore/');
+      }
+
+      if (this.templateType && this.checkHasTemplateFetch()) {
+        result[`${this.templateType}.tsx`] = getTemplatesDirFile(`${this.templateType}.tsx`, 'pontCore/');
+      }
     }
 
     return result;
