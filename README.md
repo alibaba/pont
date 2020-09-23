@@ -295,7 +295,7 @@ export default async function(url: string): Promise<string> {
 ```javascript
 {
   // ...
-  "fetchMethodPath": "./myFetchMethod", 
+  "fetchMethodPath": "./myFetchMethod",
 }
 ```
 
@@ -312,6 +312,8 @@ export default async function(url: string): Promise<string> {
 
 - 字段名 "wrapper" 类型：string 默认值："{\"code\": 0, \"data\": {response}, \"message\": \"\"}" 含义：接口返回结构，pont 可以计算返回数据类型(比如此处会替换到 {response})，此处可以指定接口返回结构。
 
+- 字段名："containDataSources" 类型： string[] 默认值：[] 含义：配置哪几个数据源开启 mock 服务（现在已经支持生成多个数据源的 mock 文件）。注意：值类型就是配置的 origins 中的 name
+
 如：
 
 ```json
@@ -320,8 +322,19 @@ export default async function(url: string): Promise<string> {
     "enable": true,
     "basePath": "",
     "port": 8080,
-    "wrapper": "{\"code\": 0, \"data\": {response}, \"message\": \"\"}"
-  }
+    "wrapper": "{\"code\": 0, \"data\": {response}, \"message\": \"\"}",
+    "containDataSources": ["cat"]
+  },
+  "origins": [
+    {
+      "name": "cat",
+      "originUrl": "xxx/v2/api-docs"
+    },
+    {
+      "name": "dog",
+      "originUrl": "xxx/v2/api-docs"
+    }
+  ]
 }
 ```
 

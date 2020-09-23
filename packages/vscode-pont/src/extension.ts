@@ -37,7 +37,7 @@ export async function createManager(configPath: string) {
     await Control.getSingleInstance(manager).initInstance();
 
     if (config.mocks && config.mocks.enable) {
-      const closeServer = await MocksServer.getSingleInstance(manager).run();
+      const closeServer = await MocksServer.getSingleInstance(manager).run(config.mocks);
       cleanUps.push(closeServer);
     }
 

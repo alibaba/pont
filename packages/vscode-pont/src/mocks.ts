@@ -1,5 +1,6 @@
-import { StandardDataSource, Interface, BaseClass, Manager } from 'pont-engine';
+import { StandardDataSource, Interface, BaseClass, Manager, Config } from 'pont-engine';
 import { StandardDataType, Property, format } from 'pont-engine';
+import { DataSourceConfig, Mocks as MocksType } from 'pont-engine/lib/utils';
 import * as http from 'http';
 import * as fs from 'fs-extra';
 import * as path from 'path';
@@ -137,6 +138,8 @@ class Mocks {
 }
 
 export class MocksServer {
+  configMocks: MocksType;
+
   constructor(private manager: Manager) {
     const rootPath = vscode.workspace.rootPath;
     const igonrePath = path.join(rootPath, '.gitignore');
@@ -164,13 +167,14 @@ export class MocksServer {
     return MocksServer.singleInstance;
   }
 
-  async getCurrMocksData() {
+  /** 3. 获取到mock数据 */
+  async getCurrMocksData(sourceName: string) {
     await this.checkMocksPath();
     const rootPath = vscode.workspace.rootPath;
     const mockPath = path.join(rootPath, '.mocks');
-    const sourcePath = path.join(mockPath, 'mocks.ts');
+    const sourcePath = path.join(mockPath, `${sourceName}.ts`);
     const noCacheFix = (Math.random() + '').slice(2, 5);
-    const jsPath = path.join(mockPath, `mocks.${noCacheFix}.js`);
+    const jsPath = path.join(mockPath, `mocks.${sourceName}${noCacheFix}.js`);
     const code = fs.readFileSync(sourcePath, 'utf8');
 
     const { outputText } = ts.transpileModule(code, {
@@ -186,76 +190,103 @@ export class MocksServer {
     return currMocksData;
   }
 
-  getMocksCode() {
-    const wrapper = this.manager.currConfig.mocks.wrapper;
+  /** 2. 根据mocks中的wrapper来包装返回值 */
+  getMocksCode(currentConfig: DataSourceConfig) {
+    const wrapper = currentConfig.mocks.wrapper;
     const wrapperFn = wrapper ? dataCode => wrapper.replace(/{response}/g, dataCode) : data => data;
+    const currentDataSource = this.manager.allLocalDataSources.find(s => s.name === currentConfig.name);
 
-    const code = new Mocks(this.manager.currLocalDataSource).getMocksCode(wrapperFn);
-    return format(code, this.manager.currConfig.prettierConfig);
+    const code = new Mocks(currentDataSource).getMocksCode(wrapperFn);
+    return format(code, currentConfig.prettierConfig);
   }
 
   async refreshMocksCode() {
     const rootPath = vscode.workspace.rootPath;
-    const mockPath = path.join(rootPath, '.mocks/mocks.ts');
+    const mockPath = path.join(rootPath, `.mocks/${this.manager.currConfig.name}.ts`);
 
-    const code = this.getMocksCode();
-    if (!fs.existsSync(path.join(rootPath, '.mocks'))) {
-      fs.mkdirSync(path.join(rootPath, '.mocks'));
+    const code = this.getMocksCode(this.manager.currConfig);
+    if (!fs.existsSync(mockPath)) {
+      // 不存在
+      if (!fs.existsSync(path.join(rootPath, '.mocks'))) {
+        fs.mkdirSync(path.join(rootPath, '.mocks'));
+      }
     } else {
-      fs.unlinkSync(path.join(rootPath, '.mocks'));
-      fs.mkdirSync(path.join(rootPath, '.mocks'));
+      fs.unlinkSync(mockPath);
     }
 
     await fs.writeFile(mockPath, code);
   }
 
+  /** 1. 检查是否存在mocks文件 */
   async checkMocksPath() {
     const rootPath = vscode.workspace.rootPath;
-    const mockPath = path.join(rootPath, '.mocks/mocks.ts');
 
-    if (!fs.existsSync(mockPath)) {
-      const code = this.getMocksCode();
-      if (!fs.existsSync(path.join(rootPath, '.mocks'))) {
-        fs.mkdirSync(path.join(rootPath, '.mocks'));
+    this.configMocks.containDataSources.map(async containDataSource => {
+      /** 把mocks中配置的containDataSources与allConfigs中的数据源名称做匹配 */
+      const currentConfig = this.manager.allConfigs.find(cof => cof.name === containDataSource);
+      if (currentConfig) {
+        const mockPath = path.join(rootPath, `.mocks/${containDataSource}.ts`);
+        if (!fs.existsSync(mockPath)) {
+          const code = this.getMocksCode(currentConfig);
+          if (!fs.existsSync(path.join(rootPath, '.mocks'))) {
+            fs.mkdirSync(path.join(rootPath, '.mocks'));
+          }
+          await fs.writeFile(mockPath, code);
+        } else {
+          // todo 补齐后端更新
+        }
       }
-      await fs.writeFile(mockPath, code);
-    } else {
-      // todo 补齐后端更新
-    }
+    });
   }
 
   createServer() {
-    const ds = this.manager.currLocalDataSource;
-    const port = this.manager.currConfig.mocks.port;
+    const port = this.configMocks.port;
+
+    const corsMiddleware = require('cors')({
+      origin: '*',
+      methods: 'PUT, DELETE, GET, POST, OPTIONS',
+      allowedHeaders: '*',
+      maxAge: 1728000,
+      credentials: true
+    });
 
     return http
       .createServer(async (req, res) => {
-        const mocksData = await this.getCurrMocksData();
-
-        ds.mods.forEach(mod => {
-          mod.interfaces.forEach(async inter => {
-            // 把 url int path 的参数，转换为匹配参数的正则表达式
-            const reg = new RegExp(inter.path.replace(/\//g, '\\/').replace(/{.+?}/g, '[0-9a-zA-Z_-]+?'));
-
-            if (req.url.match(reg) && req.method.toUpperCase() === inter.method.toUpperCase()) {
-              const wrapperRes = JSON.stringify(Mock.mock(mocksData[mod.name][inter.name]));
-              res.writeHead(200, {
-                'Content-Type': 'text/json;charset=UTF-8',
-                'Access-Control-Allow-Origin': '*',
-                'Access-Control-Allow-Methods': 'OPTIONS, POST, GET',
-                'Access-Control-Max-Age': 2592000 // 30 days
-              });
-              res.end(wrapperRes, 'utf8');
-            }
+        const responseData = await this.getMockData(req.url, req.method);
+        const nextFn = () => {
+          res.writeHead(200, {
+            'Content-Type': 'text/json;charset=UTF-8'
           });
-        });
-        res.writeHead(404);
-        res.end();
+          return res.end(responseData);
+        };
+        corsMiddleware(req, res, nextFn);
       })
       .listen(port);
   }
 
-  async run() {
+  async getMockData(url: string, method: string) {
+    const dataSources = this.configMocks.containDataSources;
+    let data = null;
+    for (const containDataSource of dataSources) {
+      const ds = this.manager.allLocalDataSources.find(s => s.name === containDataSource);
+      if (ds) {
+        const mocksData = await this.getCurrMocksData(ds.name);
+        for (const mod of ds.mods) {
+          for (const inter of mod.interfaces) {
+            const reg = new RegExp(inter.path.replace(/\//g, '\\/').replace(/{.+?}/g, '[0-9a-zA-Z_-]+?'));
+            if (url.match(reg) && method.toUpperCase() === inter.method.toUpperCase()) {
+              data = JSON.stringify(Mock.mock(mocksData[mod.name][inter.name]));
+              break;
+            }
+          }
+        }
+      }
+    }
+    return data;
+  }
+
+  async run(configMocks: MocksType) {
+    this.configMocks = configMocks;
     await this.checkMocksPath();
     const server = this.createServer();
 
