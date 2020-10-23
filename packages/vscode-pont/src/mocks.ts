@@ -273,7 +273,9 @@ export class MocksServer {
         const mocksData = await this.getCurrMocksData(ds.name);
         for (const mod of ds.mods) {
           for (const inter of mod.interfaces) {
-            const reg = new RegExp(inter.path.replace(/\//g, '\\/').replace(/{.+?}/g, '[0-9a-zA-Z_-]+?'));
+            const reg = new RegExp(
+              '^' + inter.path.replace(/\//g, '\\/').replace(/{.+?}/g, '[0-9a-zA-Z_-]*?') + '(\\?|$)'
+            );
             if (url.match(reg) && method.toUpperCase() === inter.method.toUpperCase()) {
               data = JSON.stringify(Mock.mock(mocksData[mod.name][inter.name]));
               break;
