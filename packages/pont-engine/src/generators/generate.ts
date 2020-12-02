@@ -28,14 +28,14 @@ export class FileStructures {
     private usingMultipleOrigins: boolean,
     private surrounding = Surrounding.typeScript,
     private baseDir = 'src/service',
-    private templateType = ''
-  ) { }
+    private templateType = '',
+    private usingMultipleSplit = false
+  ) {}
 
   getMultipleOriginsFileStructures() {
-
     const files = {};
 
-    this.generators.filter(generator => generator.outDir === this.baseDir).forEach(generator => {
+    this.generators.forEach(generator => {
       const dsName = generator.dataSource.name;
       const dsFiles = this.getOriginFileStructures(generator, true);
 
@@ -53,6 +53,10 @@ export class FileStructures {
   getBaseClassesInDeclaration(originCode: string, usingMultipleOrigins: boolean) {
     if (usingMultipleOrigins) {
       return `
+      ${this.usingMultipleSplit &&
+        `type ObjectMap<Key extends string | number | symbol = any, Value = any> = {
+        [key in Key]: Value;
+      }`}
       declare namespace defs {
         export ${originCode}
       };
@@ -66,7 +70,7 @@ export class FileStructures {
 
   getModsDeclaration(originCode: string, usingMultipleOrigins: boolean) {
     if (usingMultipleOrigins) {
-      return `
+      return `${this.usingMultipleSplit && `/// <reference path="../../baseClass.d.ts" />`}
       declare namespace API {
         export ${originCode}
       };
@@ -91,6 +95,13 @@ export class FileStructures {
         currMod[getFileName(inter.name, this.surrounding)] = generator.getInterfaceContent.bind(generator, inter);
         currMod[indexFileName] = generator.getModIndex.bind(generator, mod);
       });
+      // 拆分.d.ts文件, 有api.d.ts文件中拆分至各个子文件，降低合并冲突处理复杂度
+      currMod[getFileName(`index.d`, Surrounding.typeScript)] = this.getModsDeclaration.bind(
+        this,
+        generator.getModsDeclaration([mod]),
+        usingMultipleOrigins
+      );
+
       const modName = reviseModName(mod.name);
       mods[modName] = currMod;
 
@@ -117,6 +128,10 @@ export class FileStructures {
       [indexFileName]: generator.getIndex.bind(generator),
       'api.d.ts': generator.getDeclaration.bind(generator)
     };
+
+    if (this.usingMultipleSplit) {
+      result['baseClass.d.ts'] = generator.getBaseClassesInDeclaration();
+    }
 
     if (!usingMultipleOrigins) {
       result['api-lock.json'] = this.getLockContent.bind(this);
@@ -161,16 +176,14 @@ export class FileStructures {
   }
 
   getMultipleOriginsDataSourceName() {
-
     const dsNames = this.generators.map(ge => ge.dataSource.name);
 
     if (this.judgeHasMultipleFilesName()) {
       const generate = this.generators.find(ge => ge.outDir === this.baseDir);
 
       if (generate) {
-        return [generate.dataSource.name]
+        return [generate.dataSource.name];
       }
-
     }
 
     return dsNames;
@@ -179,7 +192,7 @@ export class FileStructures {
   judgeHasMultipleFilesName(): boolean {
     return this.generators.some(generate => {
       return generate.outDir !== this.baseDir;
-    })
+    });
   }
 
   getDataSourcesTs() {
@@ -206,13 +219,15 @@ export class FileStructures {
 
   getDataSourcesDeclarationTs() {
     const dsNames = this.getMultipleOriginsDataSourceName();
+    this.generators;
 
     return `
     ${dsNames
-        .map(name => {
-          return `/// <reference path="./${name}/api.d.ts" />`;
-        })
-        .join('\n')}
+      .map(name => {
+        return `/// <reference path="./${name}/api.d.ts" />
+       ${this.usingMultipleSplit && `/// <reference path="./${name}/baseClass.d.ts" />`} `;
+      })
+      .join('\n')}
     `;
   }
 
@@ -221,7 +236,7 @@ export class FileStructures {
       // generators 长度大于1且outDir不相同时，需要拆分生成代码
       const hasMultipleOutDir = this.generators.some(generate => {
         return generate.outDir !== this.baseDir;
-      })
+      });
 
       let dataSources;
 
@@ -232,11 +247,7 @@ export class FileStructures {
         dataSources = this.generators.map(ge => ge.dataSource);
       }
 
-      return JSON.stringify(
-        dataSources,
-        null,
-        2
-      );
+      return JSON.stringify(dataSources, null, 2);
     }
   }
 }
@@ -248,7 +259,7 @@ export class CodeGenerator {
 
   hasContextBund = false;
 
-  constructor(public surrounding = Surrounding.typeScript, public outDir = '') { }
+  constructor(public surrounding = Surrounding.typeScript, public outDir = '', public usingMultipleSplit = false) {}
 
   setDataSource(dataSource: StandardDataSource) {
     this.dataSource = dataSource;
@@ -274,7 +285,11 @@ export class CodeGenerator {
    * surrounding, 优先级高于this.surrounding,用于生成api.d.ts时强制保留类型
    */
   getBaseClassesInDeclaration() {
-    const content = `namespace ${this.dataSource.name || 'defs'} {
+    const content = `
+    type ObjectMap<Key extends string | number | symbol = any, Value = any> = {
+      [key in Key]: Value;
+    }
+    namespace ${this.dataSource.name || 'defs'} {
       ${this.dataSource.baseClasses
         .map(
           base => `
@@ -329,12 +344,12 @@ export class CodeGenerator {
   }
 
   /** 获取模块的类型定义代码，一个 namespace ，一般不需要覆盖 */
-  getModsDeclaration() {
-    const mods = this.dataSource.mods;
-    const content = `namespace ${this.dataSource.name || 'API'} {
+  getModsDeclaration(generateMods?: Mod[]) {
+    const mods = generateMods || this.dataSource.mods;
+    const content = ` namespace ${this.dataSource.name || 'API'} {
         ${mods
-        .map(
-          mod => `
+          .map(
+            mod => `
           /**
            * ${mod.description}
            */
@@ -342,17 +357,17 @@ export class CodeGenerator {
             ${mod.interfaces.map(this.getInterfaceInDeclaration.bind(this)).join('\n')}
           }
         `
-        )
-        .join('\n\n')}
+          )
+          .join('\n\n')}
       }
     `;
 
     return content;
   }
 
-  getModsDeclarationWithMultipleOrigins() { }
+  getModsDeclarationWithMultipleOrigins() {}
 
-  getModsDeclarationWithSingleOrigin() { }
+  getModsDeclarationWithSingleOrigin() {}
 
   /** 获取公共的类型定义代码 */
   getCommonDeclaration() {
@@ -361,16 +376,25 @@ export class CodeGenerator {
 
   /** 获取总的类型定义代码 */
   getDeclaration() {
-    return `
-      type ObjectMap<Key extends string | number | symbol = any, Value = any> = {
-        [key in Key]: Value;
-      }
+    const apiHeader = !this.usingMultipleSplit
+      ? `type ObjectMap<Key extends string | number | symbol = any, Value = any> = {
+      [key in Key]: Value;
+    }
+     
 
       ${this.getCommonDeclaration()}
 
-      ${this.getBaseClassesInDeclaration()}
+      ${this.getBaseClassesInDeclaration()}`
+      : '';
 
-      ${this.getModsDeclaration()}
+    return `
+       ${apiHeader}
+
+      ${
+        this.usingMultipleSplit
+          ? this.dataSource.mods.map(mod => `/// <reference path="./mods/${mod.name}/index.d.ts" />`).join('\n')
+          : this.getModsDeclaration()
+      }
     `;
   }
 
@@ -401,11 +425,11 @@ export class CodeGenerator {
       base => `
         class ${base.name} {
           ${base.properties
-          .map(prop => {
-            return prop.toPropertyCodeWithInitValue(base.name);
-          })
-          .filter(id => id)
-          .join('\n')}
+            .map(prop => {
+              return prop.toPropertyCodeWithInitValue(base.name);
+            })
+            .filter(id => id)
+            .join('\n')}
         }
       `
     );
@@ -514,7 +538,7 @@ export class FilesManager {
   report = info;
   prettierConfig: {};
 
-  constructor(public fileStructures: FileStructures, private baseDir: string) { }
+  constructor(public fileStructures: FileStructures, private baseDir: string) {}
 
   /** 初始化清空路径 */
   private initPath(path: string) {

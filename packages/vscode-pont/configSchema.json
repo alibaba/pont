@@ -30,6 +30,10 @@
       "type": "boolean",
       "description": "是否开启多数据源模式"
     },
+    "usingMultipleSplit": {
+      "type": "boolean",
+      "description": "多数据源模式时是否开启代码拆分"
+    },
     "mocks": {
       "type": "object",
       "description": "自动化mock服务，mocks 数据可以在 .mocks/mocks.ts 下自定义编辑。",

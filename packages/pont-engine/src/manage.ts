@@ -203,11 +203,8 @@ export class Manager {
       });
       return localDataStr;
     } catch (error) {
-      return ''
+      return '';
     }
-
-
-
   }
 
   async readLocalDataSource() {
@@ -391,14 +388,18 @@ export class Manager {
 
   setFilesManager() {
     this.report('文件生成器创建中...');
-    const { default: Generator, FileStructures: MyFileStructures } = getTemplate(
+    const { FileStructures: MyFileStructures } = getTemplate(
       this.currConfig.templatePath,
       this.currConfig.templateType
     );
 
     const generators = this.allLocalDataSources.map(dataSource => {
       const config = this.getConfigByDataSourceName(dataSource.name);
-      const generator: CodeGenerator = new Generator(this.currConfig.surrounding, config?.outDir);
+      const generator: CodeGenerator = new CodeGenerator(
+        this.currConfig.surrounding,
+        config?.outDir,
+        this.currConfig.usingMultipleSplit
+      );
       generator.setDataSource(dataSource);
       generator.usingMultipleOrigins = this.currConfig.usingMultipleOrigins;
 
@@ -419,7 +420,8 @@ export class Manager {
         this.currConfig.usingMultipleOrigins,
         this.currConfig.surrounding,
         this.currConfig.outDir,
-        this.currConfig.templateType
+        this.currConfig.templateType,
+        this.currConfig.usingMultipleSplit
       ),
       this.currConfig.outDir
     );

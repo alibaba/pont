@@ -30,6 +30,10 @@
       "type": "boolean",
       "description": "是否开启多数据源模式"
     },
+    "usingMultipleSplit": {
+      "type": "boolean",
+      "description": "多数据源模式时是否开启代码拆分"
+    },
     "templateType": {
       "type": "string",
       "description": "可选的内置模板",
