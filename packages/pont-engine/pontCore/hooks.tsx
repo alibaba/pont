@@ -31,6 +31,7 @@ export function useRequest(url: any, params = {} as any, swrOptions = {} as any,
   const fetcher = requestUrl => PontCore.fetch(requestUrl, fetchOptions);
   const method = fetchOptions?.method || 'GET';
 
+
   const urlKey = getUrlKey(url, params, method);
   const { data, error, isValidating, mutate } = useSWR(urlKey, fetcher, swrOptions);
 
@@ -43,14 +44,18 @@ export function useRequest(url: any, params = {} as any, swrOptions = {} as any,
 }
 
 export function getUrlKey(url: any, params = {} as any, method: string) {
-  const urlKey =
-    typeof params === 'function'
-      ? () => {
-          return params ? PontCore.getUrl(url, params(), method) : null;
-        }
-      : params
-      ? PontCore.getUrl(url, params, method)
-      : null;
+  let urlKey;
 
+  if (typeof params === 'function') {
+    try {
+      urlKey = PontCore.getUrl(url, params(), method);
+    } catch (err) {
+      urlKey = '';
+    }
+  } else {
+    urlKey = params
+    ? PontCore.getUrl(url, params, method)
+    : null;
+  }
   return urlKey;
 }
