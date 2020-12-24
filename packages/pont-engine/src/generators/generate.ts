@@ -29,24 +29,25 @@ export class FileStructures {
     private surrounding = Surrounding.typeScript,
     private baseDir = 'src/service',
     private templateType = ''
-  ) { }
+  ) {}
 
-  getMultipleOriginsFileStructures() {
-
+  getMultipleOriginsFileStructures(currLocalDataSource?: StandardDataSource) {
     const files = {};
 
-    this.generators.filter(generator => generator.outDir === this.baseDir).forEach(generator => {
-      const dsName = generator.dataSource.name;
-      const dsFiles = this.getOriginFileStructures(generator, true);
+    this.generators
+      .filter(generator => generator.outDir === this.baseDir)
+      .forEach(generator => {
+        const dsName = generator.dataSource.name;
+        const dsFiles = this.getOriginFileStructures(generator, true);
 
-      files[dsName] = dsFiles;
-    });
+        files[dsName] = dsFiles;
+      });
 
     return {
       ...files,
       [getFileName('index', this.surrounding)]: this.getDataSourcesTs.bind(this),
       'api.d.ts': this.getDataSourcesDeclarationTs.bind(this),
-      'api-lock.json': this.getLockContent.bind(this)
+      'api-lock.json': this.getLockContent.bind(this, currLocalDataSource)
     };
   }
 
@@ -78,7 +79,11 @@ export class FileStructures {
     `;
   }
 
-  getOriginFileStructures(generator: CodeGenerator, usingMultipleOrigins = false) {
+  getOriginFileStructures(
+    generator: CodeGenerator,
+    usingMultipleOrigins = false,
+    currLocalDataSource?: StandardDataSource
+  ) {
     let mods = {};
     const dataSource = generator.dataSource;
 
@@ -119,17 +124,17 @@ export class FileStructures {
     };
 
     if (!usingMultipleOrigins) {
-      result['api-lock.json'] = this.getLockContent.bind(this);
+      result['api-lock.json'] = this.getLockContent.bind(this, currLocalDataSource);
     }
 
     return result;
   }
 
-  getFileStructures() {
+  getFileStructures(currLocalDataSource?: StandardDataSource) {
     const result =
       this.usingMultipleOrigins || this.generators.length > 1
-        ? this.getMultipleOriginsFileStructures()
-        : this.getOriginFileStructures(this.generators[0]);
+        ? this.getMultipleOriginsFileStructures(currLocalDataSource)
+        : this.getOriginFileStructures(this.generators[0], false, currLocalDataSource);
 
     // js环境时，默认为新用户，生成pontCore文件
     if (this.surrounding === Surrounding.javaScript) {
@@ -161,16 +166,14 @@ export class FileStructures {
   }
 
   getMultipleOriginsDataSourceName() {
-
     const dsNames = this.generators.map(ge => ge.dataSource.name);
 
     if (this.judgeHasMultipleFilesName()) {
       const generate = this.generators.find(ge => ge.outDir === this.baseDir);
 
       if (generate) {
-        return [generate.dataSource.name]
+        return [generate.dataSource.name];
       }
-
     }
 
     return dsNames;
@@ -179,7 +182,7 @@ export class FileStructures {
   judgeHasMultipleFilesName(): boolean {
     return this.generators.some(generate => {
       return generate.outDir !== this.baseDir;
-    })
+    });
   }
 
   getDataSourcesTs() {
@@ -209,19 +212,19 @@ export class FileStructures {
 
     return `
     ${dsNames
-        .map(name => {
-          return `/// <reference path="./${name}/api.d.ts" />`;
-        })
-        .join('\n')}
+      .map(name => {
+        return `/// <reference path="./${name}/api.d.ts" />`;
+      })
+      .join('\n')}
     `;
   }
 
-  getLockContent() {
+  getLockContent(currLocalDataSource?: StandardDataSource) {
     if (this.generators) {
       // generators 长度大于1且outDir不相同时，需要拆分生成代码
       const hasMultipleOutDir = this.generators.some(generate => {
         return generate.outDir !== this.baseDir;
-      })
+      });
 
       let dataSources;
 
@@ -229,14 +232,12 @@ export class FileStructures {
       if (this.generators.length > 1 && hasMultipleOutDir) {
         dataSources = this.generators.filter(item => item.outDir === this.baseDir).map(ge => ge.dataSource);
       } else {
-        dataSources = this.generators.map(ge => ge.dataSource);
+        dataSources = this.generators
+          .filter(generator => !currLocalDataSource || currLocalDataSource.name === generator.dataSource.name)
+          .map(ge => ge.dataSource);
       }
 
-      return JSON.stringify(
-        dataSources,
-        null,
-        2
-      );
+      return JSON.stringify(dataSources, null, 2);
     }
   }
 }
@@ -248,7 +249,7 @@ export class CodeGenerator {
 
   hasContextBund = false;
 
-  constructor(public surrounding = Surrounding.typeScript, public outDir = '') { }
+  constructor(public surrounding = Surrounding.typeScript, public outDir = '') {}
 
   setDataSource(dataSource: StandardDataSource) {
     this.dataSource = dataSource;
@@ -333,8 +334,8 @@ export class CodeGenerator {
     const mods = this.dataSource.mods;
     const content = `namespace ${this.dataSource.name || 'API'} {
         ${mods
-        .map(
-          mod => `
+          .map(
+            mod => `
           /**
            * ${mod.description}
            */
@@ -342,17 +343,17 @@ export class CodeGenerator {
             ${mod.interfaces.map(this.getInterfaceInDeclaration.bind(this)).join('\n')}
           }
         `
-        )
-        .join('\n\n')}
+          )
+          .join('\n\n')}
       }
     `;
 
     return content;
   }
 
-  getModsDeclarationWithMultipleOrigins() { }
+  getModsDeclarationWithMultipleOrigins() {}
 
-  getModsDeclarationWithSingleOrigin() { }
+  getModsDeclarationWithSingleOrigin() {}
 
   /** 获取公共的类型定义代码 */
   getCommonDeclaration() {
@@ -401,11 +402,11 @@ export class CodeGenerator {
       base => `
         class ${base.name} {
           ${base.properties
-          .map(prop => {
-            return prop.toPropertyCodeWithInitValue(base.name);
-          })
-          .filter(id => id)
-          .join('\n')}
+            .map(prop => {
+              return prop.toPropertyCodeWithInitValue(base.name);
+            })
+            .filter(id => id)
+            .join('\n')}
         }
       `
     );
@@ -514,7 +515,7 @@ export class FilesManager {
   report = info;
   prettierConfig: {};
 
-  constructor(public fileStructures: FileStructures, private baseDir: string) { }
+  constructor(public fileStructures: FileStructures, private baseDir: string) {}
 
   /** 初始化清空路径 */
   private initPath(path: string) {
@@ -556,7 +557,7 @@ export class FilesManager {
   /** 区分lock文件是创建的还是人为更改的 */
   created = false;
 
-  async saveLock() {
+  async saveLock(currLocalDataSource?: StandardDataSource) {
     const lockFilePath = path.join(this.baseDir, 'api-lock.json');
     const oldLockFilePath = path.join(this.baseDir, 'api.lock');
     const isExists = fs.existsSync(lockFilePath);
@@ -564,7 +565,7 @@ export class FilesManager {
 
     const lockContent = await fs.readFile(readFilePath, 'utf8');
 
-    const newLockContent = this.fileStructures.getLockContent();
+    const newLockContent = this.fileStructures.getLockContent(currLocalDataSource);
 
     if (lockContent !== newLockContent) {
       this.created = true;
