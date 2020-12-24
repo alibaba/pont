@@ -3,6 +3,6 @@
 out/test/**
 out/**/*.map
 src/**
+node_modules/**
 .gitignore
 tsconfig.json
-vsc-extension-quickstart.md
