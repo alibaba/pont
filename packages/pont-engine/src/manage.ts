@@ -203,11 +203,8 @@ export class Manager {
       });
       return localDataStr;
     } catch (error) {
-      return ''
+      return '';
     }
-
-
-
   }
 
   async readLocalDataSource() {
@@ -344,7 +341,7 @@ export class Manager {
   }
 
   async lock() {
-    await this.fileManager.saveLock();
+    await this.fileManager.saveLock(this.currLocalDataSource);
   }
 
   dispatch(files: {}) {
@@ -364,7 +361,7 @@ export class Manager {
   getGeneratedFiles() {
     this.setFilesManager();
 
-    const files = this.fileManager.fileStructures.getFileStructures();
+    const files = this.fileManager.fileStructures.getFileStructures(this.currLocalDataSource);
 
     try {
       return this.dispatch(files);
