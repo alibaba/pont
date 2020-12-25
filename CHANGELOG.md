@@ -1,3 +1,16 @@
+v1.0.9 / 2020-12-25
+===================
+
+### 🚀 Features
+
+- `general`
+  - Merge remote
+
+
+### 💖 Thanks to
+
+- jasonHzq
+
 ### 🚀 Features
 
 - `general`
