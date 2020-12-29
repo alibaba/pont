@@ -17,7 +17,8 @@ import {
   Surrounding,
   getFileName,
   getTemplatesDirFile,
-  judgeTemplatesDirFileExists
+  judgeTemplatesDirFileExists,
+  DataSourceConfig
 } from '../utils';
 import { info } from '../debugLog';
 import { templateRegistion } from '../templates';
@@ -567,10 +568,20 @@ export class FilesManager {
 
     const newLockContent = this.fileStructures.getLockContent(currLocalDataSource);
 
-    if (lockContent !== newLockContent) {
-      this.created = true;
-      await fs.writeFile(lockFilePath, newLockContent);
-    }
+    try {
+      const oldLockContentJson = JSON.parse(lockContent) as DataSourceConfig[];
+      const newLockContentJson = JSON.parse(newLockContent) as DataSourceConfig[];
+      oldLockContentJson?.forEach(content => {
+        if (newLockContentJson.findIndex(newContent => newContent.name === content.name)) {
+          newLockContentJson.push(content);
+        }
+      });
+
+      if (lockContent !== newLockContent) {
+        this.created = true;
+        await fs.writeFile(lockFilePath, JSON.stringify(newLockContentJson, null, 2));
+      }
+    } catch (error) {}
   }
 
   diffFiles(newFiles: {}, lastFiles: {}, dir = this.baseDir) {
