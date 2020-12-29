@@ -25,7 +25,7 @@ import { templateRegistion } from '../templates';
 
 export class FileStructures {
   constructor(
-    private generators: CodeGenerator[],
+    public generators: CodeGenerator[],
     private usingMultipleOrigins: boolean,
     private surrounding = Surrounding.typeScript,
     private baseDir = 'src/service',
@@ -568,20 +568,27 @@ export class FilesManager {
 
     const newLockContent = this.fileStructures.getLockContent(currLocalDataSource);
 
-    try {
-      const oldLockContentJson = JSON.parse(lockContent) as DataSourceConfig[];
-      const newLockContentJson = JSON.parse(newLockContent) as DataSourceConfig[];
-      oldLockContentJson?.forEach(content => {
-        if (newLockContentJson.findIndex(newContent => newContent.name === content.name)) {
-          newLockContentJson.push(content);
-        }
-      });
+    if (this.fileStructures.generators.length > 1) {
+      try {
+        const oldLockContentJson = JSON.parse(lockContent) as DataSourceConfig[];
+        const newLockContentJson = JSON.parse(newLockContent) as DataSourceConfig[];
+        oldLockContentJson?.forEach(content => {
+          if (newLockContentJson.findIndex(newContent => newContent.name === content.name)) {
+            newLockContentJson.push(content);
+          }
+        });
 
+        if (lockContent !== newLockContent) {
+          this.created = true;
+          await fs.writeFile(lockFilePath, JSON.stringify(newLockContentJson, null, 2));
+        }
+      } catch (error) {}
+    } else {
       if (lockContent !== newLockContent) {
         this.created = true;
-        await fs.writeFile(lockFilePath, JSON.stringify(newLockContentJson, null, 2));
+        await fs.writeFile(lockFilePath, newLockContent);
       }
-    } catch (error) {}
+    }
   }
 
   diffFiles(newFiles: {}, lastFiles: {}, dir = this.baseDir) {
