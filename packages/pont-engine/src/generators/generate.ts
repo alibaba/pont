@@ -568,6 +568,7 @@ export class FilesManager {
 
     const newLockContent = this.fileStructures.getLockContent(currLocalDataSource);
 
+    // 多origin时，保存lock数据不被覆盖
     if (this.fileStructures.generators.length > 1) {
       try {
         const oldLockContentJson = JSON.parse(lockContent) as DataSourceConfig[];
@@ -584,6 +585,7 @@ export class FilesManager {
         }
       } catch (error) {}
     } else {
+      // 单origin时，不做改动
       if (lockContent !== newLockContent) {
         this.created = true;
         await fs.writeFile(lockFilePath, newLockContent);
