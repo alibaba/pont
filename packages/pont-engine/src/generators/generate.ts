@@ -31,7 +31,7 @@ export class FileStructures {
     private templateType = ''
   ) {}
 
-  getMultipleOriginsFileStructures(currLocalDataSource?: StandardDataSource) {
+  getMultipleOriginsFileStructures() {
     const files = {};
 
     this.generators
@@ -47,7 +47,7 @@ export class FileStructures {
       ...files,
       [getFileName('index', this.surrounding)]: this.getDataSourcesTs.bind(this),
       'api.d.ts': this.getDataSourcesDeclarationTs.bind(this),
-      'api-lock.json': this.getLockContent.bind(this, currLocalDataSource)
+      'api-lock.json': this.getLockContent.bind(this)
     };
   }
 
@@ -79,11 +79,7 @@ export class FileStructures {
     `;
   }
 
-  getOriginFileStructures(
-    generator: CodeGenerator,
-    usingMultipleOrigins = false,
-    currLocalDataSource?: StandardDataSource
-  ) {
+  getOriginFileStructures(generator: CodeGenerator, usingMultipleOrigins = false) {
     let mods = {};
     const dataSource = generator.dataSource;
 
@@ -124,17 +120,17 @@ export class FileStructures {
     };
 
     if (!usingMultipleOrigins) {
-      result['api-lock.json'] = this.getLockContent.bind(this, currLocalDataSource);
+      result['api-lock.json'] = this.getLockContent.bind(this);
     }
 
     return result;
   }
 
-  getFileStructures(currLocalDataSource?: StandardDataSource) {
+  getFileStructures() {
     const result =
       this.usingMultipleOrigins || this.generators.length > 1
-        ? this.getMultipleOriginsFileStructures(currLocalDataSource)
-        : this.getOriginFileStructures(this.generators[0], false, currLocalDataSource);
+        ? this.getMultipleOriginsFileStructures()
+        : this.getOriginFileStructures(this.generators[0]);
 
     // js环境时，默认为新用户，生成pontCore文件
     if (this.surrounding === Surrounding.javaScript) {
@@ -219,7 +215,7 @@ export class FileStructures {
     `;
   }
 
-  getLockContent(currLocalDataSource?: StandardDataSource) {
+  getLockContent() {
     if (this.generators) {
       // generators 长度大于1且outDir不相同时，需要拆分生成代码
       const hasMultipleOutDir = this.generators.some(generate => {
@@ -232,9 +228,7 @@ export class FileStructures {
       if (this.generators.length > 1 && hasMultipleOutDir) {
         dataSources = this.generators.filter(item => item.outDir === this.baseDir).map(ge => ge.dataSource);
       } else {
-        dataSources = this.generators
-          .filter(generator => !currLocalDataSource || currLocalDataSource.name === generator.dataSource.name)
-          .map(ge => ge.dataSource);
+        dataSources = this.generators.map(ge => ge.dataSource);
       }
 
       return JSON.stringify(dataSources, null, 2);
@@ -557,7 +551,7 @@ export class FilesManager {
   /** 区分lock文件是创建的还是人为更改的 */
   created = false;
 
-  async saveLock(currLocalDataSource?: StandardDataSource) {
+  async saveLock() {
     const lockFilePath = path.join(this.baseDir, 'api-lock.json');
     const oldLockFilePath = path.join(this.baseDir, 'api.lock');
     const isExists = fs.existsSync(lockFilePath);
@@ -565,7 +559,7 @@ export class FilesManager {
 
     const lockContent = await fs.readFile(readFilePath, 'utf8');
 
-    const newLockContent = this.fileStructures.getLockContent(currLocalDataSource);
+    const newLockContent = this.fileStructures.getLockContent();
 
     if (lockContent !== newLockContent) {
       this.created = true;

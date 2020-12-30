@@ -341,7 +341,7 @@ export class Manager {
   }
 
   async lock() {
-    await this.fileManager.saveLock(this.currLocalDataSource);
+    await this.fileManager.saveLock();
   }
 
   dispatch(files: {}) {
@@ -361,7 +361,7 @@ export class Manager {
   getGeneratedFiles() {
     this.setFilesManager();
 
-    const files = this.fileManager.fileStructures.getFileStructures(this.currLocalDataSource);
+    const files = this.fileManager.fileStructures.getFileStructures();
 
     try {
       return this.dispatch(files);
