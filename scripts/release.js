@@ -88,7 +88,7 @@ async function main() {
     // commit all changes
     console.log('Committing changes...');
     await run('git', ['add', '-A']);
-    await run('git', ['commit', '-m', `release: v${targetVersion}`]);
+    await run('git', ['commit', '--no-verify', '-m', `release: v${targetVersion}`]);
 
     // publish packages
     const releaseTag = Array.isArray(semver.prerelease(targetVersion)) ? semver.prerelease(targetVersion)[0] : 'latest';
