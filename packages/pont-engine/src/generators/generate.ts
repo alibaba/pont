@@ -28,7 +28,8 @@ export class FileStructures {
     private usingMultipleOrigins: boolean,
     private surrounding = Surrounding.typeScript,
     private baseDir = 'src/service',
-    private templateType = ''
+    private templateType = '',
+    private usingExports = false
   ) {}
 
   getMultipleOriginsFileStructures() {
@@ -186,6 +187,14 @@ export class FileStructures {
 
     const generatedCode = this.surrounding === Surrounding.typeScript ? '(window as any)' : 'window';
 
+    const defsContent = `defs ={
+      ${dsNames.map(name => `${name}: ${name}Defs,`).join('\n')}
+    };`;
+
+    const APIContent = `API = {
+      ${dsNames.join(',\n')}
+    };`;
+
     return `
       ${dsNames
         .map(name => {
@@ -194,12 +203,15 @@ export class FileStructures {
         })
         .join('\n')}
 
-      ${generatedCode}.defs = {
-        ${dsNames.map(name => `${name}: ${name}Defs,`).join('\n')}
-      };
-      ${generatedCode}.API = {
-        ${dsNames.join(',\n')}
-      };
+      ${generatedCode}.${defsContent}
+      ${generatedCode}.${APIContent}
+
+      ${
+        this.usingExports
+          ? `export const ${defsContent}
+      export const ${APIContent} `
+          : ''
+      } 
     `;
   }
 

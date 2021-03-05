@@ -416,7 +416,8 @@ export class Manager {
         this.currConfig.usingMultipleOrigins,
         this.currConfig.surrounding,
         this.currConfig.outDir,
-        this.currConfig.templateType
+        this.currConfig.templateType,
+        this.currConfig.usingExports
       ),
       this.currConfig.outDir
     );

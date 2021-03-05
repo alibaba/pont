@@ -60,11 +60,12 @@ export enum SurroundingFileName {
 }
 
 export class DataSourceConfig {
-  originUrl?= '';
+  originUrl? = '';
   originType = OriginType.SwaggerV2;
   name?: string;
   usingOperationId = true;
   usingMultipleOrigins = false;
+  usingExports = false;
   taggedByName = true;
   templatePath = 'serviceTemplate';
   templateType = '';
@@ -93,14 +94,14 @@ export class DataSourceConfig {
 
 export class Config extends DataSourceConfig {
   originType = OriginType.SwaggerV2;
-  origins?= [] as Array<{
+  origins? = [] as Array<{
     originType: OriginType;
     originUrl: string;
     name: string;
     usingOperationId: boolean;
     transformPath?: string;
     fetchMethodPath?: string;
-    outDir?: string
+    outDir?: string;
   }>;
   transformPath: string;
   fetchMethodPath: string;
@@ -184,7 +185,7 @@ export class Config extends DataSourceConfig {
         return new DataSourceConfig({
           ...commonConfig,
           ...origin,
-          outDir: origin.outDir ? path.join(configDir, origin.outDir) : commonConfig.outDir,
+          outDir: origin.outDir ? path.join(configDir, origin.outDir) : commonConfig.outDir
         });
       });
     }
