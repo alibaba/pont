@@ -10,7 +10,7 @@ export declare const SWRProvider: React.FC<ConfigInterface>;
  * @param params 请求参数
  * @param options 配置信息
  */
-export declare function useRequest(url: any, params?: any, swrOptions?: any, fetchOptions?: any): {
+export declare function useRequest(url: any, params?: any, swrOptions?: any, fetchOptions?: any, transformData?: Function): {
     data: any;
     error: any;
     mutate: (data?: any, shouldRevalidate?: boolean) => Promise<any>;

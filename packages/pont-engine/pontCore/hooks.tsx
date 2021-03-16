@@ -27,7 +27,7 @@ export const SWRProvider: React.FC<ConfigInterface> = props => {
  * @param params 请求参数
  * @param options 配置信息
  */
-export function useRequest(url: any, params = {} as any, swrOptions = {} as any, fetchOptions = {} as any) {
+export function useRequest(url: any, params = {} as any, swrOptions = {} as any, fetchOptions = {} as any, transformData?: Function) {
   const fetcher = requestUrl => PontCore.fetch(requestUrl, fetchOptions);
   const method = fetchOptions?.method || 'GET';
 
@@ -35,7 +35,7 @@ export function useRequest(url: any, params = {} as any, swrOptions = {} as any,
   const { data, error, isValidating, mutate } = useSWR(urlKey, fetcher, swrOptions);
 
   return {
-    data,
+    data: transformData ? transformData(data) : data,
     error,
     mutate,
     isLoading: data === undefined || isValidating
