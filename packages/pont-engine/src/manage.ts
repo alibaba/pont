@@ -203,11 +203,8 @@ export class Manager {
       });
       return localDataStr;
     } catch (error) {
-      return ''
+      return '';
     }
-
-
-
   }
 
   async readLocalDataSource() {
