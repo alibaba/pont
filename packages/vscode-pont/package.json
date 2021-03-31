@@ -2,7 +2,7 @@
   "name": "vscode-pont",
   "displayName": "pont",
   "description": "",
-  "version": "1.0.6",
+  "version": "1.0.12",
   "publisher": "jasonHzq",
   "license": "MIT",
   "engines": {
@@ -75,8 +75,8 @@
     "cors": "^2.8.5",
     "fs-extra": "^7.0.1",
     "mockjs": "^1.0.1-beta3",
-    "pont-engine": "1.0.6",
     "typescript": "^4.0.2"
+    "pont-engine": "1.0.12"
   },
   "devDependencies": {
     "rimraf": "^3.0.2",
