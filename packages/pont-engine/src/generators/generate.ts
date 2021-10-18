@@ -184,11 +184,11 @@ export class FileStructures {
   getDataSourcesTs() {
     const dsNames = this.getMultipleOriginsDataSourceName();
 
-    if (_.isFunction(this.generators[0].getDataSourceCallback)) {
-      return this.generators[0].getDataSources(dsNames)
-    }
-
     const generatedCode = this.surrounding === Surrounding.typeScript ? '(window as any)' : 'window';
+
+    if (_.isFunction(this.generators?.[0]?.getDataSourceCallback)) {
+      return this.generators[0].getDataSources(dsNames, generatedCode)
+    }
 
     return `
       ${dsNames
@@ -511,7 +511,7 @@ export class CodeGenerator {
    * 对外暴漏services入口文件模版
    * 
    */
-   getDataSources(dsNames: string[]): string {
+   getDataSources(dsNames: string[], generatedCode?: string): string {
     return `
       ${dsNames
         .map(name => {
@@ -520,10 +520,12 @@ export class CodeGenerator {
         })
         .join('\n')}
         
-      export {
-        ${dsNames.map(name => `${name}Defs,`).join('\n')}
+      ${generatedCode}.defs = {
+        ${dsNames.map(name => `${name}: ${name}Defs,`).join('\n')}
+      };
+      ${generatedCode}.API = {
         ${dsNames.join(',\n')}
-      }
+      };
     `;
   }
 }
