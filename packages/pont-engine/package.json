@@ -21,7 +21,7 @@
     "inquirer": "^7.1.0",
     "lodash": "^4.17.5",
     "node-fetch": "^1.7.3",
-    "prettier": "^1.19.1",
+    "prettier": "^2.4.1",
     "translation.js": "^0.7.5",
     "typescript": "^3.5.3"
   },
