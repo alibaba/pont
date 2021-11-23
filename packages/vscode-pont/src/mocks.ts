@@ -196,17 +196,14 @@ export class MocksServer {
 
   async refreshMocksCode() {
     const rootPath = vscode.workspace.rootPath;
+    const mockDir = path.join(rootPath, '.mocks');
     const mockPath = path.join(rootPath, '.mocks/mocks.ts');
 
     const code = this.getMocksCode();
-    if (!fs.existsSync(path.join(rootPath, '.mocks'))) {
-      fs.mkdirSync(path.join(rootPath, '.mocks'));
-    } else {
-      fs.unlinkSync(path.join(rootPath, '.mocks'));
-      fs.mkdirSync(path.join(rootPath, '.mocks'));
-    }
+    fs.removeSync(mockDir);
+    fs.mkdirSync(mockDir);
 
-    await fs.writeFile(mockPath, code);
+    fs.writeFileSync(mockPath, code);
   }
 
   async checkMocksPath() {
