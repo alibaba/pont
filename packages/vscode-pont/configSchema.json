@@ -9,6 +9,12 @@
     }
   },
   "properties": {
+    "originType": {
+      "description": "数据源类型",
+      "type": "string",
+      "default": "SwaggerV2",
+      "enum": ["SwaggerV2", "SwaggerV3"]
+    },
     "templatePath": {
       "description": "the code generator template, a ts file",
       "type": "string",
@@ -29,6 +35,11 @@
     "usingMultipleOrigins": {
       "type": "boolean",
       "description": "是否开启多数据源模式"
+    },
+    "surrounding": {
+      "type": "string",
+      "description": "pont生成代码的运行环境（无需更改）",
+      "enum": ["typeScript", "javaScript"]
     },
     "mocks": {
       "type": "object",
