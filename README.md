@@ -146,6 +146,10 @@ Tips:
 
 选择性更新本地的模块
 
+#### pont scan
+
+扫描未使用的接口，在 process.cwd()位置生成并写入 unusedRequests.js 文件
+
 ## `pont-config.json` 配置项
 
 对于 pont-config.json 的配置，在 vscode-pont 插件中已经做了自动提示、自动补全、配置项描述提醒等功能。具体配置项介绍如下：
@@ -161,6 +165,12 @@ Tips:
 值类型：字符串
 
 描述： 生成代码的存放路径，使用相对路径即可。如："./src/api"
+
+#### scannedRange
+
+值类型：字符串数组
+
+描述： 废弃接口扫描范围，使用相对路径即可。如：["./src/pages", "./src/components"]
 
 #### templatePath
 
@@ -241,7 +251,7 @@ export default function transform(data: StandardDataSource) {
  * @param data StandardDataSource
  */
 function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) {
-  let mods = data.mods.filter(mod => {
+  let mods = data.mods.filter((mod) => {
     return filterMods.includes(mod.name);
   });
   // 获取所有typeName
@@ -249,10 +259,10 @@ function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) 
 
   typeNames = Array.from(new Set(typeNames)) // 去重
     // 取typeName的值
-    .map(item => item.split(':')[1].replace(/\"/g, ''));
+    .map((item) => item.split(':')[1].replace(/\"/g, ''));
 
   // 过滤baseClasses
-  let baseClasses = data.baseClasses.filter(cls => typeNames.includes(cls.name));
+  let baseClasses = data.baseClasses.filter((cls) => typeNames.includes(cls.name));
 
   return { mods, baseClasses };
 }
@@ -272,7 +282,7 @@ function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) 
 // ./myFetchMethod.ts
 import axios from 'axios';
 
-export default async function(url: string): Promise<string> {
+export default async function (url: string): Promise<string> {
   const { data } = await axios.post('/api/login', {
     username: 'my_name',
     password: '123456'
@@ -284,7 +294,7 @@ export default async function(url: string): Promise<string> {
         Authorization: data.token
       }
     })
-    .then(res => JSON.stringify(res.data));
+    .then((res) => JSON.stringify(res.data));
 }
 ```
 
@@ -295,7 +305,7 @@ export default async function(url: string): Promise<string> {
 ```javascript
 {
   // ...
-  "fetchMethodPath": "./myFetchMethod", 
+  "fetchMethodPath": "./myFetchMethod",
 }
 ```
 
@@ -385,20 +395,17 @@ export default async function(url: string): Promise<string> {
     getDog() {}
   }
   ```
-  
+
   对于 `@nestjs/swagger@^4`，需要如下配置来手动注册 Tag
-  
-  ``` ts main.ts
+
+  ```ts main.ts
   // ...
-  const options = new DocumentBuilder()
-    .setTitle('your app')
-    .addTag('pet')
-    .build()
-  const document = SwaggerModule.createDocument(app, options)
-  SwaggerModule.setup('/api', app, document)
+  const options = new DocumentBuilder().setTitle('your app').addTag('pet').build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('/api', app, document);
   ```
-  
-  ``` ts pet.controller.ts
+
+  ```ts pet.controller.ts
   import { Controller } from '@nestjs/common';
   import { ApiTags, ApiOperation } from '@nestjs/swagger';
 

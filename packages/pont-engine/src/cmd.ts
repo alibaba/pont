@@ -2,6 +2,7 @@ import * as program from 'commander';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as debugLog from './debugLog';
+import * as scan from './scan';
 import { createManager } from './utils';
 import { StandardDataSource } from './standard';
 import { generatePontConfig } from './scripts/start';
@@ -127,6 +128,14 @@ function assert(expression: boolean, message: string) {
       .action(() => {
         manager.regenerateFiles();
       });
+
+    program
+      .command('scan')
+      .description('扫描废弃接口')
+      .action(() => {
+        scan.main();
+    });
+    
 
     program.parse(process.argv);
   } catch (e) {
