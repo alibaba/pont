@@ -156,6 +156,12 @@ Tips:
 
 描述： 接口平台提供数据源的 open api url（需要免登），目前只支持 Swagger。如 "https://petstore.swagger.io/v2/swagger.json"
 
+#### originType
+
+值类型："SwaggerV2" | "SwaggerV3"
+
+描述：数据源接口类型（注：暂不支持 SwaggerV1）
+
 #### outDir
 
 值类型：字符串
@@ -197,7 +203,8 @@ Tips:
   "name": string,
   "usingOperationId": boolean,
   "transformPath"?: string,
-  "fetchMethodPath"?: string
+  "fetchMethodPath"?: string,
+  "outDir"?:string,
 }
 ```
 
@@ -241,7 +248,7 @@ export default function transform(data: StandardDataSource) {
  * @param data StandardDataSource
  */
 function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) {
-  let mods = data.mods.filter(mod => {
+  let mods = data.mods.filter((mod) => {
     return filterMods.includes(mod.name);
   });
   // 获取所有typeName
@@ -249,10 +256,10 @@ function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) 
 
   typeNames = Array.from(new Set(typeNames)) // 去重
     // 取typeName的值
-    .map(item => item.split(':')[1].replace(/\"/g, ''));
+    .map((item) => item.split(':')[1].replace(/\"/g, ''));
 
   // 过滤baseClasses
-  let baseClasses = data.baseClasses.filter(cls => typeNames.includes(cls.name));
+  let baseClasses = data.baseClasses.filter((cls) => typeNames.includes(cls.name));
 
   return { mods, baseClasses };
 }
@@ -272,7 +279,7 @@ function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) 
 // ./myFetchMethod.ts
 import axios from 'axios';
 
-export default async function(url: string): Promise<string> {
+export default async function (url: string): Promise<string> {
   const { data } = await axios.post('/api/login', {
     username: 'my_name',
     password: '123456'
@@ -284,7 +291,7 @@ export default async function(url: string): Promise<string> {
         Authorization: data.token
       }
     })
-    .then(res => JSON.stringify(res.data));
+    .then((res) => JSON.stringify(res.data));
 }
 ```
 
@@ -295,7 +302,7 @@ export default async function(url: string): Promise<string> {
 ```javascript
 {
   // ...
-  "fetchMethodPath": "./myFetchMethod", 
+  "fetchMethodPath": "./myFetchMethod",
 }
 ```
 
