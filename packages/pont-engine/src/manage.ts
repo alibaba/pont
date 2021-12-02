@@ -1,5 +1,5 @@
 import { StandardDataSource } from './standard';
-import { Config, getTemplate, DataSourceConfig, hasChinese, diffDses } from './utils';
+import { Config, getTemplate, DataSourceConfig, hasChinese, diffDses, getRelatedBos } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { diff, Model } from './diff';
@@ -43,7 +43,7 @@ export class Manager {
   }
 
   async selectDataSource(name: string) {
-    this.currConfig = this.allConfigs.find(conf => conf.name === name);
+    this.currConfig = this.allConfigs.find((conf) => conf.name === name);
 
     await this.readLocalDataSource();
     await this.readRemoteDataSource();
@@ -60,7 +60,7 @@ export class Manager {
     } else {
       const remoteName = this.remoteDataSource.name;
 
-      const remoteDsIndex = this.allLocalDataSources.findIndex(ds => ds.name === remoteName);
+      const remoteDsIndex = this.allLocalDataSources.findIndex((ds) => ds.name === remoteName);
       if (remoteDsIndex === -1) {
         this.allLocalDataSources.push(this.remoteDataSource);
       } else {
@@ -72,47 +72,51 @@ export class Manager {
   }
 
   makeSameMod(modName: string) {
-    const isRemoteModExists = this.remoteDataSource.mods.find(iMod => iMod.name === modName);
-    const isLocalModExists = this.currLocalDataSource.mods.find(iMod => iMod.name === modName);
+    const isRemoteModExists = this.remoteDataSource.mods.find((iMod) => iMod.name === modName);
+    const isLocalModExists = this.currLocalDataSource.mods.find((iMod) => iMod.name === modName);
 
     if (!isRemoteModExists) {
       // 删除模块
-      this.currLocalDataSource.mods = this.currLocalDataSource.mods.filter(mod => mod.name !== modName);
+      this.currLocalDataSource.mods = this.currLocalDataSource.mods.filter((mod) => mod.name !== modName);
       return;
     }
 
-    const remoteMod = this.remoteDataSource.mods.find(iMod => iMod.name === modName);
+    const remoteMod = this.remoteDataSource.mods.find((iMod) => iMod.name === modName);
 
     if (isLocalModExists) {
       // 模块已存在。更新该模块
-      const index = this.currLocalDataSource.mods.findIndex(iMod => iMod.name === modName);
+      const index = this.currLocalDataSource.mods.findIndex((iMod) => iMod.name === modName);
 
       this.currLocalDataSource.mods[index] = remoteMod;
     } else {
-      // 模块已存在。创建该模块
+      // 模块不存在。创建该模块
 
       this.currLocalDataSource.mods.push(remoteMod);
       this.currLocalDataSource.reOrder();
     }
+
+    // 更新关联BaseClass
+    const relatedBos = getRelatedBos(remoteMod);
+    relatedBos.forEach((typeName) => this.makeSameBase(typeName));
   }
 
   makeSameBase(baseName: string) {
-    const isRemoteExists = this.remoteDataSource.baseClasses.find(base => base.name === baseName);
-    const isLocalExists = this.currLocalDataSource.baseClasses.find(base => base.name === baseName);
+    const isRemoteExists = this.remoteDataSource.baseClasses.find((base) => base.name === baseName);
+    const isLocalExists = this.currLocalDataSource.baseClasses.find((base) => base.name === baseName);
 
     if (!isRemoteExists) {
       // 删除基类
       this.currLocalDataSource.baseClasses = this.currLocalDataSource.baseClasses.filter(
-        base => base.name !== baseName
+        (base) => base.name !== baseName
       );
       return;
     }
 
-    const remoteBase = this.remoteDataSource.baseClasses.find(base => base.name === baseName);
+    const remoteBase = this.remoteDataSource.baseClasses.find((base) => base.name === baseName);
 
     if (isLocalExists) {
       // 基类已存在, 更新该基类
-      const index = this.currLocalDataSource.baseClasses.findIndex(base => base.name === baseName);
+      const index = this.currLocalDataSource.baseClasses.findIndex((base) => base.name === baseName);
 
       this.currLocalDataSource.baseClasses[index] = remoteBase;
     } else {
@@ -171,7 +175,7 @@ export class Manager {
       await this.readLocalDataSource();
       await this.initRemoteDataSource();
     } else {
-      const promises = this.allConfigs.map(config => {
+      const promises = this.allConfigs.map((config) => {
         return this.readRemoteDataSource(config);
       });
       this.allLocalDataSources = await Promise.all(promises);
@@ -218,18 +222,18 @@ export class Manager {
       this.report('读取本地完成');
       const localDataObjects = JSON.parse(localDataStr) as StandardDataSource[];
 
-      this.allLocalDataSources = localDataObjects.map(ldo => {
+      this.allLocalDataSources = localDataObjects.map((ldo) => {
         return StandardDataSource.constructorFromLock(ldo, ldo.name);
       });
 
       // Filter name changed origin
-      this.allLocalDataSources = this.allLocalDataSources.filter(ldo => {
-        return Boolean(this.allConfigs.find(config => config.name === ldo.name));
+      this.allLocalDataSources = this.allLocalDataSources.filter((ldo) => {
+        return Boolean(this.allConfigs.find((config) => config.name === ldo.name));
       });
 
       if (this.allLocalDataSources.length < this.allConfigs.length) {
-        this.allConfigs.forEach(config => {
-          if (!this.allLocalDataSources.find(ds => ds.name === config.name)) {
+        this.allConfigs.forEach((config) => {
+          if (!this.allLocalDataSources.find((ds) => ds.name === config.name)) {
             this.allLocalDataSources.push(
               new StandardDataSource({
                 mods: [],
@@ -245,7 +249,7 @@ export class Manager {
 
       if (this.currConfig.name && this.allLocalDataSources.length > 1) {
         this.currLocalDataSource =
-          this.allLocalDataSources.find(ds => ds.name === this.currConfig.name) ||
+          this.allLocalDataSources.find((ds) => ds.name === this.currConfig.name) ||
           new StandardDataSource({
             mods: [],
             name: this.currConfig.name,
@@ -266,13 +270,13 @@ export class Manager {
     const errorModNames = [] as string[];
     const errorBaseNames = [] as string[];
 
-    mods.forEach(mod => {
+    mods.forEach((mod) => {
       if (hasChinese(mod.name)) {
         errorModNames.push(mod.name);
       }
     });
 
-    baseClasses.forEach(base => {
+    baseClasses.forEach((base) => {
       if (hasChinese(base.name)) {
         errorBaseNames.push(base.name);
       }
@@ -280,8 +284,8 @@ export class Manager {
 
     if (errorBaseNames.length && errorModNames.length) {
       const errMsg = ['当前数据源有如下项不符合规范，需要后端修改'];
-      errorModNames.forEach(modName => errMsg.push(`模块名${modName}应该改为英文名！`));
-      errorBaseNames.forEach(baseName => errMsg.push(`基类名${baseName}应该改为英文名！`));
+      errorModNames.forEach((modName) => errMsg.push(`模块名${modName}应该改为英文名！`));
+      errorBaseNames.forEach((baseName) => errMsg.push(`基类名${baseName}应该改为英文名！`));
 
       throw new Error(errMsg.join('\n'));
     }
@@ -393,7 +397,7 @@ export class Manager {
       this.currConfig.templateType
     );
 
-    const generators = this.allLocalDataSources.map(dataSource => {
+    const generators = this.allLocalDataSources.map((dataSource) => {
       const config = this.getConfigByDataSourceName(dataSource.name);
       const generator: CodeGenerator = new Generator(this.currConfig.surrounding, config?.outDir);
       generator.setDataSource(dataSource);
@@ -439,7 +443,7 @@ export class Manager {
   /** 获取当前dataSource对应的config */
   getConfigByDataSourceName(name: string) {
     if (name) {
-      return this.allConfigs.find(config => config.name === name) || this.currConfig;
+      return this.allConfigs.find((config) => config.name === name) || this.currConfig;
     }
 
     // 没有name时，表示是单数据源
