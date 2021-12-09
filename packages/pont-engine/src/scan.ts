@@ -1,17 +1,14 @@
 import * as fs from 'fs';
+import * as path from 'path';
 import * as debugLog from './debugLog';
 import { lookForFiles, CONFIG_FILE, Config } from './utils';
-
-/** 生成的接口文件的根目录 */
-// const rootPath = './src/services';
-// const usageDir = ['./src/components', './src/entries', './src/layouts', './src/pages', './src/redux', './src/utils'];
 
 /** 全量接口数组 */
 let allRequests = [];
 /** 未被使用的接口数组 */
 let unusedRequests = [];
 /** 自动生成的文件，无需扫描 */
-const escapedFiles = ['api.d.ts', 'index.ts', 'baseClass.ts', 'api-lock.json'];
+const escapedFiles = ['api.d.ts', 'index.ts', 'baseClass.ts', 'api-lock.json', 'api.lock'];
 
 /** 内部方法，递归扫描文件夹 */
 function readDirRecursively(dirPath, callback) {
@@ -32,7 +29,7 @@ export function main() {
   const rootPath = process.cwd();
   lookForFiles(rootPath, CONFIG_FILE)
     .then((configPath) => {
-      const config = Config.createFromConfigPath(configPath).getDataSourcesConfig(rootPath)[0];
+      const config = Config.createFromConfigPath(configPath).getDataSourcesConfig(path.parse(configPath)?.dir)[0];
       readDirRecursively(config.outDir, (currentPath) => {
         const needEscape = escapedFiles.find((file) => currentPath.endsWith(file));
         if (!needEscape) {
@@ -46,7 +43,7 @@ export function main() {
           const fileContent = fs.readFileSync(currentPath).toString();
           const toBeRemovedRequests = [];
           unusedRequests.forEach((req) => {
-            const searchedPart = req.split('/').pop().slice(0, -3);
+            const searchedPart = path.parse(req)?.name;
             if (fileContent.indexOf(searchedPart) > 0) {
               toBeRemovedRequests.push(req);
             }
@@ -58,7 +55,10 @@ export function main() {
 
       unusedRequests.forEach((file) => {
         const fileContent = fs.readFileSync(file).toString();
-        const pattern = fileContent.match(/getUrl\((\s*)\'(.*)\',/);
+        if (!config.scannedPattern) {
+          throw new Error(`Configuration item 'scannedPattern' is required`);
+        }
+        const pattern = fileContent.match(new RegExp(config.scannedPattern));
         try {
           fs.writeFileSync('./unusedRequests.js', pattern[2] + '\n', { flag: 'a' });
         } catch (err) {

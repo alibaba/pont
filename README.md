@@ -170,7 +170,13 @@ Tips:
 
 值类型：字符串数组
 
-描述： 废弃接口扫描范围，使用相对路径即可。如：["./src/pages", "./src/components"]
+描述： 废弃接口扫描范围，使用相对pont-config文件位置的相对路径。如：["./src/pages", "./src/components"]
+
+#### scannedPattern
+
+值类型：字符串
+
+描述： 废弃接口扫描模式，应与取数逻辑（包括自定义代码生成模板）保持一致。符合正则表达式结构的字符串，需要与scannedRange同时配置，如："getUrl\\((\\s*)\\'(.*)\\',"
 
 #### templatePath
 

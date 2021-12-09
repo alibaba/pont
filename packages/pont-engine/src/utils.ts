@@ -71,6 +71,7 @@ export class DataSourceConfig {
   surrounding = Surrounding.typeScript;
   outDir = 'src/service';
   scannedRange = [];
+  scannedPattern = null;
   transformPath = '';
   fetchMethodPath = '';
   prettierConfig: ResolveConfigOptions = {};
