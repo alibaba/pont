@@ -160,6 +160,12 @@ Tips:
 
 描述： 接口平台提供数据源的 open api url（需要免登），目前只支持 Swagger。如 "https://petstore.swagger.io/v2/swagger.json"
 
+#### originType
+
+值类型："SwaggerV2" | "SwaggerV3"
+
+描述：数据源接口类型（注：暂不支持 SwaggerV1）
+
 #### outDir
 
 值类型：字符串
@@ -213,7 +219,8 @@ Tips:
   "name": string,
   "usingOperationId": boolean,
   "transformPath"?: string,
-  "fetchMethodPath"?: string
+  "fetchMethodPath"?: string,
+  "outDir"?:string,
 }
 ```
 

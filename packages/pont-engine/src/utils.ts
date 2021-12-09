@@ -94,8 +94,7 @@ export class DataSourceConfig {
 }
 
 export class Config extends DataSourceConfig {
-  originType = OriginType.SwaggerV2;
-  origins? = [] as Array<{
+  origins: Array<{
     originType: OriginType;
     originUrl: string;
     name: string;
@@ -104,8 +103,6 @@ export class Config extends DataSourceConfig {
     fetchMethodPath?: string;
     outDir?: string;
   }>;
-  transformPath: string;
-  fetchMethodPath: string;
 
   constructor(config: Config) {
     super(config);
