@@ -60,7 +60,7 @@ export enum SurroundingFileName {
 }
 
 export class DataSourceConfig {
-  originUrl?= '';
+  originUrl? = '';
   originType = OriginType.SwaggerV2;
   name?: string;
   usingOperationId = true;
@@ -70,6 +70,8 @@ export class DataSourceConfig {
   templateType = '';
   surrounding = Surrounding.typeScript;
   outDir = 'src/service';
+  scannedRange = [];
+  scannedPattern = null;
   transformPath = '';
   fetchMethodPath = '';
   prettierConfig: ResolveConfigOptions = {};
@@ -78,7 +80,7 @@ export class DataSourceConfig {
   mocks = new Mocks();
 
   constructor(config: DataSourceConfig) {
-    Object.keys(config).forEach(key => {
+    Object.keys(config).forEach((key) => {
       if (key === 'mocks') {
         this[key] = {
           ...this[key],
@@ -99,7 +101,7 @@ export class Config extends DataSourceConfig {
     usingOperationId: boolean;
     transformPath?: string;
     fetchMethodPath?: string;
-    outDir?: string
+    outDir?: string;
   }>;
 
   constructor(config: Config) {
@@ -116,7 +118,7 @@ export class Config extends DataSourceConfig {
       }
     }
 
-    return id => id;
+    return (id) => id;
   }
 
   static getFetchMethodFromConfig(config: Config | DataSourceConfig) {
@@ -131,7 +133,7 @@ export class Config extends DataSourceConfig {
       }
     }
 
-    return id => id;
+    return (id) => id;
   }
 
   validate() {
@@ -170,6 +172,7 @@ export class Config extends DataSourceConfig {
     const commonConfig = {
       ...rest,
       outDir: path.join(configDir, this.outDir),
+      scannedRange: Array.isArray(this.scannedRange) ? this.scannedRange.map((dir) => path.join(configDir, dir)) : [],
       templatePath: this.templatePath ? path.join(configDir, this.templatePath) : undefined,
       transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
       fetchMethodPath: this.fetchMethodPath ? path.join(configDir, this.fetchMethodPath) : undefined
@@ -177,11 +180,11 @@ export class Config extends DataSourceConfig {
 
     // FIXME: origins中配的路径没有转换成绝对路径，找不到该模块
     if (this.origins && this.origins.length) {
-      return this.origins.map(origin => {
+      return this.origins.map((origin) => {
         return new DataSourceConfig({
           ...commonConfig,
           ...origin,
-          outDir: origin.outDir ? path.join(configDir, origin.outDir) : commonConfig.outDir,
+          outDir: origin.outDir ? path.join(configDir, origin.outDir) : commonConfig.outDir
         });
       });
     }
@@ -212,7 +215,7 @@ export function getDuplicateById<T>(arr: T[], idKey = 'name'): null | T {
   let result;
 
   arr.forEach((item, itemIndex) => {
-    if (arr.slice(0, itemIndex).find(o => o[idKey] === item[idKey])) {
+    if (arr.slice(0, itemIndex).find((o) => o[idKey] === item[idKey])) {
       result = item;
       return;
     }
@@ -223,9 +226,9 @@ export function getDuplicateById<T>(arr: T[], idKey = 'name'): null | T {
 
 export function transformModsName(mods: Mod[]) {
   // 检测所有接口是否存在接口名忽略大小写时重复，如果重复，以下划线命名
-  mods.forEach(mod => {
+  mods.forEach((mod) => {
     const currName = mod.name;
-    const sameMods = mods.filter(mod => mod.name.toLowerCase() === currName.toLowerCase());
+    const sameMods = mods.filter((mod) => mod.name.toLowerCase() === currName.toLowerCase());
 
     if (sameMods.length > 1) {
       mod.name = transformDashCase(mod.name);
@@ -234,7 +237,7 @@ export function transformModsName(mods: Mod[]) {
 }
 
 function transformDashCase(name: string) {
-  return name.replace(/[A-Z]/g, ch => '_' + ch.toLowerCase());
+  return name.replace(/[A-Z]/g, (ch) => '_' + ch.toLowerCase());
 }
 
 export function transformCamelCase(name: string) {
@@ -255,7 +258,7 @@ export function transformCamelCase(name: string) {
 
   if (words && words.length) {
     result = words
-      .map(word => {
+      .map((word) => {
         return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
       })
       .join('');
@@ -271,7 +274,7 @@ export function transformCamelCase(name: string) {
 }
 
 export function transformDescription(description: string) {
-  const words = description.split(' ').filter(word => word !== 'Controller');
+  const words = description.split(' ').filter((word) => word !== 'Controller');
 
   const [firstWord, ...rest] = words;
   const sFirstWord = firstWord.charAt(0).toLowerCase() + firstWord.slice(1);
@@ -288,18 +291,18 @@ export function getMaxSamePath(paths: string[], samePath = '') {
     return samePath;
   }
 
-  if (paths.some(path => !path.includes('/'))) {
+  if (paths.some((path) => !path.includes('/'))) {
     return samePath;
   }
 
-  const segs = paths.map(path => {
+  const segs = paths.map((path) => {
     const [firstSeg, ...restSegs] = path.split('/');
     return { firstSeg, restSegs };
   });
 
   if (segs.every((seg, index) => index === 0 || seg.firstSeg === segs[index - 1].firstSeg)) {
     return getMaxSamePath(
-      segs.map(seg => seg.restSegs.join('/')),
+      segs.map((seg) => seg.restSegs.join('/')),
       samePath + '/' + segs[0].firstSeg
     );
   }
@@ -314,7 +317,7 @@ export function getIdentifierFromUrl(url: string, requestType: string, samePath 
     requestType +
     currUrl
       .split('/')
-      .map(str => {
+      .map((str) => {
         if (str.includes('-')) {
           str = str.replace(/(\-\w)+/g, (_match, p1) => {
             if (p1) {
@@ -423,7 +426,7 @@ export function toDashCase(name: string) {
   const dashName = name
     .split(' ')
     .join('')
-    .replace(/[A-Z]/g, p => '-' + p.toLowerCase());
+    .replace(/[A-Z]/g, (p) => '-' + p.toLowerCase());
 
   if (dashName.startsWith('-')) {
     return dashName.slice(1);
@@ -436,7 +439,7 @@ export function toDashDefaultCase(name: string) {
   let dashName = name
     .split(' ')
     .join('')
-    .replace(/[A-Z]/g, p => '-' + p.toLowerCase());
+    .replace(/[A-Z]/g, (p) => '-' + p.toLowerCase());
 
   if (dashName.startsWith('-')) {
     dashName = dashName.slice(1);
@@ -478,7 +481,7 @@ export async function createManager(configFile = CONFIG_FILE) {
 }
 
 export function diffDses(ds1: StandardDataSource, ds2: StandardDataSource) {
-  const mapModel = model => Object.assign({}, model, { details: [] }) as any;
+  const mapModel = (model) => Object.assign({}, model, { details: [] }) as any;
 
   const modDiffs = diff(ds1.mods.map(mapModel), ds2.mods.map(mapModel));
   const boDiffs = diff(ds1.baseClasses.map(mapModel), ds2.baseClasses.map(mapModel));
@@ -493,10 +496,7 @@ export function reviseModName(modName: string) {
   // .replace(/\//g, '.').replace(/^\./, '').replace(/\./g, '_') 转换 / .为下划线
   // exp: /api/v1/users  => api_v1_users
   // exp: api.v1.users => api_v1_users
-  return modName
-    .replace(/\//g, '.')
-    .replace(/^\./, '')
-    .replace(/\./g, '_');
+  return modName.replace(/\//g, '.').replace(/^\./, '').replace(/\./g, '_');
 }
 
 /** 获取文件名名称 */

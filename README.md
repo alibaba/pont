@@ -146,6 +146,10 @@ Tips:
 
 选择性更新本地的模块
 
+#### pont scan
+
+扫描未使用的接口，在 process.cwd()位置生成并写入 unusedRequests.js 文件
+
 ## `pont-config.json` 配置项
 
 对于 pont-config.json 的配置，在 vscode-pont 插件中已经做了自动提示、自动补全、配置项描述提醒等功能。具体配置项介绍如下：
@@ -167,6 +171,18 @@ Tips:
 值类型：字符串
 
 描述： 生成代码的存放路径，使用相对路径即可。如："./src/api"
+
+#### scannedRange
+
+值类型：字符串数组
+
+描述： 废弃接口扫描范围，使用相对pont-config文件位置的相对路径。如：["./src/pages", "./src/components"]
+
+#### scannedPattern
+
+值类型：字符串
+
+描述： 废弃接口扫描模式，应与取数逻辑（包括自定义代码生成模板）保持一致。符合正则表达式结构的字符串，需要与scannedRange同时配置，如："getUrl\\((\\s*)\\'(.*)\\',"
 
 #### templatePath
 
@@ -392,20 +408,17 @@ export default async function (url: string): Promise<string> {
     getDog() {}
   }
   ```
-  
+
   对于 `@nestjs/swagger@^4`，需要如下配置来手动注册 Tag
-  
-  ``` ts main.ts
+
+  ```ts main.ts
   // ...
-  const options = new DocumentBuilder()
-    .setTitle('your app')
-    .addTag('pet')
-    .build()
-  const document = SwaggerModule.createDocument(app, options)
-  SwaggerModule.setup('/api', app, document)
+  const options = new DocumentBuilder().setTitle('your app').addTag('pet').build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('/api', app, document);
   ```
-  
-  ``` ts pet.controller.ts
+
+  ```ts pet.controller.ts
   import { Controller } from '@nestjs/common';
   import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
