@@ -90,7 +90,7 @@ function deepDifMod(preMod: Mod, nextMod: Mod): string[] {
 }
 
 function deepDifBo(preBo: BaseClass, nextBo: BaseClass): string[] {
-  const { description, name, properties } = preBo;
+  const { description, properties } = preBo;
   const details = [] as string[];
   const label = `基类 ${preBo.name}`;
 
@@ -111,7 +111,7 @@ function deepDifBo(preBo: BaseClass, nextBo: BaseClass): string[] {
     const nextProps = _.find(nextBo.properties, prop => prop.name === tProp.name);
 
     if (!_.isEqual(preProps, nextProps)) {
-      details.push(`${label}的属性 ${name} 已更新`);
+      details.push(`${label}的属性已更新`);
     }
   });
 
