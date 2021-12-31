@@ -4,7 +4,7 @@
  * - library (contains class library code)
  * - interfaces (contains interfaces code)
  * - api.d.ts (contains interfaces and library definitions)
- * - api.lock (contains local code state)
+ * - api-lock.json (contains local code state)
  */
 
 import * as _ from 'lodash';
@@ -24,7 +24,7 @@ import { templateRegistion } from '../templates';
 
 export class FileStructures {
   constructor(
-    private generators: CodeGenerator[],
+    public generators: CodeGenerator[],
     private usingMultipleOrigins: boolean,
     private surrounding = Surrounding.typeScript,
     private baseDir = 'src/service',
@@ -35,8 +35,8 @@ export class FileStructures {
     const files = {};
 
     this.generators
-      .filter(generator => generator.outDir === this.baseDir)
-      .forEach(generator => {
+      .filter((generator) => generator.outDir === this.baseDir)
+      .forEach((generator) => {
         const dsName = generator.dataSource.name;
         const dsFiles = this.getOriginFileStructures(generator, true);
 
@@ -46,8 +46,7 @@ export class FileStructures {
     return {
       ...files,
       [getFileName('index', this.surrounding)]: this.getDataSourcesTs.bind(this),
-      'api.d.ts': this.getDataSourcesDeclarationTs.bind(this),
-      'api-lock.json': this.getLockContent.bind(this)
+      'api.d.ts': this.getDataSourcesDeclarationTs.bind(this)
     };
   }
 
@@ -85,10 +84,10 @@ export class FileStructures {
 
     const indexFileName = getFileName('index', this.surrounding);
 
-    dataSource.mods.forEach(mod => {
+    dataSource.mods.forEach((mod) => {
       const currMod = {};
 
-      mod.interfaces.forEach(inter => {
+      mod.interfaces.forEach((inter) => {
         currMod[getFileName(inter.name, this.surrounding)] = generator.getInterfaceContent.bind(generator, inter);
         currMod[indexFileName] = generator.getModIndex.bind(generator, mod);
       });
@@ -116,12 +115,9 @@ export class FileStructures {
       [getFileName('baseClass', this.surrounding)]: generator.getBaseClassesIndex.bind(generator),
       mods: mods,
       [indexFileName]: generator.getIndex.bind(generator),
-      'api.d.ts': generator.getDeclaration.bind(generator)
+      'api.d.ts': generator.getDeclaration.bind(generator),
+      'api-lock.json': this.getLockContent(generator)
     };
-
-    if (!usingMultipleOrigins) {
-      result['api-lock.json'] = this.getLockContent.bind(this);
-    }
 
     return result;
   }
@@ -149,7 +145,9 @@ export class FileStructures {
   }
 
   private checkHasTemplateFetch() {
-    const templateTypesWithOutFetch = templateRegistion.map(item => item.templateType).filter(item => item !== 'fetch');
+    const templateTypesWithOutFetch = templateRegistion
+      .map((item) => item.templateType)
+      .filter((item) => item !== 'fetch');
 
     if (
       templateTypesWithOutFetch.includes(this.templateType) &&
@@ -162,10 +160,10 @@ export class FileStructures {
   }
 
   getMultipleOriginsDataSourceName() {
-    const dsNames = this.generators.map(ge => ge.dataSource.name);
+    const dsNames = this.generators.map((ge) => ge.dataSource.name);
 
     if (this.judgeHasMultipleFilesName()) {
-      const generate = this.generators.find(ge => ge.outDir === this.baseDir);
+      const generate = this.generators.find((ge) => ge.outDir === this.baseDir);
 
       if (generate) {
         return [generate.dataSource.name];
@@ -176,7 +174,7 @@ export class FileStructures {
   }
 
   judgeHasMultipleFilesName(): boolean {
-    return this.generators.some(generate => {
+    return this.generators.some((generate) => {
       return generate.outDir !== this.baseDir;
     });
   }
@@ -188,14 +186,14 @@ export class FileStructures {
 
     return `
       ${dsNames
-        .map(name => {
+        .map((name) => {
           return `import { defs as ${name}Defs, ${name} } from './${name}';
           `;
         })
         .join('\n')}
 
       ${generatedCode}.defs = {
-        ${dsNames.map(name => `${name}: ${name}Defs,`).join('\n')}
+        ${dsNames.map((name) => `${name}: ${name}Defs,`).join('\n')}
       };
       ${generatedCode}.API = {
         ${dsNames.join(',\n')}
@@ -208,31 +206,16 @@ export class FileStructures {
 
     return `
     ${dsNames
-      .map(name => {
+      .map((name) => {
         return `/// <reference path="./${name}/api.d.ts" />`;
       })
       .join('\n')}
     `;
   }
 
-  getLockContent() {
-    if (this.generators) {
-      // generators 长度大于1且outDir不相同时，需要拆分生成代码
-      const hasMultipleOutDir = this.generators.some(generate => {
-        return generate.outDir !== this.baseDir;
-      });
-
-      let dataSources;
-
-      // 只生成当前路径的api.lock
-      if (this.generators.length > 1 && hasMultipleOutDir) {
-        dataSources = this.generators.filter(item => item.outDir === this.baseDir).map(ge => ge.dataSource);
-      } else {
-        dataSources = this.generators.map(ge => ge.dataSource);
-      }
-
-      return JSON.stringify(dataSources, null, 2);
-    }
+  getLockContent(generate: CodeGenerator): string {
+    const dataSource = this.usingMultipleOrigins ? generate.dataSource : [generate.dataSource];
+    return generate ? JSON.stringify(dataSource, null, 2) : '';
   }
 }
 
@@ -243,7 +226,11 @@ export class CodeGenerator {
 
   hasContextBund = false;
 
-  constructor(public surrounding = Surrounding.typeScript, public outDir = '') {}
+  readonly lockFilename: string;
+
+  constructor(public surrounding = Surrounding.typeScript, public outDir = '', lockFilename = 'api-lock.json') {
+    this.lockFilename = lockFilename;
+  }
 
   setDataSource(dataSource: StandardDataSource) {
     this.dataSource = dataSource;
@@ -255,12 +242,12 @@ export class CodeGenerator {
   getBaseClassInDeclaration(base: BaseClass) {
     if (base.templateArgs && base.templateArgs.length) {
       return `class ${base.name}<${base.templateArgs.map((_, index) => `T${index} = any`).join(', ')}> {
-        ${base.properties.map(prop => prop.toPropertyCode(Surrounding.typeScript, true)).join('\n')}
+        ${base.properties.map((prop) => prop.toPropertyCode(Surrounding.typeScript, true)).join('\n')}
       }
       `;
     }
     return `class ${base.name} {
-      ${base.properties.map(prop => prop.toPropertyCode(Surrounding.typeScript, true)).join('\n')}
+      ${base.properties.map((prop) => prop.toPropertyCode(Surrounding.typeScript, true)).join('\n')}
     }
     `;
   }
@@ -272,7 +259,7 @@ export class CodeGenerator {
     const content = `namespace ${this.dataSource.name || 'defs'} {
       ${this.dataSource.baseClasses
         .map(
-          base => `
+          (base) => `
         export ${this.getBaseClassInDeclaration(base)}
       `
         )
@@ -329,7 +316,7 @@ export class CodeGenerator {
     const content = `namespace ${this.dataSource.name || 'API'} {
         ${mods
           .map(
-            mod => `
+            (mod) => `
           /**
            * ${mod.description}
            */
@@ -393,13 +380,13 @@ export class CodeGenerator {
   /** 获取所有基类文件代码 */
   getBaseClassesIndex() {
     const clsCodes = this.dataSource.baseClasses.map(
-      base => `
+      (base) => `
         class ${base.name} {
           ${base.properties
-            .map(prop => {
+            .map((prop) => {
               return prop.toPropertyCodeWithInitValue(base.name);
             })
-            .filter(id => id)
+            .filter((id) => id)
             .join('\n')}
         }
       `
@@ -409,12 +396,12 @@ export class CodeGenerator {
       return `
         ${clsCodes.join('\n')}
         export const ${this.dataSource.name} = {
-          ${this.dataSource.baseClasses.map(bs => bs.name).join(',\n')}
+          ${this.dataSource.baseClasses.map((bs) => bs.name).join(',\n')}
         }
       `;
     }
 
-    return clsCodes.map(cls => `export ${cls}`).join('\n');
+    return clsCodes.map((cls) => `export ${cls}`).join('\n');
   }
 
   /** 获取接口实现内容的代码 */
@@ -452,13 +439,13 @@ export class CodeGenerator {
        * @description ${mod.description}
        */
       ${mod.interfaces
-        .map(inter => {
+        .map((inter) => {
           return `import * as ${inter.name} from './${inter.name}';`;
         })
         .join('\n')}
 
       export {
-        ${mod.interfaces.map(inter => inter.name).join(', \n')}
+        ${mod.interfaces.map((inter) => inter.name).join(', \n')}
       }
     `;
   }
@@ -467,7 +454,7 @@ export class CodeGenerator {
   getModsIndex() {
     let conclusion = `
       ${this.surrounding === Surrounding.typeScript ? '(window as any)' : 'window'}.API = {
-        ${this.dataSource.mods.map(mod => reviseModName(mod.name)).join(', \n')}
+        ${this.dataSource.mods.map((mod) => reviseModName(mod.name)).join(', \n')}
       };
     `;
 
@@ -475,14 +462,14 @@ export class CodeGenerator {
     if (this.dataSource.name) {
       conclusion = `
         export const ${this.dataSource.name} = {
-          ${this.dataSource.mods.map(mod => reviseModName(mod.name)).join(', \n')}
+          ${this.dataSource.mods.map((mod) => reviseModName(mod.name)).join(', \n')}
         };
       `;
     }
 
     return `
       ${this.dataSource.mods
-        .map(mod => {
+        .map((mod) => {
           const modName = reviseModName(mod.name);
           return `import * as ${modName} from './${modName}';`;
         })
@@ -519,19 +506,14 @@ export class FilesManager {
   }
 
   async regenerate(files: {}, oldFiles?: {}) {
-    // if (report) {
-    //   this.report = report;
-    // }
-
     this.initPath(this.baseDir);
-    this.created = true;
 
     if (oldFiles && Object.keys(oldFiles || {}).length) {
       const updateTask = this.diffFiles(files, oldFiles);
       if (updateTask.deletes && updateTask.deletes.length) {
         this.report(`删除${updateTask.deletes.length}个文件及文件夹`);
         await Promise.all(
-          updateTask.deletes.map(filePath => {
+          updateTask.deletes.map((filePath) => {
             fs.unlink(filePath);
           })
         );
@@ -548,22 +530,20 @@ export class FilesManager {
     }
   }
 
-  /** 区分lock文件是创建的还是人为更改的 */
-  created = false;
-
-  async saveLock() {
-    const lockFilePath = path.join(this.baseDir, 'api-lock.json');
-    const oldLockFilePath = path.join(this.baseDir, 'api.lock');
-    const isExists = fs.existsSync(lockFilePath);
-    const readFilePath = isExists ? lockFilePath : oldLockFilePath;
-
-    const lockContent = await fs.readFile(readFilePath, 'utf8');
-
-    const newLockContent = this.fileStructures.getLockContent();
-
-    if (lockContent !== newLockContent) {
-      this.created = true;
-      await fs.writeFile(lockFilePath, newLockContent);
+  async saveLock(originName?: string) {
+    const setLockFile = async (generator) => {
+      const filePath = path.join(generator.outDir, generator.dataSource.name, generator.lockFilename);
+      const lockContent = await fs.readFile(filePath, 'utf8');
+      const newLockContent = this.fileStructures.getLockContent(generator);
+      if (lockContent !== newLockContent) {
+        await fs.writeFile(filePath, newLockContent);
+      }
+    };
+    if (originName) {
+      const targetOrigin = this.fileStructures.generators.find((generator) => generator.dataSource.name === originName);
+      targetOrigin && setLockFile(targetOrigin);
+    } else {
+      this.fileStructures.generators.forEach(setLockFile);
     }
   }
 

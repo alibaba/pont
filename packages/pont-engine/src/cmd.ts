@@ -4,7 +4,6 @@ import * as fs from 'fs-extra';
 import * as debugLog from './debugLog';
 import * as scan from './scan';
 import { createManager } from './utils';
-import { StandardDataSource } from './standard';
 import { generatePontConfig } from './scripts/start';
 
 const packageFilePath = path.join(__dirname, '..', 'package.json');
@@ -39,10 +38,9 @@ function assert(expression: boolean, message: string) {
       .description('检测 api-lock.json 文件')
       .action(async () => {
         debugLog.info('api-lock.json 文件检测中...');
-        const fileContent = await manager.readLockFile();
+        const localDatas = await manager.readLockFile();
 
         try {
-          const localDatas = JSON.parse(fileContent) as StandardDataSource[];
           if (localDatas.length > 1) {
             assert(
               localDatas.every(data => !!data.name),
