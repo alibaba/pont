@@ -379,7 +379,7 @@ export default async function (url: string): Promise<string> {
 
 - 快捷键 cmd + ctrl + p 进行接口查找，非常方便；
 
-- 善于利用实体类（defs），可以当成类型用、也可以作为逻辑实现的辅助；实体类是后端写得实体类，前端自己写实体类，既没有必要，长期来看也会和后端的实现差异越来越大。如果有自定义逻辑，继承 defs 实体类即可。
+- 善于利用实体类（defs），可以当成类型用、也可以作为逻辑实现的辅助；实体类是后端写的实体类，前端自己写实体类，既没有必要，长期来看也会和后端的实现差异越来越大。如果有自定义逻辑，继承 defs 实体类即可。
 
 - redux 项目，建议结合 [https://github.com/nefe/iron-redux](https://github.com/nefe/iron-redux)，一个致力类型完美和去冗余的轻量化 redux 库。例如类型友好的，运行安全的 get 方法：https://github.com/nefe/iron-redux#safeget
 
