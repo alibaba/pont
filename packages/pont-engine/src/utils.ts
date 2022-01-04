@@ -5,7 +5,7 @@ import * as prettier from 'prettier';
 import * as ts from 'typescript';
 import { ResolveConfigOptions } from 'prettier';
 import { error } from './debugLog';
-import { Mod, StandardDataSource } from './standard';
+import { Mod, StandardDataSource, StandardDataType } from './standard';
 import { Manager } from './manage';
 import { OriginType } from './scripts';
 import { diff } from './diff';
@@ -513,4 +513,23 @@ export function getFileName(fileName: string, surrounding: string) {
 /** 检测是否是合法url */
 export function judgeIsVaildUrl(url: string) {
   return /^(http|https):.*?$/.test(url);
+}
+
+/** 获取标准数据类型的自定义类名 */
+export function getDefsTypeBos(dataTypes: Array<StandardDataType>): Array<string> {
+  const defsTypeBaseClasses = dataTypes
+    .map((item) =>
+      item.isDefsType ? [item.typeName, ...getDefsTypeBos(item.typeArgs)] : getDefsTypeBos(item.typeArgs)
+    )
+    .reduce((acc, item) => [...acc, ...item], []);
+  return defsTypeBaseClasses;
+}
+
+/** 获取Mod相关的BaseClasses */
+export function getRelatedBos(mod: Mod): Set<string> {
+  const dataTypes = mod.interfaces
+    .map((item) => [...item.parameters, { dataType: item.response }])
+    .reduce((acc, item) => [...acc, ...item], [])
+    .map((item) => item.dataType);
+  return new Set(getDefsTypeBos(dataTypes).filter(Boolean));
 }
