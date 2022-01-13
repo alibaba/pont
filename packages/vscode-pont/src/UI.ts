@@ -127,16 +127,12 @@ export class Control {
   watchLocalFile() {
     const config = this.manager.currConfig;
     const lockWatcher = vscode.workspace.createFileSystemWatcher(
-      path.join(config.outDir, 'api.lock'),
+      path.join(config.outDir, this.manager.lockFilename),
       true,
       false,
       true
     );
     let lockDispose = lockWatcher.onDidChange(async () => {
-      if (this.manager.fileManager.created) {
-        this.manager.fileManager.created = false;
-        return;
-      }
       await this.manager.readLocalDataSource();
       this.manager.calDiffs();
       this.ui.reRender();
@@ -280,7 +276,7 @@ export class Control {
             title: 'updateMod'
           },
           p => {
-            return new Promise(async (resolve, reject) => {
+            return new Promise<void>(async (resolve, reject) => {
               try {
                 p.report({ message: '开始更新...' });
 
@@ -330,7 +326,7 @@ export class Control {
             title: 'updateBo'
           },
           p => {
-            return new Promise(async (resolve, reject) => {
+            return new Promise<void>(async (resolve, reject) => {
               try {
                 p.report({ message: '开始更新...' });
 
@@ -368,7 +364,7 @@ export class Control {
             title: 'updateAll'
           },
           p => {
-            return new Promise(async (resolve, reject) => {
+            return new Promise<void>(async (resolve, reject) => {
               try {
                 p.report({ message: '开始更新...' });
 

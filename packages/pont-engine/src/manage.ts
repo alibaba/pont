@@ -189,38 +189,49 @@ export class Manager {
   existsLocal() {
     return (
       fs.existsSync(path.join(this.currConfig.outDir, this.lockFilename)) ||
-      fs.existsSync(path.join(this.currConfig.outDir, 'api.lock'))
+      _.some(this.allConfigs.map((config) => fs.existsSync(path.join(config.outDir, config.name, this.lockFilename))))
     );
   }
 
-  async readLockFile(): Promise<string> {
-    let lockFile = path.join(this.currConfig.outDir, 'api-lock.json');
-    const isExists = fs.existsSync(lockFile);
-
-    if (!isExists) {
-      lockFile = path.join(this.currConfig.outDir, 'api.lock');
-    }
-
+  async readLockFile(): Promise<Array<StandardDataSource>> {
     try {
-      const localDataStr = await fs.readFile(lockFile, {
-        encoding: 'utf8'
-      });
-      return localDataStr;
+      let lockFile = path.join(this.currConfig.outDir, this.lockFilename);
+      const isExists = fs.existsSync(lockFile);
+      /** 兼容上一版本数据源根目录生成api-lock.json的场景 */
+      if (isExists) {
+        const localDataStr = await fs.readFile(lockFile, {
+          encoding: 'utf8'
+        });
+        if (this.allConfigs.length > 1) {
+          /** 多数据源的场景，删除原来的lock文件 */
+          this.regenerateFiles().then(() => fs.rename(lockFile, `${lockFile}.bak`));
+        }
+        return JSON.parse(localDataStr);
+      } else {
+        const allFilePromises = this.allConfigs.map(async (config) => {
+          const filePath = path.join(config.outDir, config.name, this.lockFilename);
+          const localDataStr = await fs.readFile(filePath, {
+            encoding: 'utf8'
+          });
+          return JSON.parse(localDataStr);
+        });
+        return Promise.all(allFilePromises);
+      }
     } catch (error) {
-      return '';
+      this.report(error);
+      return [];
     }
   }
 
   async readLocalDataSource() {
     try {
       this.report('读取本地数据中...');
-      const localDataStr = await this.readLockFile();
-      if (!localDataStr) {
+      const localDataObjects = await this.readLockFile();
+      if (!localDataObjects.length) {
         return;
       }
 
       this.report('读取本地完成');
-      const localDataObjects = JSON.parse(localDataStr) as StandardDataSource[];
 
       this.allLocalDataSources = localDataObjects.map((ldo) => {
         return StandardDataSource.constructorFromLock(ldo, ldo.name);
@@ -231,6 +242,7 @@ export class Manager {
         return Boolean(this.allConfigs.find((config) => config.name === ldo.name));
       });
 
+      // 本地数据源和远程数据源不一致
       if (this.allLocalDataSources.length < this.allConfigs.length) {
         this.allConfigs.forEach((config) => {
           if (!this.allLocalDataSources.find((ds) => ds.name === config.name)) {
@@ -260,7 +272,7 @@ export class Manager {
       this.setFilesManager();
       this.report('本地对象创建成功');
     } catch (e) {
-      throw new Error('读取 lock 文件错误！' + e.toString());
+      throw new Error('读取 api-lock.json 文件错误！' + e.toString());
     }
   }
 
@@ -345,7 +357,7 @@ export class Manager {
   }
 
   async lock() {
-    await this.fileManager.saveLock();
+    await this.fileManager.saveLock(this.currConfig.name);
   }
 
   dispatch(files: {}) {
@@ -399,7 +411,7 @@ export class Manager {
 
     const generators = this.allLocalDataSources.map((dataSource) => {
       const config = this.getConfigByDataSourceName(dataSource.name);
-      const generator: CodeGenerator = new Generator(this.currConfig.surrounding, config?.outDir);
+      const generator: CodeGenerator = new Generator(this.currConfig.surrounding, config?.outDir, this.lockFilename);
       generator.setDataSource(dataSource);
       generator.usingMultipleOrigins = this.currConfig.usingMultipleOrigins;
 
