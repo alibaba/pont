@@ -186,10 +186,11 @@ export class Manager {
     }
   }
 
-  existsLocal() {
+  existsLocal() { // 判断本地是否已经存在lockFilename文件(即api-lock.json)
+    // config.name可能为空,而且lockFilename文件根本不在config.name这里层，而是直接在config.outDir里
     return (
       fs.existsSync(path.join(this.currConfig.outDir, this.lockFilename)) ||
-      _.some(this.allConfigs.map((config) => fs.existsSync(path.join(config.outDir, config.name, this.lockFilename))))
+      _.some(this.allConfigs.map((config) => fs.existsSync(path.join(config.outDir, this.lockFilename)))) 
     );
   }
 

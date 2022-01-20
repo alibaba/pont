@@ -256,7 +256,7 @@ export class CodeGenerator {
    * surrounding, 优先级高于this.surrounding,用于生成api.d.ts时强制保留类型
    */
   getBaseClassesInDeclaration() {
-    const content = `namespace ${this.dataSource.name || 'defs'} {
+    let content = `namespace ${this.dataSource.name || 'defs'} {
       ${this.dataSource.baseClasses
         .map(
           (base) => `
@@ -266,6 +266,22 @@ export class CodeGenerator {
         .join('\n')}
     }
     `;
+
+    // 改动处：用于生成api.d.ts 增加了如下代码(主要是不想改动原本的代码，所以增加点代码)
+    if(this.dataSource.name){
+      content = `namespace defs { 
+        namespace ${this.dataSource.name} {
+        ${this.dataSource.baseClasses
+          .map(
+            (base) => `
+          export ${this.getBaseClassInDeclaration(base)}
+        `
+          )
+          .join('\n')}
+        }
+      }
+      `;
+    }
 
     return content;
   }
