@@ -25,7 +25,6 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.getUrlKey = exports.useRequest = exports.SWRProvider = void 0;
 var swr_1 = require("swr");
 var React = require("react");
 var pontCore_1 = require("./pontCore");
@@ -51,10 +50,11 @@ function useRequest(url, params, swrOptions, fetchOptions) {
     if (params === void 0) { params = {}; }
     if (swrOptions === void 0) { swrOptions = {}; }
     if (fetchOptions === void 0) { fetchOptions = {}; }
+    var _a;
     var fetcher = function (requestUrl) { return pontCore_1.PontCore.fetch(requestUrl, fetchOptions); };
-    var method = (fetchOptions === null || fetchOptions === void 0 ? void 0 : fetchOptions.method) || 'GET';
+    var method = ((_a = fetchOptions) === null || _a === void 0 ? void 0 : _a.method) || 'GET';
     var urlKey = getUrlKey(url, params, method);
-    var _a = swr_1.default(urlKey, fetcher, swrOptions), data = _a.data, error = _a.error, isValidating = _a.isValidating, mutate = _a.mutate;
+    var _b = swr_1.default(urlKey, fetcher, swrOptions), data = _b.data, error = _b.error, isValidating = _b.isValidating, mutate = _b.mutate;
     return {
         data: data,
         error: error,

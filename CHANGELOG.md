@@ -1,3 +1,48 @@
+v1.1.0-alpha.0 / 2022-02-07
+===================
+
+### 🐛 Bug Fixes
+
+- `pont-engine`
+  - #178 Fix deepDifBo tips fixes
+  - #244 修复单数据源的情况下设置originType失败的问题 fixes
+- `vscode-pont`
+  - #204 修复refresh mocks data 异常报错的问题 fixes
+- `general`
+  - 代码回退
+
+
+### 🚀 Features
+
+- `all`
+  - 多数据源场景，默认拆分api-lock.json到每个数据源目录下
+- `pont-engine`
+  - 更新Mod时关联更新bo（BaseClass）
+- `general`
+  - Rm package-json.lock
+  - Supplement configuration item 'scannedPattern' and rm comments
+  - Add scan cli to recognize unused api
+
+
+### 🏡 Chore
+
+- `general`
+  - #238 Update prettier version to fixes
+- `deps`
+  - Bump url-parse from 1.4.7 to 1.5.3
+  - Bump hosted-git-info in /examples/hooks-app
+  - Bump ini from 1.3.5 to 1.3.8 in /examples/hooks-app
+
+
+### 💖 Thanks to
+
+- Leon1Zhu
+- dependabot[bot]
+- mangxing
+- muren.zmr
+- 凌亦
+- 芒星
+
 v1.0.12 / 2020-12-30
 ===================
 
