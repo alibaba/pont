@@ -59,11 +59,14 @@ export function main() {
           throw new Error(`Configuration item 'scannedPattern' is required`);
         }
         const pattern = fileContent.match(new RegExp(config.scannedPattern));
-        try {
-          fs.writeFileSync('./unusedRequests.js', pattern[2] + '\n', { flag: 'a' });
-        } catch (err) {
-          debugLog.error(`Exception file: ${file}`);
-          debugLog.error(`pattern: ${pattern}`);
+
+        if (pattern?.[2]) {
+          try {
+            fs.writeFileSync('./unusedRequests.js', pattern[2] + '\n', { flag: 'a' });
+          } catch (err) {
+            debugLog.error(`Exception file: ${file}`);
+            debugLog.error(`pattern: ${pattern}`);
+          }
         }
       });
 
