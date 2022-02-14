@@ -1,3 +1,29 @@
+v1.1.0 / 2022-02-14
+===================
+
+### 🐛 Bug Fixes
+
+- `scan`
+  - Compatible with a null value
+- `readme`
+  - Md scannedPattern  transfer bug
+
+
+### 🏡 Chore
+
+- `deps`
+  - Bump postcss from 7.0.17 to 7.0.39 in /examples/hooks-app
+  - Bump node-fetch from 1.7.3 to 2.6.7
+  - Bump trim-off-newlines from 1.0.1 to 1.0.3
+  - Bump follow-redirects in /examples/hooks-app
+  - Bump follow-redirects from 1.9.0 to 1.14.7
+
+
+### 💖 Thanks to
+
+- dependabot[bot]
+- yehua.zy
+
 v1.1.0-alpha.0 / 2022-02-07
 ===================
 
