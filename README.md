@@ -204,6 +204,12 @@ Tips:
 
 描述：pont 支持一个项目中配置多个 Swagger 来源。此处配置是否启用多数据源
 
+#### spiltApiLock
+
+值类型：boolean
+
+描述：是否拆分api-lock.json到具体数据源
+
 #### origins
 
 值类型：array

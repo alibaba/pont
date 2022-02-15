@@ -65,6 +65,7 @@ export class DataSourceConfig {
   name?: string;
   usingOperationId = true;
   usingMultipleOrigins = false;
+  spiltApiLock = false;
   taggedByName = true;
   templatePath = 'serviceTemplate';
   templateType = '';

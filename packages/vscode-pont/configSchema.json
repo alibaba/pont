@@ -36,6 +36,10 @@
       "type": "boolean",
       "description": "是否开启多数据源模式"
     },
+    "spiltApiLock":{
+      "type":"boolean",
+      "description": "是否拆分api-lock.json到具体数据源目录"
+    },
     "surrounding": {
       "type": "string",
       "description": "pont生成代码的运行环境（无需更改）",
