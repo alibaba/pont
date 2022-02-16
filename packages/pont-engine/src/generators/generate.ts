@@ -25,10 +25,11 @@ import { templateRegistion } from '../templates';
 export class FileStructures {
   constructor(
     public generators: CodeGenerator[],
-    private usingMultipleOrigins: boolean,
+    public usingMultipleOrigins: boolean,
     private surrounding = Surrounding.typeScript,
     private baseDir = 'src/service',
-    private templateType = ''
+    private templateType = '',
+    public spiltApiLock: boolean
   ) {}
 
   getMultipleOriginsFileStructures() {
@@ -43,11 +44,18 @@ export class FileStructures {
         files[dsName] = dsFiles;
       });
 
-    return {
+    const fileStructures = {
       ...files,
       [getFileName('index', this.surrounding)]: this.getDataSourcesTs.bind(this),
       'api.d.ts': this.getDataSourcesDeclarationTs.bind(this)
     };
+
+    return this.spiltApiLock
+      ? fileStructures
+      : {
+          ...fileStructures,
+          'api-lock.json': this.getLockContent()
+        };
   }
 
   getBaseClassesInDeclaration(originCode: string, usingMultipleOrigins: boolean) {
@@ -111,15 +119,20 @@ export class FileStructures {
       generator.hasContextBund = true;
     }
 
-    const result = {
+    const fileStructures = {
       [getFileName('baseClass', this.surrounding)]: generator.getBaseClassesIndex.bind(generator),
       mods: mods,
       [indexFileName]: generator.getIndex.bind(generator),
-      'api.d.ts': generator.getDeclaration.bind(generator),
-      'api-lock.json': this.getLockContent(generator)
+      'api.d.ts': generator.getDeclaration.bind(generator)
     };
 
-    return result;
+    if (this.spiltApiLock && usingMultipleOrigins) {
+      fileStructures[generator.lockFilename] = this.getLockContent(generator);
+    } else if (!usingMultipleOrigins) {
+      fileStructures[generator.lockFilename] = this.getLockContent();
+    }
+
+    return fileStructures;
   }
 
   getFileStructures() {
@@ -213,9 +226,15 @@ export class FileStructures {
     `;
   }
 
-  getLockContent(generate: CodeGenerator): string {
-    const dataSource = this.usingMultipleOrigins ? generate.dataSource : [generate.dataSource];
-    return generate ? JSON.stringify(dataSource, null, 2) : '';
+  /** 不指定generate时生成全量数据源的LockContent */
+  getLockContent(generate?: CodeGenerator): string {
+    if (generate) {
+      const dataSource = this.usingMultipleOrigins ? generate.dataSource : [generate.dataSource];
+      return JSON.stringify(dataSource, null, 2);
+    } else {
+      const dataSource = this.generators.map((ge) => ge.dataSource);
+      return JSON.stringify(dataSource, null, 2);
+    }
   }
 }
 
@@ -531,19 +550,33 @@ export class FilesManager {
   }
 
   async saveLock(originName?: string) {
-    const setLockFile = async (generator) => {
-      const filePath = path.join(generator.outDir, generator.dataSource.name, generator.lockFilename);
-      const lockContent = await fs.readFile(filePath, 'utf8');
-      const newLockContent = this.fileStructures.getLockContent(generator);
+    const setLockFile = async (generator: CodeGenerator) => {
+      const lockFilePath = path.join(
+        generator.outDir,
+        this.fileStructures.spiltApiLock && this.fileStructures.usingMultipleOrigins ? generator.dataSource.name : '',
+        generator.lockFilename
+      );
+      const lockContent = await fs.readFile(lockFilePath, 'utf8');
+      const newLockContent = this.fileStructures.getLockContent(
+        this.fileStructures.spiltApiLock && this.fileStructures.usingMultipleOrigins ? generator : null
+      );
       if (lockContent !== newLockContent) {
-        await fs.writeFile(filePath, newLockContent);
+        await fs.writeFile(lockFilePath, newLockContent);
       }
     };
-    if (originName) {
-      const targetOrigin = this.fileStructures.generators.find((generator) => generator.dataSource.name === originName);
-      targetOrigin && setLockFile(targetOrigin);
+
+    if (this.fileStructures.usingMultipleOrigins) {
+      if (originName) {
+        const targetOrigin = this.fileStructures.generators.find(
+          (generator) => generator.dataSource.name === originName
+        );
+        targetOrigin && setLockFile(targetOrigin);
+      } else {
+        this.fileStructures.generators.forEach(setLockFile);
+      }
     } else {
-      this.fileStructures.generators.forEach(setLockFile);
+      const targetOrigin = this.fileStructures.generators[0];
+      targetOrigin && setLockFile(targetOrigin);
     }
   }
 

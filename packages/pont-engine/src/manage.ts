@@ -189,7 +189,9 @@ export class Manager {
   existsLocal() {
     return (
       fs.existsSync(path.join(this.currConfig.outDir, this.lockFilename)) ||
-      _.some(this.allConfigs.map((config) => fs.existsSync(path.join(config.outDir, config.name, this.lockFilename))))
+      _.some(
+        this.allConfigs.map((config) => fs.existsSync(path.join(config.outDir, config.name ?? '', this.lockFilename)))
+      )
     );
   }
 
@@ -202,14 +204,14 @@ export class Manager {
         const localDataStr = await fs.readFile(lockFile, {
           encoding: 'utf8'
         });
-        if (this.allConfigs.length > 1) {
+        if (this.allConfigs.length > 1 && this.currConfig.spiltApiLock) {
           /** 多数据源的场景，删除原来的lock文件 */
           this.regenerateFiles().then(() => fs.rename(lockFile, `${lockFile}.bak`));
         }
         return JSON.parse(localDataStr);
       } else {
         const allFilePromises = this.allConfigs.map(async (config) => {
-          const filePath = path.join(config.outDir, config.name, this.lockFilename);
+          const filePath = path.join(config.outDir, config.name ?? '', this.lockFilename);
           const localDataStr = await fs.readFile(filePath, {
             encoding: 'utf8'
           });
