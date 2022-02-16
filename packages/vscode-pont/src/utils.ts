@@ -188,7 +188,7 @@ export function createMenuCommand(manager: Manager) {
     execSync(
       `open http://127.0.0.1:${manager.currConfig.mocks.port}${
         manager.currConfig.mocks.basePath
-      }${foundInterface.path.replace(/\{.+?\}/g, 'paramInPath')}`
+      }${foundInterface?.path.replace(/\{.+?\}/g, 'paramInPath')}`
     );
   });
 }

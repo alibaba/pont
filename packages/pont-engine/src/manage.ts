@@ -1,4 +1,4 @@
-import { StandardDataSource } from './standard';
+import { Interface, Mod, StandardDataSource } from './standard';
 import { Config, getTemplate, DataSourceConfig, hasChinese, diffDses, getRelatedBos } from './utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
@@ -23,6 +23,8 @@ export class Manager {
 
   fileManager: FilesManager;
 
+  codeSnippet: (mod: Mod, inter: Interface) => string;
+
   diffs = {
     modDiffs: [] as Model[],
     boDiffs: [] as Model[]
@@ -44,6 +46,8 @@ export class Manager {
 
   async selectDataSource(name: string) {
     this.currConfig = this.allConfigs.find((conf) => conf.name === name);
+
+    this.setCodeSnippet();
 
     await this.readLocalDataSource();
     await this.readRemoteDataSource();
@@ -146,6 +150,7 @@ export class Manager {
   constructor(private projectRoot: string, config: Config, configDir = process.cwd()) {
     this.allConfigs = config.getDataSourcesConfig(configDir);
     this.currConfig = this.allConfigs[0];
+    this.setCodeSnippet();
   }
   pollingId = null;
 
@@ -471,5 +476,9 @@ export class Manager {
       projectName: this.projectRoot
     } as any;
     DsManager.openReport(currProj);
+  }
+
+  setCodeSnippet(config = this.currConfig) {
+    this.codeSnippet = Config.getCodeSnippetConfig(config) || function () {};
   }
 }
