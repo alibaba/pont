@@ -1,4 +1,4 @@
-import { Manager, Interface } from 'pont-engine';
+import { Manager, Interface, Mod } from 'pont-engine';
 import * as vscode from 'vscode';
 import * as _ from 'lodash';
 import * as path from 'path';
@@ -6,6 +6,11 @@ import { wait, showProgress, createMenuCommand } from './utils';
 import * as events from 'events';
 import { syncNpm } from './utils';
 import { MocksServer } from './mocks';
+
+interface QuickPickItem extends vscode.QuickPickItem {
+  mod: Mod;
+  inter: Interface;
+}
 
 export class UI {
   private control: Control;
@@ -19,6 +24,8 @@ export class UI {
   boBar: vscode.StatusBarItem;
   /** 重新生成代码 */
   geBar: vscode.StatusBarItem;
+  /** 搜索接口 */
+  interface: vscode.StatusBarItem;
 
   constructor(control: Control) {
     this.originBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
@@ -29,12 +36,14 @@ export class UI {
     this.modBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
     this.boBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
     this.geBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+    this.interface = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
 
     this.syncBar.command = control.commands.syncRemote;
     this.allBar.command = control.commands.updateAll;
     this.modBar.command = control.commands.updateMod;
     this.boBar.command = control.commands.updateBo;
     this.geBar.command = control.commands.regenerate;
+    this.interface.command = control.commands.findInterface;
 
     this.control = control;
   }
@@ -74,6 +83,11 @@ export class UI {
     this.geBar.color = 'yellow';
     this.geBar.tooltip = '重新生成本地代码';
     this.geBar.show();
+
+    this.interface.text = 'interface';
+    this.interface.color = 'yellow';
+    this.interface.tooltip = '搜索接口';
+    this.interface.show();
   }
 }
 
@@ -169,14 +183,20 @@ export class Control {
   }
 
   findInterface(ignoreEdit = false) {
+    const codeTemplate = this.manager.codeSnippet;
+
     const items = this.manager.currLocalDataSource.mods
-      .map(mod => {
-        return mod.interfaces.map(inter => {
+      .map((mod) => {
+        return mod.interfaces.map((inter) => {
+          let detail = `${mod.name}.${inter.name}`;
+
           return {
             label: `[${inter.method}] ${inter.path}`,
-            detail: `${mod.name}.${inter.name}`,
-            description: `${inter.description}`
-          } as vscode.QuickPickItem;
+            detail,
+            description: `${inter.description}`,
+            inter,
+            mod
+          } as QuickPickItem;
         });
       })
       .reduce((pre, next) => pre.concat(next), []);
@@ -186,21 +206,17 @@ export class Control {
         matchOnDescription: true,
         matchOnDetail: true
       })
-      .then(item => {
+      .then((item) => {
         if (!item) {
           return;
         }
 
-        let code = `API.${item.detail}.`;
-
-        if (this.manager.allLocalDataSources.length > 1) {
-          code = `API.${this.manager.currLocalDataSource.name}.${item.detail}.`;
-        }
+        const code = codeTemplate(item.mod, item.inter);
 
         const editor = vscode.window.activeTextEditor;
 
         if (!ignoreEdit) {
-          editor.edit(builder => {
+          editor.edit((builder) => {
             if (editor.selection.isEmpty) {
               const position = editor.selection.active;
 
@@ -211,12 +227,12 @@ export class Control {
           });
         }
 
-        return code.split('.').filter(id => id);
+        return code.split('.').filter((id) => id);
       });
   }
 
   switchOrigin() {
-    const origins = this.manager.allConfigs.map(conf => {
+    const origins = this.manager.allConfigs.map((conf) => {
       return {
         label: conf.name,
         description: conf.originUrl
@@ -224,14 +240,14 @@ export class Control {
     });
 
     vscode.window.showQuickPick(origins).then(
-      async item => {
+      async (item) => {
         vscode.window.withProgress(
           {
             location: vscode.ProgressLocation.Notification,
             title: ''
           },
-          async p => {
-            this.manager.setReport(info => {
+          async (p) => {
+            this.manager.setReport((info) => {
               p.report({ message: info });
             });
             try {
@@ -246,7 +262,7 @@ export class Control {
           }
         );
       },
-      e => {
+      (e) => {
         vscode.window.showErrorMessage(e.message);
       }
     );
@@ -254,7 +270,7 @@ export class Control {
 
   updateMod() {
     const modDiffs = this.manager.diffs.modDiffs;
-    const items = modDiffs.map(item => {
+    const items = modDiffs.map((item) => {
       return {
         label: item.name,
         description: `${item.details[0]}等 ${item.details.length} 条更新`
@@ -263,7 +279,7 @@ export class Control {
     const oldFiles = this.manager.getGeneratedFiles();
 
     vscode.window.showQuickPick(items).then(
-      thenItems => {
+      (thenItems) => {
         if (!thenItems) {
           return;
         }
@@ -275,8 +291,8 @@ export class Control {
             location: vscode.ProgressLocation.Notification,
             title: 'updateMod'
           },
-          p => {
-            return new Promise<void>(async (resolve, reject) => {
+          (p) => {
+            return new Promise(async (resolve, reject) => {
               try {
                 p.report({ message: '开始更新...' });
 
@@ -297,7 +313,7 @@ export class Control {
           }
         );
       },
-      e => {}
+      (e) => {}
     );
   }
 
@@ -305,7 +321,7 @@ export class Control {
     const boDiffs = this.manager.diffs.boDiffs;
     const oldFiles = this.manager.getGeneratedFiles();
 
-    const items = boDiffs.map(item => {
+    const items = boDiffs.map((item) => {
       return {
         label: item.name,
         description: item.details.join(', ')
@@ -313,7 +329,7 @@ export class Control {
     });
 
     vscode.window.showQuickPick(items).then(
-      item => {
+      (item) => {
         if (!item) {
           return;
         }
@@ -325,8 +341,8 @@ export class Control {
             location: vscode.ProgressLocation.Notification,
             title: 'updateBo'
           },
-          p => {
-            return new Promise<void>(async (resolve, reject) => {
+          (p) => {
+            return new Promise(async (resolve, reject) => {
               try {
                 p.report({ message: '开始更新...' });
 
@@ -347,13 +363,13 @@ export class Control {
           }
         );
       },
-      e => {}
+      (e) => {}
     );
   }
 
   updateAll() {
     vscode.window.showInformationMessage('确定全量更新吗？', '确定').then(
-      text => {
+      (text) => {
         if (!text) {
           return;
         }
@@ -363,8 +379,8 @@ export class Control {
             location: vscode.ProgressLocation.Notification,
             title: 'updateAll'
           },
-          p => {
-            return new Promise<void>(async (resolve, reject) => {
+          (p) => {
+            return new Promise(async (resolve, reject) => {
               try {
                 p.report({ message: '开始更新...' });
 
@@ -386,12 +402,12 @@ export class Control {
           }
         );
       },
-      e => {}
+      (e) => {}
     );
   }
 
   syncRemote() {
-    showProgress('syncRemote', this.manager, async report => {
+    showProgress('syncRemote', this.manager, async (report) => {
       report('远程更新中...');
 
       try {
@@ -412,7 +428,7 @@ export class Control {
   async regenerate() {
     const e = new events.EventEmitter();
 
-    showProgress('生成代码', this.manager, async report => {
+    showProgress('生成代码', this.manager, async (report) => {
       report('代码生成中...');
       await wait(100);
 
