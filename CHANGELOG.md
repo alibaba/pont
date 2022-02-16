@@ -1,3 +1,39 @@
+v1.1.1 / 2022-02-16
+===================
+
+### 🐛 Bug Fixes
+
+- `scan`
+  - Compatible with a null value
+- `readme`
+  - Md scannedPattern  transfer bug
+
+
+### 🚀 Features
+
+- `all`
+  - 新增配置spiltApiLock(是否拆分api-lock.json,默认关闭)便于用户平 滑升级
+
+
+### 🏡 Chore
+
+- `deps`
+  - Bump follow-redirects from 1.14.7 to 1.14.8
+  - Bump ajv from 6.10.2 to 6.12.6 in /examples/hooks-app
+  - Bump ajv from 6.10.2 to 6.12.6
+  - Bump postcss from 7.0.17 to 7.0.39 in /examples/hooks-app
+  - Bump node-fetch from 1.7.3 to 2.6.7
+  - Bump trim-off-newlines from 1.0.1 to 1.0.3
+  - Bump follow-redirects in /examples/hooks-app
+  - Bump follow-redirects from 1.9.0 to 1.14.7
+
+
+### 💖 Thanks to
+
+- dependabot[bot]
+- yehua.zy
+- 芒星
+
 v1.1.0 / 2022-02-14
 ===================
 
