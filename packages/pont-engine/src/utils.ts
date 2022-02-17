@@ -80,7 +80,6 @@ export class DataSourceConfig {
   surrounding = Surrounding.typeScript;
   outDir = 'src/service';
   scannedRange = [];
-  scannedPattern = null;
   transformPath = '';
   codeSnippetPath = '';
   fetchMethodPath = '';
@@ -129,8 +128,9 @@ export class Config extends DataSourceConfig {
       }
     }
 
-    return (mod: Mod, inter: Interface) => {
-      return `API.${mod.name}.${inter.name}`;
+    return (inter: Interface) => {
+      const context = inter.getContext();
+      return `API${config.usingMultipleOrigins ? `.${context.dataSource.name}` : ''}.${context.mod.name}.${inter.name}`;
     };
   }
 

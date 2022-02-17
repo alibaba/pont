@@ -131,7 +131,7 @@ function assert(expression: boolean, message: string) {
       .command('scan')
       .description('扫描废弃接口')
       .action(() => {
-        scan.main();
+        scan.main(manager);
     });
     
 
