@@ -115,7 +115,7 @@ export class StandardDataType extends Contextable {
   enum: Array<string | number> = [];
 
   setEnum(enums: Array<string | number> = []) {
-    this.enum = enums.map(value => {
+    this.enum = enums.map((value) => {
       if (typeof value === 'string') {
         if (!value.startsWith("'")) {
           value = "'" + value;
@@ -160,7 +160,7 @@ export class StandardDataType extends Contextable {
 
     if (typeArgs.length) {
       const instance: StandardDataType = new StandardDataType(
-        typeArgs.map(arg => StandardDataType.constructorFromJSON(arg, originName, defNames)),
+        typeArgs.map((arg) => StandardDataType.constructorFromJSON(arg, originName, defNames)),
         typeName,
         isDefsType,
         templateIndex
@@ -171,16 +171,16 @@ export class StandardDataType extends Contextable {
 
     const result = new StandardDataType([], typeName, isDefsType, templateIndex);
     result.setEnum(dataType.enum);
-    result.typeProperties = (typeProperties || []).map(prop => new Property(prop));
+    result.typeProperties = (typeProperties || []).map((prop) => new Property(prop));
 
     return result;
   }
 
   setTemplateIndex(classTemplateArgs: StandardDataType[]) {
-    const codes = classTemplateArgs.map(arg => arg.generateCode());
+    const codes = classTemplateArgs.map((arg) => arg.generateCode());
     const index = codes.indexOf(this.generateCode());
 
-    this.typeArgs.forEach(arg => arg.setTemplateIndex(classTemplateArgs));
+    this.typeArgs.forEach((arg) => arg.setTemplateIndex(classTemplateArgs));
 
     this.templateIndex = index;
   }
@@ -216,11 +216,11 @@ export class StandardDataType extends Contextable {
     const name = this.getDefName(originName);
 
     if (this.typeArgs.length) {
-      return `${name}<${this.typeArgs.map(arg => arg.generateCode(originName)).join(', ')}>`;
+      return `${name}<${this.typeArgs.map((arg) => arg.generateCode(originName)).join(', ')}>`;
     }
 
     if (this.typeProperties.length) {
-      const interfaceCode = `{${this.typeProperties.map(property => property.toPropertyCode())}
+      const interfaceCode = `{${this.typeProperties.map((property) => property.toPropertyCode())}
       }`;
 
       if (name) {
@@ -367,15 +367,15 @@ export class Interface extends Contextable {
   getParamsCode(className = 'Params', surrounding = Surrounding.typeScript) {
     return `class ${className} {
       ${this.parameters
-        .filter(param => param.in === 'path' || param.in === 'query')
-        .map(param => param.toPropertyCode(surrounding, true))
+        .filter((param) => param.in === 'path' || param.in === 'query')
+        .map((param) => param.toPropertyCode(surrounding, true))
         .join('')}
     }
   `;
   }
 
   getParamList() {
-    const form = !!this.parameters.find(param => param.in === 'formData');
+    const form = !!this.parameters.find((param) => param.in === 'formData');
     const paramList = [
       {
         paramKey: 'params',
@@ -401,12 +401,12 @@ export class Interface extends Contextable {
   }
 
   getRequestContent() {
-    const paramList = this.getParamList().filter(param => param.paramType);
+    const paramList = this.getParamList().filter((param) => param.paramType);
     const method = this.method.toUpperCase();
 
-    const hasForm = paramList.map(param => param.paramKey).includes('form');
-    const hasBody = paramList.map(param => param.paramKey).includes('body');
-    const hasOptions = paramList.map(param => param.paramKey).includes('options');
+    const hasForm = paramList.map((param) => param.paramKey).includes('form');
+    const hasBody = paramList.map((param) => param.paramKey).includes('body');
+    const hasOptions = paramList.map((param) => param.paramKey).includes('options');
 
     return `{
       method: "${method}",
@@ -417,26 +417,26 @@ export class Interface extends Contextable {
   }
 
   getRequestParams(surrounding = Surrounding.typeScript) {
-    const paramList = this.getParamList().filter(param => param.paramType);
+    const paramList = this.getParamList().filter((param) => param.paramType);
 
     if (surrounding === Surrounding.typeScript) {
-      return paramList.map(param => `${param.paramKey}${param.optional ? '?' : ''}: ${param.paramType}`).join(', ');
+      return paramList.map((param) => `${param.paramKey}${param.optional ? '?' : ''}: ${param.paramType}`).join(', ');
     }
 
     return paramList
-      .map(param => `${param.paramKey}${param.initialValue ? ` = ${param.initialValue}` : ''}`)
+      .map((param) => `${param.paramKey}${param.initialValue ? ` = ${param.initialValue}` : ''}`)
       .join(', ');
   }
 
   getBodyParamsCode() {
-    const bodyParam = this.parameters.find(param => param.in === 'body');
+    const bodyParam = this.parameters.find((param) => param.in === 'body');
 
     return (bodyParam && bodyParam.dataType.generateCode(this.getDsName())) || '';
   }
 
   setContext(context: any) {
     super.setContext(context);
-    this.parameters.forEach(param => param.setContext(context));
+    this.parameters.forEach((param) => param.setContext(context));
     this.response && this.response.setContext(context);
   }
 
@@ -452,7 +452,7 @@ export class Mod extends Contextable {
 
   setContext(context: any) {
     super.setContext(context);
-    this.interfaces.forEach(inter => inter.setContext(context));
+    this.interfaces.forEach((inter) => inter.setContext({ ...context, mod: this }));
   }
 
   constructor(mod: Partial<Mod>) {
@@ -470,7 +470,7 @@ export class BaseClass extends Contextable {
 
   setContext(context: any) {
     super.setContext(context);
-    this.properties.forEach(prop => prop.setContext(context));
+    this.properties.forEach((prop) => prop.setContext(context));
   }
 
   constructor(base: Partial<BaseClass>) {
@@ -494,13 +494,13 @@ export class StandardDataSource {
   validate() {
     const errors = [] as string[];
 
-    this.mods.forEach(mod => {
+    this.mods.forEach((mod) => {
       if (!mod.name) {
         errors.push(`lock 文件不合法，发现没有 name 属性的模块;`);
       }
     });
 
-    this.baseClasses.forEach(base => {
+    this.baseClasses.forEach((base) => {
       if (!base.name) {
         errors.push(`lock 文件不合法，发现没有 name 属性的基类;`);
       }
@@ -535,8 +535,8 @@ export class StandardDataSource {
   }
 
   setContext() {
-    this.baseClasses.forEach(base => base.setContext({ dataSource: this }));
-    this.mods.forEach(mod => mod.setContext({ dataSource: this }));
+    this.baseClasses.forEach((base) => base.setContext({ dataSource: this }));
+    this.mods.forEach((mod) => mod.setContext({ dataSource: this }));
   }
 
   constructor(standard: { mods: Mod[]; name: string; baseClasses: BaseClass[] }) {
@@ -553,14 +553,14 @@ export class StandardDataSource {
   static constructorFromLock(localDataObject: StandardDataSource, originName) {
     try {
       // 兼容性代码，将老的数据结构转换为新的。
-      const defNames = localDataObject.baseClasses.map(base => {
+      const defNames = localDataObject.baseClasses.map((base) => {
         if (base.name.includes('<')) {
           return base.name.slice(0, base.name.indexOf('<'));
         }
         return base.name;
       });
-      const baseClasses = localDataObject.baseClasses.map(base => {
-        const props = base.properties.map(prop => {
+      const baseClasses = localDataObject.baseClasses.map((base) => {
+        const props = base.properties.map((prop) => {
           return new Property({
             ...prop,
             dataType: StandardDataType.constructorFromJSON(prop.dataType, originName, defNames)
@@ -585,12 +585,12 @@ export class StandardDataSource {
           properties: _.unionBy(props, 'name')
         });
       });
-      const mods = localDataObject.mods.map(mod => {
-        const interfaces = mod.interfaces.map(inter => {
+      const mods = localDataObject.mods.map((mod) => {
+        const interfaces = mod.interfaces.map((inter) => {
           const response = StandardDataType.constructorFromJSON(inter.response, localDataObject.name, defNames);
 
           const parameters = inter.parameters
-            .map(param => {
+            .map((param) => {
               const dataType = StandardDataType.constructorFromJSON(param.dataType, localDataObject.name, defNames);
 
               return new Property({

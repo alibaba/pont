@@ -23,7 +23,7 @@ export class Manager {
 
   fileManager: FilesManager;
 
-  codeSnippet: (mod: Mod, inter: Interface) => string;
+  codeSnippet: (inter: Interface) => string;
 
   diffs = {
     modDiffs: [] as Model[],

@@ -211,7 +211,7 @@ export class Control {
           return;
         }
 
-        const code = codeTemplate(item.mod, item.inter);
+        const code = codeTemplate(item.inter);
 
         const editor = vscode.window.activeTextEditor;
 
