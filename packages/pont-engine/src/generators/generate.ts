@@ -515,6 +515,11 @@ export class CodeGenerator {
       return;
     }
   }
+
+  codeSnippet(inter: Interface): string {
+    const mod = inter.getContext().mod as Mod;
+    return `API.${mod.name}.${inter.name}`;
+  }
 }
 
 export class FilesManager {
