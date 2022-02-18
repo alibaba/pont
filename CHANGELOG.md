@@ -1,3 +1,38 @@
+v1.2.0 / 2022-02-18
+===================
+
+### 🐛 Bug Fixes
+
+- `pont-engine`
+  - 修复spiltApiLock不生效的问题
+
+
+### 🚀 Features
+
+- `pont-engine vscode-pont`
+  - 修改codeSnippet位置
+  - 1.添加vscode插件代码块模板 2.工具栏底部添加呼出查询接口UI的快捷方式
+
+
+### 💅 Refactors
+
+- `scan`
+  - 重构scan命令,支持其他通用用法
+- `all`
+  - 修改manage.codeSnippet定义
+
+
+### 🏡 Chore
+
+- `release`
+  - Vsce 不需要发布npm
+
+
+### 💖 Thanks to
+
+- fuying.yfy
+- 芒星
+
 v1.1.1 / 2022-02-16
 ===================
 
