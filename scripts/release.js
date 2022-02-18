@@ -12,14 +12,14 @@ const skipTests = args.skipTests;
 const skipBuild = args.skipBuild;
 const packages = fs
   .readdirSync(path.resolve(__dirname, '../packages'))
-  .filter(p => !p.endsWith('.ts') && !p.startsWith('.'));
+  .filter((p) => !p.endsWith('.ts') && !p.startsWith('.'));
 
 const versionIncrements = ['patch', 'minor', 'major', 'prepatch', 'preminor', 'premajor', 'prerelease'];
 
-const inc = i => semver.inc(currentVersion, i, preId);
-const bin = name => path.resolve(__dirname, '../node_modules/.bin/' + name);
+const inc = (i) => semver.inc(currentVersion, i, preId);
+const bin = (name) => path.resolve(__dirname, '../node_modules/.bin/' + name);
 const run = (bin, args, opts = {}) => execa(bin, args, { stdio: 'inherit', ...opts });
-const getPkgRoot = pkg => path.resolve(__dirname, '../packages/' + pkg);
+const getPkgRoot = (pkg) => path.resolve(__dirname, '../packages/' + pkg);
 
 async function main() {
   let targetVersion = args._[0];
@@ -30,7 +30,7 @@ async function main() {
       type: 'select',
       name: 'release',
       message: 'Select release type',
-      choices: versionIncrements.map(i => `${i} (${inc(i)})`).concat(['custom'])
+      choices: versionIncrements.map((i) => `${i} (${inc(i)})`).concat(['custom'])
     });
 
     if (release === 'custom') {
@@ -94,7 +94,10 @@ async function main() {
     const releaseTag = Array.isArray(semver.prerelease(targetVersion)) ? semver.prerelease(targetVersion)[0] : 'latest';
 
     for (const pkg of packages) {
-      await publish(pkg, releaseTag);
+      /** vsce 不需要发布npm */
+      if (pkg !== 'vscode-pont') {
+        await publish(pkg, releaseTag);
+      }
     }
 
     // push to GitHub
@@ -109,7 +112,7 @@ function updateVersions(version) {
   // 1. update root package.json
   updatePackage(path.resolve(__dirname, '..'), version);
   // 2. update all packages
-  packages.forEach(p => updatePackage(getPkgRoot(p), version));
+  packages.forEach((p) => updatePackage(getPkgRoot(p), version));
 }
 
 function updatePackage(pkgRoot, version) {
@@ -117,7 +120,7 @@ function updatePackage(pkgRoot, version) {
   const pkg = readPkg(pkgRoot);
   pkg.version = version;
   if (pkg.dependencies) {
-    Object.keys(pkg.dependencies).forEach(dep => {
+    Object.keys(pkg.dependencies).forEach((dep) => {
       if (packages.includes(dep)) {
         pkg.dependencies[dep] = version;
       }
@@ -141,6 +144,6 @@ async function publish(pkgName, releaseTag) {
   }
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.error(err);
 });
