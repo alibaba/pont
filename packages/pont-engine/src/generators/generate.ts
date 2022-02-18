@@ -236,6 +236,13 @@ export class FileStructures {
       return JSON.stringify(dataSource, null, 2);
     }
   }
+
+  /** API 使用case，用于scan扫描接口 */
+  getApiUseCases = (inter: Interface): Array<string> => {
+    const context = inter.getContext();
+
+    return [`API${this.usingMultipleOrigins ? `.${context.dataSource.name}` : ''}.${context.mod.name}.${inter.name}`];
+  };
 }
 
 export class CodeGenerator {

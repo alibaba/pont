@@ -23,7 +23,7 @@ export class Manager {
 
   fileManager: FilesManager;
 
-  codeSnippet: (mod: Mod, inter: Interface) => string;
+  codeSnippet: (inter: Interface) => string;
 
   diffs = {
     modDiffs: [] as Model[],
@@ -439,7 +439,8 @@ export class Manager {
         this.currConfig.usingMultipleOrigins,
         this.currConfig.surrounding,
         this.currConfig.outDir,
-        this.currConfig.templateType
+        this.currConfig.templateType,
+        this.currConfig.spiltApiLock
       ),
       this.currConfig.outDir
     );

@@ -1,14 +1,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as debugLog from './debugLog';
-import { lookForFiles, CONFIG_FILE, Config } from './utils';
-
-/** 全量接口数组 */
-let allRequests = [];
-/** 未被使用的接口数组 */
-let unusedRequests = [];
-/** 自动生成的文件，无需扫描 */
-const escapedFiles = ['api.d.ts', 'index.ts', 'baseClass.ts', 'api-lock.json', 'api.lock'];
+import { Manager } from './manage';
+import { Interface } from './standard';
 
 /** 内部方法，递归扫描文件夹 */
 function readDirRecursively(dirPath, callback) {
@@ -24,56 +18,53 @@ function readDirRecursively(dirPath, callback) {
 }
 
 /** 入口方法 */
-export function main() {
+export function main(manager: Manager) {
   debugLog.info('service scanning...');
   const rootPath = process.cwd();
-  lookForFiles(rootPath, CONFIG_FILE)
-    .then((configPath) => {
-      const config = Config.createFromConfigPath(configPath).getDataSourcesConfig(path.parse(configPath)?.dir)[0];
-      readDirRecursively(config.outDir, (currentPath) => {
-        const needEscape = escapedFiles.find((file) => currentPath.endsWith(file));
-        if (!needEscape) {
-          allRequests.push(currentPath);
-          unusedRequests.push(currentPath);
+  const {
+    currConfig,
+    allLocalDataSources,
+    fileManager: {
+      fileStructures: { getApiUseCases }
+    }
+  } = manager;
+
+  /** 全量接口数组 */
+  const allRequests = new Set<Interface>(
+    allLocalDataSources
+      .map((ds) => ds.mods)
+      .reduce((acc, cur) => [...acc, ...cur], [])
+      .map((mod) => mod.interfaces)
+      .reduce((acc, cur) => [...acc, ...cur], [])
+  );
+
+  /** 未被使用的接口数组 */
+  const unusedRequests = new Set<Interface>(allRequests);
+
+  /** 输出文件名 */
+  const outputFileName = './unusedRequests.json';
+
+  currConfig.scannedRange.forEach((dir) => {
+    readDirRecursively(dir, (currentPath) => {
+      const fileContent = fs.readFileSync(currentPath).toString();
+      unusedRequests.forEach((inter: Interface) => {
+        const useCases = getApiUseCases(inter);
+        if (useCases.some((useCase) => fileContent.includes(useCase))) {
+          unusedRequests.delete(inter);
         }
       });
-
-      config.scannedRange.forEach((dir) => {
-        readDirRecursively(dir, (currentPath) => {
-          const fileContent = fs.readFileSync(currentPath).toString();
-          const toBeRemovedRequests = [];
-          unusedRequests.forEach((req) => {
-            const searchedPart = path.parse(req)?.name;
-            if (fileContent.indexOf(searchedPart) > 0) {
-              toBeRemovedRequests.push(req);
-            }
-          });
-
-          unusedRequests = unusedRequests.filter((req) => toBeRemovedRequests.indexOf(req) === -1);
-        });
-      });
-
-      unusedRequests.forEach((file) => {
-        const fileContent = fs.readFileSync(file).toString();
-        if (!config.scannedPattern) {
-          throw new Error(`Configuration item 'scannedPattern' is required`);
-        }
-        const pattern = fileContent.match(new RegExp(config.scannedPattern));
-
-        if (pattern?.[2]) {
-          try {
-            fs.writeFileSync('./unusedRequests.js', pattern[2] + '\n', { flag: 'a' });
-          } catch (err) {
-            debugLog.error(`Exception file: ${file}`);
-            debugLog.error(`pattern: ${pattern}`);
-          }
-        }
-      });
-
-      debugLog.info(`unused case percentage: ${unusedRequests.length} / ${allRequests.length}`);
-      debugLog.success('done');
-    })
-    .catch((e) => {
-      debugLog.error(e.message);
     });
+  });
+
+  fs.writeFileSync(
+    outputFileName,
+    JSON.stringify(
+      [...unusedRequests].map(({ method, path, description }) => ({ method, path, description })),
+      null,
+      2
+    )
+  );
+
+  debugLog.info(`unused case percentage: ${unusedRequests.size} / ${allRequests.size}`);
+  debugLog.success(`done!\nunused file is outputted to ${path.resolve(rootPath, outputFileName)}`);
 }

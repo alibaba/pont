@@ -148,7 +148,7 @@ Tips:
 
 #### pont scan
 
-扫描未使用的接口，在 process.cwd()位置生成并写入 unusedRequests.js 文件
+扫描未使用的接口，在 process.cwd()位置生成并写入 unusedRequests.js 文件，需要配置scannedRange
 
 ## `pont-config.json` 配置项
 
@@ -176,13 +176,16 @@ Tips:
 
 值类型：字符串数组
 
-描述： 废弃接口扫描范围，使用相对pont-config文件位置的相对路径。如：["./src/pages", "./src/components"]
+描述： 废弃接口扫描范围，使用相对pont-config文件位置的相对路径。如：["./src/pages", "./src/components"]。需要配合pontTemplate中类FileStructures的getApiUseCases方法使用,如：
+```js
+/** API 使用case，用于scan扫描接口 */
+getApiUseCases = (inter: Interface): Array<string> => {
+  const context = inter.getContext();
 
-#### scannedPattern
-
-值类型：字符串
-
-描述： 废弃接口扫描模式，应与取数逻辑（包括自定义代码生成模板）保持一致。符合正则表达式结构的字符串，需要与scannedRange同时配置，如："getUrl\\\\((\\\\s*)\\\\'(.*)\\\\',"
+  return [`API${this.usingMultipleOrigins ? `.${context.dataSource.name}` : ''}.${context.mod.name}.${inter.name}`];
+};
+```
+完成配置后，使用 `pont scan` 命令进行扫描。
 
 #### templatePath
 
