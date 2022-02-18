@@ -5,7 +5,7 @@ import * as prettier from 'prettier';
 import * as ts from 'typescript';
 import { ResolveConfigOptions } from 'prettier';
 import { error } from './debugLog';
-import { Interface, Mod, StandardDataSource, StandardDataType } from './standard';
+import { Mod, StandardDataSource, StandardDataType } from './standard';
 import { Manager } from './manage';
 import { OriginType } from './scripts';
 import { diff } from './diff';
@@ -35,14 +35,6 @@ import fetch from 'node-fetch';
 
 export default function (url: string): string {
   return fetch(url).then(res => res.text())
-}
-`;
-
-const defaultCodeSnippetCode = `
-import { Mod, Interface } from "pont-engine";
-
-export default function(mod: Mod,inter: Interface): StandardDataSource {
-  return ['API',mod.name,inter.name].join(".");
 }
 `;
 
@@ -81,7 +73,6 @@ export class DataSourceConfig {
   outDir = 'src/service';
   scannedRange = [];
   transformPath = '';
-  codeSnippetPath = '';
   fetchMethodPath = '';
   prettierConfig: ResolveConfigOptions = {};
   /** 单位为秒，默认 20 分钟 */
@@ -109,7 +100,6 @@ export class Config extends DataSourceConfig {
     name: string;
     usingOperationId: boolean;
     transformPath?: string;
-    codeSnippetPath?: string;
     fetchMethodPath?: string;
     outDir?: string;
   }>;
@@ -117,21 +107,6 @@ export class Config extends DataSourceConfig {
   constructor(config: Config) {
     super(config);
     this.origins = config.origins || [];
-  }
-
-  static getCodeSnippetConfig(config: Config | DataSourceConfig) {
-    if (config.codeSnippetPath) {
-      const moduleResult = getTemplate(config.codeSnippetPath, '', defaultCodeSnippetCode) as any;
-
-      if (moduleResult) {
-        return moduleResult.default;
-      }
-    }
-
-    return (inter: Interface) => {
-      const context = inter.getContext();
-      return `API${config.usingMultipleOrigins ? `.${context.dataSource.name}` : ''}.${context.mod.name}.${inter.name}`;
-    };
   }
 
   static getTransformFromConfig(config: Config | DataSourceConfig) {
@@ -200,7 +175,6 @@ export class Config extends DataSourceConfig {
       scannedRange: Array.isArray(this.scannedRange) ? this.scannedRange.map((dir) => path.join(configDir, dir)) : [],
       templatePath: this.templatePath ? path.join(configDir, this.templatePath) : undefined,
       transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
-      codeSnippetPath: this.codeSnippetPath ? path.join(configDir, this.codeSnippetPath) : undefined,
       fetchMethodPath: this.fetchMethodPath ? path.join(configDir, this.fetchMethodPath) : undefined
     };
 

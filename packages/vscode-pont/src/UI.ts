@@ -183,7 +183,7 @@ export class Control {
   }
 
   findInterface(ignoreEdit = false) {
-    const codeTemplate = this.manager.codeSnippet;
+    const codeTemplate = this.manager.getCodeSnippet();
 
     const items = this.manager.currLocalDataSource.mods
       .map((mod) => {
@@ -211,7 +211,7 @@ export class Control {
           return;
         }
 
-        const code = codeTemplate(item.inter);
+        const code = codeTemplate?.(item.inter) || '';
 
         const editor = vscode.window.activeTextEditor;
 
@@ -305,7 +305,7 @@ export class Control {
 
                 p.report({ message: '更新成功！' });
                 vscode.window.showInformationMessage(modName + '更新成功!');
-                resolve();
+                resolve(true);
               } catch (e) {
                 reject(e);
               }
@@ -355,7 +355,7 @@ export class Control {
 
                 p.report({ message: '更新成功！' });
                 vscode.window.showInformationMessage(boName + '更新成功!');
-                resolve();
+                resolve(true);
               } catch (e) {
                 reject(e);
               }
@@ -394,7 +394,7 @@ export class Control {
                 p.report({ message: '更新成功！' });
                 vscode.window.showInformationMessage('更新成功!');
 
-                resolve();
+                resolve(true);
               } catch (e) {
                 reject(e);
               }
