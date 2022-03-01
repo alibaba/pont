@@ -4,60 +4,92 @@
 import * as vscode from 'vscode';
 import { Manager, Config, lookForFiles } from 'pont-engine';
 import * as path from 'path';
-import { Control } from './UI';
-import { syncNpm } from './utils';
+import { showProgress, syncNpm } from './utils';
 import { MocksServer } from './mocks';
+import { CommandCenter } from './commands';
+import { setContext } from './utils/setContext';
+import { initViews } from './views';
+import { getPontOriginsProvider } from './views/pontOrigins';
 
-const cleanUps = [];
+const managerCleanUps: vscode.Disposable[] = [];
 
 export function doCleanUp() {
-  if (cleanUps.length) {
-    const cleanUp = cleanUps.shift();
-
-    cleanUp();
-    doCleanUp();
-  }
+  vscode.Disposable.from(...managerCleanUps).dispose();
 }
 
-export async function createManager(configPath: string) {
+export async function createManager(
+  configPath: string,
+  commandCenter: CommandCenter,
+  outputChannel: vscode.OutputChannel
+) {
   doCleanUp();
+
   try {
-    await syncNpm();
     const config = Config.createFromConfigPath(configPath);
     const errMsg = config.validate();
 
     if (errMsg) {
-      vscode.window.showErrorMessage(errMsg);
-      return;
+      throw new Error(errMsg);
     }
-    const manager = new Manager(vscode.workspace.rootPath, config, path.dirname(configPath));
-    manager.beginPolling();
-    cleanUps.push(() => manager.stopPolling());
 
-    await Control.getSingleInstance(manager).initInstance();
+    const manager = new Manager(vscode.workspace.rootPath, config, path.dirname(configPath));
+    manager.setReport((info) => outputChannel.appendLine(info));
+    commandCenter.setManage(manager);
+    getPontOriginsProvider().refresh(manager);
+
+    await showProgress('初始化', async (report) => {
+      report('进行中...');
+      await manager.ready();
+      report('完成');
+    });
+    manager.beginPolling();
+    managerCleanUps.push({ dispose: manager.stopPolling });
 
     if (config.mocks && config.mocks.enable) {
       const closeServer = await MocksServer.getSingleInstance(manager).run();
-      cleanUps.push(closeServer);
+      managerCleanUps.push({ dispose: closeServer });
     }
-
-    Control.getSingleInstance(manager);
+    setContext('isInit', true);
+    setContext('initError', '');
   } catch (e) {
-    vscode.window.showErrorMessage(e.toString());
+    outputChannel.appendLine(e.toString());
+    outputChannel.show();
+    vscode.window.showErrorMessage('Pont初始化失败');
+    setContext('isInit', false);
+    setContext('initError', 'Pont初始化失败');
   }
 }
 
 export async function activate(context: vscode.ExtensionContext) {
-  console.log('Congratulations, your extension "pont" is now active!');
+  console.log('extension "Pont" is now active!');
+
+  const disposables: vscode.Disposable[] = [];
+  context.subscriptions.push(new vscode.Disposable(() => vscode.Disposable.from(...disposables).dispose()));
+
+  const outputChannel = vscode.window.createOutputChannel('Pont');
+  const commandCenter = new CommandCenter(outputChannel);
+  initViews();
+
+  disposables.push(commandCenter);
+
   const configPath = await lookForFiles(vscode.workspace.rootPath, 'pont-config.json');
   const fileWatcher = vscode.workspace.createFileSystemWatcher('**/pont-config.json');
 
-  if (configPath) {
-    createManager(configPath);
+  try {
+    await syncNpm();
+  } catch (e) {
+    outputChannel.appendLine(e.toString());
+    outputChannel.show();
   }
 
-  fileWatcher.onDidCreate(uri => createManager(uri.fsPath));
-  fileWatcher.onDidChange(uri => createManager(uri.fsPath));
+  if (configPath) {
+    createManager(configPath, commandCenter, outputChannel);
+  }
+
+  fileWatcher.onDidCreate((uri) => createManager(uri.fsPath, commandCenter, outputChannel));
+  fileWatcher.onDidChange((uri) => createManager(uri.fsPath, commandCenter, outputChannel));
+
+  disposables.push(fileWatcher);
 }
 
 export async function deactivate() {

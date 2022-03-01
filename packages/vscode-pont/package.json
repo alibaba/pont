@@ -16,6 +16,30 @@
   ],
   "main": "./out/extension",
   "contributes": {
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "pont-explorer",
+          "title": "Pont",
+          "icon": "resources/dep.svg"
+        }
+      ]
+    },
+    "views": {
+      "pont-explorer": [
+        {
+          "id": "pontOrigins",
+          "name": "Pont"
+        }
+      ]
+    },
+    "viewsWelcome": [
+      {
+        "view": "pontOrigins",
+        "contents": "",
+        "when": "!pontContext.isInit"
+      }
+    ],
     "jsonValidation": [
       {
         "fileMatch": "pont-config.json",
@@ -24,8 +48,39 @@
     ],
     "commands": [
       {
+        "command": "pont.switchOrigin",
+        "title": "切换数据源",
+        "icon": "$(selection)"
+      },
+      {
         "command": "pont.findInterface",
-        "title": "find pont interface"
+        "title": "查找接口",
+        "icon": "$(search)"
+      },
+      {
+        "command": "pont.syncRemote",
+        "title": "拉取远程数据源",
+        "icon": "$(cloud-download)"
+      },
+      {
+        "command": "pont.regenerate",
+        "title": "生成接口代码",
+        "icon": "$(code)"
+      },
+      {
+        "command": "pont.makeAllSame",
+        "title": "重置数据",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "pont.updateMod",
+        "title": "更新模块",
+        "icon": "$(search)"
+      },
+      {
+        "command": "pont.updateBo",
+        "title": "更新基类",
+        "icon": "$(search)"
       },
       {
         "command": "pont.jumpToMocks",
@@ -62,6 +117,45 @@
           "group": "navigation",
           "command": "pont.visitMocks"
         }
+      ],
+      "view/title": [
+        {
+          "command": "pont.findInterface",
+          "when": "pontContext.isInit&&view == pontOrigins",
+          "group": "navigation"
+        },
+        {
+          "command": "pont.syncRemote",
+          "when": "pontContext.isInit&&view == pontOrigins",
+          "group": "navigation"
+        },
+        {
+          "command": "pont.regenerate",
+          "when": "pontContext.isInit&&view == pontOrigins",
+          "group": "navigation"
+        },
+        {
+          "command": "pont.makeAllSame",
+          "when": "pontContext.isInit&&view == pontOrigins",
+          "group": "navigation"
+        }
+      ],
+      "view/item/context": [
+        {
+          "command": "pont.switchOrigin",
+          "when": "viewItem == origin",
+          "group": "inline"
+        },
+        {
+          "command": "pont.updateMod",
+          "when": "viewItem == MOD",
+          "group": "inline"
+        },
+        {
+          "command": "pont.updateBo",
+          "when": "viewItem == BO",
+          "group": "inline"
+        }
       ]
     }
   },
@@ -74,12 +168,13 @@
     "@types/fs-extra": "^5.1.0",
     "fs-extra": "^7.0.1",
     "mockjs": "^1.0.1-beta3",
-    "pont-engine": "1.2.0"
+    "pont-engine": "1.2.0",
+    "typescript": "4.3.5"
   },
   "devDependencies": {
     "rimraf": "^3.0.2",
     "vsce": "^1.50.0",
-    "vscode": "^1.1.18"
+    "vscode": "^1.1.37"
   },
   "icon": "logo.png",
   "repository": {

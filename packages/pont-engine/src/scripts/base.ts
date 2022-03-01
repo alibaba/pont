@@ -18,18 +18,18 @@ export class OriginBaseReader {
         return retString;
       }
 
-      let chineseKeyCollect = matchItems.map(item => item.replace(/["":]/g, ''));
+      let chineseKeyCollect = matchItems.map((item) => item.replace(/["":]/g, ''));
 
       // 去重
-      chineseKeyCollect = _.uniq(chineseKeyCollect.map(item => (item.includes('«') ? item.split('«')[0] : item)));
+      chineseKeyCollect = _.uniq(chineseKeyCollect.map((item) => (item.includes('«') ? item.split('«')[0] : item)));
 
       // 按长度倒序排序，防止替换时中文名部分重名
       // 例如: 请求参数vo, 请求参数, 替换时先替换 请求参数vo, 后替换请求参数
       chineseKeyCollect.sort((pre, next) => next.length - pre.length);
 
-      let result = await Promise.all(chineseKeyCollect.map(text => Translator.translateAsync(text)));
+      let result = await Promise.all(chineseKeyCollect.map((text) => Translator.translateAsync(text)));
       // const normalizeRegStr = (str: string) => str.replace(/(\W)/g, '$1');
-      const toRegStr = str => str.replace(/(\W)/g, '\\$1');
+      const toRegStr = (str) => str.replace(/(\W)/g, '\\$1');
       result.forEach((enKey: string, index) => {
         const chineseKey = chineseKeyCollect[index];
         // this.report(chineseKey + ' ==> ' + enKey);
@@ -55,7 +55,7 @@ export class OriginBaseReader {
       return fetchMethod(url);
     }
 
-    return fetch(url).then(res => res.text());
+    return fetch(url).then((res) => res.text());
   }
 
   /** 获取远程数据源 */
@@ -68,10 +68,15 @@ export class OriginBaseReader {
     swaggerJsonStr = await this.translateChinese(swaggerJsonStr);
     this.report('自动翻译中文基类完成！');
 
-    const data = await JSON.parse(swaggerJsonStr);
-    this.report('远程数据获取成功！');
+    try {
+      const data = await JSON.parse(swaggerJsonStr);
+      this.report('远程数据获取成功！');
 
-    return data;
+      return data;
+    } catch (error) {
+      this.report(`远程数据获取失败${swaggerJsonStr}`);
+      throw error;
+    }
   }
 
   /** 获取接口数据，解析并返回 */
@@ -110,13 +115,13 @@ export class OriginBaseReader {
     const errorModNames = [] as string[];
     const errorBaseNames = [] as string[];
 
-    mods.forEach(mod => {
+    mods.forEach((mod) => {
       if (hasChinese(mod.name)) {
         errorModNames.push(mod.name);
       }
     });
 
-    baseClasses.forEach(base => {
+    baseClasses.forEach((base) => {
       if (hasChinese(base.name)) {
         errorBaseNames.push(base.name);
       }
@@ -124,8 +129,8 @@ export class OriginBaseReader {
 
     if (errorBaseNames.length && errorModNames.length) {
       const errMsg = ['当前数据源有如下项不符合规范，需要后端修改'];
-      errorModNames.forEach(modName => errMsg.push(`模块名${modName}应该改为英文名！`));
-      errorBaseNames.forEach(baseName => errMsg.push(`基类名${baseName}应该改为英文名！`));
+      errorModNames.forEach((modName) => errMsg.push(`模块名${modName}应该改为英文名！`));
+      errorBaseNames.forEach((baseName) => errMsg.push(`基类名${baseName}应该改为英文名！`));
 
       throw new Error(errMsg.join('\n'));
     }

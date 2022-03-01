@@ -15,6 +15,7 @@ process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0 as any;
 export class Manager {
   readonly lockFilename = 'api-lock.json';
 
+  configDir: string;
   allLocalDataSources: StandardDataSource[] = [];
   allConfigs: DataSourceConfig[];
   remoteDataSource: StandardDataSource;
@@ -144,6 +145,7 @@ export class Manager {
   }
 
   constructor(private projectRoot: string, config: Config, configDir = process.cwd()) {
+    this.configDir = configDir;
     this.allConfigs = config.getDataSourcesConfig(configDir);
     this.currConfig = this.allConfigs[0];
   }
@@ -226,56 +228,53 @@ export class Manager {
   }
 
   async readLocalDataSource() {
-    try {
-      this.report('读取本地数据中...');
-      const localDataObjects = await this.readLockFile();
-      if (!localDataObjects.length) {
-        return;
-      }
-
-      this.report('读取本地完成');
-
-      this.allLocalDataSources = localDataObjects.map((ldo) => {
-        return StandardDataSource.constructorFromLock(ldo, ldo.name);
-      });
-
-      // Filter name changed origin
-      this.allLocalDataSources = this.allLocalDataSources.filter((ldo) => {
-        return Boolean(this.allConfigs.find((config) => config.name === ldo.name));
-      });
-
-      // 本地数据源和远程数据源不一致
-      if (this.allLocalDataSources.length < this.allConfigs.length) {
-        this.allConfigs.forEach((config) => {
-          if (!this.allLocalDataSources.find((ds) => ds.name === config.name)) {
-            this.allLocalDataSources.push(
-              new StandardDataSource({
-                mods: [],
-                name: config.name,
-                baseClasses: []
-              })
-            );
-          }
-        });
-      }
-
-      this.currLocalDataSource = this.allLocalDataSources[0];
-
-      if (this.currConfig.name && this.allLocalDataSources.length > 1) {
-        this.currLocalDataSource =
-          this.allLocalDataSources.find((ds) => ds.name === this.currConfig.name) ||
-          new StandardDataSource({
-            mods: [],
-            name: this.currConfig.name,
-            baseClasses: []
-          });
-      }
-
-      this.setFilesManager();
-      this.report('本地对象创建成功');
-    } catch (e) {
-      throw new Error('读取 api-lock.json 文件错误！' + e.toString());
+    this.report('[readLocalDataSource]:开始');
+    this.report('读取本地数据中...');
+    const localDataObjects = await this.readLockFile();
+    if (!localDataObjects.length) {
+      return;
     }
+
+    this.report('读取本地完成');
+
+    this.allLocalDataSources = localDataObjects.map((ldo) => {
+      return StandardDataSource.constructorFromLock(ldo, ldo.name);
+    });
+
+    // Filter name changed origin
+    this.allLocalDataSources = this.allLocalDataSources.filter((ldo) => {
+      return Boolean(this.allConfigs.find((config) => config.name === ldo.name));
+    });
+
+    // 本地数据源和远程数据源不一致
+    if (this.allLocalDataSources.length < this.allConfigs.length) {
+      this.allConfigs.forEach((config) => {
+        if (!this.allLocalDataSources.find((ds) => ds.name === config.name)) {
+          this.allLocalDataSources.push(
+            new StandardDataSource({
+              mods: [],
+              name: config.name,
+              baseClasses: []
+            })
+          );
+        }
+      });
+    }
+
+    this.currLocalDataSource = this.allLocalDataSources[0];
+
+    if (this.currConfig.name && this.allLocalDataSources.length > 1) {
+      this.currLocalDataSource =
+        this.allLocalDataSources.find((ds) => ds.name === this.currConfig.name) ||
+        new StandardDataSource({
+          mods: [],
+          name: this.currConfig.name,
+          baseClasses: []
+        });
+    }
+
+    this.setFilesManager();
+    this.report('[readLocalDataSource]:结束');
   }
 
   checkDataSource(dataSource: StandardDataSource) {
@@ -441,8 +440,8 @@ export class Manager {
     );
     this.fileManager.prettierConfig = this.currConfig.prettierConfig;
 
-    this.report('文件生成器创建成功！');
     this.fileManager.report = this.report;
+    this.report('文件生成器创建成功！');
   }
 
   /** 获取报表数据 */

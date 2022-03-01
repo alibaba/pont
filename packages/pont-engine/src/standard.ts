@@ -551,6 +551,7 @@ export class StandardDataSource {
   }
 
   static constructorFromLock(localDataObject: StandardDataSource, originName) {
+    let currentInter: Interface;
     try {
       // 兼容性代码，将老的数据结构转换为新的。
       const defNames = localDataObject.baseClasses.map((base) => {
@@ -589,6 +590,7 @@ export class StandardDataSource {
         const interfaces = mod.interfaces.map((inter) => {
           const response = StandardDataType.constructorFromJSON(inter.response, localDataObject.name, defNames);
 
+          currentInter = inter;
           const parameters = inter.parameters
             .map((param) => {
               const dataType = StandardDataType.constructorFromJSON(param.dataType, localDataObject.name, defNames);
@@ -620,7 +622,12 @@ export class StandardDataSource {
         name: localDataObject.name
       });
     } catch (e) {
-      throw new Error(e);
+      const errArray: string[] = [];
+      if (currentInter) {
+        errArray.push(`[interfaces.path]:${currentInter.path}`);
+      }
+      errArray.push(e.toString());
+      throw new Error(errArray.join('\n'));
     }
   }
 }
