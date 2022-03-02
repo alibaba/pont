@@ -148,7 +148,7 @@ Tips:
 
 #### pont scan
 
-扫描未使用的接口，在 process.cwd()位置生成并写入 unusedRequests.js 文件，需要配置scannedRange
+扫描未使用的接口，在 process.cwd()位置生成并写入 unusedRequests.json 文件，需要配置scannedRange
 
 ## `pont-config.json` 配置项
 
