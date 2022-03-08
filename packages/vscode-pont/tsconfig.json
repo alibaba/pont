@@ -8,7 +8,9 @@
     "skipDefaultLibCheck": true,
     "lib": ["es6", "es7"],
     "sourceMap": true,
-    "rootDir": "src"
+    "rootDir": "src",
+    "resolveJsonModule": true,
+    "esModuleInterop": true
   },
-  "exclude": ["node_modules", ".vscode-test","UI.ts"]
+  "exclude": ["node_modules", ".vscode-test", "UI.ts"]
 }

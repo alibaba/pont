@@ -4,7 +4,7 @@
 import * as vscode from 'vscode';
 import { Manager, Config, lookForFiles } from 'pont-engine';
 import * as path from 'path';
-import { showProgress, syncNpm } from './utils';
+import { showProgress, verifyPontEngineVersion } from './utils';
 import { MocksServer } from './mocks';
 import { CommandCenter } from './commands';
 import { setContext } from './utils/setContext';
@@ -13,15 +13,11 @@ import { getPontOriginsProvider } from './views/pontOrigins';
 
 const managerCleanUps: vscode.Disposable[] = [];
 
-export function doCleanUp() {
+function doCleanUp() {
   vscode.Disposable.from(...managerCleanUps).dispose();
 }
 
-export async function createManager(
-  configPath: string,
-  commandCenter: CommandCenter,
-  outputChannel: vscode.OutputChannel
-) {
+async function createManager(configPath: string, commandCenter: CommandCenter, outputChannel: vscode.OutputChannel) {
   doCleanUp();
 
   try {
@@ -49,13 +45,13 @@ export async function createManager(
       const closeServer = await MocksServer.getSingleInstance(manager).run();
       managerCleanUps.push({ dispose: closeServer });
     }
-    setContext('isInit', true);
+    // setContext('isInit', true);
     setContext('initError', '');
   } catch (e) {
     outputChannel.appendLine(e.toString());
     outputChannel.show();
     vscode.window.showErrorMessage('Pont初始化失败');
-    setContext('isInit', false);
+    // setContext('isInit', false);
     setContext('initError', 'Pont初始化失败');
   }
 }
@@ -68,26 +64,27 @@ export async function activate(context: vscode.ExtensionContext) {
 
   const outputChannel = vscode.window.createOutputChannel('Pont');
   const commandCenter = new CommandCenter(outputChannel);
-  initViews();
-
   disposables.push(commandCenter);
 
-  const configPath = await lookForFiles(vscode.workspace.rootPath, 'pont-config.json');
   const fileWatcher = vscode.workspace.createFileSystemWatcher('**/pont-config.json');
+  fileWatcher.onDidCreate((uri) => commandCenter.createManager(uri.fsPath));
+  fileWatcher.onDidChange((uri) => commandCenter.createManager(uri.fsPath));
 
-  try {
-    await syncNpm();
-  } catch (e) {
-    outputChannel.appendLine(e.toString());
-    outputChannel.show();
+  initViews();
+
+  const configPath = await lookForFiles(vscode.workspace.rootPath, 'pont-config.json');
+
+  commandCenter.setConfigPath(configPath);
+
+  if (verifyPontEngineVersion()) {
+    // 没有安装 pont-engine 或 版本不一致。安装当前vscode插件对应版本的pont-engine
+    setContext('versionError', true);
   }
 
   if (configPath) {
-    createManager(configPath, commandCenter, outputChannel);
+    commandCenter.createManager();
+    setContext('noConfigFile', true);
   }
-
-  fileWatcher.onDidCreate((uri) => createManager(uri.fsPath, commandCenter, outputChannel));
-  fileWatcher.onDidChange((uri) => createManager(uri.fsPath, commandCenter, outputChannel));
 
   disposables.push(fileWatcher);
 }

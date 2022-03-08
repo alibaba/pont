@@ -1,6 +1,7 @@
-import { Interface, Manager } from 'pont-engine';
+import { Interface, Config, Manager } from 'pont-engine';
 import * as path from 'path';
 import * as fs from 'fs';
+import * as child_process from 'child_process';
 import {
   commands,
   Disposable,
@@ -15,9 +16,10 @@ import {
   workspace
 } from 'vscode';
 import { MocksServer } from '../mocks';
-import { findInterface, showProgress } from '../utils';
+import { findInterface, pontEngineVersion, showProgress } from '../utils';
 import { execSync } from 'child_process';
 import { OriginTreeItem, getPontOriginsProvider, getPontOriginsTreeView } from '../views/pontOrigins';
+import { setContext } from '../utils/setContext';
 
 export const commandMap = {
   /** 选择数据源 */
@@ -39,7 +41,11 @@ export const commandMap = {
   /** 更新本地基类 */
   updateBo: 'pont.updateBo',
   /** 显示pont侧边栏 */
-  showPontBar: 'pont.showPontBar'
+  showPontBar: 'pont.showPontBar',
+  /** createManager */
+  createManager: 'pont.createManager',
+  /** createManager */
+  installPontEngine: 'pont.installPontEngine'
 };
 
 type CommandId = `pont.${keyof typeof commandMap}`;
@@ -54,6 +60,7 @@ interface ScmCommand {
 }
 
 const Commands: ScmCommand[] = [];
+const managerCleanUps: Disposable[] = [];
 
 function command(commandId: CommandId, type: CommandType = 'command'): Function {
   return (_target: any, key: string, descriptor: any) => {
@@ -67,6 +74,8 @@ function command(commandId: CommandId, type: CommandType = 'command'): Function 
 export class CommandCenter {
   private manager: Manager;
 
+  private configPath: string;
+
   private disposables: Disposable[];
 
   constructor(private outputChannel: OutputChannel) {
@@ -79,6 +88,10 @@ export class CommandCenter {
         return commands.registerTextEditorCommand(commandId, command);
       }
     });
+  }
+
+  setConfigPath(configPath: string) {
+    this.configPath = configPath;
   }
 
   setManage(manager: Manager) {
@@ -214,7 +227,7 @@ export class CommandCenter {
         await manager.lock();
         manager.calDiffs();
         await manager.update(oldFiles);
-        getPontOriginsProvider().refresh(manager);
+        getPontOriginsProvider().refreshNode(manager, item.parent);
         getPontOriginsTreeView().reveal(item.prev || item.next, { expand: 3, focus: true, select: true });
         report('更新成功');
       },
@@ -241,7 +254,7 @@ export class CommandCenter {
         manager.calDiffs();
         await manager.update(oldFiles);
 
-        getPontOriginsProvider().refresh(manager);
+        getPontOriginsProvider().refreshNode(manager, item);
         getPontOriginsTreeView().reveal(item, { expand: 3, focus: true, select: true });
         report('更新成功');
       },
@@ -297,6 +310,60 @@ export class CommandCenter {
     this.outputChannel.appendLine(`[open url]: ${url}`);
 
     execSync(`open ${url}`);
+  }
+
+  @command('pont.createManager')
+  async createManager(configFilePath?: string) {
+    try {
+      const rootPath = workspace.rootPath;
+      const configPath = configFilePath || this.configPath || '';
+      Disposable.from(...managerCleanUps).dispose();
+
+      const config = Config.createFromConfigPath(configPath);
+      const errMsg = config.validate();
+
+      if (errMsg) {
+        throw new Error(errMsg);
+      }
+
+      const manager = new Manager(rootPath, config, path.dirname(configPath));
+      manager.setReport((info) => this.outputChannel.appendLine(info));
+      this.setManage(manager);
+      getPontOriginsProvider().refresh(manager);
+
+      await showProgress('初始化', async (report) => {
+        report('进行中...');
+        await manager.ready();
+        report('完成');
+      });
+      manager.beginPolling();
+      managerCleanUps.push({ dispose: manager.stopPolling });
+
+      if (config.mocks && config.mocks.enable) {
+        const closeServer = await MocksServer.getSingleInstance(manager).run();
+        managerCleanUps.push({ dispose: closeServer });
+      }
+      setContext('isInit', true);
+      setContext('initError', '');
+    } catch (e) {
+      this.outputChannel.appendLine(e.toString());
+      this.outputChannel.show();
+      window.showErrorMessage('Pont初始化失败');
+      setContext('isInit', false);
+      setContext('initError', 'Pont初始化失败');
+    }
+  }
+
+  @command('pont.installPontEngine')
+  async installPontEngine(params: { type: 'yarn' | 'npm' }) {
+    const rootPath = workspace.rootPath;
+    const useYarn = params?.type === 'yarn';
+    const cmd = useYarn ? `yarn add -D pont-engine@${pontEngineVersion}` : `npm i -D pont-engine@${pontEngineVersion}`;
+    try {
+      child_process.execSync(cmd, { cwd: rootPath });
+    } catch (error) {
+      window.showErrorMessage(`请手动执行 ${cmd} 命令，安装pont-engine ${pontEngineVersion} 版本`)
+    }
   }
 
   private createCommand(id: string, key: string, method: Function): (...args: any[]) => any {

@@ -11,6 +11,25 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
 
   getTreeItem(element: OriginTreeItem): vscode.TreeItem {
     if (!this.manager) return null;
+
+    if (element.type == 'MOD') {
+      const modDiffs = this.manager.diffs?.modDiffs || [];
+      return {
+        ...element,
+        label: `更新本地模块(${modDiffs.length})`,
+        collapsibleState: vscode.TreeItemCollapsibleState.Expanded
+      };
+    }
+
+    if (element.type == 'BO') {
+      const boDiffs = this.manager.diffs?.boDiffs || [];
+      return {
+        ...element,
+        label: `更新本地基类(${boDiffs.length})`,
+        collapsibleState: vscode.TreeItemCollapsibleState.Expanded
+      };
+    }
+
     return element;
   }
 
@@ -70,7 +89,7 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
         modItem.contextValue = 'MOD';
         modItem.parent = element;
         modItem.prev = modItem;
-        
+
         if (prevModItem) {
           prevModItem.next = modItem;
         }
@@ -105,9 +124,19 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
   private _onDidChangeTreeData: vscode.EventEmitter<OriginTreeItem> = new vscode.EventEmitter<OriginTreeItem>();
   readonly onDidChangeTreeData: vscode.Event<OriginTreeItem> = this._onDidChangeTreeData.event;
 
+  triggerNodeChange(node?: OriginTreeItem) {
+    // Since the root node won't actually refresh, force everything
+    this._onDidChangeTreeData.fire(node != null ? node : undefined);
+  }
+
   refresh(manager): void {
     this.manager = manager;
-    this._onDidChangeTreeData.fire();
+    this.triggerNodeChange();
+  }
+
+  refreshNode(manager, node: OriginTreeItem): void {
+    this.manager = manager;
+    this.triggerNodeChange(node);
   }
 
   getParent(element: OriginTreeItem) {

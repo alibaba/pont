@@ -1,8 +1,10 @@
 import * as vscode from 'vscode';
 import { Manager, Interface } from 'pont-engine';
 import * as path from 'path';
-import * as child_process from 'child_process';
 import * as fs from 'fs';
+const packageJson = require('../../package.json');
+
+export const pontEngineVersion = packageJson.dependencies['pont-engine'] as string;
 
 export function wait(ttl = 500) {
   return new Promise((resolve) => {
@@ -26,35 +28,17 @@ export async function showProgress(
   );
 }
 
-export async function syncNpm() {
-  try {
-    const currVersion = require(path.join(__dirname, '../node_modules/pont-engine/package.json')).version;
-    const projectVersionPath = path.join(vscode.workspace.rootPath, 'node_modules/pont-engine/package.json');
-    const yarnPath = path.join(vscode.workspace.rootPath, 'yarn.lock');
+export function verifyPontEngineVersion() {
+  const rootPath = vscode.workspace.rootPath;
+  const projectVersionPath = path.join(rootPath, 'node_modules/pont-engine/package.json');
+  const hasProjectVersion = fs.existsSync(projectVersionPath);
 
-    const hasProjectVersion = fs.existsSync(projectVersionPath);
-    const useYarn = fs.existsSync(yarnPath);
-
-    const cmd = useYarn ? 'yarn add -D pont-engine@' + currVersion : 'npm i -D pont-engine@' + currVersion;
-
-    if (!hasProjectVersion) {
-      console.log(cmd);
-      child_process.execSync(cmd, {
-        cwd: vscode.workspace.rootPath
-      });
-    } else {
-      const projectVersion = require(projectVersionPath).version;
-
-      if (projectVersion !== currVersion) {
-        console.log(cmd);
-        child_process.execSync(cmd, {
-          cwd: vscode.workspace.rootPath
-        });
-      }
-    }
-  } catch (e) {
-    throw new Error('npm 同步错误' + e.toString());
+  if (hasProjectVersion) {
+    const projectVersion = require(projectVersionPath).version;
+    return projectVersion === pontEngineVersion;
   }
+
+  return false;
 }
 
 export async function findInterface(editor: vscode.TextEditor, manager: Manager) {
