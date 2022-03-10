@@ -21,7 +21,7 @@
         {
           "id": "pont-explorer",
           "title": "Pont",
-          "icon": "resources/dep.svg"
+          "icon": "resources/pont.svg"
         }
       ]
     },
@@ -42,7 +42,8 @@
       {
         "view": "pontOrigins",
         "contents": "请安装或升级pont-engine \n [yarn add pont-engine](command:pont.installPontEngine?%7B%22type%22%3A%22yarn%22%7D) \n [npm i -D pont-engine](command:pont.installPontEngine?%7B%22type%22%3A%22npm%22%7D)",
-        "when": "!pontContext.versionError"
+        "when": "!pontContext.versionError",
+        "enablement": "pontConfig.isInit"
       }
     ],
     "jsonValidation": [
@@ -59,8 +60,11 @@
       },
       {
         "command": "pont.findInterface",
-        "title": "查找接口",
-        "icon": "$(search)"
+        "title": "接口代码片段",
+        "icon": {
+          "dark": "resources/dark/icon-api.svg",
+          "light": "resources/light/icon-api.svg"
+        }
       },
       {
         "command": "pont.syncRemote",
@@ -78,14 +82,19 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "pont.createManager",
+        "title": "重置Pont",
+        "icon": "$(refresh)"
+      },
+      {
         "command": "pont.updateMod",
         "title": "更新模块",
-        "icon": "$(search)"
+        "icon": "$(code)"
       },
       {
         "command": "pont.updateBo",
         "title": "更新基类",
-        "icon": "$(search)"
+        "icon": "$(code)"
       },
       {
         "command": "pont.jumpToMocks",
@@ -126,23 +135,23 @@
       "view/title": [
         {
           "command": "pont.findInterface",
-          "when": "pontContext.isInit&&view == pontOrigins",
+          "when": "pontContext.isInit&&!pontContext.initError&&view == pontOrigins",
           "group": "navigation"
         },
         {
           "command": "pont.syncRemote",
-          "when": "pontContext.isInit&&view == pontOrigins",
+          "when": "pontContext.isInit&&!pontContext.initError&&view == pontOrigins",
           "group": "navigation"
         },
         {
           "command": "pont.regenerate",
-          "when": "pontContext.isInit&&view == pontOrigins",
+          "when": "pontContext.isInit&&!pontContext.initError&&view == pontOrigins",
           "group": "navigation"
         },
         {
-          "command": "pont.makeAllSame",
-          "when": "pontContext.isInit&&view == pontOrigins",
-          "group": "navigation"
+          "command": "pont.createManager",
+          "when": "pontContext.isInit",
+          "group": "secondary"
         }
       ],
       "view/item/context": [

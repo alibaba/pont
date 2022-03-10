@@ -15,7 +15,7 @@ interface PontContext {
   /** pont是否初始化完成 */
   isInit: boolean;
   /** pont是否初始化失败 */
-  initError: string;
+  initError: boolean;
 }
 
 export function setContext<K extends keyof PontContext>(key: K, value: PontContext[K]) {

@@ -181,7 +181,7 @@ export class CommandCenter {
     const editor = window.activeTextEditor;
 
     if (!ignoreEdit) {
-      editor.edit((builder) => {
+      editor?.edit((builder) => {
         if (editor.selection.isEmpty) {
           const position = editor.selection.active;
 
@@ -228,7 +228,6 @@ export class CommandCenter {
         manager.calDiffs();
         await manager.update(oldFiles);
         getPontOriginsProvider().refreshNode(manager, item.parent);
-        getPontOriginsTreeView().reveal(item.prev || item.next, { expand: 3, focus: true, select: true });
         report('更新成功');
       },
       ProgressLocation.SourceControl
@@ -255,7 +254,6 @@ export class CommandCenter {
         await manager.update(oldFiles);
 
         getPontOriginsProvider().refreshNode(manager, item);
-        getPontOriginsTreeView().reveal(item, { expand: 3, focus: true, select: true });
         report('更新成功');
       },
       ProgressLocation.SourceControl
@@ -343,14 +341,12 @@ export class CommandCenter {
         const closeServer = await MocksServer.getSingleInstance(manager).run();
         managerCleanUps.push({ dispose: closeServer });
       }
-      setContext('isInit', true);
-      setContext('initError', '');
+      setContext('initError', false);
+      getPontOriginsProvider().refresh(manager);
     } catch (e) {
-      this.outputChannel.appendLine(e.toString());
-      this.outputChannel.show();
       window.showErrorMessage('Pont初始化失败');
-      setContext('isInit', false);
-      setContext('initError', 'Pont初始化失败');
+      setContext('initError', true);
+      return Promise.reject(e);
     }
   }
 
@@ -362,7 +358,7 @@ export class CommandCenter {
     try {
       child_process.execSync(cmd, { cwd: rootPath });
     } catch (error) {
-      window.showErrorMessage(`请手动执行 ${cmd} 命令，安装pont-engine ${pontEngineVersion} 版本`)
+      window.showErrorMessage(`请手动执行 ${cmd} 命令，安装pont-engine ${pontEngineVersion} 版本`);
     }
   }
 
@@ -385,10 +381,11 @@ export class CommandCenter {
           return;
         }
 
+        this.outputChannel.appendLine(`----------------------`);
         this.outputChannel.appendLine(`[${id}]:${message}`);
         this.outputChannel.show();
         if (type === 'error') {
-          await window.showErrorMessage(message, options);
+          await window.showErrorMessage(`[${id}]:执行失败`, options);
         } else {
           await window.showWarningMessage(message, options);
         }

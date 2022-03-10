@@ -627,7 +627,7 @@ export class StandardDataSource {
         errArray.push(`[interfaces.path]:${currentInter.path}`);
       }
       errArray.push(e.toString());
-      throw new Error(errArray.join('\n'));
+      throw new Error(`${errArray.join('\n')}\n请检查api-lock.json文件`);
     }
   }
 }
