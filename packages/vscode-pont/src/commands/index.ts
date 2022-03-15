@@ -327,7 +327,6 @@ export class CommandCenter {
       const manager = new Manager(rootPath, config, path.dirname(configPath));
       manager.setReport((info) => this.outputChannel.appendLine(info));
       this.setManage(manager);
-      getPontOriginsProvider().refresh(manager);
 
       await showProgress('初始化', async (report) => {
         report('进行中...');
@@ -341,6 +340,8 @@ export class CommandCenter {
         const closeServer = await MocksServer.getSingleInstance(manager).run();
         managerCleanUps.push({ dispose: closeServer });
       }
+      manager.calDiffs();
+      
       setContext('initError', false);
       getPontOriginsProvider().refresh(manager);
     } catch (e) {
