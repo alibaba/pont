@@ -4,60 +4,54 @@
 import * as vscode from 'vscode';
 import { Manager, Config, lookForFiles } from 'pont-engine';
 import * as path from 'path';
-import { Control } from './UI';
-import { syncNpm } from './utils';
+import { showProgress, verifyPontEngineVersion } from './utils';
 import { MocksServer } from './mocks';
+import { CommandCenter } from './commands';
+import { setContext } from './utils/setContext';
+import { initViews } from './views';
+import { getPontOriginsProvider } from './views/pontOrigins';
 
-const cleanUps = [];
+const managerCleanUps: vscode.Disposable[] = [];
 
-export function doCleanUp() {
-  if (cleanUps.length) {
-    const cleanUp = cleanUps.shift();
-
-    cleanUp();
-    doCleanUp();
-  }
-}
-
-export async function createManager(configPath: string) {
-  doCleanUp();
-  try {
-    await syncNpm();
-    const config = Config.createFromConfigPath(configPath);
-    const errMsg = config.validate();
-
-    if (errMsg) {
-      vscode.window.showErrorMessage(errMsg);
-      return;
-    }
-    const manager = new Manager(vscode.workspace.rootPath, config, path.dirname(configPath));
-    manager.beginPolling();
-    cleanUps.push(() => manager.stopPolling());
-
-    await Control.getSingleInstance(manager).initInstance();
-
-    if (config.mocks && config.mocks.enable) {
-      const closeServer = await MocksServer.getSingleInstance(manager).run();
-      cleanUps.push(closeServer);
-    }
-
-    Control.getSingleInstance(manager);
-  } catch (e) {
-    vscode.window.showErrorMessage(e.toString());
-  }
+function doCleanUp() {
+  vscode.Disposable.from(...managerCleanUps).dispose();
 }
 
 export async function activate(context: vscode.ExtensionContext) {
-  console.log('Congratulations, your extension "pont" is now active!');
-  const configPath = await lookForFiles(vscode.workspace.rootPath, 'pont-config.json');
+  console.log('extension "Pont" is now active!');
+
+  setContext('versionError', true);
+  setContext('noConfigFile', true);
+
+  const disposables: vscode.Disposable[] = [];
+  context.subscriptions.push(new vscode.Disposable(() => vscode.Disposable.from(...disposables).dispose()));
+
+  const outputChannel = vscode.window.createOutputChannel('Pont');
+  const commandCenter = new CommandCenter(outputChannel);
+  disposables.push(commandCenter);
+
   const fileWatcher = vscode.workspace.createFileSystemWatcher('**/pont-config.json');
+  fileWatcher.onDidCreate((uri) => commandCenter.createManager(uri.fsPath));
+  fileWatcher.onDidChange((uri) => commandCenter.createManager(uri.fsPath));
+
+  initViews();
+
+  const configPath = await lookForFiles(vscode.workspace.rootPath, 'pont-config.json');
+
+  commandCenter.setConfigPath(configPath);
+
+  // 没有安装 pont-engine 或 版本不一致。安装当前vscode插件对应版本的pont-engine
+  setContext('versionError', verifyPontEngineVersion());
+
+  setContext('noConfigFile', !!configPath);
 
   if (configPath) {
-    createManager(configPath);
+    commandCenter.createManager();
   }
 
-  fileWatcher.onDidCreate(uri => createManager(uri.fsPath));
-  fileWatcher.onDidChange(uri => createManager(uri.fsPath));
+  disposables.push(fileWatcher);
+
+  setContext('isInit', true);
 }
 
 export async function deactivate() {
