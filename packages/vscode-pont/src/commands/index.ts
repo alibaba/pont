@@ -42,9 +42,9 @@ export const commandMap = {
   updateBo: 'pont.updateBo',
   /** 显示pont侧边栏 */
   showPontBar: 'pont.showPontBar',
-  /** createManager */
+  /** 重新创建 Manager */
   createManager: 'pont.createManager',
-  /** createManager */
+  /** 安装pont-enging包 */
   installPontEngine: 'pont.installPontEngine'
 };
 
