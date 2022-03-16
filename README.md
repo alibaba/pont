@@ -118,37 +118,16 @@ Tips:
 
 命令行提供的命令目前还比较基础，提供命令如下：
 
-#### pont start
-
-一键接入 pont，若本地存在 `pont-config.json` 配置文件，将覆盖重复的配置项。
-
-#### pont check
-
-校验本地的 pont-lock.json 文件是否缺失、损坏。建议用户在项目中，在 pre-commit 里加上 pont check 命令，以防止在团队协作过程中，pont-lock.json 被误删、解决该文件冲突时被损坏等情况。
-
-#### pont ls
-
-查看所有数据源
-
-#### pont select [dsName]
-
-切换当前数据源
-
-#### pont diff
-
-查看远程数据和本地数据在模块、基类上的差异，以作针对性、选择性同步。
-
-#### pont updateBo [boName]
-
-选择性更新本地的基类
-
-#### pont updateMod [modName]
-
-选择性更新本地的模块
-
-#### pont scan
-
-扫描未使用的接口，在 process.cwd()位置生成并写入 unusedRequests.json 文件，需要配置 scannedRange
+| 命令              | 描述                           | 
+| :--------------- | :----------------------------- | 
+|pont start|一键接入 pont，若本地存在 `pont-config.json` 配置文件，将覆盖重复的配置项。|
+|pont check|校验本地的 pont-lock.json 文件是否缺失、损坏。建议用户在项目中，在 pre-commit 里加上 pont check 命令，以防止在团队协作过程中，pont-lock.json 被误删、解决该文件冲突时被损坏等情况。|
+|pont scan|扫描未使用的接口，在 process.cwd()位置生成并写入 unusedRequests.json 文件，需要配置 scannedRange|
+|pont ls|查看所有数据源|
+|pont select [dsName]|切换当前数据源|
+|pont diff|查看远程数据和本地数据在模块、基类上的差异，以作针对性、选择性同步。|
+|pont updateMod [modName]|选择性更新本地的模块|
+|pont updateBo [boName]|选择性更新本地的基类|
 
 ## `pont-config.json` 配置项
 
