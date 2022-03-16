@@ -20,6 +20,18 @@
       "type": "string",
       "default": "./template"
     },
+    "transformPath": {
+      "description": "指定数据源预处理路径",
+      "type": "string"
+    },
+    "fetchMethodPath": {
+      "description": "指定获取 Swagger 源数据的方法文件路径",
+      "type": "string"
+    },
+    "scannedRange": {
+      "description": "废弃接口扫描范围",
+      "type": "array"
+    },
     "outDir": {
       "description": "the directory code generated to, a relative path to the config file",
       "type": "string",
@@ -32,12 +44,21 @@
       "type": "object",
       "properties": {}
     },
+    "pollingTime": {
+      "type": "number",
+      "default": 1200
+    },
     "usingMultipleOrigins": {
       "type": "boolean",
       "description": "是否开启多数据源模式"
     },
-    "spiltApiLock":{
-      "type":"boolean",
+    "usingOperationId": {
+      "type": "boolean",
+      "description": "使用operationId作为方法名",
+      "default": "true"
+    },
+    "spiltApiLock": {
+      "type": "boolean",
       "description": "是否拆分api-lock.json到具体数据源目录"
     },
     "surrounding": {
@@ -88,6 +109,30 @@
           },
           "originUrl": {
             "$ref": "#/definitions/originUrl"
+          },
+          "originType": {
+            "description": "数据源类型",
+            "type": "string",
+            "default": "SwaggerV2",
+            "enum": ["SwaggerV2", "SwaggerV3"]
+          },
+          "usingOperationId": {
+            "type": "boolean",
+            "description": "使用operationId作为方法名",
+            "default": "true"
+          },
+          "transformPath": {
+            "description": "指定数据源预处理路径",
+            "type": "string"
+          },
+          "fetchMethodPath": {
+            "description": "指定获取 Swagger 源数据的方法文件路径",
+            "type": "string"
+          },
+          "outDir": {
+            "description": "the directory code generated to, a relative path to the config file",
+            "type": "string",
+            "default": "./services"
           }
         }
       }

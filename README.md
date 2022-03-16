@@ -148,35 +148,58 @@ Tips:
 
 #### pont scan
 
-扫描未使用的接口，在 process.cwd()位置生成并写入 unusedRequests.json 文件，需要配置scannedRange
+扫描未使用的接口，在 process.cwd()位置生成并写入 unusedRequests.json 文件，需要配置 scannedRange
 
 ## `pont-config.json` 配置项
 
 对于 pont-config.json 的配置，在 vscode-pont 插件中已经做了自动提示、自动补全、配置项描述提醒等功能。具体配置项介绍如下：
 
-#### originUrl
+| 配置项           | 描述                           | 类型                           | 默认值          |
+| :--------------- | :----------------------------- | :----------------------------- | :-------------- |
+|fetchMethodPath |可选项, 相对项目根目录路径。用于 Swagger 数据源需要登录才能请求成功的场景，可指定获取 Swagger 源数据的方法。默认为 node-fetch 的 fetch 方法，可通过自定义 fetch 方法获取带鉴权的接口的文档 |`string` | |
+|mocks |接口mock配置 |见下方 |-|
+|name |数据源名称，仅多数据源时需配置 |`string` |`''` |
+|origins |配置每个数据来源，参考单个数据源配置。|见下方|- |
+|originUrl |接口平台提供数据源的 open api url（需要免登），目前只支持 Swagger。如 "https://petstore.swagger.io/v2/swagger.json" |`string` |-|
+|originType |数据源接口类型（注：暂不支持 SwaggerV1） |`"SwaggerV2"` \| `"SwaggerV3"` |`"SwaggerV2"` |
+|outDir |生成代码的存放路径，使用相对路径即可。如："./src/api" |`string` |`"src/service"` |
+|prettierConfig |生成的代码会用 prettier 来美化。此处配置 prettier 的配置项即可，具体可以参考 [prettier 文档](https://prettier.io/docs/en/options.html)。 |`object` |`{}` |
+|pollingTime |pont定时拉取数据，单位为秒，默认 20 分钟 |`number` |`60 * 20` |
+|scannedRange |废弃接口扫描范围，使用相对pont-config文件位置的相对路径。如：["./src/pages", "./src/components"]。需要配合pontTemplate中类FileStructures的getApiUseCases方法使用,如下所示。完成配置后，使用 `pont scan` 命令进行扫描。 |`Array<string>`|- |
+|spiltApiLock |是否拆分api-lock.json到具体数据源 |`boolean` |`false` |
+|surrounding |生成文件类型 |`"typeScript" | "javaScript"` |`""typeScript""` |
+|templatePath |指定自定义代码生成器的路径（使用相对路径指定）。一旦指定，pont 将即刻生成一份默认的自定义代码生成器。自定义代码生成器是一份 ts 文件，通过覆盖默认的代码生成器，来自定义生成代码。默认的代码生成器包含两个类，一个负责管理目录结构，一个负责管理目录结构每个文件如何生成代码。自定义代码生成器通过继承这两个类（类型完美，可以查看提示和含义），覆盖对应的代码来达到自定义的目的。具体使用方法请参看[自定义代码生成器文档](./packages/pont-engine/Template.md)。示例：可以参看示例 demo 中的 template。 |`string` |"serviceTemplate" |
+|templateType |可选项。用于生成 pont 内置模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件。内置模板功能强大，使用方法请参看[内置模板使用方法及贡献流程](https://github.com/alibaba/pont/tree/master/docs/templates.md)。 |`"fetch" \| "hooks"` |`''` |
+|transformPath |数据预处理器。指定数据源预处理路径（使用相对路径指定）。Pont 将 Swagger.json 数据转换为内部标准数据源之后会尝试调用由`transformPath`指定的转换程序,这样用户就有机会对数据进行一些处理。 |`string` |`''` |
+|usingOperationId |使用operationId作为方法名 |`boolean` |`true` |
+|usingMultipleOrigins |pont 支持一个项目中配置多个 Swagger 来源。此处配置是否启用多数据源 |`boolean` |`false` |
 
-值类型：字符串
 
-描述： 接口平台提供数据源的 open api url（需要免登），目前只支持 Swagger。如 "https://petstore.swagger.io/v2/swagger.json"
+### origins 配置项
 
-#### originType
+| 配置项           | 描述                           | 类型                           | 默认值          |
+| :--------------- | :----------------------------- | :----------------------------- | :-------------- |
+| name             | 数据源名称，仅多数据源时需配置    | `string`                       | `''`            |
+| originType       | 同单个数据源                   | `"SwaggerV2"` \| `"SwaggerV3"` | `"SwaggerV2"`   |
+| originUrl        | 同单个数据源                   | `string`                       | -               |
+| usingOperationId | 同单个数据源                   | `boolean`                      | `true`          |
+| transformPath    | 同单个数据源                   | `string`                       | `''`            |
+| fetchMethodPath  | 同单个数据源                   | `string`                       |                 |
+| outDir           | 同单个数据源                   | `string`                       | `"src/service"` |
 
-值类型："SwaggerV2" | "SwaggerV3"
+### mocks 配置项
 
-描述：数据源接口类型（注：暂不支持 SwaggerV1）
+| 配置项   | 描述                                                                                             | 类型      | 默认值                                             |
+| :------- | :---------------------------------------------------------------------------------------------  | :-------- | :------------------------------------------------- |
+| enable   | 是否启用                                                                                         | `boolean` | `false`                                            |
+| port     | mocks 服务的端口号                                                                                | `number`  |                                                    |
+| basePath | 接口的 basePath                                                                                  | `string`  |                                                    |
+| wrapper  | 接口返回结构，pont 可以计算返回数据类型(比如此处会替换到 {response})，此处可以指定接口返回结构。             | `object`  | `"{"code": 0, "data": {response}, "message": ""}"` |
 
-#### outDir
+### 配置示例
 
-值类型：字符串
+#### scannedRange 示例
 
-描述： 生成代码的存放路径，使用相对路径即可。如："./src/api"
-
-#### scannedRange
-
-值类型：字符串数组
-
-描述： 废弃接口扫描范围，使用相对pont-config文件位置的相对路径。如：["./src/pages", "./src/components"]。需要配合pontTemplate中类FileStructures的getApiUseCases方法使用,如：
 ```js
 /** API 使用case，用于scan扫描接口 */
 getApiUseCases = (inter: Interface): Array<string> => {
@@ -185,55 +208,8 @@ getApiUseCases = (inter: Interface): Array<string> => {
   return [`API${this.usingMultipleOrigins ? `.${context.dataSource.name}` : ''}.${context.mod.name}.${inter.name}`];
 };
 ```
-完成配置后，使用 `pont scan` 命令进行扫描。
 
-#### templatePath
-
-值类型：字符串
-
-描述：指定自定义代码生成器的路径（使用相对路径指定）。一旦指定，pont 将即刻生成一份默认的自定义代码生成器。自定义代码生成器是一份 ts 文件，通过覆盖默认的代码生成器，来自定义生成代码。默认的代码生成器包含两个类，一个负责管理目录结构，一个负责管理目录结构每个文件如何生成代码。自定义代码生成器通过继承这两个类（类型完美，可以查看提示和含义），覆盖对应的代码来达到自定义的目的。具体使用方法请参看[自定义代码生成器文档](./packages/pont-engine/Template.md)。
-
-示例：可以参看示例 demo 中的 template。
-
-#### prettierConfig
-
-值类型：object
-
-描述：生成的代码会用 prettier 来美化。此处配置 prettier 的配置项即可，具体可以参考 [prettier 文档](https://prettier.io/docs/en/options.html)。
-
-#### usingMultipleOrigins
-
-值类型：boolean
-
-描述：pont 支持一个项目中配置多个 Swagger 来源。此处配置是否启用多数据源
-
-#### spiltApiLock
-
-值类型：boolean
-
-描述：是否拆分api-lock.json到具体数据源
-
-#### origins
-
-值类型：array
-
-描述：配置每个数据来源
-
-配置项：
-
-```javascript
-{
-  "originType": "SwaggerV2 | SwaggerV3", // 注：暂不支持 SwaggerV1
-  "originUrl": string,
-  "name": string,
-  "usingOperationId": boolean,
-  "transformPath"?: string,
-  "fetchMethodPath"?: string,
-  "outDir"?:string,
-}
-```
-
-示例：
+#### origins 示例
 
 ```json
 "origins": [{
@@ -245,13 +221,7 @@ getApiUseCases = (inter: Interface): Array<string> => {
 }]
 ```
 
-### transformPath
-
-值类型：string
-
-描述：可选项。指定数据源预处理路径（使用相对路径指定）。一旦指定，Pont 将生成一份默认的数据预处理器。Pont 将 Swagger.json 数据转换为内部标准数据源之后会尝试调用由`transformPath`指定的转换程序,这样用户就有机会对数据进行一些处理。
-
-数据预处理器示例：
+#### transformPath 示例
 
 ```typescript
 // transfrom.ts 根据 Mod.name进行过滤
@@ -290,15 +260,15 @@ function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) 
 }
 ```
 
-### fetchMethodPath
+#### fetchMethodPath 示例
 
-值类型：string
-
-描述： 可选项, 相对项目根目录路径。用于 Swagger 数据源需要登录才能请求成功的场景，可指定获取 Swagger 源数据的方法。默认为 node-fetch 的 fetch 方法，可通过自定义 fetch 方法获取带鉴权的接口的文档
-
-示例：
-
-注意：此文件目前只能使用 `.ts` 后缀
+注意：此文件目前只能使用 `.ts` 后缀,且路径字段不需要加 `.ts` 后缀
+```javascript
+{
+  // ...
+  "fetchMethodPath": "./myFetchMethod",
+}
+```
 
 ```javascript
 // ./myFetchMethod.ts
@@ -320,31 +290,7 @@ export default async function (url: string): Promise<string> {
 }
 ```
 
-配置项示例：
-
-注意：路径字段不需要加 `.ts` 后缀
-
-```javascript
-{
-  // ...
-  "fetchMethodPath": "./myFetchMethod",
-}
-```
-
-#### mocks
-
-值类型：object
-
-子字段：
-
-- 字段名："enable" 类型：boolean 默认值： true 含义：是否生效
-- 字段名："basePath" 类型：string 默认值："" 含义：接口的 basePath
-
-- 字段名： "port" 类型：string 默认值：8080 含义：mocks 服务的端口号
-
-- 字段名 "wrapper" 类型：string 默认值："{\"code\": 0, \"data\": {response}, \"message\": \"\"}" 含义：接口返回结构，pont 可以计算返回数据类型(比如此处会替换到 {response})，此处可以指定接口返回结构。
-
-如：
+#### mocks 示例
 
 ```json
 {
@@ -356,16 +302,6 @@ export default async function (url: string): Promise<string> {
   }
 }
 ```
-
-### templateType
-
-值类型：字符串
-
-可选值：'fetch' | 'hooks'
-
-描述：可选项。用于生成 pont 内置模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件。
-
-内置模板功能强大，使用方法请参看[内置模板使用方法及贡献流程](https://github.com/alibaba/pont/tree/master/docs/templates.md)。
 
 ## demo
 

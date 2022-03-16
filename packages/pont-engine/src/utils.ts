@@ -66,7 +66,7 @@ export class DataSourceConfig {
   usingOperationId = true;
   usingMultipleOrigins = false;
   spiltApiLock = false;
-  taggedByName = true;
+  taggedByName = true; //TODO: 暂未使用
   templatePath = 'serviceTemplate';
   templateType = '';
   surrounding = Surrounding.typeScript;
