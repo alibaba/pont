@@ -24,7 +24,7 @@ import { setContext } from '../utils/setContext';
 export const commandMap = {
   /** 选择数据源 */
   switchOrigin: 'pont.switchOrigin',
-  /** 重置数据 */
+  /** 更新全部数据源 */
   makeAllSame: 'pont.makeAllSame',
   /** 远程数据源同步 */
   syncRemote: 'pont.syncRemote',
@@ -34,7 +34,9 @@ export const commandMap = {
   refreshMocks: 'pont.refreshMocks',
   /** 生成接口代码 */
   regenerate: 'pont.regenerate',
+  /** 跳转到对应的mock代码位置 */
   jumpToMocks: 'pont.jumpToMocks',
+  /** 浏览器查看当前mock接口 */
   visitMocks: 'pont.visitMocks',
   /** 更新本地接口 */
   updateMod: 'pont.updateMod',
@@ -129,8 +131,8 @@ export class CommandCenter {
   async makeAllSame() {
     const manager = this.manager;
 
-    await showProgress('重置数据', async (report) => {
-      report('重置中...');
+    await showProgress('更新全部数据源', async (report) => {
+      report('更新中...');
       manager.makeAllSame();
       await manager.lock();
       manager.calDiffs();
@@ -327,7 +329,6 @@ export class CommandCenter {
       const manager = new Manager(rootPath, config, path.dirname(configPath));
       manager.setReport((info) => this.outputChannel.appendLine(info));
       this.setManage(manager);
-      getPontOriginsProvider().refresh(manager);
 
       await showProgress('初始化', async (report) => {
         report('进行中...');
@@ -341,11 +342,15 @@ export class CommandCenter {
         const closeServer = await MocksServer.getSingleInstance(manager).run();
         managerCleanUps.push({ dispose: closeServer });
       }
+      manager.calDiffs();
+
+      setContext('initManager', true);
       setContext('initError', false);
       getPontOriginsProvider().refresh(manager);
     } catch (e) {
       window.showErrorMessage('Pont初始化失败');
       setContext('initError', true);
+      setContext('initManager', false);
       return Promise.reject(e);
     }
   }

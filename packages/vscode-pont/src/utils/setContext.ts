@@ -14,6 +14,8 @@ interface PontContext {
   noConfigFile: boolean;
   /** pont是否初始化完成 */
   isInit: boolean;
+  /** pont-manager是否初始化完成 */
+  initManager: boolean;
   /** pont是否初始化失败 */
   initError: boolean;
 }

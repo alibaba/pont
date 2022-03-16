@@ -19,14 +19,14 @@
     "viewsContainers": {
       "activitybar": [
         {
-          "id": "pont-explorer",
+          "id": "pontExplorer",
           "title": "Pont",
           "icon": "resources/pont.svg"
         }
       ]
     },
     "views": {
-      "pont-explorer": [
+      "pontExplorer": [
         {
           "id": "pontOrigins",
           "name": "Pont"
@@ -56,7 +56,10 @@
       {
         "command": "pont.switchOrigin",
         "title": "切换数据源",
-        "icon": "$(selection)"
+        "icon": {
+          "dark": "resources/dark/icon-switch.svg",
+          "light": "resources/light/icon-switch.svg"
+        }
       },
       {
         "command": "pont.findInterface",
@@ -78,13 +81,12 @@
       },
       {
         "command": "pont.makeAllSame",
-        "title": "重置数据",
+        "title": "更新全部数据源",
         "icon": "$(refresh)"
       },
       {
         "command": "pont.createManager",
-        "title": "重置Pont",
-        "icon": "$(refresh)"
+        "title": "重置Pont"
       },
       {
         "command": "pont.updateMod",
@@ -135,22 +137,27 @@
       "view/title": [
         {
           "command": "pont.findInterface",
-          "when": "pontContext.isInit&&!pontContext.initError&&view == pontOrigins",
-          "group": "navigation"
+          "when": "pontContext.initManager&&!pontContext.initError&&view == pontOrigins",
+          "group": "navigation@1"
         },
         {
           "command": "pont.syncRemote",
-          "when": "pontContext.isInit&&!pontContext.initError&&view == pontOrigins",
-          "group": "navigation"
+          "when": "pontContext.initManager&&!pontContext.initError&&view == pontOrigins",
+          "group": "navigation@2"
+        },
+        {
+          "command": "pont.makeAllSame",
+          "when": "pontContext.initManager&&!pontContext.initError&&view == pontOrigins",
+          "group": "navigation@3"
         },
         {
           "command": "pont.regenerate",
-          "when": "pontContext.isInit&&!pontContext.initError&&view == pontOrigins",
-          "group": "navigation"
+          "when": "pontContext.initManager&&!pontContext.initError&&view == pontOrigins",
+          "group": "navigation@4"
         },
         {
           "command": "pont.createManager",
-          "when": "pontContext.isInit",
+          "when": "pontContext.isInit&&view == pontOrigins",
           "group": "secondary"
         }
       ],
