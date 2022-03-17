@@ -517,8 +517,8 @@ export class CodeGenerator {
   }
 
   codeSnippet(inter: Interface): string {
-    const mod = inter.getContext().mod as Mod;
-    return `API.${mod.name}.${inter.name}`;
+    const context = inter.getContext();
+    return `API${this.usingMultipleOrigins ? `.${context.dataSource.name}` : ''}.${context.name}.${inter.name}`;
   }
 }
 
