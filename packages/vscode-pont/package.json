@@ -199,7 +199,7 @@
   },
   "icon": "logo.png",
   "repository": {
-    "url": "git@github.com:alibaba/pont.git",
+    "url": "https://github.com/alibaba/pont",
     "type": "git"
   }
 }
