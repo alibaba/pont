@@ -51,11 +51,17 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
         items.push(originItem);
       }
 
-      items.push(new OriginTreeItemFile(path.join(configDir, CONFIG_FILE)));
+      if (configDir) {
+        items.push(new OriginTreeItemFile(path.join(configDir, CONFIG_FILE)));
+      }
 
-      items.push(new OriginTreeItemFile(getFileName(templatePath, surrounding)));
+      if (templatePath) {
+        items.push(new OriginTreeItemFile(getFileName(templatePath, surrounding)));
+      }
 
-      items.push(new OriginTreeItemFile(getFileName(transformPath, surrounding)));
+      if (transformPath) {
+        items.push(new OriginTreeItemFile(getFileName(transformPath, surrounding)));
+      }
 
       if (modDiffs.length) {
         const modTreeItem = new OriginTreeItem(
