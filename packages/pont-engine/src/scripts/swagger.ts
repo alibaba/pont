@@ -232,6 +232,15 @@ class SwaggerInterface {
       // 如果请求参数在body中的话，处理方式与response保持一致，因为他们本身的结构是一样的
       if (param.in === 'body') {
         paramSchema = param.schema;
+      } else if (param.in === 'path' || param.in === 'query') {
+        const schemaType = schema.type === 'array' ? undefined : schema.type;
+        paramSchema = {
+          enum: param.enum,
+          items,
+          // type 可能为空， 类型在 schema.type 上
+          type: type || schemaType,
+          $ref: _.get(schema, '$ref')
+        };
       } else {
         paramSchema = {
           enum: param.enum,
