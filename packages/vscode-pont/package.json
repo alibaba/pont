@@ -36,7 +36,7 @@
     "viewsWelcome": [
       {
         "view": "pontOrigins",
-        "contents": "请参阅[官方文档](https://github.com/alibaba/pont) 创建pont-config.json文件",
+        "contents": "请参阅[官方文档](https://github.com/alibaba/pont) 使用 pont start 命令 创建 pont-config.json 文件",
         "when": "!pontContext.noConfigFile"
       },
       {
