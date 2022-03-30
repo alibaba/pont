@@ -15,7 +15,7 @@ const promptList = [
     type: 'input',
     message: '请设置数据源地址',
     name: 'originUrl',
-    validate: originUrl => {
+    validate: (originUrl) => {
       if (!judgeIsVaildUrl(originUrl)) {
         return '请输入正确的数据源地址';
       }
@@ -38,8 +38,8 @@ const promptList = [
     type: 'list',
     message: '请选择内置模板类型:',
     name: 'templateType',
-    choices: templateRegistion.map(template => template.templateType),
-    when: function(answers) {
+    choices: templateRegistion.map((template) => template.templateType),
+    when: function (answers) {
       // 当watch为true的时候才会提问当前问题
       return answers.useTemplate;
     }
@@ -54,6 +54,12 @@ const promptList = [
     message: '请设置生成代码存放的相对路径',
     name: 'outDir',
     default: './services'
+  },
+  {
+    type: 'list',
+    message: '请选择语言类型:',
+    name: 'languageType',
+    choices: [Surrounding.javaScript, Surrounding.typeScript]
   }
 ];
 
@@ -87,7 +93,7 @@ export async function generatePontConfig() {
 }
 
 function generateConfig(configPath: string, answers: any) {
-  const { originUrl, templatePath, outDir, enableMocks } = answers;
+  const { originUrl, templatePath, outDir, enableMocks, surrounding } = answers;
   const dirName = path.join(process.cwd(), '/pont-config.json');
   let config = {} as DataSourceConfig;
   if (configPath) {
@@ -103,7 +109,7 @@ function generateConfig(configPath: string, answers: any) {
   config.originUrl = originUrl;
   config.templatePath = templatePath;
   config.outDir = outDir;
-  config.surrounding = Surrounding.javaScript;
+  config.surrounding = surrounding;
   config.mocks = {
     enable: enableMocks
   } as Mocks;

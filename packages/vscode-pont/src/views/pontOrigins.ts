@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as fs from 'fs';
 import * as path from 'path';
 import { Manager } from 'pont-engine';
 import { CONFIG_FILE, getFileName } from 'pont-engine/lib/utils';
@@ -41,7 +40,7 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
     const { modDiffs, boDiffs } = diffs || { modDiffs: [], boDiffs: [] };
 
     if (!element && allConfigs.length > 0) {
-      const { name, originUrl, templatePath, transformPath, surrounding } = currConfig;
+      const { name, originUrl, templatePath, transformPath } = currConfig;
       const items: OriginTreeItem[] = [];
 
       if (allConfigs.length > 1) {
@@ -51,11 +50,17 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
         items.push(originItem);
       }
 
-      items.push(new OriginTreeItemFile(path.join(configDir, CONFIG_FILE)));
+      if (configDir) {
+        items.push(new OriginTreeItemFile(path.join(configDir, CONFIG_FILE)));
+      }
 
-      items.push(new OriginTreeItemFile(getFileName(templatePath, surrounding)));
+      if (templatePath) {
+        items.push(new OriginTreeItemFile(getFileName(templatePath, '.ts')));
+      }
 
-      items.push(new OriginTreeItemFile(getFileName(transformPath, surrounding)));
+      if (transformPath) {
+        items.push(new OriginTreeItemFile(getFileName(transformPath, '.ts')));
+      }
 
       if (modDiffs.length) {
         const modTreeItem = new OriginTreeItem(
