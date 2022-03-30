@@ -478,6 +478,6 @@ export class Manager {
       return g.dataSource.name === this.currLocalDataSource.name;
     });
 
-    return generator.codeSnippet;
+    return generator.codeSnippet.bind(generator);
   }
 }
