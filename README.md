@@ -80,7 +80,7 @@ Pont 支持自定义**数据获取 、数据源预处理、自定义代码生成
 
 ### 7. 提示
 
-- 确保服务端使用 Swagger（目前只支持 Swagger V1、V2、V3），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下，或者使用 [fetchMethodPath 配置](./docs/customizedPont.md#fetchmethodpath)，通过自定义**数据获取**来获取带鉴权的接口的文档。
+- 确保服务端使用 Swagger（目前只支持 Swagger V2、V3），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下，或者使用 [fetchMethodPath 配置](./docs/customizedPont.md#fetchmethodpath)，通过自定义**数据获取**来获取带鉴权的接口的文档。
 - 若需替换默认的请求信息，请参阅 [pontCore](https://github.com/alibaba/pont/tree/master/docs/pontCore.md)。
 
 ## 🔍 文档
