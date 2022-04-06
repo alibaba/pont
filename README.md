@@ -1,371 +1,108 @@
-<div align="center">
-  <img src="https://img.alicdn.com/tfs/TB1cpLSGrvpK1RjSZFqXXcXUVXa-726-396.png" height="100">
-  <h2>Pont - 搭建前后端之桥  </h2>
-</div>
 
-[![npm version](https://badge.fury.io/js/pont-engine.png)](https://badge.fury.io/js/pont-engine)
-[![npm downloads](https://img.shields.io/npm/dt/pont-engine.svg?style=flat-square)](https://www.npmjs.com/package/pont-engine)
+<div align="center">
+
+[![Pont logo](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/332171/1648553869584-66c3761b-79f5-466d-92e4-ed4c6cdd3cf1.png#clientId=u9fdc963e-89e2-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=154&id=ub6370ba6&name=%E6%A1%A5%E6%A2%81.png&originHeight=200&originWidth=200&originalType=binary&ratio=1&rotation=0&showTitle=false&size=3585&status=done&style=none&taskId=ua3612409-5685-4d87-8de5-6cf3a398aea&title=&width=154)](https://github.com/alibaba/pont)
+
+# Pont - 搭建前后端之桥
+
+[![npm version](https://badge.fury.io/js/pont-engine.svg)](https://www.npmjs.com/package/pont-engine)
+[![npm downloads](https://img.shields.io/npm/dm/pont-engine.svg?style=flat-square)](https://www.npmjs.com/package/pont-engine)
+[![GitHub license](https://img.shields.io/github/license/alibaba/pont)](https://github.com/alibaba/pont/blob/master/LICENSE)
 [![Gitter](https://badges.gitter.im/jasonHzq/pont-engine.svg)](https://gitter.im/jasonHzq/pont-engine?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
-pont 在法语中是“桥”的意思，寓意着前后端之间的桥梁。
+![Pont Process](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/332171/1648634133414-a1f46be4-f9a7-4c1e-85fd-71d38594fbd0.png#clientId=u9fdc963e-89e2-4&crop=0&crop=0&crop=1&crop=1&id=mNKTs&name=image.png&originHeight=1090&originWidth=1584&originalType=binary&ratio=1&rotation=0&showTitle=false&size=192016&status=done&style=none&taskId=u6b14950f-c9a8-484b-b4ca-d82b93677a6&title=)
 
-## 介绍
+</div>
+
+pont 在法语中是“桥”的意思，寓意着前后端之间的桥梁。
 
 Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数据。Pont 利用接口元数据，可以高度定制化生成前端接口层代码，接口 mock 平台和接口测试平台。
 
 其中 swagger 数据源，Pont 已经完美支持。并在一些大型项目中使用了近两年，各种高度定制化需求都可以满足。
 
-![](https://img.alicdn.com/tfs/TB15pZGI6TpK1RjSZKPXXa3UpXa-1584-1090.png)
+## ✨特性
 
-### 沉浸式接口开发
+- **跨语言** 天然支持 Javascript 项目及 Typescript 项目。如果使用 `Java`、`C++` 等语言，可定制代码生成器支持
+- **支持高度定制化**  通过复写内部方法，各种高度定制化需求都可以满足
+- **VSCode 插件支持** 专门为 Pont 开发的 VSCode 插件 vscode-pont，完美支持 Pont 所有能力
+- **丰富的命令行**提供丰富的命令行命令，满足不同场景的使用
+- **自动化 mocks 服务**Pont 自动生成所有 mocks 数据，并提供所有接口的 mocks 服务
 
-接口检索：
+## ⚡快速开始
 
-![屏幕快照 2019-05-28 22.35.25.png](https://img.alicdn.com/tfs/TB1HaZ3bliE3KVjSZFMXXbQhVXa-1786-742.png)
-
-接口开发：
-![pont.gif](https://img.alicdn.com/tfs/TB1Y6w8blKw3KVjSZFOXXarDVXa-1546-1016.gif)
-
-### 联调维护
-
-实时发现后端接口更新：
-![屏幕快照 2019-05-28 00.14.41.png](https://img.alicdn.com/tfs/TB1xE71bfWG3KVjSZFgXXbTspXa-1792-470.png)
-
-更新接口层后，可迅速定位接口调用代码，进行调用修改。
-![屏幕快照 2019-05-28 00.13.34.png](https://img.alicdn.com/tfs/TB1PPE8blKw3KVjSZFOXXarDVXa-850-290.png)
-
-### 自动化 mocks 服务
-
-mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提供所有接口的 mocks 服务。此外 IDE 提供如下功能
-
-- 1、右键 pont 接口代码，可以跳转(jump to mock position)去编辑接口的 mocks 数据
-
-- 2、右键 pont 接口代码，可以访问(visit mocks interface) GET 类型的 mocks 接口。
-
-mocks 自动生成所有 mocks 数据，你也可以自由更新 mocks 数据，支持 [mocksjs](http://mockjs.com/examples.html) 语法更新 mocks 数据。
-
-### 跨语言
-
-- pont 天然支持 Javascript 项目及 Typescript 项目。如您使用 `Java`、`C++` 等语言，需定制代码生成器
-
-## 快速开始
-
-- 1、在 vscode 中安装 vscode 插件 pont 以获取 pont 的全部能力。插件使用方法请参考：[vscode-pont](https://github.com/nefe/vscode-pont)
-
-- 2、添加 pont-config.json
-
-pont 一旦检测到有效的 pont-config.json 文件即可启动。pont 支持 pont start 命令快速生成 pont-config.json 配置文件。
+### 1. 安装
 
 全局安装 pont-engine
 
 ```bash
-// npm
-npm i -g pont-engine
+# 选择一个你喜欢的包管理器
 
-// 或yarn
-yarn global add pont-engine
+# NPM
+$ npm i -g pont-engine
+
+# Yarn
+$ yarn global add pont-engine
+
+# pnpm
+$ pnpm add -g pont-engine
 ```
 
-在你的项目中运行 `pont start` 命令，按照提示输入配置完成接入。
+### 2. 初始化
 
-Tips:
+使用 `pont start` 命令，快速创建初始模板
+![test9.gif](https://intranetproxy.alipay.com/skylark/lark/0/2022/gif/332171/1648558306636-c144cbfc-ff71-4822-996b-680b397915bf.gif#clientId=u9fdc963e-89e2-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=423&id=PGyYc&name=test9.gif&originHeight=750&originWidth=1329&originalType=binary&ratio=1&rotation=0&showTitle=false&size=650633&status=done&style=none&taskId=uf925e5ee-b701-4994-925c-75b4c2214f1&title=&width=749.5)
 
-- 确保服务端使用 Swagger（目前只支持 Swagger V1、V2、V3），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下，或者使用 fetchMethodPath 配置，通过自定义 fetch 方法获取带鉴权的接口的文档。
+### 3. 安装 VSCode 插件
 
-- 若需替换默认的请求信息，请参阅[pontCore](https://github.com/alibaba/pont/tree/master/docs/pontCore.md)。
+打开 VSCode 插件商店，输入 `vscode-pont` 搜索安装
+![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/332171/1648630306151-7398a852-370b-4c41-80e5-c435b8003932.png#clientId=u9fdc963e-89e2-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=423&id=ue189ea7d&name=image.png&originHeight=676&originWidth=1192&originalType=binary&ratio=1&rotation=0&showTitle=false&size=109566&status=done&style=none&taskId=u02872ef9-c6f9-47e5-beb7-d8a6c4343fb&title=&width=745)
 
-## vscode 使用方法
+####
 
-一旦检测到项目中存在有效的 `pont-config.json` 配置文件，插件便会启动。你将在插件底部看到如下状态栏：
+### 4. 沉浸式接口开发
 
-![](https://img.alicdn.com/tfs/TB1kr7SGhjaK1RjSZFAXXbdLFXa-682-70.png)
+插件安装成功后，点击 Pont 图标，打开面板进行进一步操作。更多插件相关请参考 [插件文档](https://marketplace.visualstudio.com/items?itemName=jasonHzq.vscode-pont)
+![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/332171/1648630408341-fc30aa88-564b-4001-a6c4-50212b494fb3.png#clientId=u9fdc963e-89e2-4&crop=0&crop=0&crop=1&crop=0.4901&from=paste&height=529&id=u6648fb46&name=image.png&originHeight=770&originWidth=1082&originalType=binary&ratio=1&rotation=0&showTitle=false&size=81838&status=done&style=none&taskId=u83ce7020-1417-44c3-ba81-2fc285170b8&title=&width=744)
 
-#### sync
+点击接口代码片段图标，打开接口列表，搜索后生成接口代码片段，快速开始接口开发
+![test12.gif](https://intranetproxy.alipay.com/skylark/lark/0/2022/gif/332171/1648629476436-1140ba66-111e-43b5-81d1-07dfddb1c1b8.gif#clientId=u9fdc963e-89e2-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=319&id=JpkUS&name=test12.gif&originHeight=547&originWidth=1281&originalType=binary&ratio=1&rotation=0&showTitle=false&size=808877&status=done&style=none&taskId=uc33a7057-e0e6-426c-8fb2-48217e122ff&title=&width=747.5)
 
-重新请求远程接口数据，重新计算本地接口数据和远程接口数据在接口模块和接口返回对象（基类）上的差异。
+### 5. 联调维护
 
-#### all
+实时发现后端接口更新
+![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/332171/1648629880109-3948a84c-88ad-4d0c-b6b3-debfeabf361f.png#clientId=u9fdc963e-89e2-4&crop=0&crop=0&crop=1&crop=0.6761&from=paste&height=414&id=gs9QO&name=image.png&originHeight=644&originWidth=1158&originalType=binary&ratio=1&rotation=0&showTitle=false&size=113103&status=done&style=none&taskId=uaaef3281-3150-4144-a772-a9c9f2f1e17&title=&width=744)
+更新接口层后，可迅速定位接口调用代码，进行调用修改。
+![image.png](https://intranetproxy.alipay.com/skylark/lark/0/2022/png/332171/1648632170521-66dadabd-54c6-4c0a-ac00-c6b4d49d5bc6.png#clientId=u9fdc963e-89e2-4&crop=0&crop=0&crop=1&crop=1&from=paste&height=311&id=PbZKX&name=image.png&originHeight=616&originWidth=1478&originalType=binary&ratio=1&rotation=0&showTitle=false&size=300123&status=done&style=none&taskId=u2749c27e-321c-4241-9aff-f8a1a25befc&title=&width=745)
 
-将本地所有接口模块、接口返回对象与远程已更新数据保持一致。
+### 6. 自定义
 
-#### mod
+Pont 支持自定义**数据获取 、数据源预处理、自定义代码生成器**等。请参考 [定制化 Pont](./docs/customizedPont.md)
 
-选择并同步本地接口模块，与远程接口数据保持一致。
+### 7. 提示
 
-点击插件的 mod(差异量) 后，插件将显示本地与远程数据有差异的模块，如下图：
-![](https://img.alicdn.com/tfs/TB1o_oxGmrqK1RjSZK9XXXyypXa-1746-386.png)
+- 确保服务端使用 Swagger（目前只支持 Swagger V2、V3），提供的数据源接口是免登录的。如果不是，请后端帮忙简单配置一下，或者使用 [fetchMethodPath 配置](./docs/customizedPont.md#fetchmethodpath)，通过自定义**数据获取**来获取带鉴权的接口的文档。
+- 若需替换默认的请求信息，请参阅 [pontCore](https://github.com/alibaba/pont/tree/master/docs/pontCore.md)。
 
-选择你想更新的模块进行更新，并懒生成对应接口层代码。
+## 🔍 文档
 
-#### bo
+[命令行](./docs/CMD.md)
 
-选择并同步本地基类，与远程接口数据保持一致。
+[标准数据源模型](./docs/standardDataSource.md.md)
 
-点击插件的 bo(差异量) 后，插件将显示本地与远程数据有差异的基类，如下图：
-![](https://img.alicdn.com/tfs/TB15SUIGXzqK1RjSZSgXXcpAVXa-1762-680.png)
+[pont-config.josn 配置项](./docs/pontConfig.md.md)
 
-选择你想更新的基类进行更新，并懒生成对应接口层代码。
+[定制化 Pont](./docs/customizedPont.md.md)
 
-#### generate
+[VSCode 插件](https://marketplace.visualstudio.com/items?itemName=jasonHzq.vscode-pont)
 
-以本地接口模块、基类生成接口层代码。
+## 自动化 mocks 服务
 
-## 命令行使用方法
+mocks.enable 配置为 true，pont 将自动生成所有 mocks 数据，并提供所有接口的 mocks 服务。此外 IDE 提供如下功能
 
-目前 pont 以 vscode 扩展 —— vscode-pont 来提供 pont 的元数据能力。其它 IDE 的插件也将逐渐提供，这里非常渴望社区的力量。
+- 右键 pont 接口代码，可以跳转(jump to mock position)去编辑接口的 mocks 数据
+- 右键 pont 接口代码，可以访问(visit mocks interface) GET 类型的 mocks 接口。
 
-为了避免一部分用户和技术团队不使用 vscode-pont，pont 可以以命令行命令的方式来提供服务。
-
-命令行提供的命令目前还比较基础，提供命令如下：
-
-#### pont start
-
-一键接入 pont，若本地存在 `pont-config.json` 配置文件，将覆盖重复的配置项。
-
-#### pont check
-
-校验本地的 pont-lock.json 文件是否缺失、损坏。建议用户在项目中，在 pre-commit 里加上 pont check 命令，以防止在团队协作过程中，pont-lock.json 被误删、解决该文件冲突时被损坏等情况。
-
-#### pont ls
-
-查看所有数据源
-
-#### pont select [dsName]
-
-切换当前数据源
-
-#### pont diff
-
-查看远程数据和本地数据在模块、基类上的差异，以作针对性、选择性同步。
-
-#### pont updateBo [boName]
-
-选择性更新本地的基类
-
-#### pont updateMod [modName]
-
-选择性更新本地的模块
-
-#### pont scan
-
-扫描未使用的接口，在 process.cwd()位置生成并写入 unusedRequests.json 文件，需要配置scannedRange
-
-## `pont-config.json` 配置项
-
-对于 pont-config.json 的配置，在 vscode-pont 插件中已经做了自动提示、自动补全、配置项描述提醒等功能。具体配置项介绍如下：
-
-#### originUrl
-
-值类型：字符串
-
-描述： 接口平台提供数据源的 open api url（需要免登），目前只支持 Swagger。如 "https://petstore.swagger.io/v2/swagger.json"
-
-#### originType
-
-值类型："SwaggerV2" | "SwaggerV3"
-
-描述：数据源接口类型（注：暂不支持 SwaggerV1）
-
-#### outDir
-
-值类型：字符串
-
-描述： 生成代码的存放路径，使用相对路径即可。如："./src/api"
-
-#### scannedRange
-
-值类型：字符串数组
-
-描述： 废弃接口扫描范围，使用相对pont-config文件位置的相对路径。如：["./src/pages", "./src/components"]。需要配合pontTemplate中类FileStructures的getApiUseCases方法使用,如：
-```js
-/** API 使用case，用于scan扫描接口 */
-getApiUseCases = (inter: Interface): Array<string> => {
-  const context = inter.getContext();
-
-  return [`API${this.usingMultipleOrigins ? `.${context.dataSource.name}` : ''}.${context.mod.name}.${inter.name}`];
-};
-```
-完成配置后，使用 `pont scan` 命令进行扫描。
-
-#### templatePath
-
-值类型：字符串
-
-描述：指定自定义代码生成器的路径（使用相对路径指定）。一旦指定，pont 将即刻生成一份默认的自定义代码生成器。自定义代码生成器是一份 ts 文件，通过覆盖默认的代码生成器，来自定义生成代码。默认的代码生成器包含两个类，一个负责管理目录结构，一个负责管理目录结构每个文件如何生成代码。自定义代码生成器通过继承这两个类（类型完美，可以查看提示和含义），覆盖对应的代码来达到自定义的目的。具体使用方法请参看[自定义代码生成器文档](./packages/pont-engine/Template.md)。
-
-示例：可以参看示例 demo 中的 template。
-
-#### prettierConfig
-
-值类型：object
-
-描述：生成的代码会用 prettier 来美化。此处配置 prettier 的配置项即可，具体可以参考 [prettier 文档](https://prettier.io/docs/en/options.html)。
-
-#### usingMultipleOrigins
-
-值类型：boolean
-
-描述：pont 支持一个项目中配置多个 Swagger 来源。此处配置是否启用多数据源
-
-#### spiltApiLock
-
-值类型：boolean
-
-描述：是否拆分api-lock.json到具体数据源
-
-#### origins
-
-值类型：array
-
-描述：配置每个数据来源
-
-配置项：
-
-```javascript
-{
-  "originType": "SwaggerV2 | SwaggerV3", // 注：暂不支持 SwaggerV1
-  "originUrl": string,
-  "name": string,
-  "usingOperationId": boolean,
-  "transformPath"?: string,
-  "fetchMethodPath"?: string,
-  "outDir"?:string,
-}
-```
-
-示例：
-
-```json
-"origins": [{
-  "name": "pet",
-  "originUrl": "",
-}, {
-  "name": "fruit",
-  "originUrl": ""
-}]
-```
-
-### transformPath
-
-值类型：string
-
-描述：可选项。指定数据源预处理路径（使用相对路径指定）。一旦指定，Pont 将生成一份默认的数据预处理器。Pont 将 Swagger.json 数据转换为内部标准数据源之后会尝试调用由`transformPath`指定的转换程序,这样用户就有机会对数据进行一些处理。
-
-数据预处理器示例：
-
-```typescript
-// transfrom.ts 根据 Mod.name进行过滤
-import { StandardDataSource } from 'pont-engine';
-
-export default function transform(data: StandardDataSource) {
-  if (data.name === 'fooapi') {
-    const filterMods = ['modName1', 'modName2', 'modName3'];
-    let { mods, baseClasses } = filterModsAndBaseClass(filterMods, data);
-    data.mods = mods;
-    data.baseClasses = baseClasses;
-  }
-  return data;
-}
-
-/**
- * 过滤mod及所依赖的baseClass
- * @param filterMods Mod.name数组
- * @param data StandardDataSource
- */
-function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) {
-  let mods = data.mods.filter((mod) => {
-    return filterMods.includes(mod.name);
-  });
-  // 获取所有typeName
-  let typeNames = JSON.stringify(mods).match(/"typeName":".+?"/g);
-
-  typeNames = Array.from(new Set(typeNames)) // 去重
-    // 取typeName的值
-    .map((item) => item.split(':')[1].replace(/\"/g, ''));
-
-  // 过滤baseClasses
-  let baseClasses = data.baseClasses.filter((cls) => typeNames.includes(cls.name));
-
-  return { mods, baseClasses };
-}
-```
-
-### fetchMethodPath
-
-值类型：string
-
-描述： 可选项, 相对项目根目录路径。用于 Swagger 数据源需要登录才能请求成功的场景，可指定获取 Swagger 源数据的方法。默认为 node-fetch 的 fetch 方法，可通过自定义 fetch 方法获取带鉴权的接口的文档
-
-示例：
-
-注意：此文件目前只能使用 `.ts` 后缀
-
-```javascript
-// ./myFetchMethod.ts
-import axios from 'axios';
-
-export default async function (url: string): Promise<string> {
-  const { data } = await axios.post('/api/login', {
-    username: 'my_name',
-    password: '123456'
-  });
-
-  return axios
-    .get(url, {
-      headers: {
-        Authorization: data.token
-      }
-    })
-    .then((res) => JSON.stringify(res.data));
-}
-```
-
-配置项示例：
-
-注意：路径字段不需要加 `.ts` 后缀
-
-```javascript
-{
-  // ...
-  "fetchMethodPath": "./myFetchMethod",
-}
-```
-
-#### mocks
-
-值类型：object
-
-子字段：
-
-- 字段名："enable" 类型：boolean 默认值： true 含义：是否生效
-- 字段名："basePath" 类型：string 默认值："" 含义：接口的 basePath
-
-- 字段名： "port" 类型：string 默认值：8080 含义：mocks 服务的端口号
-
-- 字段名 "wrapper" 类型：string 默认值："{\"code\": 0, \"data\": {response}, \"message\": \"\"}" 含义：接口返回结构，pont 可以计算返回数据类型(比如此处会替换到 {response})，此处可以指定接口返回结构。
-
-如：
-
-```json
-{
-  "mocks": {
-    "enable": true,
-    "basePath": "",
-    "port": 8080,
-    "wrapper": "{\"code\": 0, \"data\": {response}, \"message\": \"\"}"
-  }
-}
-```
-
-### templateType
-
-值类型：字符串
-
-可选值：'fetch' | 'hooks'
-
-描述：可选项。用于生成 pont 内置模板。配置该项时，一旦检测到本地模板文件不存在将自动使用配置的模板类型生成模板文件。
-
-内置模板功能强大，使用方法请参看[内置模板使用方法及贡献流程](https://github.com/alibaba/pont/tree/master/docs/templates.md)。
+mocks 自动生成所有 mocks 数据，你也可以自由更新 mocks 数据，支持 [mockjs](http://mockjs.com/examples.html) 语法更新 mocks 数据。
 
 ## demo
 
@@ -374,84 +111,71 @@ export default async function (url: string): Promise<string> {
 - [pont-demo](https://github.com/nefe/pont-demo)
 - [nuxt-ts-pont-demo](https://github.com/gaoletian/nuxt-ts-pont-demo)
 
-持续丰富中...
-
-## 最佳实践建议
+## 👍 最佳实践
 
 - 项目 pre-commit hook 中，加上 pont check，防止本地数据源被研发人员损坏。
-
-- 很多 Swagger 所有的接口返回的类型都类似是 Result<T>，主要是囊括了约定的接口错误字段，类似 `{ errorCode: 0, data: T, errMessage: '' }`。这里建议，让后端 Swagger 的接口返回类型，去掉这个 Result 外壳。只返回 data 的 T 类型。
-
+- 很多 Swagger 所有的接口返回的类型都类似是 Result，主要是囊括了约定的接口错误字段，类似 `{ errorCode: 0, data: T, errMessage: '' }`。这里建议，让后端 Swagger 的接口返回类型，去掉这个 Result 外壳。只返回 data 的 T 类型。
 - vscode 配置 `trigger suggest` 的快捷键(cmd K + cmd S)，传参时，用快捷键触发提醒，非常好用；
-
 - pont template 配置 API、defs 为全局变量；这样不需要 import 任何接口、实体类；使用 API 直接触发建议找到 模块、接口，非常方便
-
 - 快捷键 cmd + ctrl + p 进行接口查找，非常方便；
-
 - 善于利用实体类（defs），可以当成类型用、也可以作为逻辑实现的辅助；实体类是后端写得实体类，前端自己写实体类，既没有必要，长期来看也会和后端的实现差异越来越大。如果有自定义逻辑，继承 defs 实体类即可。
+- redux 项目，建议结合 [https://github.com/nefe/iron-redux](https://github.com/nefe/iron-redux)，一个致力类型完美和去冗余的轻量化 redux 库。例如类型友好的，运行安全的 get 方法：[https://github.com/nefe/iron-redux#safeget](https://github.com/nefe/iron-redux#safeget)
 
-- redux 项目，建议结合 [https://github.com/nefe/iron-redux](https://github.com/nefe/iron-redux)，一个致力类型完美和去冗余的轻量化 redux 库。例如类型友好的，运行安全的 get 方法：https://github.com/nefe/iron-redux#safeget
+## ❓常见问题
 
-- 待补充
+1. demo 中，生成代码的 pontFetch 函数，是要自己实现的吗？
+答：pontFetch 是用户自己项目的请求公共方法。因为每个项目的接口有自己的业务逻辑，比如如何判断接口返回的结果是否正确，所以 pont 的默认模板并没有自己实现一套 fetch 方法。另外 Pont 生成的代码是可以用自定义模板配置的。可以在模板上更改 pontFetch 的引用路径和名字。
+1. nestjs 搭配的 Swagger JSON 生成出来的 pont 文件为什么没有 mods?
+答：nestjs 中的 Swagger 必须在每个 Controller 上添加 ApiUseTags 装饰器，并且在每个控制器的方法上添加 ApiOperation 装饰器 才能正确输出带 Tags 以及 operationId 的 Swagger JSON。Tags 和 operationId 是 pont 必需的（@nestjs/swagger 自动生成的 default Tags 暂时不被兼容）。
+示例如下 (`@nestjs/swagger@^3`)
+对于 `@nestjs/swagger@^4`，需要如下配置来手动注册 Tag
 
-## 常见答疑问题
+```
+import { Controller } from '@nestjs/common';
+import { ApiUseTags, ApiOperation, ApiOkResponse } from '@nestjs/swagger';
 
-- 1、demo 中，生成代码的 pontFetch 函数，是要自己实现的吗？
+@ApiUseTags('pet')
+@Controller('pet')
+export class PetController {
+  @ApiOperation({ title: 'getDog', operationId: 'getDog' })
+  @Get()
+  getDog() {}
+}
+```
 
-  答：pontFetch 是用户自己项目的请求公共方法。因为每个项目的接口有自己的业务逻辑，比如如何判断接口返回的结果是否正确，所以 pont 的默认模板并没有自己实现一套 fetch 方法。另外 Pont 生成的代码是可以用自定义模板配置的。可以在模板上更改 pontFetch 的引用路径和名字。
+```typescript
+// ...
+const options = new DocumentBuilder().setTitle('your app').addTag('pet').build();
+const document = SwaggerModule.createDocument(app, options);
+SwaggerModule.setup('/api', app, document);
+```
 
-- 2、nestjs 搭配的 Swagger JSON 生成出来的 pont 文件为什么没有 mods?
+3. API、defs 全局变量找不到
+答：将 pont 生成的 api.d.ts 塞到 tsconfig.json 中的 includes 数组最前面。并在项目入口处 import pont 生成的入口文件。
 
-  答：nestjs 中的 Swagger 必须在每个 Controller 上添加 ApiUseTags 装饰器，并且在每个控制器的方法上添加 ApiOperation 装饰器 才能正确输出带 Tags 以及 operationId 的 Swagger JSON。Tags 和 operationId 是 pont 必需的（@nestjs/swagger 自动生成的 default Tags 暂时不被兼容）。
-  示例如下 (`@nestjs/swagger@^3`)
+```json
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "outDir": "./**"
+  },
+  "include": ["./services/api.d.ts", "./src"],
+  "exclude": []
+}
 
-  ```
-  import { Controller } from '@nestjs/common';
-  import { ApiUseTags, ApiOperation, ApiOkResponse } from '@nestjs/swagger';
-
-  @ApiUseTags('pet')
-  @Controller('pet')
-  export class PetController {
-    @ApiOperation({ title: 'getDog', operationId: 'getDog' })
-    @Get()
-    getDog() {}
-  }
-  ```
-
-  对于 `@nestjs/swagger@^4`，需要如下配置来手动注册 Tag
-
-  ```ts main.ts
-  // ...
-  const options = new DocumentBuilder().setTitle('your app').addTag('pet').build();
-  const document = SwaggerModule.createDocument(app, options);
-  SwaggerModule.setup('/api', app, document);
-  ```
-
-  ```ts pet.controller.ts
-  import { Controller } from '@nestjs/common';
-  import { ApiTags, ApiOperation } from '@nestjs/swagger';
-
-  @ApiTags('pet')
-  @Controller('pet')
-  export class PetController {
-    @ApiOperation({ summary: 'getDog', operationId: 'getDog' })
-    @Get()
-    getDog() {}
-  }
-  ```
-
-- 3、API、defs 全局变量找不到
-
-  答：将 pont 生成的 api.d.ts 塞到 tsconfig.json 中的 includes 数组最前面。并在项目入口处 import pont 生成的入口文件。
+```
 
 ## 其它接口平台接入
 
-目前 pont 支持 [Swagger](https://swagger.io/) V1 V2 V3 三种数据源。其他类型数据源只需要在 scripts 中添加对应的数据格式转换文件，把对应数据格式转换为 pont 标准格式，即可适配新的数据源类型。希望社区可以踊跃贡献代码，接入更多类型的数据源！
+目前 pont 支持 [Swagger](https://swagger.io/) V2 V3 三种数据源。其他类型数据源只需要在 scripts 中添加对应的数据格式转换文件，把对应数据格式转换为 pont 标准格式，即可适配新的数据源类型。希望社区可以踊跃贡献代码，接入更多类型的数据源！
 
 ## 钉钉用户群
 
 群号：33661609
 
-## 谁在使用
+## 🎉 谁在使用
 
 - 阿里巴巴
+
+> 我们在这里列出了部分使用者，如果你的公司和产品使用了 Pont，欢迎到 [这里](https://github.com/alibaba/pont/issues/301) 留言。
