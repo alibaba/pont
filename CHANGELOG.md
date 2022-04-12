@@ -1,3 +1,40 @@
+v1.3.0 / 2022-04-12
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - 修复文档错误
+  - 修正文案
+  - 更正文案
+  - 修复this丢失问题
+  - 修复文件名错误
+  - CodeSnippet默认模板支持多数据源
+  - 修复插件Repository地址错误
+  - 修复初始化时没有进行diff计算
+- `pontorigins.ts`
+  - 修复不存在配置时,文件名展示为undefined
+
+
+### 🚀 Features
+
+- `general`
+  - Pont start 添加语言选择选项
+  - 修改创建提示
+  - 完善Pont VSCode 插件功能
+  - 移除无效配置
+  - 添加注释
+  - 完善插件逻辑
+  - 添加icon
+  - 完成项目初始引导
+- `pont-engine vscode-pont`
+  - 完成pont vscode 插件UI 升级
+
+
+### 💖 Thanks to
+
+- fuying.yfy
+
 v1.2.0 / 2022-02-18
 ===================
 
