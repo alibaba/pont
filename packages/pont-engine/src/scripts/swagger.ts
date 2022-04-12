@@ -85,6 +85,7 @@ class Schema {
     if (type === 'array') {
       let itemsType = _.get(items, 'type', '');
       const itemsRef = _.get(items, '$ref', '');
+      const itemsEnum = _.get(items, 'enum', []);
 
       if (itemsType) {
         if (itemsType === 'integer') {
@@ -99,6 +100,12 @@ class Schema {
 
         if (itemsType === 'array') {
           contentType = new StandardDataType([new StandardDataType()], 'Array', false, -1);
+        }
+
+        // 处理枚举类型数据
+        if (itemsEnum.length) {
+          contentType = StandardDataType.constructorWithEnum(parseSwaggerEnumType(itemsEnum));
+          contentType.typeName = itemsType;
         }
 
         return new StandardDataType([contentType], 'Array', false, -1);
