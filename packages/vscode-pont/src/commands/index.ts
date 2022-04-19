@@ -255,7 +255,7 @@ export class CommandCenter {
         manager.calDiffs();
         await manager.update(oldFiles);
 
-        getPontOriginsProvider().refreshNode(manager, item);
+        getPontOriginsProvider().refreshNode(manager, item.parent);
         report('更新成功');
       },
       ProgressLocation.SourceControl
