@@ -283,7 +283,6 @@ export class CommandCenter {
   @command('pont.qickPickBo')
   async qickPicBo() {
     const boDiffs = this.manager.diffs.boDiffs;
-    const oldFiles = this.manager.getGeneratedFiles();
 
     const items = boDiffs.map((item) => {
       return {
@@ -294,7 +293,7 @@ export class CommandCenter {
 
     const pickItem = await window.showQuickPick(items);
 
-    this.updateMod(getPontOriginsProvider().modList.find((item) => item.label === pickItem.label));
+    this.updateMod(getPontOriginsProvider().boList.find((item) => item.label === pickItem.label));
   }
 
   @command('pont.showPontBar')
