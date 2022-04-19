@@ -37,12 +37,12 @@
       {
         "view": "pontOrigins",
         "contents": "请参阅[官方文档](https://github.com/alibaba/pont) 使用 pont start 命令 创建 pont-config.json 文件",
-        "when": "!pontContext.noConfigFile"
+        "when": "pontContext.noConfigFile"
       },
       {
         "view": "pontOrigins",
         "contents": "请安装或升级pont-engine \n [yarn add pont-engine](command:pont.installPontEngine?%7B%22type%22%3A%22yarn%22%7D) \n [npm i -D pont-engine](command:pont.installPontEngine?%7B%22type%22%3A%22npm%22%7D)",
-        "when": "!pontContext.versionError",
+        "when": "pontContext.versionError",
         "enablement": "pontConfig.isInit"
       }
     ],
