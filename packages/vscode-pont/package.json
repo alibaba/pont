@@ -94,9 +94,19 @@
         "icon": "$(code)"
       },
       {
+        "command": "pont.qickPickMod",
+        "title": "搜索模块",
+        "icon": "$(search)"
+      },
+      {
         "command": "pont.updateBo",
         "title": "更新基类",
         "icon": "$(code)"
+      },
+      {
+        "command": "pont.qickPickBo",
+        "title": "搜索基类",
+        "icon": "$(search)"
       },
       {
         "command": "pont.jumpToMocks",
@@ -173,8 +183,18 @@
           "group": "inline"
         },
         {
+          "command": "pont.qickPickMod",
+          "when": "viewItem == MODParent",
+          "group": "inline"
+        },
+        {
           "command": "pont.updateBo",
           "when": "viewItem == BO",
+          "group": "inline"
+        },
+        {
+          "command": "pont.qickPickBo",
+          "when": "viewItem == BOParent",
           "group": "inline"
         }
       ]
