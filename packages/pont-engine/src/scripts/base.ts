@@ -39,7 +39,7 @@ export class OriginBaseReader {
       });
       return retString;
     } catch (err) {
-      return retString;
+      return Promise.reject(err)
     }
   }
 
