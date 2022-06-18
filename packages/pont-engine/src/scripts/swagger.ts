@@ -402,21 +402,20 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
   _.forEach(swagger.paths, (methodInters, path) => {
     const pathItemObject = _.cloneDeep(methodInters);
 
-    if (Array.isArray(pathItemObject.parameters)) {
-      ['get', 'post', 'patch', 'delete', 'put'].forEach(method => {
-        if (pathItemObject[method]) {
-          pathItemObject[method].parameters = (pathItemObject[method].parameters || []).concat(
-            pathItemObject.parameters
-          );
-        }
-      });
-
-      delete pathItemObject.parameters;
-    }
-
     _.forEach(pathItemObject as Omit<SwaggerPathItemObject, 'parameters'>, (inter, method) => {
       inter.path = path;
       inter.method = method;
+
+      if (inter.requestBody) {
+        const requestBodyContent = _.get(inter, 'requestBody.content', {})
+        const requestFormat = Object.keys(requestBodyContent)[0];
+        inter.parameters = [{
+          name: 'requestBody',
+          in: 'body',
+          required: requestBodyContent.required,
+          schema: _.get(requestBodyContent, `${requestFormat}.schema`, {})
+        }]
+      }
 
       if (!inter.tags) {
         inter.tags = ['defaultModule'];
