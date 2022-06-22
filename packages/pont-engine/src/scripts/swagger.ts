@@ -234,16 +234,35 @@ class SwaggerInterface {
     const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames, [], compileTemplateKeyword);
 
     const parameters = (inter.parameters || []).map(param => {
+      let paramSchema: Schema;
+      const { description, items, name, type, schema = {} as Schema, required } = param;
+      // 如果请求参数在body中的话，处理方式与response保持一致，因为他们本身的结构是一样的
+      if (param.in === 'body') {
+        paramSchema = param.schema;
+      } else if (param.in === 'path' || param.in === 'query') {
+        const schemaType = schema.type === 'array' ? undefined : schema.type;
+        paramSchema = {
+          enum: param.enum,
+          items,
+          // type 可能为空， 类型在 schema.type 上
+          type: type || schemaType,
+          $ref: _.get(schema, '$ref')
+        };
+      } else {
+        paramSchema = {
+          enum: param.enum,
+          items,
+          type,
+          $ref: _.get(schema, '$ref')
+        };
+      }
 
-      const {description,required,schema} = param
-      
       return new Property({
         in: param.in,
         description,
         name: name.includes('/') ? name.split('/').join('') : name,
         required,
-        // 处理方式与response保持一致，因为他们本身的结构是一样的
-        dataType: Schema.parseSwaggerSchema2StandardDataType(schema, defNames, [], compileTemplateKeyword)
+        dataType: Schema.parseSwaggerSchema2StandardDataType(paramSchema, defNames, [], compileTemplateKeyword)
       });
     });
 
