@@ -50,9 +50,9 @@ class SwaggerParameter {
   required: boolean;
 
   /** 类型 */
-  type: SwaggerType;
+  type?: SwaggerType;
 
-  enum: string[];
+  enum?: string[];
 
   items? = null as {
     type?: SwaggerType;
@@ -60,6 +60,20 @@ class SwaggerParameter {
   };
 
   schema: Schema;
+}
+
+class SwaggerRequestBody {
+  /** 描述 */
+  description = '';
+
+  /** 是否必填 */
+  required: boolean;
+
+  content = null as {
+    [key: string]: {
+      schema: Schema;
+    };
+  };
 }
 
 class Schema {
@@ -186,6 +200,8 @@ class SwaggerInterface {
   consumes = [] as string[];
 
   parameters = [] as SwaggerParameter[];
+
+  requestBody = {} as SwaggerRequestBody
 
   summary = '';
 
@@ -383,21 +399,23 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
   _.forEach(swagger.paths, (methodInters, path) => {
     const pathItemObject = _.cloneDeep(methodInters);
 
-    if (Array.isArray(pathItemObject.parameters)) {
-      ['get', 'post', 'patch', 'delete', 'put'].forEach(method => {
-        if (pathItemObject[method]) {
-          pathItemObject[method].parameters = (pathItemObject[method].parameters || []).concat(
-            pathItemObject.parameters
-          );
-        }
-      });
-
-      delete pathItemObject.parameters;
-    }
-
     _.forEach(pathItemObject as Omit<SwaggerPathItemObject, 'parameters'>, (inter, method) => {
       inter.path = path;
       inter.method = method;
+
+      if (inter.requestBody) {
+        const requestBodyContent = _.get(inter, 'requestBody.content', {});
+        const requestFormat = Object.keys(requestBodyContent)[0];
+        inter.parameters = [
+          {
+            name: 'requestBody',
+            in: 'body',
+            description: inter.requestBody.description,
+            required: inter.requestBody.required,
+            schema: _.get(requestBodyContent, `${requestFormat}.schema`, {})
+          }
+        ];
+      }
 
       if (!inter.tags) {
         inter.tags = ['defaultModule'];
