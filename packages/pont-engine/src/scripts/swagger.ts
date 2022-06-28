@@ -412,7 +412,7 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
         inter.parameters = [{
           name: 'requestBody',
           in: 'body',
-          required: requestBodyContent.required,
+          required: inter.requestBody.required,
           schema: _.get(requestBodyContent, `${requestFormat}.schema`, {})
         }]
       }
