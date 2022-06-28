@@ -6,6 +6,10 @@ import { CONFIG_FILE, getFileName } from 'pont-engine/lib/utils';
 class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
   manager: Manager;
 
+  modList: OriginTreeItem[] = [];
+
+  boList: OriginTreeItem[] = [];
+
   constructor() {}
 
   getTreeItem(element: OriginTreeItem): vscode.TreeItem {
@@ -69,6 +73,7 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
           'MOD'
         );
         modTreeItem.tooltip = originUrl;
+        modTreeItem.contextValue = 'MODParent'
         items.push(modTreeItem);
       }
 
@@ -79,6 +84,7 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
           'BO'
         );
         boTreeItem.tooltip = originUrl;
+        boTreeItem.contextValue = 'BOParent'
         items.push(boTreeItem);
       }
 
@@ -103,6 +109,7 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
         return modItem;
       });
 
+      this.modList = modList;
       return Promise.resolve(modList);
     }
 
@@ -116,6 +123,7 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
         return boItem;
       });
 
+      this.boList = boList;
       return Promise.resolve(boList);
     }
 

@@ -40,8 +40,12 @@ export const commandMap = {
   visitMocks: 'pont.visitMocks',
   /** 更新本地接口 */
   updateMod: 'pont.updateMod',
+  /** 搜索并更新本地接口 */
+  qickPickMod: 'pont.updateMod',
   /** 更新本地基类 */
   updateBo: 'pont.updateBo',
+  /** 搜索并更新本地基类 */
+  qickPickBo: 'pont.updateBo',
   /** 显示pont侧边栏 */
   showPontBar: 'pont.showPontBar',
   /** 重新创建 Manager */
@@ -236,6 +240,22 @@ export class CommandCenter {
     );
   }
 
+  @command('pont.qickPickMod')
+  async qickPickMod() {
+    const modDiffs = this.manager.diffs.modDiffs;
+    const items = modDiffs.map((item) => {
+      return {
+        label: item.name,
+        description: `${item.details[0]}等 ${item.details.length} 条更新`
+      } as QuickPickItem;
+    });
+    const pickItem = await window.showQuickPick(items);
+
+    if (!pickItem) return;
+
+    this.updateMod(getPontOriginsProvider().modList.find((item) => item.label === pickItem.label));
+  }
+
   @command('pont.updateBo')
   async updateBo(item: OriginTreeItem) {
     if (!item) return;
@@ -260,6 +280,24 @@ export class CommandCenter {
       },
       ProgressLocation.SourceControl
     );
+  }
+
+  @command('pont.qickPickBo')
+  async qickPicBo() {
+    const boDiffs = this.manager.diffs.boDiffs;
+
+    const items = boDiffs.map((item) => {
+      return {
+        label: item.name,
+        description: item.details.join(', ')
+      } as QuickPickItem;
+    });
+
+    const pickItem = await window.showQuickPick(items);
+
+    if (!pickItem) return;
+
+    this.updateMod(getPontOriginsProvider().boList.find((item) => item.label === pickItem.label));
   }
 
   @command('pont.showPontBar')
