@@ -251,6 +251,8 @@ export class CommandCenter {
     });
     const pickItem = await window.showQuickPick(items);
 
+    if (!pickItem) return;
+
     this.updateMod(getPontOriginsProvider().modList.find((item) => item.label === pickItem.label));
   }
 
@@ -292,6 +294,8 @@ export class CommandCenter {
     });
 
     const pickItem = await window.showQuickPick(items);
+
+    if (!pickItem) return;
 
     this.updateMod(getPontOriginsProvider().boList.find((item) => item.label === pickItem.label));
   }
