@@ -201,7 +201,7 @@ class SwaggerInterface {
 
   parameters = [] as SwaggerParameter[];
 
-  requestBody = {} as SwaggerRequestBody
+  requestBody = {} as SwaggerRequestBody;
 
   summary = '';
 
@@ -250,14 +250,13 @@ class SwaggerInterface {
     const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames, [], compileTemplateKeyword);
 
     const parameters = (inter.parameters || []).map(param => {
+      const { description, required, schema, name } = param;
 
-      const {description,required,schema} = param
-      
       return new Property({
-        in: param.in,
         description,
-        name: name.includes('/') ? name.split('/').join('') : name,
         required,
+        in: param.in,
+        name: name.includes('/') ? name.split('/').join('') : name,
         // 处理方式与response保持一致，因为他们本身的结构是一样的
         dataType: Schema.parseSwaggerSchema2StandardDataType(schema, defNames, [], compileTemplateKeyword)
       });
