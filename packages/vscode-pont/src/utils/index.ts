@@ -1,5 +1,4 @@
 import * as vscode from 'vscode';
-import * as child_process from 'child_process';
 import { Manager, Interface } from 'pont-engine';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -119,35 +118,4 @@ export async function findInterface(editor: vscode.TextEditor, manager: Manager)
   }
 
   return { foundInterface };
-}
-
-export async function syncNpm() {
-  try {
-    const currVersion = pontEngineVersion;
-    const projectVersionPath = path.join(vscode.workspace.rootPath, 'node_modules/pont-engine/package.json');
-    const yarnPath = path.join(vscode.workspace.rootPath, 'yarn.lock');
-
-    const hasProjectVersion = fs.existsSync(projectVersionPath);
-    const useYarn = fs.existsSync(yarnPath);
-
-    const cmd = useYarn ? 'yarn add -D pont-engine@' + currVersion : 'npm i -D pont-engine@' + currVersion;
-
-    if (!hasProjectVersion) {
-      console.log(cmd);
-      child_process.execSync(cmd, {
-        cwd: vscode.workspace.rootPath
-      });
-    } else {
-      const projectVersion = require(projectVersionPath).version;
-
-      if (projectVersion !== currVersion) {
-        console.log(cmd);
-        child_process.execSync(cmd, {
-          cwd: vscode.workspace.rootPath
-        });
-      }
-    }
-  } catch (e) {
-    vscode.window.showErrorMessage('npm 同步错误' + e.toString());
-  }
 }

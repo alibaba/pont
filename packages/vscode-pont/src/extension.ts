@@ -3,7 +3,7 @@
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
 import { lookForFiles } from 'pont-engine';
-import { syncNpm, verifyPontEngineVersion } from './utils';
+import { verifyPontEngineVersion } from './utils';
 import { CommandCenter } from './commands';
 import { setContext } from './utils/setContext';
 import { initViews } from './views';
@@ -36,8 +36,6 @@ export async function activate(context: vscode.ExtensionContext) {
   const configPath = await lookForFiles(vscode.workspace.rootPath, 'pont-config.json');
 
   commandCenter.setConfigPath(configPath);
-
-  await syncNpm();
 
   const versionError = !verifyPontEngineVersion();
   const noConfigFile = !configPath;
