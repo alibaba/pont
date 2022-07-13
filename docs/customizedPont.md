@@ -3,7 +3,9 @@
 Pont 支持自定义 **数据获取 、数据源预处理、代码生成器** 等。JSON配置中其他配置请参考 [pont-config.json](./pontConfig.md) 配置
 ## 执行流程图
 
-在自定义前，需要了解 Pont 在运行时的执行流程。蓝色框表示自定义文件，绿色框表示被自定义的环节<br />![](https://intranetproxy.alipay.com/skylark/lark/0/2021/jpeg/332171/1638790964820-6dca1cb4-3276-49ee-a826-8381aaebf9d9.jpeg)
+在自定义前，需要了解 Pont 在运行时的执行流程。蓝色框表示自定义文件，绿色框表示被自定义的环节<br />
+![image](https://user-images.githubusercontent.com/25757494/178680057-40c23cc7-5efe-43c4-9a12-1d704f6c4b98.png)
+
 
 ## fetchMethodPath
 指定 **数据获取** 路径（使用相对路径指定）。<br />注意：此文件目前只能使用 `.ts` 后缀,且路径字段不需要加 `.ts` 后缀
