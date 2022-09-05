@@ -14,13 +14,13 @@ import * as path from 'path';
 import {
   format,
   reviseModName,
-  Surrounding,
   getFileName,
   getTemplatesDirFile,
   judgeTemplatesDirFileExists
 } from '../utils';
 import { info } from '../debugLog';
 import { templateRegistion } from '../templates';
+import { Surrounding } from '../types/pontConfig';
 
 export class FileStructures {
   constructor(

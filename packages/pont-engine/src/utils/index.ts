@@ -2,196 +2,17 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as prettier from 'prettier';
 
-import * as ts from 'typescript';
-import { ResolveConfigOptions } from 'prettier';
-import { error } from './debugLog';
-import { Mod, StandardDataSource, StandardDataType } from './standard';
-import { Manager } from './manage';
-import { OriginType } from './scripts';
-import { diff } from './diff';
-import { getTemplateByTemplateType } from './templates';
+import { error } from '../debugLog';
+import { Mod, StandardDataSource, StandardDataType } from '../standard';
+import { diff } from '../diff';
+import { Manager } from '../main/Manager';
+import { CONFIG_FILE } from '../constants';
+import { Config } from '../main/Config';
+import { Surrounding, SurroundingFileName } from '../types/pontConfig';
 
-const defaultTemplateCode = `
-import * as Pont from 'pont-engine';
-import { CodeGenerator, Interface } from "pont-engine";
+export { getTemplate } from './templateHelp';
 
-export class FileStructures extends Pont.FileStructures {
-}
-
-export default class MyGenerator extends CodeGenerator {
-}
-`;
-
-const defaultTransformCode = `
-import { StandardDataSource } from "pont-engine";
-
-export default function(dataSource: StandardDataSource): StandardDataSource {
-  return dataSource;
-}
-`;
-
-const defaultFetchMethodCode = `
-import fetch from 'node-fetch';
-
-export default function (url: string): string {
-  return fetch(url).then(res => res.text())
-}
-`;
-
-export class Mocks {
-  enable = false;
-  port = 8080;
-  basePath = '';
-  wrapper = `{
-      "code": 0,
-      "data": {response},
-      "message": ""
-    }`;
-}
-
-export enum Surrounding {
-  typeScript = 'typeScript',
-  javaScript = 'javaScript'
-}
-
-export enum SurroundingFileName {
-  javaScript = 'js',
-  typeScript = 'ts'
-}
-
-export class DataSourceConfig {
-  originUrl? = '';
-  originType = OriginType.SwaggerV2;
-  name?: string;
-  usingOperationId = true;
-  usingMultipleOrigins = false;
-  spiltApiLock = false;
-  taggedByName = true;
-  templatePath = 'serviceTemplate';
-  templateType = '';
-  surrounding = Surrounding.typeScript;
-  outDir = 'src/service';
-  scannedRange = [];
-  transformPath = '';
-  fetchMethodPath = '';
-  prettierConfig: ResolveConfigOptions = {};
-  /** 单位为秒，默认 20 分钟 */
-  pollingTime = 60 * 20;
-  mocks = new Mocks();
-
-  constructor(config: DataSourceConfig) {
-    Object.keys(config).forEach((key) => {
-      if (key === 'mocks') {
-        this[key] = {
-          ...this[key],
-          ...config[key]
-        };
-      } else {
-        this[key] = config[key];
-      }
-    });
-  }
-}
-
-export class Config extends DataSourceConfig {
-  origins: Array<{
-    originType: OriginType;
-    originUrl: string;
-    name: string;
-    usingOperationId: boolean;
-    transformPath?: string;
-    fetchMethodPath?: string;
-    outDir?: string;
-  }>;
-
-  constructor(config: Config) {
-    super(config);
-    this.origins = config.origins || [];
-  }
-
-  static getTransformFromConfig(config: Config | DataSourceConfig) {
-    if (config.transformPath) {
-      const moduleResult = getTemplate(config.transformPath, '', defaultTransformCode) as any;
-
-      if (moduleResult) {
-        return moduleResult.default;
-      }
-    }
-
-    return (id) => id;
-  }
-
-  static getFetchMethodFromConfig(config: Config | DataSourceConfig) {
-    if (config.fetchMethodPath) {
-      const fetchMethodPath = path.isAbsolute(config.fetchMethodPath)
-        ? config.fetchMethodPath
-        : path.join(process.cwd(), config.fetchMethodPath);
-      const moduleResult = getTemplate(fetchMethodPath, '', defaultFetchMethodCode);
-
-      if (moduleResult) {
-        return moduleResult.default;
-      }
-    }
-
-    return (id) => id;
-  }
-
-  validate() {
-    if (this.origins && this.origins.length) {
-      this.origins.forEach((origin, index) => {
-        if (!origin.originUrl) {
-          return `请在 origins[${index}] 中配置 originUrl `;
-        }
-        if (!origin.name) {
-          return `请在 origins[${index}] 中配置 originUrl `;
-        }
-      });
-    } else {
-      if (!this.originUrl) {
-        return '请配置 originUrl 来指定远程地址。';
-      }
-    }
-
-    return '';
-  }
-
-  static createFromConfigPath(configPath: string) {
-    const content = fs.readFileSync(configPath, 'utf8');
-
-    try {
-      const configObj = JSON.parse(content);
-
-      return new Config(configObj);
-    } catch (e) {
-      throw new Error('pont-config.json is not a validate json');
-    }
-  }
-
-  getDataSourcesConfig(configDir: string) {
-    const { origins, ...rest } = this;
-    const commonConfig = {
-      ...rest,
-      outDir: path.join(configDir, this.outDir),
-      scannedRange: Array.isArray(this.scannedRange) ? this.scannedRange.map((dir) => path.join(configDir, dir)) : [],
-      templatePath: this.templatePath ? path.join(configDir, this.templatePath) : undefined,
-      transformPath: this.transformPath ? path.join(configDir, this.transformPath) : undefined,
-      fetchMethodPath: this.fetchMethodPath ? path.join(configDir, this.fetchMethodPath) : undefined
-    };
-
-    // FIXME: origins中配的路径没有转换成绝对路径，找不到该模块
-    if (this.origins && this.origins.length) {
-      return this.origins.map((origin) => {
-        return new DataSourceConfig({
-          ...commonConfig,
-          ...origin,
-          outDir: origin.outDir ? path.join(configDir, origin.outDir) : commonConfig.outDir
-        });
-      });
-    }
-
-    return [new DataSourceConfig(commonConfig)];
-  }
-}
+export { CONFIG_FILE };
 
 export function format(fileContent: string, prettierOpts = {}) {
   try {
@@ -351,46 +172,6 @@ export function getIdentifierFromOperatorId(operationId: string) {
   return REPLACE_WORDS[index];
 }
 
-export function getTemplate(templatePath, templateType, defaultValue = defaultTemplateCode) {
-  if (!fs.existsSync(templatePath + '.ts')) {
-    fs.writeFileSync(templatePath + '.ts', getTemplateByTemplateType(templateType) || defaultValue);
-  }
-  const tsResult = fs.readFileSync(templatePath + '.ts', 'utf8');
-  const jsResult = ts.transpileModule(tsResult, {
-    compilerOptions: {
-      target: ts.ScriptTarget.ES2015,
-      module: ts.ModuleKind.CommonJS
-    }
-  });
-
-  const noCacheFix = (Math.random() + '').slice(2, 5);
-  const jsName = templatePath + noCacheFix + '.js';
-  let moduleResult;
-
-  try {
-    // 编译到js
-    fs.writeFileSync(jsName, jsResult.outputText, 'utf8');
-
-    // 用 node require 引用编译后的 js 代码
-    moduleResult = require(jsName);
-
-    // 删除该文件
-    fs.removeSync(jsName);
-  } catch (e) {
-    // 删除失败，则再删除
-    if (fs.existsSync(jsName)) {
-      fs.removeSync(jsName);
-    }
-
-    // 没有引用，报错
-    if (!moduleResult) {
-      throw new Error(e);
-    }
-  }
-
-  return moduleResult;
-}
-
 export function getTemplatesDirFile(fileName, filePath = 'templates/') {
   return fs.readFileSync(__dirname.substring(0, __dirname.lastIndexOf('lib')) + filePath + fileName, 'utf8');
 }
@@ -463,7 +244,6 @@ export function hasChinese(str: string) {
 }
 
 const PROJECT_ROOT = process.cwd();
-export const CONFIG_FILE = 'pont-config.json';
 
 export async function createManager(configFile = CONFIG_FILE) {
   const configPath = await lookForFiles(PROJECT_ROOT, configFile);
@@ -493,10 +273,10 @@ export function diffDses(ds1: StandardDataSource, ds2: StandardDataSource) {
 }
 
 export function reviseModName(modName: string) {
-  // .replace(/\//g, '.').replace(/^\./, '').replace(/\./g, '_') 转换 / .为下划线
+  // .replace(/\//g, '.').replace(/^\../, '').replace(/\../g, '_') 转换 / .为下划线
   // exp: /api/v1/users  => api_v1_users
   // exp: api.v1.users => api_v1_users
-  return modName.replace(/\//g, '.').replace(/^\./, '').replace(/\./g, '_');
+  return modName.replace(/\//g, '.').replace(/^\../, '').replace(/\../g, '_');
 }
 
 /** 获取文件名名称 */

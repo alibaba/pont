@@ -7,8 +7,10 @@ import * as inquirer from 'inquirer';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as debugLog from '../debugLog';
-import { CONFIG_FILE, lookForFiles, DataSourceConfig, Mocks, Surrounding, judgeIsVaildUrl } from '../utils';
+import { lookForFiles,  judgeIsVaildUrl } from '../utils';
 import { templateRegistion } from '../templates';
+import { IDataSourceConfig, IMocks, Surrounding } from '../types/pontConfig';
+import { CONFIG_FILE } from '../constants';
 
 const promptList = [
   {
@@ -95,7 +97,7 @@ export async function generatePontConfig() {
 function generateConfig(configPath: string, answers: any) {
   const { originUrl, templatePath, outDir, enableMocks, surrounding } = answers;
   const dirName = path.join(process.cwd(), '/pont-config.json');
-  let config = {} as DataSourceConfig;
+  let config = {} as IDataSourceConfig;
   if (configPath) {
     try {
       const content = fs.readFileSync(configPath, 'utf8');
@@ -112,7 +114,7 @@ function generateConfig(configPath: string, answers: any) {
   config.surrounding = surrounding;
   config.mocks = {
     enable: enableMocks
-  } as Mocks;
+  } as IMocks;
 
   if (answers.templateType) {
     config.templateType = answers.templateType;

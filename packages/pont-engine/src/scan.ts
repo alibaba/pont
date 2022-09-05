@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as debugLog from './debugLog';
-import { Manager } from './manage';
+import { Manager } from './main/Manager';
 import { Interface } from './standard';
 
 /** 内部方法，递归扫描文件夹 */

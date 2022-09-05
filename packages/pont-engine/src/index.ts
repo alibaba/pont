@@ -1,16 +1,22 @@
-export { Manager } from './manage';
+export { CONFIG_FILE } from './constants';
+
+export { Manager } from './main/Manager';
+
+export { DataSourceConfig } from './main/Config';
+export { Surrounding } from './types/pontConfig';
+
+export { getTemplate } from './utils/templateHelp';
+export { Config } from './main/Config';
+
 export { BaseClass, Interface, Mod, PrimitiveType, Property, StandardDataSource, StandardDataType } from './standard';
 
 export {
-  Config,
-  DataSourceConfig,
   createManager,
   format,
   getDuplicateById,
   getIdentifierFromOperatorId,
   getIdentifierFromUrl,
   getMaxSamePath,
-  getTemplate,
   hasChinese,
   lookForFiles,
   toDashCase,
@@ -18,8 +24,7 @@ export {
   toUpperFirstLetter,
   transformCamelCase,
   transformDescription,
-  transformModsName,
-  Surrounding
+  transformModsName
 } from './utils';
 export { CodeGenerator, FileStructures, FilesManager } from './generators/generate';
 export { diff, Model, removeCtx } from './diff';
