@@ -115,13 +115,13 @@ function filterModsAndBaseClass(filterMods: string[], data: StandardDataSource) 
 
 **类型**
 ```javascript
-import { CodeGenerator, FileStructures } from 'pont-engine';
+import { CodeGenerator, FileStructures as OriginFileStructures } from 'pont-engine';
 
 // 代码生成器
 export default class MyCodeGenerator extends CodeGenerator {}
 
 // 文件结构生成
-export class MyFileStructures extends FileStructures {}
+export class FileStructures extends OriginFileStructures {}
 ```
 #### CodeGenerator 
 代码生成器
@@ -251,9 +251,9 @@ export class FileStructures {
 ```javascript
 // pontTemplate.ts
 
-import { CodeGenerator, Interface } from 'pont-engine';
+import { CodeGenerator, Interface, FileStructures as OriginFileStructures } from 'pont-engine';
 
-export class MyFileStructures extends FileStructures {}
+export class FileStructures extends OriginFileStructures {}
 
 export default class MyGenerator extends CodeGenerator {
   getInterfaceContent(inter: Interface) {
