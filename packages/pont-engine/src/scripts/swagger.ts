@@ -9,7 +9,6 @@ import {
   hasChinese,
   transformModsName
 } from '../utils';
-import { Omit } from '../utilTypes';
 import { compileTemplate, parseAst2StandardDataType } from '../compiler';
 
 import { OriginBaseReader } from './base';

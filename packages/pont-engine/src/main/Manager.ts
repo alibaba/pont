@@ -1,14 +1,18 @@
-import { StandardDataSource } from './standard';
-import { Config, getTemplate, DataSourceConfig, hasChinese, diffDses, getRelatedBos } from './utils';
+import { StandardDataSource } from '../standard';
+import { hasChinese, diffDses, getRelatedBos } from '../utils';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import { diff, Model } from './diff';
-import { CodeGenerator, FilesManager } from './generators/generate';
-import { info as debugInfo } from './debugLog';
-import { FileStructures } from './generators/generate';
-import { readRemoteDataSource } from './scripts';
+import { diff, Model } from '../diff';
+import { CodeGenerator, FilesManager } from '../generators/generate';
+import { info as debugInfo } from '../debugLog';
+import { FileStructures } from '../generators/generate';
+import { readRemoteDataSource } from '../scripts';
 import * as _ from 'lodash';
-import { DsManager } from './DsManager';
+import { DsManager } from '../DsManager';
+import { getTemplateByTemplateType } from '../templates';
+import { IDataSourceConfig } from '../types/pontConfig';
+import { Config } from './Config';
+import { getTemplate } from '../utils/templateHelp';
 
 process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0 as any;
 
@@ -17,9 +21,9 @@ export class Manager {
 
   configDir: string;
   allLocalDataSources: StandardDataSource[] = [];
-  allConfigs: DataSourceConfig[];
+  allConfigs: IDataSourceConfig[];
   remoteDataSource: StandardDataSource;
-  currConfig: DataSourceConfig;
+  currConfig: IDataSourceConfig;
   currLocalDataSource: StandardDataSource;
 
   fileManager: FilesManager;
@@ -146,12 +150,12 @@ export class Manager {
 
   constructor(private projectRoot: string, config: Config, configDir = process.cwd()) {
     this.configDir = configDir;
-    this.allConfigs = config.getDataSourcesConfig(configDir);
+    this.allConfigs = config.getDataSourcesConfig(configDir, projectRoot);
     this.currConfig = this.allConfigs[0];
   }
   pollingId = null;
 
-  private polling(currConfig: DataSourceConfig) {
+  private polling(currConfig: IDataSourceConfig) {
     this.pollingId = setTimeout(() => {
       this.readRemoteDataSource(currConfig);
       this.polling(currConfig);
@@ -406,8 +410,13 @@ export class Manager {
   setFilesManager() {
     this.report('文件生成器创建中...');
     const { default: Generator, FileStructures: MyFileStructures } = getTemplate(
-      this.currConfig.templatePath,
-      this.currConfig.templateType
+      this.currConfig.rootDir,
+      {
+        templateType:'template',
+        templatePath: this.currConfig.templatePath,
+        name:this.currConfig.name,
+        defaultCode: getTemplateByTemplateType(this.currConfig.templateType)
+      }
     );
 
     const generators = this.allLocalDataSources.map((dataSource) => {

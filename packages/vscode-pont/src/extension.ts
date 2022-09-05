@@ -2,7 +2,7 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
-import { lookForFiles } from 'pont-engine';
+import { CONFIG_FILE, lookForFiles } from 'pont-engine';
 import { verifyPontEngineVersion } from './utils';
 import { CommandCenter } from './commands';
 import { setContext } from './utils/setContext';
@@ -27,13 +27,13 @@ export async function activate(context: vscode.ExtensionContext) {
   const commandCenter = new CommandCenter(outputChannel);
   disposables.push(commandCenter);
 
-  const fileWatcher = vscode.workspace.createFileSystemWatcher('**/pont-config.json');
+  const fileWatcher = vscode.workspace.createFileSystemWatcher(`**/${CONFIG_FILE}`);
   fileWatcher.onDidCreate((uri) => commandCenter.createManager(uri.fsPath));
   fileWatcher.onDidChange((uri) => commandCenter.createManager(uri.fsPath));
 
   initViews();
 
-  const configPath = await lookForFiles(vscode.workspace.rootPath, 'pont-config.json');
+  const configPath = await lookForFiles(vscode.workspace.rootPath, CONFIG_FILE);
 
   commandCenter.setConfigPath(configPath);
 

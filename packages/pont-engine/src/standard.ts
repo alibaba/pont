@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
-import { getDuplicateById, Surrounding } from './utils';
+import { getDuplicateById } from './utils';
 import { compileTemplate, parseAst2StandardDataType } from './compiler';
+import { Surrounding } from './types/pontConfig';
 
 // primitive type
 export enum PrimitiveType {
