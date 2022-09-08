@@ -43,7 +43,7 @@
         "view": "pontOrigins",
         "contents": "请安装或升级pont-engine \n [yarn add pont-engine](command:pont.installPontEngine?%7B%22type%22%3A%22yarn%22%7D) \n [npm i -D pont-engine](command:pont.installPontEngine?%7B%22type%22%3A%22npm%22%7D)",
         "when": "pontContext.versionError",
-        "enablement": "pontConfig.isInit"
+        "enablement": "pontContext.isInit"
       }
     ],
     "jsonValidation": [
