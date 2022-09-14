@@ -1,6 +1,11 @@
+/**
+ * @description 编译自定义模板文件
+ */
+
 import * as ts from 'typescript';
 import * as path from 'path';
 import { existsSync, writeFileSync } from 'fs-extra';
+import { LOCAL_DICT_DIR } from '../constants';
 
 interface TemplateInfo {
   name: string;
@@ -18,7 +23,7 @@ export function getTemplate(rootPath: string, templateInfo: TemplateInfo) {
 
   const outDir = path.resolve(
     rootPath,
-    `node_modules/.pont/${templateInfo.templateType}/${templateInfo.name || 'default'}`
+    `${LOCAL_DICT_DIR}/${templateInfo.templateType}/${templateInfo.name || 'default'}`
   );
   const outFile = `${outDir}${templateInfo.templatePath.split(rootPath)[1]}`;
 

@@ -1,10 +1,10 @@
-import { Translator } from '../translate';
 import * as _ from 'lodash';
-import { hasChinese} from '../utils';
+import { hasChinese } from '../utils';
 import { StandardDataSource } from '../standard';
 import fetch from 'node-fetch';
 import { IDataSourceConfig } from '../types/pontConfig';
 import { Config } from '../main/Config';
+import { translate } from '../utils/translate';
 
 export class OriginBaseReader {
   constructor(protected config: IDataSourceConfig, protected report: any) {}
@@ -29,7 +29,7 @@ export class OriginBaseReader {
       // 例如: 请求参数vo, 请求参数, 替换时先替换 请求参数vo, 后替换请求参数
       chineseKeyCollect.sort((pre, next) => next.length - pre.length);
 
-      let result = await Promise.all(chineseKeyCollect.map((text) => Translator.translateAsync(text)));
+      let result = await Promise.all(chineseKeyCollect.map((text) => translate(this.config.rootDir, text)));
       // const normalizeRegStr = (str: string) => str.replace(/(\W)/g, '$1');
       const toRegStr = (str) => str.replace(/(\W)/g, '\\$1');
       result.forEach((enKey: string, index) => {
@@ -41,7 +41,7 @@ export class OriginBaseReader {
       });
       return retString;
     } catch (err) {
-      return Promise.reject(err)
+      return Promise.reject(err);
     }
   }
 

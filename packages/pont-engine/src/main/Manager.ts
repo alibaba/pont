@@ -8,7 +8,7 @@ import { info as debugInfo } from '../debugLog';
 import { FileStructures } from '../generators/generate';
 import { readRemoteDataSource } from '../scripts';
 import * as _ from 'lodash';
-import { DsManager } from '../DsManager';
+import { LocalDsManager } from '../utils/LocalDsManager';
 import { getTemplateByTemplateType } from '../templates';
 import { IDataSourceConfig } from '../types/pontConfig';
 import { Config } from './Config';
@@ -316,14 +316,14 @@ export class Manager {
     } as any;
 
     // 只查询当前数据源，用户只关心当前数据源。
-    let oldRemoteSource = DsManager.getLatestDsInProject(currProj);
+    let oldRemoteSource = LocalDsManager.getLatestDsInProject(this.currConfig.rootDir, currProj);
 
     if (oldRemoteSource) {
       this.remoteDataSource = StandardDataSource.constructorFromLock(oldRemoteSource, oldRemoteSource.name);
     } else {
       const remoteDataSource = await readRemoteDataSource(config, this.report);
       this.remoteDataSource = remoteDataSource;
-      await DsManager.saveDataSource(currProj, this.remoteDataSource);
+      await LocalDsManager.saveDataSource(this.currConfig.rootDir, currProj, this.remoteDataSource);
     }
   }
 
@@ -335,16 +335,16 @@ export class Manager {
     } as any;
 
     // 只查询当前数据源，用户只关心当前数据源。
-    let oldRemoteSource = DsManager.getLatestDsInProject(currProj);
+    let oldRemoteSource = LocalDsManager.getLatestDsInProject(this.currConfig.rootDir, currProj);
 
     if (!oldRemoteSource) {
       if (this.remoteDataSource) {
-        DsManager.saveDataSource(currProj, this.remoteDataSource);
+        LocalDsManager.saveDataSource(this.currConfig.rootDir, currProj, this.remoteDataSource);
         oldRemoteSource = this.remoteDataSource;
       } else {
         const remoteDataSource = await readRemoteDataSource(config, this.report);
         this.remoteDataSource = remoteDataSource;
-        DsManager.saveDataSource(currProj, this.remoteDataSource);
+        LocalDsManager.saveDataSource(this.currConfig.rootDir, currProj, this.remoteDataSource);
         return remoteDataSource;
       }
     }
@@ -355,7 +355,7 @@ export class Manager {
     const { modDiffs, boDiffs } = diffDses(oldRemoteSource, this.remoteDataSource);
 
     if (modDiffs.length || boDiffs.length) {
-      DsManager.saveDataSource(currProj, this.remoteDataSource);
+      LocalDsManager.saveDataSource(this.currConfig.rootDir, currProj, this.remoteDataSource);
     }
 
     return remoteDataSource;
@@ -409,15 +409,12 @@ export class Manager {
 
   setFilesManager() {
     this.report('文件生成器创建中...');
-    const { default: Generator, FileStructures: MyFileStructures } = getTemplate(
-      this.currConfig.rootDir,
-      {
-        templateType:'template',
-        templatePath: this.currConfig.templatePath,
-        name:this.currConfig.name,
-        defaultCode: getTemplateByTemplateType(this.currConfig.templateType)
-      }
-    );
+    const { default: Generator, FileStructures: MyFileStructures } = getTemplate(this.currConfig.rootDir, {
+      templateType: 'template',
+      templatePath: this.currConfig.templatePath,
+      name: this.currConfig.name,
+      defaultCode: getTemplateByTemplateType(this.currConfig.templateType)
+    });
 
     const generators = this.allLocalDataSources.map((dataSource) => {
       const config = this.getConfigByDataSourceName(dataSource.name);
@@ -460,7 +457,7 @@ export class Manager {
       projectName: this.projectRoot
     } as any;
 
-    return DsManager.getReportData(currProj);
+    return LocalDsManager.getReportData(this.currConfig.rootDir, currProj);
   }
 
   /** 获取当前dataSource对应的config */
@@ -479,7 +476,7 @@ export class Manager {
       originUrl: this.currConfig.originUrl,
       projectName: this.projectRoot
     } as any;
-    DsManager.openReport(currProj);
+    LocalDsManager.openReport(this.currConfig.rootDir, currProj);
   }
 
   getCodeSnippet() {

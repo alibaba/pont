@@ -28,4 +28,4 @@ export {
 } from './utils';
 export { CodeGenerator, FileStructures, FilesManager } from './generators/generate';
 export { diff, Model, removeCtx } from './diff';
-export { PontDictManager } from './LocalDictManager';
+export { PontDictManager } from './deprecated/LocalDictManager';
