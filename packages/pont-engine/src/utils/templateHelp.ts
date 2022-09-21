@@ -9,15 +9,16 @@ import { LOCAL_DICT_DIR } from '../constants';
 
 interface TemplateInfo {
   name: string;
-  templateType: 'template' | 'transform' | 'fetchMethod';
+  templateType: 'customTemplate' | 'template' | 'transform' | 'fetchMethod';
   templatePath: string;
-  defaultCode: string;
+  defaultCode?: string;
 }
 
-export function getTemplate(rootPath: string, templateInfo: TemplateInfo) {
+export function getTemplate<T = any>(rootPath: string, templateInfo: TemplateInfo): T {
   const templateFileName = `${templateInfo.templatePath}.ts`;
 
   if (!existsSync(templateFileName)) {
+    if (!templateInfo.defaultCode) return null;
     writeFileSync(templateFileName, templateInfo.defaultCode);
   }
 

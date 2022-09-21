@@ -1,12 +1,14 @@
-import { Mod, Interface, BaseClass } from './standard';
 import * as _ from 'lodash';
+import type { Mod, Interface, BaseClass } from './standard';
 
 export interface Model extends Mod {
   name: string;
+  type: 'add' | 'delete' | 'update';
   details?: string[];
 }
 export interface Model extends BaseClass {
   name: string;
+  type: 'add' | 'delete' | 'update';
   details?: string[];
 }
 
@@ -35,18 +37,19 @@ function deepDifInterface(preInter: Interface, nextInter: Interface, preLabel: s
     details.push(`${preLabel}的METHOD更新`);
   }
 
-  const { newEntities: newParams, deletedEntities: deletedParams, modifiedEntities: updateParams } = analyWithName(
-    parameters,
-    nextInter.parameters
-  );
+  const {
+    newEntities: newParams,
+    deletedEntities: deletedParams,
+    modifiedEntities: updateParams
+  } = analyWithName(parameters, nextInter.parameters);
 
-  const newMsgs = newParams.map(param => param.name).map(name => `${preLabel}新增参数 ${name}`);
-  const delMsgs = deletedParams.map(param => param.name).map(name => `${preLabel}删除参数 ${name}`);
+  const newMsgs = newParams.map((param) => param.name).map((name) => `${preLabel}新增参数 ${name}`);
+  const delMsgs = deletedParams.map((param) => param.name).map((name) => `${preLabel}删除参数 ${name}`);
   const updateMsgs = [] as string[];
 
-  updateParams.forEach(tParam => {
-    const preParam = _.find(parameters, param => param.name === tParam.name);
-    const nextParam = _.find(nextInter.parameters, param => param.name === tParam.name);
+  updateParams.forEach((tParam) => {
+    const preParam = _.find(parameters, (param) => param.name === tParam.name);
+    const nextParam = _.find(nextInter.parameters, (param) => param.name === tParam.name);
 
     if (!_.isEqual(preParam, nextParam)) {
       updateMsgs.push(`${preLabel}的参数 ${tParam.name} 信息有更新`);
@@ -70,17 +73,18 @@ function deepDifMod(preMod: Mod, nextMod: Mod): string[] {
     details.push(`${label} 的描述信息更新`);
   }
 
-  const { newEntities: newInters, deletedEntities: delInters, modifiedEntities: updateInters } = analyWithName(
-    interfaces,
-    nextInterfaces
-  );
-  const newMsgs = newInters.map(inter => inter.name).map(name => `${label} 新增接口 ${name}`);
-  const delMsgs = delInters.map(inter => inter.name).map(name => `${label} 删除接口 ${name}`);
+  const {
+    newEntities: newInters,
+    deletedEntities: delInters,
+    modifiedEntities: updateInters
+  } = analyWithName(interfaces, nextInterfaces);
+  const newMsgs = newInters.map((inter) => inter.name).map((name) => `${label} 新增接口 ${name}`);
+  const delMsgs = delInters.map((inter) => inter.name).map((name) => `${label} 删除接口 ${name}`);
   const updateMsgs = [] as string[];
 
-  updateInters.map(tInter => {
-    const preInter = _.find(interfaces, inter => inter.name === tInter.name);
-    const nextInter = _.find(nextInterfaces, inter => inter.name === tInter.name);
+  updateInters.map((tInter) => {
+    const preInter = _.find(interfaces, (inter) => inter.name === tInter.name);
+    const nextInter = _.find(nextInterfaces, (inter) => inter.name === tInter.name);
 
     const msgs = deepDifInterface(preInter, nextInter, `${label}的 ${tInter.name} 接口`);
     updateMsgs.push(...msgs);
@@ -98,17 +102,18 @@ function deepDifBo(preBo: BaseClass, nextBo: BaseClass): string[] {
     details.push(`${label}的描述信息更新`);
   }
 
-  const { newEntities: newProps, modifiedEntities: updateProps, deletedEntities: delProps } = analyWithName(
-    properties,
-    nextBo.properties
-  );
+  const {
+    newEntities: newProps,
+    modifiedEntities: updateProps,
+    deletedEntities: delProps
+  } = analyWithName(properties, nextBo.properties);
 
-  const delMsgs = delProps.map(prop => prop.name).map(name => `${label} 删除属性 ${name}`);
-  const newMsgs = newProps.map(prop => prop.name).map(name => `${label} 新增属性 ${name}`);
+  const delMsgs = delProps.map((prop) => prop.name).map((name) => `${label} 删除属性 ${name}`);
+  const newMsgs = newProps.map((prop) => prop.name).map((name) => `${label} 新增属性 ${name}`);
 
-  updateProps.forEach(tProp => {
-    const preProps = _.find(properties, prop => prop.name === tProp.name);
-    const nextProps = _.find(nextBo.properties, prop => prop.name === tProp.name);
+  updateProps.forEach((tProp) => {
+    const preProps = _.find(properties, (prop) => prop.name === tProp.name);
+    const nextProps = _.find(nextBo.properties, (prop) => prop.name === tProp.name);
 
     if (!_.isEqual(preProps, nextProps)) {
       details.push(`${label}的属性已更新`);
@@ -120,13 +125,13 @@ function deepDifBo(preBo: BaseClass, nextBo: BaseClass): string[] {
 
 export function removeCtx(data) {
   if (Array.isArray(data)) {
-    return data.map(item => {
+    return data.map((item) => {
       // 除去item上不存在context的情况
       if (!Object.prototype.hasOwnProperty.apply(item, ['context'])) {
         return item;
       }
       const { context, ...rest } = item;
-      Object.keys(rest).forEach(key => {
+      Object.keys(rest).forEach((key) => {
         rest[key] = removeCtx(rest[key]);
       });
 
@@ -134,7 +139,7 @@ export function removeCtx(data) {
     });
   } else if (typeof data === 'object') {
     const { context, ...rest } = data;
-    Object.keys(rest).forEach(key => {
+    Object.keys(rest).forEach((key) => {
       rest[key] = removeCtx(rest[key]);
     });
 
@@ -154,20 +159,22 @@ export function diff(preModels: Model[], nextModels: Model[], isMod = true): Mod
     label = '模块';
   }
 
-  const delModels = deletedEntities.map(model => ({
+  const delModels = deletedEntities.map((model) => ({
     ...model,
+    type: 'delete',
     details: [`${label} ${model.name} 已删除`]
   }));
-  const newModels = newEntities.map(model => ({
+  const newModels = newEntities.map((model) => ({
     ...model,
+    type: 'add',
     details: [`${label} ${model.name} 已新增`]
   }));
 
   const updateModels = [];
 
-  modifiedEntities.forEach(tEntity => {
-    const preEntity = _.find(preModels, model => model.name === tEntity.name);
-    const nextEntity = _.find(nextModels, model => model.name === tEntity.name);
+  modifiedEntities.forEach((tEntity) => {
+    const preEntity = _.find(preModels, (model) => model.name === tEntity.name);
+    const nextEntity = _.find(nextModels, (model) => model.name === tEntity.name);
 
     if (isMod) {
       const msgs = deepDifMod(preEntity as Mod, nextEntity as Mod);
@@ -175,6 +182,7 @@ export function diff(preModels: Model[], nextModels: Model[], isMod = true): Mod
       if (msgs.length) {
         updateModels.push({
           ...nextEntity,
+          type: 'update',
           details: msgs
         } as Model);
       }
@@ -184,6 +192,7 @@ export function diff(preModels: Model[], nextModels: Model[], isMod = true): Mod
       if (msgs.length) {
         updateModels.push({
           ...nextEntity,
+          type: 'update',
           details: msgs
         } as Model);
       }

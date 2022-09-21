@@ -1,7 +1,8 @@
 import * as _ from 'lodash';
-import { getDuplicateById } from './utils';
-import { compileTemplate, parseAst2StandardDataType } from './compiler';
-import { Surrounding } from './types/pontConfig';
+import type { AstNode } from './compiler';
+import { compileTemplate } from './compiler';
+import { Surrounding } from '../types/pontConfig';
+import { PrimitiveTypeMap } from './primitiveTypeMap';
 
 // primitive type
 export enum PrimitiveType {
@@ -10,26 +11,8 @@ export enum PrimitiveType {
   boolean = 'boolean'
 }
 
-class Contextable {
-  getDsName() {
-    const context = this.getContext();
-
-    if (context && context.dataSource) {
-      return context.dataSource.name;
-    }
-
-    return '';
-  }
-
-  private context: any;
-
-  getContext() {
-    return this.context;
-  }
-
-  setContext(context) {
-    this.context = context;
-  }
+class Contextable<T extends { dataSource?: StandardDataSource }> {
+  private context: T;
 
   constructor(arg = {}) {
     _.forEach(arg, (value, key) => {
@@ -39,14 +22,21 @@ class Contextable {
     });
   }
 
-  toJSON() {
-    return _.mapValues(this, (value, key) => {
-      if (key === 'context') {
-        return undefined;
-      }
+  getContext(): T {
+    return this.context;
+  }
 
-      return value;
-    });
+  setContext(context: T) {
+    this.context = context;
+  }
+
+  getDsName() {
+    const context = this.getContext();
+    return context?.dataSource?.name ?? '';
+  }
+
+  toJSON() {
+    return _.omit(this, 'context');
   }
 }
 
@@ -112,7 +102,7 @@ function dataType2StandardDataType(
   return standardDataType;
 }
 
-export class StandardDataType extends Contextable {
+export class StandardDataType<T = any> extends Contextable<T> {
   enum: Array<string | number> = [];
 
   setEnum(enums: Array<string | number> = []) {
@@ -281,7 +271,7 @@ export class StandardDataType extends Contextable {
 }
 
 // property both in params and response
-export class Property extends Contextable {
+export class Property<T = any> extends Contextable<T> {
   dataType: StandardDataType;
   description?: string;
   name: string;
@@ -352,7 +342,7 @@ export class Property extends Contextable {
   }
 }
 
-export class Interface extends Contextable {
+export class Interface<T = any> extends Contextable<T> {
   consumes: string[];
   parameters: Property[];
   description: string;
@@ -446,7 +436,7 @@ export class Interface extends Contextable {
   }
 }
 
-export class Mod extends Contextable {
+export class Mod<T = any> extends Contextable<T> {
   description: string;
   interfaces: Interface[];
   name: string;
@@ -463,7 +453,7 @@ export class Mod extends Contextable {
   }
 }
 
-export class BaseClass extends Contextable {
+export class BaseClass<T = any> extends Contextable<T> {
   name: string;
   description: string;
   properties: Property[];
@@ -631,4 +621,42 @@ export class StandardDataSource {
       throw new Error(`${errArray.join('\n')}\n请检查api-lock.json文件`);
     }
   }
+}
+
+export function getDuplicateById<T>(arr: T[], idKey = 'name'): null | T {
+  if (!arr || !arr.length) {
+    return null;
+  }
+
+  let result;
+
+  arr.forEach((item, itemIndex) => {
+    if (arr.slice(0, itemIndex).find((o) => o[idKey] === item[idKey])) {
+      result = item;
+      return;
+    }
+  });
+
+  return result;
+}
+
+/** ast 转换为标准类型 */
+export function parseAst2StandardDataType(
+  ast: AstNode,
+  defNames: string[],
+  classTemplateArgs: StandardDataType[] = []
+): StandardDataType {
+  const { name, templateArgs } = ast;
+  // 怪异类型兼容
+  let typeName = PrimitiveTypeMap[name] || name;
+
+  const isDefsType = defNames.includes(name);
+  const typeArgs = templateArgs.map((arg) => {
+    return parseAst2StandardDataType(arg, defNames, classTemplateArgs);
+  });
+
+  const dataType = new StandardDataType(typeArgs, typeName, isDefsType);
+  dataType.setTemplateIndex(classTemplateArgs);
+
+  return dataType;
 }

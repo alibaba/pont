@@ -8,9 +8,10 @@
  */
 
 import * as _ from 'lodash';
-import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
 import * as fs from 'fs-extra';
 import * as path from 'path';
+
+import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
 import {
   format,
   reviseModName,
@@ -20,7 +21,7 @@ import {
 } from '../utils';
 import { info } from '../debugLog';
 import { templateRegistion } from '../templates';
-import { Surrounding } from '../types/pontConfig';
+import { Surrounding } from '../../types/pontConfig';
 
 export class FileStructures {
   constructor(
@@ -385,7 +386,7 @@ export class CodeGenerator {
   /** 获取接口类和基类的总的 index 入口文件代码 */
   getIndex() {
     let conclusion = `
-      import * as defs from './baseClass';
+      import defs from './baseClass';
       import './mods/';
 
       ${this.surrounding === Surrounding.typeScript ? '(window as any)' : 'window'}.defs = defs;
@@ -441,7 +442,7 @@ export class CodeGenerator {
      * @desc ${inter.description}
      */
 
-    import * as defs from '../../baseClass';
+    import defs from '../../baseClass';
     import { pontCore } from '../../pontCore';
 
     export ${inter.getParamsCode('Params', this.surrounding)}
@@ -466,7 +467,7 @@ export class CodeGenerator {
        */
       ${mod.interfaces
         .map((inter) => {
-          return `import * as ${inter.name} from './${inter.name}';`;
+          return `import ${inter.name} from './${inter.name}';`;
         })
         .join('\n')}
 
@@ -497,7 +498,7 @@ export class CodeGenerator {
       ${this.dataSource.mods
         .map((mod) => {
           const modName = reviseModName(mod.name);
-          return `import * as ${modName} from './${modName}';`;
+          return `import ${modName} from './${modName}';`;
         })
         .join('\n')}
 

@@ -1,13 +1,8 @@
-import { IDataSourceConfig } from '../types/pontConfig';
+import { OriginType } from '../../types/pontConfig';
+import type { DataSourceConfig } from '../Config';
 import { SwaggerV2Reader, SwaggerV3Reader } from './swagger';
 
-export enum OriginType {
-  SwaggerV3 = 'SwaggerV3',
-  SwaggerV2 = 'SwaggerV2',
-  SwaggerV1 = 'SwaggerV1'
-}
-
-export async function readRemoteDataSource(config: IDataSourceConfig, report: any) {
+export async function readRemoteDataSource(config: DataSourceConfig, report: any) {
   switch (config.originType) {
     case OriginType.SwaggerV3: {
       return new SwaggerV3Reader(config, report).fetchRemoteData();

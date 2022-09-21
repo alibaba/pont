@@ -1,14 +1,25 @@
 /**
  * @description 持久化接口变更记录。
+ *
+ * 设计思路
+ *
+ * 在 ~/.pont 下保存接口变更记录。每个项目（Project）占用一个目录。
  * 保存一份总的 manifest 的 JSON 文件。该文件包括所有项目的信息，始终和接口变更目录保持一致。方便做信息查询。
+ *
+ * 项目（Project）以用户的项目加 originUrl 两个字段来唯一确定。
+ *
+ * 生成报表使用 diffs 方法来分析变更信息。
+ * @todo 报表渲染待优化
  */
-import type { IStandardDataSource } from '../types/dataSource';
-import type { StandardDataSource } from '../main/StandardDataSource';
-
+import { execSync } from 'child_process';
+import { StandardDataSource } from './standard';
+import { diffDses } from './utils';
+import { diff } from './diff';
 import { PROJECTS_MANIFEST_FILE } from '../constants';
-import { PontFileManager } from './PontFileManager';
+import { PontFileManager } from '../utils/PontFileManager';
 
-class Record {
+/** @deprecated */
+export class Record {
   saveTime = new Date();
   constructor(public filename: string) {}
 }
@@ -26,6 +37,7 @@ interface ProjectsManifest {
   projects: IProject[];
 }
 
+/** @deprecated */
 export class LocalDsManager {
   static getProjectsManifest(rootDir: string): ProjectsManifest {
     const manifestPath = PontFileManager.getFilePath(rootDir, PROJECTS_MANIFEST_FILE);
@@ -46,9 +58,9 @@ export class LocalDsManager {
     PontFileManager.writeJson(manifestPath, manifest);
   }
 
-  static getProject(rootDir: string, filename: string): IStandardDataSource {
+  static getProject(rootDir: string, filename: string): StandardDataSource {
     const projectPath = PontFileManager.getFilePath(rootDir, filename);
-    return PontFileManager.loadJson<IStandardDataSource>(projectPath);
+    return PontFileManager.loadJson<StandardDataSource>(projectPath);
   }
 
   static saveProject(rootDir: string, filename: string, ds: StandardDataSource) {
@@ -65,7 +77,7 @@ export class LocalDsManager {
   }
 
   /** 获取该项目最新的数据源 */
-  static getLatestDsInProject(rootDir: string, project: IProjectParams): IStandardDataSource {
+  static getLatestDsInProject(rootDir: string, project: IProjectParams): StandardDataSource {
     const manifest = LocalDsManager.getProjectsManifest(rootDir);
     const foundProj = manifest.projects.find(
       (proj) => proj.originUrl === project.originUrl && proj.projectName === project.projectName
@@ -113,5 +125,81 @@ export class LocalDsManager {
     }
 
     LocalDsManager.appendRecord(rootDir, proj, ds);
+  }
+
+  static getReportData(rootDir: string, project: IProject) {
+    const manifest = LocalDsManager.getProjectsManifest(rootDir);
+    const proj = manifest.projects.find(
+      (p) => p.originUrl === project.originUrl && p.projectName === project.projectName
+    );
+
+    if (!proj) {
+      throw new Error('该项目暂无记录！');
+    }
+
+    type Model = ReturnType<typeof diff>[0];
+    const diffs = [] as Array<{
+      saveTime: Date;
+      boDiffs: Model[];
+      modDiffs: Model[];
+    }>;
+
+    proj.records.forEach((record, recordIndex) => {
+      if (recordIndex === 0) {
+        return;
+      }
+      const lastRecord = proj.records[recordIndex - 1];
+      const currRecord = record;
+      const lastDs: StandardDataSource = LocalDsManager.getProject(
+        rootDir,
+        `${project.projectPath}/${lastRecord.filename}`
+      );
+      const currDs: StandardDataSource = LocalDsManager.getProject(
+        rootDir,
+        `${project.projectPath}/${currRecord.filename}`
+      );
+
+      const currDiff = diffDses(lastDs, currDs);
+      diffs.push({
+        saveTime: currRecord.saveTime,
+        boDiffs: currDiff.boDiffs,
+        modDiffs: currDiff.modDiffs
+      });
+    });
+
+    return {
+      records: project.records,
+      diffs
+    };
+  }
+
+  static openReport(rootDir: string, project: IProject) {
+    const { diffs, records } = LocalDsManager.getReportData(rootDir, project);
+    const htmlPath = PontFileManager.getFilePath(rootDir, 'report.html');
+
+    // 后续优化。
+    PontFileManager.saveFile(
+      htmlPath,
+      `
+<html>
+  <div>项目记录数：${records.length}</div>
+  <div>历次变更详情：</div>
+  报表UI 待优化：
+  <pre>
+  ${diffs.map((diff) => {
+    return `
+      <pre>
+      ${diff.saveTime}：
+      ${diff.modDiffs.join('\n')}
+      ${diff.boDiffs.join('\n')}
+      </pre>
+    `;
+  })}
+  </pre>
+</html>
+    `
+    );
+
+    execSync(`open ${htmlPath}`);
   }
 }

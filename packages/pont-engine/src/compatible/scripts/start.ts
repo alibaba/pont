@@ -3,14 +3,16 @@
  * @description pont配置生成
  */
 
-import * as inquirer from 'inquirer';
+import inquirer from 'inquirer';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as debugLog from '../debugLog';
-import { lookForFiles,  judgeIsVaildUrl } from '../utils';
+import { lookForFiles, judgeIsVaildUrl } from '../utils';
 import { templateRegistion } from '../templates';
-import { IDataSourceConfig, IMocks, Surrounding } from '../types/pontConfig';
-import { CONFIG_FILE } from '../constants';
+import { Surrounding } from '../../types/pontConfig';
+import type { IDataSourceConfig } from '../../types/pontConfig';
+import type { IMocks } from '../../types/mocks';
+import { CONFIG_FILE } from '../../constants';
 
 const promptList = [
   {

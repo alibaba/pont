@@ -1,4 +1,5 @@
-import { ResolveConfigOptions } from 'prettier';
+import type { ResolveConfigOptions } from 'prettier';
+import type { IMocks } from './mocks';
 
 export enum OriginType {
   SwaggerV3 = 'SwaggerV3',
@@ -15,14 +16,19 @@ export enum SurroundingFileName {
   typeScript = 'ts'
 }
 
-export interface IMocks {
-  enable: boolean;
-  port: number;
-  basePath: string;
-  wrapper: string;
+export interface IBaseConfig {
+  name: string;
+  outDir?: string;
+  originUrl: string;
+  originType: OriginType;
+
+  fetchMethodPath?: string;
+  transformPath?: string;
+
+  usingOperationId: boolean;
 }
 
-export interface IBaseConfig {
+export interface IOriginConfig {
   name: string;
   outDir?: string;
   originUrl: string;
@@ -36,14 +42,14 @@ export interface IBaseConfig {
 
 export interface IDataSourceConfig {
   name?: string;
-  rootDir: string;
   outDir: string;
   originUrl?: string;
   originType: OriginType;
   surrounding: Surrounding;
-
-  fetchMethodPath: string;
   templateType: string;
+
+  customTemplatePath: string;
+  fetchMethodPath: string;
   templatePath: string;
   transformPath: string;
 
@@ -60,18 +66,11 @@ export interface IDataSourceConfig {
   mocks: IMocks;
 }
 
-export interface IOriginConfig {
-  name: string;
-  outDir?: string;
-  originUrl: string;
-  originType: OriginType;
-
-  fetchMethodPath?: string;
-  transformPath?: string;
-
-  usingOperationId: boolean;
-}
-
 export interface IPontConfig extends IDataSourceConfig {
   origins: IOriginConfig[];
+}
+
+export interface IStandardConfig extends IDataSourceConfig {
+  rootDir: string;
+  configDir: string;
 }

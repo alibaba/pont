@@ -14,9 +14,15 @@ export class PontFileManager {
 
   static loadJson<T>(filePath: string): T {
     if (fs.existsSync(filePath)) {
-      const obj = fs.readJsonSync(filePath, { throws: false });
+      return fs.readJsonSync(filePath, { throws: false });
+    }
 
-      return obj;
+    return null;
+  }
+
+  static loadJsonPromise<T>(filePath: string): Promise<T> {
+    if (fs.existsSync(filePath)) {
+      return fs.readJson(filePath, { throws: false });
     }
 
     return null;
@@ -35,8 +41,7 @@ export class PontFileManager {
 
   static loadFile(filePath: string) {
     if (fs.existsSync(filePath)) {
-      const fileContent = fs.readFileSync(filePath, { encoding: 'utf8' });
-      return fileContent;
+      return fs.readFileSync(filePath, { encoding: 'utf8' });
     }
 
     return null;

@@ -1,13 +1,13 @@
 import * as _ from 'lodash';
 import { hasChinese } from '../utils';
-import { StandardDataSource } from '../standard';
+import type { StandardDataSource } from '../standard';
 import fetch from 'node-fetch';
-import { IDataSourceConfig } from '../types/pontConfig';
-import { Config } from '../main/Config';
-import { translate } from '../utils/translate';
+import { translate } from '../../utils/translate';
+import { Config } from '../Config';
+import type { DataSourceConfig } from '../Config';
 
 export class OriginBaseReader {
-  constructor(protected config: IDataSourceConfig, protected report: any) {}
+  constructor(protected config: DataSourceConfig, protected report: any) {}
 
   /** 翻译中文类名等 */
   async translateChinese(jsonString: string) {

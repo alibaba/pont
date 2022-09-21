@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { Manager } from 'pont-engine';
-import { CONFIG_FILE, getFileName } from 'pont-engine/lib/utils';
+import { CONFIG_FILE, Manager, getFileName } from 'pont-engine';
 
 class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
   manager: Manager;
@@ -73,7 +72,7 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
           'MOD'
         );
         modTreeItem.tooltip = originUrl;
-        modTreeItem.contextValue = 'MODParent'
+        modTreeItem.contextValue = 'MODParent';
         items.push(modTreeItem);
       }
 
@@ -84,7 +83,7 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
           'BO'
         );
         boTreeItem.tooltip = originUrl;
-        boTreeItem.contextValue = 'BOParent'
+        boTreeItem.contextValue = 'BOParent';
         items.push(boTreeItem);
       }
 

@@ -1,4 +1,12 @@
-import { StandardDataSource, Interface, Mod, BaseClass, Property, StandardDataType } from '../standard';
+import {
+  StandardDataSource,
+  Interface,
+  Mod,
+  BaseClass,
+  Property,
+  StandardDataType,
+  parseAst2StandardDataType
+} from '../standard';
 import * as _ from 'lodash';
 import {
   getMaxSamePath,
@@ -9,7 +17,7 @@ import {
   hasChinese,
   transformModsName
 } from '../utils';
-import { compileTemplate, parseAst2StandardDataType } from '../compiler';
+import { compileTemplate } from '../compiler';
 
 import { OriginBaseReader } from './base';
 
@@ -176,17 +184,17 @@ class Schema {
 export function parseSwaggerEnumType(enumStrs: string[]) {
   let enums = enumStrs as Array<string | number>;
 
-  enumStrs.forEach(str => {
+  enumStrs.forEach((str) => {
     if (!Number.isNaN(Number(str))) {
       enums.push(Number(str));
     }
   });
 
   return enums
-    .filter(str => {
+    .filter((str) => {
       return String(str).match(/^[0-9a-zA-Z\_\-\$]+$/);
     })
-    .map(numOrStr => {
+    .map((numOrStr) => {
       if (typeof numOrStr === 'string') {
         return `'${numOrStr}'`;
       }
@@ -248,7 +256,7 @@ class SwaggerInterface {
 
     const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames, [], compileTemplateKeyword);
 
-    const parameters = (inter.parameters || []).map(param => {
+    const parameters = (inter.parameters || []).map((param) => {
       const { description, required, schema, name } = param;
 
       return new Property({
@@ -303,7 +311,7 @@ class SwaggerInterface {
     const responseSchema = _.get(inter, 'responses.200.schema', {}) as Schema;
     const response = Schema.parseSwaggerSchema2StandardDataType(responseSchema, defNames, [], compileTempateKeyword);
 
-    const parameters = (inter.parameters || []).map(param => {
+    const parameters = (inter.parameters || []).map((param) => {
       let paramSchema: Schema;
       const { description, items, name, type, schema = {} as Schema, required } = param;
       // 如果请求参数在body中的话，处理方式与response保持一致，因为他们本身的结构是一样的
@@ -429,8 +437,8 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
     swagger.tags = [];
     allSwaggerInterfaces.forEach(({ tags }) => {
       if (tags && tags.length) {
-        tags.forEach(tag => {
-          if (!swagger.tags.some(u => u.name == tag)) {
+        tags.forEach((tag) => {
+          if (!swagger.tags.some((u) => u.name == tag)) {
             swagger.tags.push({ name: tag, description: '' });
           }
         });
@@ -445,8 +453,8 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
 
   // swagger 2.0 中 tags属性是可选的
   const mods = (swagger.tags || [])
-    .map(tag => {
-      const modInterfaces = allSwaggerInterfaces.filter(inter => {
+    .map((tag) => {
+      const modInterfaces = allSwaggerInterfaces.filter((inter) => {
         // swagger 3.0+ 中可能不存在 description 字段
         if (tag.description === undefined || tag.description === null) {
           tag.description = '';
@@ -460,9 +468,9 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
         );
       });
 
-      const samePath = getMaxSamePath(modInterfaces.map(inter => inter.path.slice(1)));
+      const samePath = getMaxSamePath(modInterfaces.map((inter) => inter.path.slice(1)));
 
-      const standardInterfaces = modInterfaces.map(inter => {
+      const standardInterfaces = modInterfaces.map((inter) => {
         return SwaggerInterface.transformSwaggerV3Interface2Standard(inter, usingOperationId, samePath, defNames);
       });
 
@@ -470,7 +478,7 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
       if (usingOperationId) {
         const names = [] as string[];
 
-        standardInterfaces.forEach(inter => {
+        standardInterfaces.forEach((inter) => {
           if (!names.includes(inter.name)) {
             names.push(inter.name);
           } else {
@@ -495,7 +503,7 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
         });
       }
     })
-    .filter(mod => {
+    .filter((mod) => {
       return mod.interfaces.length;
     });
 
@@ -515,7 +523,7 @@ export function parseSwaggerMods(
     const pathItemObject = _.cloneDeep(methodInters);
 
     if (Array.isArray(pathItemObject.parameters)) {
-      ['get', 'post', 'patch', 'delete', 'put'].forEach(method => {
+      ['get', 'post', 'patch', 'delete', 'put'].forEach((method) => {
         if (pathItemObject[method]) {
           pathItemObject[method].parameters = (pathItemObject[method].parameters || []).concat(
             pathItemObject.parameters
@@ -549,8 +557,8 @@ export function parseSwaggerMods(
 
   // swagger 2.0 中 tags属性是可选的
   const mods = swagger.tags
-    .map(tag => {
-      const modInterfaces = allSwaggerInterfaces.filter(inter => {
+    .map((tag) => {
+      const modInterfaces = allSwaggerInterfaces.filter((inter) => {
         // swagger 3.0+ 中可能不存在 description 字段
         if (tag.description === undefined || tag.description === null) {
           tag.description = '';
@@ -564,9 +572,9 @@ export function parseSwaggerMods(
         );
       });
 
-      const samePath = getMaxSamePath(modInterfaces.map(inter => inter.path.slice(1)));
+      const samePath = getMaxSamePath(modInterfaces.map((inter) => inter.path.slice(1)));
 
-      const standardInterfaces = modInterfaces.map(inter => {
+      const standardInterfaces = modInterfaces.map((inter) => {
         return SwaggerInterface.transformSwaggerInterface2Standard(
           inter,
           usingOperationId,
@@ -580,7 +588,7 @@ export function parseSwaggerMods(
       if (usingOperationId) {
         const names = [] as string[];
 
-        standardInterfaces.forEach(inter => {
+        standardInterfaces.forEach((inter) => {
           if (!names.includes(inter.name)) {
             names.push(inter.name);
           } else {
@@ -605,7 +613,7 @@ export function parseSwaggerMods(
         });
       }
     })
-    .filter(mod => {
+    .filter((mod) => {
       return mod.interfaces.length;
     });
 
@@ -628,9 +636,9 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
       def
     };
   });
-  const defNames = draftClasses.map(clazz => clazz.name);
+  const defNames = draftClasses.map((clazz) => clazz.name);
 
-  const baseClasses = draftClasses.map(clazz => {
+  const baseClasses = draftClasses.map((clazz) => {
     const dataType = parseAst2StandardDataType(clazz.defNameAst, defNames, []);
     const templateArgs = dataType.typeArgs;
     const { description, properties } = clazz.def;
@@ -684,7 +692,7 @@ export function transformSwaggerData2Standard(swagger: SwaggerDataSource, usingO
   });
 
   return new StandardDataSource({
-    baseClasses: _.uniqBy(baseClasses, base => base.name),
+    baseClasses: _.uniqBy(baseClasses, (base) => base.name),
     mods: parseSwaggerMods(swagger, defNames, usingOperationId),
     name: originName
   });
@@ -713,7 +721,7 @@ export function transformSwaggerV3Data2Standard(
 
   const defNames = draftClasses.map(({ name }) => name);
 
-  const baseClasses = draftClasses.map(clazz => {
+  const baseClasses = draftClasses.map((clazz) => {
     const dataType = parseAst2StandardDataType(clazz.defNameAst, defNames, []);
     const templateArgs = dataType.typeArgs;
     const { description, properties } = clazz.def;
@@ -763,7 +771,7 @@ export function transformSwaggerV3Data2Standard(
   });
 
   return new StandardDataSource({
-    baseClasses: _.uniqBy(baseClasses, base => base.name),
+    baseClasses: _.uniqBy(baseClasses, (base) => base.name),
     mods: parseSwaggerV3Mods(swagger, defNames, usingOperationId),
     name: originName
   });

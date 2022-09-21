@@ -1,11 +1,8 @@
-import { StandardDataType } from './standard';
-import { PrimitiveTypeMap } from './primitiveTypeMap';
-
 class Token {
   constructor(public type: 'Identifier' | 'PreTemplate' | 'EndTemplate' | 'Comma', public value = '') {}
 }
 
-interface AstNode {
+export interface AstNode {
   name: string;
   templateArgs: AstNode[];
 }
@@ -62,27 +59,6 @@ class Parser {
       templateArgs
     } as AstNode;
   }
-}
-
-/** ast 转换为标准类型 */
-export function parseAst2StandardDataType(
-  ast: AstNode,
-  defNames: string[],
-  classTemplateArgs: StandardDataType[] = []
-): StandardDataType {
-  const { name, templateArgs } = ast;
-  // 怪异类型兼容
-  let typeName = PrimitiveTypeMap[name] || name;
-
-  const isDefsType = defNames.includes(name);
-  const typeArgs = templateArgs.map(arg => {
-    return parseAst2StandardDataType(arg, defNames, classTemplateArgs);
-  });
-
-  const dataType = new StandardDataType(typeArgs, typeName, isDefsType);
-  dataType.setTemplateIndex(classTemplateArgs);
-
-  return dataType;
 }
 
 // swagger v2 中 definitions 在 OpenAPI 3 中标准化为了 components，为复用该函数，抽取出 keyword 参数
