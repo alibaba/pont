@@ -3,6 +3,7 @@
 export { CONFIG_FILE } from './constants';
 export { Surrounding } from './types/pontConfig';
 export { getTemplate } from './utils/templateHelp';
+export { PollingManage } from './utils/PollingManage';
 
 export { DataSourceConfig } from './main/Config';
 export { Manager } from './main/Manager';

@@ -1,4 +1,4 @@
-import { Interface, Config, Manager, Logger } from 'pont-engine';
+import { Interface, Config, Manager, Logger, PollingManage } from 'pont-engine';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as child_process from 'child_process';
@@ -69,6 +69,7 @@ interface ScmCommand {
 
 const Commands: ScmCommand[] = [];
 const managerCleanUps: Disposable[] = [];
+const pollingManage = new PollingManage();
 
 function command(commandId: CommandId, type: CommandType = 'command'): Function {
   return (_target: any, key: string, descriptor: any) => {
@@ -382,9 +383,6 @@ export class CommandCenter {
       Logger.setLog((...info) => this.outputChannel.appendLine(info.join(' ')));
       this.setManage(manager);
 
-      manager.beginPolling();
-      managerCleanUps.push({ dispose: manager.stopPolling });
-
       if (config.mocks && config.mocks.enable) {
         const closeServer = await MocksServer.getSingleInstance(manager).run();
         managerCleanUps.push({ dispose: closeServer });
@@ -393,9 +391,13 @@ export class CommandCenter {
       manager.init(rootPath, path.dirname(configPath));
       await manager.changeOrigin();
 
-      const allConfigs = manager.getStandardConfigs();
+      pollingManage.setCallback(async () => {
+        await manager.getCurrentOriginManage().updateRemoteDataSource();
+      });
+      pollingManage.startPolling(config.pollingTime);
+      managerCleanUps.push({ dispose: pollingManage.stopPolling });
 
-      setContext('multipleOrigins', allConfigs.length > 1);
+      setContext('multipleOrigins', manager.getStandardConfigs().length > 1);
       setContext('initManager', true);
       setContext('initError', false);
       getPontOriginsProvider().refresh(manager);
