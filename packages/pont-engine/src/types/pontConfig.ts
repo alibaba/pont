@@ -28,30 +28,29 @@ export interface IBaseConfig {
   usingOperationId: boolean;
 }
 
-export interface IOriginConfig {
+interface ITemplatePath {
+  customTemplatePath: string;
+  fetchMethodPath: string;
+  templatePath: string;
+  transformPath: string;
+}
+
+export interface IOriginConfig extends ITemplatePath {
   name: string;
   outDir?: string;
   originUrl: string;
   originType: OriginType;
 
-  fetchMethodPath?: string;
-  transformPath?: string;
-
   usingOperationId: boolean;
 }
 
-export interface IDataSourceConfig {
+export interface IDataSourceConfig extends ITemplatePath {
   name?: string;
   outDir: string;
   originUrl?: string;
   originType: OriginType;
   surrounding: Surrounding;
   templateType: string;
-
-  customTemplatePath: string;
-  fetchMethodPath: string;
-  templatePath: string;
-  transformPath: string;
 
   usingOperationId: boolean;
   usingMultipleOrigins: boolean;
@@ -74,4 +73,6 @@ export interface IStandardConfig extends IDataSourceConfig {
   rootDir: string;
   configDir: string;
   hasOrigins: boolean;
+
+  templateOriginalPath: ITemplatePath;
 }

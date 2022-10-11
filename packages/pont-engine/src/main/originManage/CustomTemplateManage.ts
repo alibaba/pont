@@ -60,7 +60,7 @@ export class CustomTemplateManage {
 
       this.log('初始化完成');
     } catch (error) {
-      console.error('[CustomTemplate]', error);
+      this.log('初始化模板错误', error);
     }
   }
 
@@ -86,14 +86,18 @@ export class CustomTemplateManage {
     FileStructures: Constructor<typeof FileStructures>;
     FilesManager: Constructor<typeof FilesManager>;
   } {
-    const { name, rootDir, customTemplatePath } = this.config;
+    const { name, rootDir, customTemplatePath, templateOriginalPath } = this.config;
 
     if (customTemplatePath) {
-      const moduleResult = getTemplate(rootDir, {
-        name,
-        templateType: 'customTemplate',
-        templatePath: customTemplatePath
-      });
+      const moduleResult = getTemplate(
+        rootDir,
+        {
+          name,
+          templateType: 'customTemplate',
+          templatePath: customTemplatePath
+        },
+        templateOriginalPath.customTemplatePath
+      );
 
       return moduleResult;
     }
@@ -103,14 +107,18 @@ export class CustomTemplateManage {
 
   /** 兼容 */
   private getFetchMethodTemplate(): OriginReader['fetchMethod'] {
-    const { name, rootDir, fetchMethodPath } = this.config;
+    const { name, rootDir, fetchMethodPath, templateOriginalPath } = this.config;
 
     if (fetchMethodPath) {
-      const moduleResult = getTemplate(rootDir, {
-        name,
-        templateType: 'fetchMethod',
-        templatePath: fetchMethodPath
-      });
+      const moduleResult = getTemplate(
+        rootDir,
+        {
+          name,
+          templateType: 'fetchMethod',
+          templatePath: fetchMethodPath
+        },
+        templateOriginalPath.fetchMethodPath
+      );
 
       if (moduleResult) {
         return moduleResult.default;
@@ -122,14 +130,18 @@ export class CustomTemplateManage {
 
   /** 兼容 */
   private getTransformFromTemplate(): OriginReader['transformStandardDataSource'] {
-    const { name, rootDir, transformPath } = this.config;
+    const { name, rootDir, transformPath, templateOriginalPath } = this.config;
 
     if (transformPath) {
-      const moduleResult = getTemplate(rootDir, {
-        name,
-        templateType: 'transform',
-        templatePath: transformPath
-      });
+      const moduleResult = getTemplate(
+        rootDir,
+        {
+          name,
+          templateType: 'transform',
+          templatePath: transformPath
+        },
+        templateOriginalPath.transformPath
+      );
 
       if (moduleResult) {
         return moduleResult.default;
@@ -144,20 +156,24 @@ export class CustomTemplateManage {
     CodeGenerator: Constructor<typeof CodeGenerator>;
     FileStructures: Constructor<typeof FileStructures>;
   } {
-    const { name, rootDir, templatePath, templateType } = this.config;
+    const { name, rootDir, templatePath, templateType, templateOriginalPath } = this.config;
 
     if (templatePath) {
-      const moduleResult = getTemplate(rootDir, {
-        name,
-        templateType: 'template',
-        templatePath,
-        defaultCode: getTemplateByTemplateType(templateType)
-      });
+      const moduleResult = getTemplate(
+        rootDir,
+        {
+          name,
+          templateType: 'template',
+          templatePath,
+          defaultCode: getTemplateByTemplateType(templateType)
+        },
+        templateOriginalPath.templatePath
+      );
 
       if (moduleResult) {
         return {
           CodeGenerator: moduleResult.default || CodeGenerator,
-          FileStructures: moduleResult.MyFileStructures || FileStructures
+          FileStructures: moduleResult.FileStructures || FileStructures
         };
       }
     }

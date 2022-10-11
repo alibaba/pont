@@ -35,9 +35,16 @@ export class Config extends OldConfig {
       hasOrigins: origins?.length > 0,
       usingMultipleOrigins: origins?.length > 0 ? usingMultipleOrigins : false,
       outDir: Config.getAbsolutePath(configDir, pontConfig.outDir),
+      customTemplatePath: Config.getAbsolutePath(configDir, pontConfig.customTemplatePath),
       templatePath: Config.getAbsolutePath(configDir, pontConfig.templatePath),
       transformPath: Config.getAbsolutePath(configDir, pontConfig.transformPath),
       fetchMethodPath: Config.getAbsolutePath(configDir, pontConfig.fetchMethodPath),
+      templateOriginalPath: {
+        customTemplatePath: pontConfig.customTemplatePath,
+        templatePath: pontConfig.templatePath,
+        transformPath: pontConfig.transformPath,
+        fetchMethodPath: pontConfig.fetchMethodPath
+      },
       scannedRange: Array.isArray(pontConfig.scannedRange)
         ? pontConfig.scannedRange.map((dir) => Config.getAbsolutePath(configDir, dir))
         : []
@@ -45,6 +52,9 @@ export class Config extends OldConfig {
 
     if (Array.isArray(origins) && origins.length > 0) {
       return origins.map((origin) => {
+        const customTemplatePath =
+          Config.getAbsolutePath(configDir, origin.customTemplatePath) ?? commonConfig.customTemplatePath;
+        const templatePath = Config.getAbsolutePath(configDir, origin.templatePath) ?? commonConfig.templatePath;
         const transformPath = Config.getAbsolutePath(configDir, origin.transformPath) ?? commonConfig.transformPath;
         const fetchMethodPath =
           Config.getAbsolutePath(configDir, origin.fetchMethodPath) ?? commonConfig.fetchMethodPath;
@@ -52,8 +62,16 @@ export class Config extends OldConfig {
         return {
           ...commonConfig,
           ...origin,
+          customTemplatePath,
+          templatePath,
           transformPath,
-          fetchMethodPath
+          fetchMethodPath,
+          templateOriginalPath: {
+            customTemplatePath: origin.customTemplatePath ?? pontConfig.customTemplatePath,
+            templatePath: origin.templatePath ?? pontConfig.templatePath,
+            transformPath: origin.transformPath ?? pontConfig.transformPath,
+            fetchMethodPath: origin.fetchMethodPath ?? pontConfig.fetchMethodPath
+          }
         };
       });
     }

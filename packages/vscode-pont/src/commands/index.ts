@@ -379,7 +379,7 @@ export class CommandCenter {
       }
 
       const manager = new Manager(rootPath, config, path.dirname(configPath));
-      Logger.setLog((info) => this.outputChannel.appendLine(info));
+      Logger.setLog((...info) => this.outputChannel.appendLine(info.join(' ')));
       this.setManage(manager);
 
       manager.beginPolling();
@@ -394,7 +394,7 @@ export class CommandCenter {
       await manager.changeOrigin();
 
       const allConfigs = manager.getStandardConfigs();
-      
+
       setContext('multipleOrigins', allConfigs.length > 1);
       setContext('initManager', true);
       setContext('initError', false);
