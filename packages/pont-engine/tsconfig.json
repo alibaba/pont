@@ -4,10 +4,8 @@
     "target": "es6",
     "outDir": "lib",
     "moduleResolution": "node",
-
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-
     "noImplicitAny": false,
     "declaration": true,
     "removeComments": true,
@@ -19,7 +17,6 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "allowSyntheticDefaultImports": true,
-
     "baseUrl": ".",
     "paths": {
       "src": ["./src"]

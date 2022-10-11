@@ -1,3 +1,15 @@
+/** new */
+
+export { CONFIG_FILE } from './constants';
+export { Surrounding } from './types/pontConfig';
+export { getTemplate } from './utils/templateHelp';
+
+export { DataSourceConfig } from './main/Config';
+export { Manager } from './main/Manager';
+export { Config } from './main/Config';
+export { OriginManage } from './main/originManage';
+export { Logger } from './main/Logger';
+
 /** compatible */
 
 export { createManager } from './compatible/Manager';
@@ -33,15 +45,3 @@ export { CodeGenerator, FileStructures, FilesManager } from './compatible/genera
 /** deprecated */
 
 export { PontDictManager } from './deprecated/LocalDictManager';
-
-/** new */
-
-export { CONFIG_FILE } from './constants';
-
-export { Manager } from './main/Manager';
-
-export { DataSourceConfig } from './main/Config';
-export { Surrounding } from './types/pontConfig';
-
-export { getTemplate } from './utils/templateHelp';
-export { Config } from './main/Config';

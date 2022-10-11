@@ -85,6 +85,14 @@
         "icon": "$(refresh)"
       },
       {
+        "command": "pont.syncRemoteAndGenerate",
+        "title": "拉取数据并生成接口代码"
+      },
+      {
+        "command": "pont.syncRemoteAndGenerateAll",
+        "title": "生成所有origin接口代码"
+      },
+      {
         "command": "pont.createManager",
         "title": "重置Pont"
       },
@@ -156,19 +164,24 @@
           "group": "navigation@2"
         },
         {
-          "command": "pont.makeAllSame",
+          "command": "pont.regenerate",
           "when": "pontContext.initManager&&!pontContext.initError&&view == pontOrigins",
           "group": "navigation@3"
         },
         {
-          "command": "pont.regenerate",
+          "command": "pont.syncRemoteAndGenerate",
           "when": "pontContext.initManager&&!pontContext.initError&&view == pontOrigins",
-          "group": "navigation@4"
+          "group": "secondary@1"
+        },
+        {
+          "command": "pont.syncRemoteAndGenerateAll",
+          "when": "pontContext.initManager&&!pontContext.initError&&view == pontOrigins&&pontContext.multipleOrigins",
+          "group": "secondary@2"
         },
         {
           "command": "pont.createManager",
           "when": "pontContext.isInit&&view == pontOrigins",
-          "group": "secondary"
+          "group": "secondary@3"
         }
       ],
       "view/item/context": [

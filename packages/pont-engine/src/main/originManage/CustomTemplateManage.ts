@@ -10,6 +10,7 @@ import { FilesManager } from './FilesManager';
 import { FileStructures } from './FileStructures';
 import { OriginReader } from './OriginReader';
 import { getTemplateByTemplateType } from '../../compatible/templates';
+import { Logger } from '../Logger';
 
 export class CustomTemplateManage {
   filesManager: FilesManager;
@@ -26,8 +27,12 @@ export class CustomTemplateManage {
     this.init();
   }
 
+  private log(message: string, ...optionalParams: any[]) {
+    Logger.log(`[CustomTemplate] ${message}`, ...optionalParams);
+  }
+
   private init() {
-    console.log('[CustomTemplate] 初始化模板');
+    this.log('初始化模板');
 
     try {
       const customTemplate = this.getCustomTemplate();
@@ -35,13 +40,13 @@ export class CustomTemplateManage {
       const transformFromTemplate = this.getTransformFromTemplate();
       const template = this.getGeneratorAndFileStructuresTemplate();
 
-      const originReader = customTemplate.OriginReader ? new customTemplate.OriginReader() : new OriginReader();
+      const originReader = customTemplate?.OriginReader ? new customTemplate.OriginReader() : new OriginReader();
 
-      this.CodeGenerator = customTemplate.CodeGenerator || template.CodeGenerator;
+      this.CodeGenerator = customTemplate?.CodeGenerator || template.CodeGenerator;
 
-      this.FileStructures = customTemplate.FileStructures || template.FileStructures;
+      this.FileStructures = customTemplate?.FileStructures || template.FileStructures;
 
-      this.FilesManager = customTemplate.FilesManager || FilesManager;
+      this.FilesManager = customTemplate?.FilesManager || FilesManager;
 
       if (fetchMethodTemplate) {
         originReader.fetchMethod = fetchMethodTemplate.bind(originReader);
@@ -53,7 +58,7 @@ export class CustomTemplateManage {
 
       this.originReader = originReader;
 
-      console.log('[CustomTemplate] 初始化完成');
+      this.log('初始化完成');
     } catch (error) {
       console.error('[CustomTemplate]', error);
     }

@@ -73,4 +73,5 @@ export interface IPontConfig extends IDataSourceConfig {
 export interface IStandardConfig extends IDataSourceConfig {
   rootDir: string;
   configDir: string;
+  hasOrigins: boolean;
 }

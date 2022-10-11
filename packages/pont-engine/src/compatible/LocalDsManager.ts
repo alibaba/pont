@@ -40,7 +40,7 @@ interface ProjectsManifest {
 /** @deprecated */
 export class LocalDsManager {
   static getProjectsManifest(rootDir: string): ProjectsManifest {
-    const manifestPath = PontFileManager.getFilePath(rootDir, PROJECTS_MANIFEST_FILE);
+    const manifestPath = PontFileManager.getLocalFilePath(rootDir, PROJECTS_MANIFEST_FILE);
     const content = PontFileManager.loadJson<ProjectsManifest>(manifestPath);
 
     if (!content) {
@@ -54,17 +54,17 @@ export class LocalDsManager {
   }
 
   static saveManifest(rootDir: string, manifest: ProjectsManifest) {
-    const manifestPath = PontFileManager.getFilePath(rootDir, PROJECTS_MANIFEST_FILE);
+    const manifestPath = PontFileManager.getLocalFilePath(rootDir, PROJECTS_MANIFEST_FILE);
     PontFileManager.writeJson(manifestPath, manifest);
   }
 
   static getProject(rootDir: string, filename: string): StandardDataSource {
-    const projectPath = PontFileManager.getFilePath(rootDir, filename);
+    const projectPath = PontFileManager.getLocalFilePath(rootDir, filename);
     return PontFileManager.loadJson<StandardDataSource>(projectPath);
   }
 
   static saveProject(rootDir: string, filename: string, ds: StandardDataSource) {
-    const projectPath = PontFileManager.getFilePath(rootDir, filename);
+    const projectPath = PontFileManager.getLocalFilePath(rootDir, filename);
     PontFileManager.writeJson(projectPath, ds);
   }
 
@@ -175,7 +175,7 @@ export class LocalDsManager {
 
   static openReport(rootDir: string, project: IProject) {
     const { diffs, records } = LocalDsManager.getReportData(rootDir, project);
-    const htmlPath = PontFileManager.getFilePath(rootDir, 'report.html');
+    const htmlPath = PontFileManager.getLocalFilePath(rootDir, 'report.html');
 
     // 后续优化。
     PontFileManager.saveFile(

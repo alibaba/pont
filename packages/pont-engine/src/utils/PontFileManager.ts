@@ -8,7 +8,7 @@ import * as path from 'path';
 import { LOCAL_DICT_DIR } from '../constants';
 
 export class PontFileManager {
-  static getFilePath(rootDir: string, filename: string): string {
+  static getLocalFilePath(rootDir: string, filename: string): string {
     return path.join(rootDir, LOCAL_DICT_DIR, filename);
   }
 

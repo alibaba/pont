@@ -28,7 +28,7 @@ interface ProjectsManifest {
 
 export class LocalDsManager {
   static getProjectsManifest(rootDir: string): ProjectsManifest {
-    const manifestPath = PontFileManager.getFilePath(rootDir, PROJECTS_MANIFEST_FILE);
+    const manifestPath = PontFileManager.getLocalFilePath(rootDir, PROJECTS_MANIFEST_FILE);
     const content = PontFileManager.loadJson<ProjectsManifest>(manifestPath);
 
     if (!content) {
@@ -42,17 +42,17 @@ export class LocalDsManager {
   }
 
   static saveManifest(rootDir: string, manifest: ProjectsManifest) {
-    const manifestPath = PontFileManager.getFilePath(rootDir, PROJECTS_MANIFEST_FILE);
+    const manifestPath = PontFileManager.getLocalFilePath(rootDir, PROJECTS_MANIFEST_FILE);
     PontFileManager.writeJson(manifestPath, manifest);
   }
 
   static getProject(rootDir: string, filename: string): IStandardDataSource {
-    const projectPath = PontFileManager.getFilePath(rootDir, filename);
+    const projectPath = PontFileManager.getLocalFilePath(rootDir, filename);
     return PontFileManager.loadJson<IStandardDataSource>(projectPath);
   }
 
   static saveProject(rootDir: string, filename: string, ds: StandardDataSource) {
-    const projectPath = PontFileManager.getFilePath(rootDir, filename);
+    const projectPath = PontFileManager.getLocalFilePath(rootDir, filename);
     PontFileManager.writeJson(projectPath, ds);
   }
 

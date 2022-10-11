@@ -4,6 +4,7 @@ import type { IPontConfig, IStandardConfig } from '../types/pontConfig';
 
 import { DataSourceConfig as OldDataSourceConfig, Config as OldConfig } from '../compatible/Config';
 import { PontFileManager } from '../utils/PontFileManager';
+import { CONFIG_FILE } from '../constants';
 
 export class DataSourceConfig extends OldDataSourceConfig {}
 
@@ -11,8 +12,8 @@ export class Config extends OldConfig {
   /**
    * 通过 pont 配置文件获取配置斜线
    */
-  static getPontConfigFromPath(configFilePath: string): IPontConfig {
-    return PontFileManager.loadJson<IPontConfig>(configFilePath);
+  static getPontConfigFromPath(configDir: string): IPontConfig {
+    return PontFileManager.loadJson<IPontConfig>(path.join(configDir, CONFIG_FILE));
   }
 
   static getAbsolutePath(fileDir: string, filePath: string): string {
@@ -25,12 +26,14 @@ export class Config extends OldConfig {
 
   static getStandardConfig(rootDir: string, configDir: string, pontConfig: IPontConfig): IStandardConfig[] {
     if (!pontConfig) return [];
-    const { origins, ...rest } = pontConfig;
+    const { origins, usingMultipleOrigins, ...rest } = pontConfig;
 
     const commonConfig: IStandardConfig = {
       ...rest,
       rootDir,
       configDir,
+      hasOrigins: origins?.length > 0,
+      usingMultipleOrigins: origins?.length > 0 ? usingMultipleOrigins : false,
       outDir: Config.getAbsolutePath(configDir, pontConfig.outDir),
       templatePath: Config.getAbsolutePath(configDir, pontConfig.templatePath),
       transformPath: Config.getAbsolutePath(configDir, pontConfig.transformPath),
@@ -43,7 +46,8 @@ export class Config extends OldConfig {
     if (Array.isArray(origins) && origins.length > 0) {
       return origins.map((origin) => {
         const transformPath = Config.getAbsolutePath(configDir, origin.transformPath) ?? commonConfig.transformPath;
-        const fetchMethodPath = Config.getAbsolutePath(configDir, origin.fetchMethodPath) ?? commonConfig.transformPath;
+        const fetchMethodPath =
+          Config.getAbsolutePath(configDir, origin.fetchMethodPath) ?? commonConfig.fetchMethodPath;
 
         return {
           ...commonConfig,
@@ -57,9 +61,9 @@ export class Config extends OldConfig {
     return [commonConfig];
   }
 
-  static getStandardConfigFromPath(rootPath: string, configFilePath: string): IStandardConfig[] {
-    const pontConfig = Config.getPontConfigFromPath(configFilePath);
+  static getStandardConfigFromPath(rootPath: string, configDir: string): IStandardConfig[] {
+    const pontConfig = Config.getPontConfigFromPath(configDir);
 
-    return Config.getStandardConfig(rootPath, path.dirname(configFilePath), pontConfig);
+    return Config.getStandardConfig(rootPath, configDir, pontConfig);
   }
 }

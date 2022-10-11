@@ -1,6 +1,6 @@
 import * as path from 'path';
 import * as fs from 'fs-extra';
-import prettier from 'prettier';
+import * as prettier from 'prettier';
 
 import type { Mod, StandardDataSource, StandardDataType } from './standard';
 

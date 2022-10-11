@@ -31,7 +31,7 @@ export function getTemplate<T = any>(rootPath: string, templateInfo: TemplateInf
   const program = ts.createProgram([templateFileName], {
     outDir,
     rootDir: rootPath,
-    target: ts.ScriptTarget.ES2015,
+    target: ts.ScriptTarget.ES2016,
     module: ts.ModuleKind.CommonJS,
     moduleResolution: ts.ModuleResolutionKind.NodeJs,
     experimentalDecorators: true,

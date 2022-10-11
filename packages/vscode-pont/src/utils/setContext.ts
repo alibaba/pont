@@ -18,6 +18,8 @@ interface PontContext {
   initManager: boolean;
   /** pont是否初始化失败 */
   initError: boolean;
+  /** 是否存在多个数据源 */
+  multipleOrigins: boolean;
 }
 
 export function setContext<K extends keyof PontContext>(key: K, value: PontContext[K]) {

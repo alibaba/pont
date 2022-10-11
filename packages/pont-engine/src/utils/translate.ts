@@ -15,7 +15,7 @@ let dict: { [rootDir: string]: { [cn: string]: string } } = {};
 let dicPath: { [rootDir: string]: string } = {};
 
 function init(rootDir: string) {
-  dicPath[rootDir] = PontFileManager.getFilePath(rootDir, TRANSLATE_DICT_NAME);
+  dicPath[rootDir] = PontFileManager.getLocalFilePath(rootDir, TRANSLATE_DICT_NAME);
   const localDict = PontFileManager.loadFile(dicPath[rootDir]);
 
   if (localDict) {
