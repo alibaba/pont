@@ -418,6 +418,9 @@ export class OriginManage {
   }
 
   getCodeSnippet(): CodeGenerator['codeSnippet'] {
+    if (!this.filesManager) {
+      this.updateFilesManager();
+    }
     const generators = this.filesManager.fileStructures.generators[0];
     return generators.codeSnippet.bind(generators);
   }
