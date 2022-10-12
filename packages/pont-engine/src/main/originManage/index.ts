@@ -388,7 +388,9 @@ export class OriginManage {
 
   /** 使用最新的远程数据源生成代码，不拉取远程数据源 */
   async generateCodeByRemoteDataSource() {
-    this.dataSource = this.remoteDataSource;
+    if (this.remoteDataSource) {
+      this.dataSource = this.remoteDataSource;
+    }
     await this.generateCode();
   }
 
