@@ -22,6 +22,7 @@ export function getTemplate<T = any>(rootPath: string, templateInfo: TemplateInf
   try {
     if (originalPath && existsSync(nodeModulesPath)) {
       Logger.log(`[getTemplate ${templateInfo.templateType}] ${nodeModulesPath}`);
+      delete require.cache[require.resolve(nodeModulesPath)];
       return require(nodeModulesPath);
     }
 
@@ -49,6 +50,7 @@ export function getTemplate<T = any>(rootPath: string, templateInfo: TemplateInf
     program.emit();
 
     Logger.log(`[getTemplate ${templateInfo.templateType}] ${outFile}`);
+    delete require.cache[require.resolve(outFile)];
     return require(outFile);
   } catch (error) {
     Logger.log(`[getTemplate error ${templateInfo.templateType}]`, error);
