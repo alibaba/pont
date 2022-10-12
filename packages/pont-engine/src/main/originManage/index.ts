@@ -406,7 +406,7 @@ export class OriginManage {
 
   getDataSource() {
     if (!this.dataSource) {
-      this.log(`dataSource数据不存在`);
+      this.log(`dataSource数据不存在, 请拉取远程数据源重试`);
     }
     return this.dataSource;
   }
