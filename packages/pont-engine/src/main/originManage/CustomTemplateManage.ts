@@ -42,9 +42,9 @@ export class CustomTemplateManage {
 
       const originReader = customTemplate?.OriginReader ? new customTemplate.OriginReader() : new OriginReader();
 
-      this.CodeGenerator = customTemplate?.CodeGenerator || template.CodeGenerator;
+      this.CodeGenerator = customTemplate?.CodeGenerator || template?.CodeGenerator || CodeGenerator;
 
-      this.FileStructures = customTemplate?.FileStructures || template.FileStructures;
+      this.FileStructures = customTemplate?.FileStructures || template?.FileStructures || FileStructures;
 
       this.FilesManager = customTemplate?.FilesManager || FilesManager;
 
