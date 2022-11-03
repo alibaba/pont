@@ -22,7 +22,7 @@ export function format(fileContent: string, prettierOpts = {}) {
       ...prettierOpts
     });
   } catch (e) {
-    error(`代码格式化报错！${e.toString()}\n代码为：${fileContent}`);
+    error(`代码格式化错误！${e.toString()}`);
     return fileContent;
   }
 }

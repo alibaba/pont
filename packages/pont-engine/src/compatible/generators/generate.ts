@@ -706,7 +706,7 @@ export class FilesManager {
             await fs.ensureFile(currPath);
             return fs.writeFile(currPath, this.formatFile(value, name));
           } else {
-            const newValue = this.formatFile(value);
+            const newValue = this.formatFile(value, name);
             const currValue = await fs.readFile(currPath, 'utf8');
 
             if (newValue !== currValue) {
