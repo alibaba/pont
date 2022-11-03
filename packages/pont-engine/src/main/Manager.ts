@@ -1,69 +1,193 @@
 import { Manager as OldManager } from '../compatible/Manager';
 
-import type { IStandardConfig } from '../types/pontConfig';
+import type { IStandardBaseConfig, IStandardOirginConfig } from '../types/pontConfig';
 
 import { Config } from './Config';
 import { Logger } from './Logger';
 import { OriginManage } from './originManage';
+import { BaseTemplate, CustomTemplateManage } from './originManage/CustomTemplateManage';
+import { FilesManager } from './originManage/FilesManager';
 
 (process.env['NODE_TLS_REJECT_UNAUTHORIZED'] as any) = 0;
 
 export class Manager extends OldManager {
-  private standardConfigs: IStandardConfig[];
+  private standardBaseConfig: IStandardBaseConfig;
+
+  private standardOirginConfigs: IStandardOirginConfig[];
 
   private originManages: OriginManage[] = [];
 
   private currentOriginManage: OriginManage;
 
+  private filesManager: FilesManager;
+
+  private baseTemplate: BaseTemplate;
+
   private log(message: string, ...optionalParams: any[]) {
     Logger.log(`[Manager] ${message}`, ...optionalParams);
   }
 
-  init(rootPath: string, configDir: string) {
-    this.standardConfigs = Config.getStandardConfigFromPath(rootPath, configDir);
+  /** 初始 filesManager */
+  private initFilesManager() {
+    this.log(`initFilesManager start`);
 
-    this.originManages = this.standardConfigs.map((config) => new OriginManage(config));
+    const baseTemplate = this.baseTemplate;
+
+    const { surrounding, outDir, usingMultipleOrigins, templateType, spiltApiLock, prettierConfig } =
+      this.standardBaseConfig;
+
+    this.log(`初始化 fileStructures`);
+    const fileStructures = new baseTemplate.FileStructures(
+      [],
+      usingMultipleOrigins,
+      surrounding,
+      outDir,
+      templateType,
+      spiltApiLock
+    );
+
+    this.log(`初始化 filesManager`);
+    const filesManager = new baseTemplate.FilesManager(fileStructures, outDir);
+    filesManager.prettierConfig = prettierConfig;
+
+    this.filesManager = filesManager;
+
+    this.log(`initFilesManager end`);
+  }
+
+  private initBaseTemplate() {
+    this.baseTemplate = CustomTemplateManage.getBaseTemplate(this.standardBaseConfig);
+  }
+
+  init(rootPath: string, configDir: string) {
+    const { standardBaseConfig, standardOirginConfigs } = Config.getStandardConfigFromPath(rootPath, configDir);
+    this.standardBaseConfig = standardBaseConfig;
+    this.standardOirginConfigs = standardOirginConfigs;
+
+    this.initBaseTemplate();
+    this.initFilesManager();
+
+    this.originManages = standardOirginConfigs.map(
+      (config) => new OriginManage(config, standardBaseConfig, this.baseTemplate)
+    );
 
     if (this.originManages.length === 0) {
       this.log('数据源为空');
     }
   }
 
-  getStandardConfigs() {
-    return this.standardConfigs;
+  /** 切换数据源 */
+  async changeOrigin(name?: string) {
+    this.currentOriginManage = name
+      ? this.originManages.find((item) => item.getName() === name)
+      : this.originManages[0];
+
+    if (this.currentOriginManage) {
+      await Promise.all([this.currentOriginManage.initDataSource(), this.currentOriginManage.updateRemoteDataSource()]);
+      await this.currentOriginManage.updateDiffs();
+      this.log(`切换数据源:${this.currentOriginManage.getName() ?? 'default'}`);
+    }
   }
 
-  getOriginManages() {
-    return this.originManages;
+  getStandardBaseConfig() {
+    return this.standardBaseConfig;
+  }
+
+  getStandardOirginConfigs() {
+    return this.standardOirginConfigs;
   }
 
   getCurrentOriginManage() {
     return this.currentOriginManage;
   }
 
-  /** 切换数据源 */
-  changeOrigin(name?: string) {
-    this.currentOriginManage = name
-      ? this.originManages.find((item) => item.getName() === name)
-      : this.originManages[0];
+  getFilesManager() {
+    return this.filesManager;
+  }
 
-    if (this.currentOriginManage) {
-      this.log(`切换数据源:${this.currentOriginManage.getName() ?? 'default'}`);
+  updateRemoteDataSource() {
+    return this.currentOriginManage.updateRemoteDataSource();
+  }
+
+  async generateCode(oldFiles?: any) {
+    await this.currentOriginManage.setCodeGeneratorDataSource();
+    const codeGenerator = this.currentOriginManage.getCodeGenerator();
+
+    if (!codeGenerator.dataSource) {
+      return;
     }
+
+    let generators = this.filesManager.fileStructures.generators;
+    if (generators.length !== this.originManages.length) {
+      generators = await Promise.all(
+        this.originManages.map(async (item) => {
+          await item.setCodeGeneratorDataSource();
+          return item.getCodeGenerator();
+        })
+      );
+    }
+
+    const index = generators.findIndex((item) => item.dataSource?.name === codeGenerator.dataSource.name);
+
+    if (index === -1) {
+      this.log('没有找到对应的 generators');
+      return;
+    }
+
+    generators[index] = codeGenerator;
+
+    this.filesManager.fileStructures.generators = generators.filter((item) => !!item.dataSource);
+
+    this.log('开始生成代码');
+    await this.filesManager.generateCode(oldFiles);
+    this.log('开始生成代码完成');
+  }
+
+  async updateRemoteDataSourceAndGenerateCode() {
+    await this.updateRemoteDataSource();
+    this.currentOriginManage.updateDataSourceByRemoteDataSource();
+    await this.generateCode();
+  }
+
+  async getGeneratedFiles() {
+    let generators = this.filesManager.fileStructures.generators;
+    if (generators.length !== this.originManages.length) {
+      generators = await Promise.all(
+        this.originManages.map(async (item) => {
+          await item.setCodeGeneratorDataSource();
+          return item.getCodeGenerator();
+        })
+      );
+    }
+    this.filesManager.fileStructures.generators = generators.filter((item) => !!item.dataSource);
+
+    return this.filesManager.getGeneratedFiles();
+  }
+
+  /** 生成所有代码 */
+  async generateAllCode() {
+    const generators = await Promise.all(
+      this.originManages.map(async (item) => {
+        await item.setCodeGeneratorDataSource();
+        return item.getCodeGenerator();
+      })
+    );
+
+    this.filesManager.fileStructures.generators = generators.filter((item) => !!item.dataSource);
+    await this.filesManager.generateCode();
   }
 
   /** 更新所有远程数据源 */
   updateAllRemoteDataSource() {
-    return this.originManages.forEach((item) => item.updateRemoteDataSource());
+    return this.originManages.map((item) => item.updateRemoteDataSource());
   }
 
   /** 拉取远程数据源，并生成所有代码 */
-  updateRemoteDataSourceAndGenerateAllCode() {
-    return this.originManages.map((item) => item.updateRemoteDataSourceAndGenerateCode());
-  }
-
-  /** 生成所有代码 */
-  generateAllCode() {
-    return this.originManages.map((item) => item.generateCode());
+  async updateRemoteDataSourceAndGenerateAllCode() {
+    await this.updateAllRemoteDataSource();
+    this.originManages.forEach((item) => {
+      item.updateDataSourceByRemoteDataSource();
+    });
+    await this.generateAllCode();
   }
 }

@@ -12,13 +12,7 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
-import {
-  format,
-  reviseModName,
-  getFileName,
-  getTemplatesDirFile,
-  judgeTemplatesDirFileExists
-} from '../utils';
+import { format, reviseModName, getFileName, getTemplatesDirFile, judgeTemplatesDirFileExists } from '../utils';
 import { info } from '../debugLog';
 import { templateRegistion } from '../templates';
 import { Surrounding } from '../../types/pontConfig';
@@ -574,6 +568,7 @@ export class FilesManager {
         this.fileStructures.spiltApiLock && this.fileStructures.usingMultipleOrigins ? generator : null
       );
       if (lockContent !== newLockContent) {
+        await fs.ensureFile(lockFilePath);
         await fs.writeFile(lockFilePath, newLockContent);
       }
     };
@@ -682,8 +677,11 @@ export class FilesManager {
     await Promise.all(
       _.map(files, async (value: string, filePath) => {
         if (value === undefined) {
-          return fs.mkdir(filePath);
+          return fs.ensureDir(filePath);
         }
+
+        await fs.ensureFile(filePath);
+
         if (filePath.endsWith('.json')) {
           return fs.writeFile(filePath, value);
         }
@@ -705,18 +703,21 @@ export class FilesManager {
 
           if (state.isDirectory()) {
             await fs.unlink(currPath);
+            await fs.ensureFile(currPath);
             return fs.writeFile(currPath, this.formatFile(value, name));
           } else {
             const newValue = this.formatFile(value);
             const currValue = await fs.readFile(currPath, 'utf8');
 
             if (newValue !== currValue) {
+              await fs.ensureFile(currPath);
               return fs.writeFile(currPath, this.formatFile(value, name));
             }
 
             return;
           }
         } else {
+          await fs.ensureFile(currPath);
           return fs.writeFile(currPath, this.formatFile(value, name));
         }
       }
@@ -729,12 +730,12 @@ export class FilesManager {
           return this.generateFiles(files[name], currPath);
         } else {
           await fs.unlink(currPath);
-          await fs.mkdir(currPath);
+          await fs.ensureDir(currPath);
 
           return this.generateFiles(files[name], currPath);
         }
       } else {
-        await fs.mkdir(currPath);
+        await fs.ensureDir(currPath);
 
         return this.generateFiles(files[name], currPath);
       }

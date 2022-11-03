@@ -34,7 +34,7 @@ class Mocks {
   getBaseClassMocksFn(clazz: BaseClass) {
     const props = [] as string[];
 
-    clazz.properties.forEach(prop => {
+    clazz.properties.forEach((prop) => {
       let { name, dataType } = prop;
       const templateIndex = dataType.templateIndex;
 
@@ -58,13 +58,13 @@ class Mocks {
     const { typeName, isDefsType, initialValue, typeArgs, templateIndex } = response;
 
     if (isDefsType) {
-      const defClass = this.bases.find(bs => bs.name === typeName);
+      const defClass = this.bases.find((bs) => bs.name === typeName);
 
       if (!defClass) {
         return '{}';
       }
 
-      return `defs.${defClass.name}(${typeArgs.map(arg => this.getDefaultMocks(arg)).join(', ')})`;
+      return `defs.${defClass.name}(${typeArgs.map((arg) => this.getDefaultMocks(arg)).join(', ')})`;
     } else if (typeName === 'Array') {
       if (typeArgs.length) {
         const item = this.getDefaultMocks(typeArgs[0]);
@@ -83,7 +83,7 @@ class Mocks {
   }
 
   getMocksCode(wrapper) {
-    const classes = this.ds.baseClasses.map(clazz => {
+    const classes = this.ds.baseClasses.map((clazz) => {
       return this.getBaseClassMocksFn(clazz);
     });
 
@@ -111,14 +111,14 @@ class Mocks {
 
       export default {
       ${this.ds.mods
-        .map(mod => {
+        .map((mod) => {
           const modName = mod.name;
 
           return `
           /** ${mod.description} */
           ${modName}: {
             ${mod.interfaces
-              .map(inter => {
+              .map((inter) => {
                 const interName = inter.name;
                 const interRes = this.getDefaultMocks(inter.response);
 
@@ -140,6 +140,8 @@ export class MocksServer {
   constructor(private manager: Manager) {
     const rootPath = vscode.workspace.rootPath;
     const igonrePath = path.join(rootPath, '.gitignore');
+
+    fs.ensureFileSync(igonrePath);
 
     let ignoreContent = fs.readFileSync(igonrePath, 'utf8');
 
@@ -188,7 +190,7 @@ export class MocksServer {
 
   getMocksCode() {
     const wrapper = this.manager.currConfig.mocks.wrapper;
-    const wrapperFn = wrapper ? dataCode => wrapper.replace(/{response}/g, dataCode) : data => data;
+    const wrapperFn = wrapper ? (dataCode) => wrapper.replace(/{response}/g, dataCode) : (data) => data;
 
     const code = new Mocks(this.manager.currLocalDataSource).getMocksCode(wrapperFn);
     return format(code, this.manager.currConfig.prettierConfig);
@@ -229,8 +231,8 @@ export class MocksServer {
       .createServer(async (req, res) => {
         const mocksData = await this.getCurrMocksData();
 
-        ds.mods.forEach(mod => {
-          mod.interfaces.forEach(async inter => {
+        ds.mods.forEach((mod) => {
+          mod.interfaces.forEach(async (inter) => {
             // 把 url int path 的参数，转换为匹配参数的正则表达式
             const reg = new RegExp(
               '^' + inter.path.replace(/\//g, '\\/').replace(/{.+?}/g, '[0-9a-zA-Z_-]*?') + '(\\?|$)'

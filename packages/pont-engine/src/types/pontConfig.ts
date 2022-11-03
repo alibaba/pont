@@ -16,63 +16,66 @@ export enum SurroundingFileName {
   typeScript = 'ts'
 }
 
+interface IOriginConfig {
+  name: string;
+
+  originUrl: string;
+
+  customTemplatePath?: string;
+
+  originType?: OriginType;
+}
+
 export interface IBaseConfig {
-  name: string;
-  outDir?: string;
-  originUrl: string;
-  originType: OriginType;
-
-  fetchMethodPath?: string;
-  transformPath?: string;
-
-  usingOperationId: boolean;
-}
-
-interface ITemplatePath {
-  customTemplatePath: string;
-  fetchMethodPath: string;
-  templatePath: string;
-  transformPath: string;
-}
-
-export interface IOriginConfig extends ITemplatePath {
-  name: string;
-  outDir?: string;
-  originUrl: string;
-  originType: OriginType;
-
-  usingOperationId: boolean;
-}
-
-export interface IDataSourceConfig extends ITemplatePath {
-  name?: string;
   outDir: string;
   originUrl?: string;
   originType: OriginType;
   surrounding: Surrounding;
-  templateType: string;
+  templateType: 'fetch' | 'hooks';
 
-  usingOperationId: boolean;
   usingMultipleOrigins: boolean;
   spiltApiLock: boolean;
-  taggedByName: boolean;
+
+  fetchMethodPath?: string;
+  templatePath?: string;
+  transformPath?: string;
+  commonTemplatePath?: string;
 
   scannedRange: string[];
+
   prettierConfig: ResolveConfigOptions;
+
   /** 单位为秒，默认 20 分钟 */
   pollingTime: number;
 
   mocks: IMocks;
 }
 
-export interface IPontConfig extends IDataSourceConfig {
+export interface IPontConfig extends IBaseConfig {
   origins: IOriginConfig[];
 }
 
-export interface IStandardConfig extends IDataSourceConfig {
+export interface IStandardBaseConfig extends IBaseConfig {
   rootDir: string;
   configDir: string;
   hasOrigins: boolean;
 
-  templateOriginalPath: ITemplatePath;
+  templateOriginalPath: {
+    fetchMethodPath?: string;
+    templatePath?: string;
+    transformPath?: string;
+    commonTemplatePath?: string;
+  };
+}
+
+export interface IStandardOirginConfig extends IOriginConfig {
+  rootDir: string;
+
+  originType: OriginType;
+
+  usingOperationId?: boolean;
+
+  templateOriginalPath: {
+    customTemplatePath?: string;
+  };
 }

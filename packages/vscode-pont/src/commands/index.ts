@@ -18,7 +18,7 @@ import {
 import { MocksServer } from '../mocks';
 import { findInterface, pontEngineVersion, showProgress } from '../utils';
 import { execSync } from 'child_process';
-import { OriginTreeItem, getPontOriginsProvider, getPontOriginsTreeView } from '../views/pontOrigins';
+import { OriginTreeItem, getPontOriginsProvider } from '../views/pontOrigins';
 import { setContext } from '../utils/setContext';
 
 export const commandMap = {
@@ -110,7 +110,7 @@ export class CommandCenter {
   @command('pont.switchOrigin')
   async switchOrigin() {
     const currentManager = this.manager.getCurrentOriginManage();
-    const origins: QuickPickItem[] = this.manager.getStandardConfigs().map((conf) => {
+    const origins: QuickPickItem[] = this.manager.getStandardOirginConfigs().map((conf) => {
       return {
         label: conf.name,
         description: conf.originUrl
@@ -140,7 +140,7 @@ export class CommandCenter {
       report('拉取中...');
       await currentManager.updateRemoteDataSource();
       report('差异比对中...');
-      currentManager.updateDiffs();
+      await currentManager.updateDiffs();
       report('完成');
       getPontOriginsProvider().refresh(this.manager);
     });
@@ -149,11 +149,12 @@ export class CommandCenter {
   @command('pont.findInterface')
   async findInterface(ignoreEdit = false) {
     const currentManager = this.manager.getCurrentOriginManage();
-    const codeTemplate = currentManager.getCodeSnippet();
 
-    const items = currentManager
-      .getDataSource()
-      .mods.map((mod) => {
+    const codeGenerator = currentManager.getCodeGenerator();
+    const dataSource = await currentManager.getDataSource();
+
+    const items = dataSource.mods
+      .map((mod) => {
         return mod.interfaces.map((inter) => {
           return {
             label: `[${inter.method}] ${inter.path}`,
@@ -172,7 +173,7 @@ export class CommandCenter {
 
     if (!pickItem) return;
 
-    const code = codeTemplate(pickItem.inter);
+    const code = codeGenerator.codeSnippet(pickItem.inter);
 
     const editor = window.activeTextEditor;
 
@@ -200,11 +201,12 @@ export class CommandCenter {
 
   @command('pont.regenerate')
   async regenerate() {
-    await showProgress('接口代码', async (report) => {
-      report('生成中...');
+    await showProgress('生成接口代码', async (report) => {
+      report('执行中...');
       const currentManager = this.manager.getCurrentOriginManage();
-      await currentManager.generateCodeByRemoteDataSource();
-      currentManager.updateDiffs();
+      currentManager.updateDataSourceByRemoteDataSource();
+      await this.manager.generateCode();
+      await currentManager.updateDiffs();
       getPontOriginsProvider().refresh(this.manager);
       report('完成');
     });
@@ -212,11 +214,11 @@ export class CommandCenter {
 
   @command('pont.syncRemoteAndGenerate')
   async syncRemoteAndGenerate() {
-    await showProgress('接口代码', async (report) => {
-      report('生成中...');
+    await showProgress('生成当前origin接口代码', async (report) => {
+      report('执行中...');
       const currentManager = this.manager.getCurrentOriginManage();
-      await currentManager.updateRemoteDataSourceAndGenerateCode();
-      currentManager.updateDiffs();
+      await this.manager.updateRemoteDataSourceAndGenerateCode();
+      await currentManager.updateDiffs();
       getPontOriginsProvider().refresh(this.manager);
       report('完成');
     });
@@ -224,11 +226,11 @@ export class CommandCenter {
 
   @command('pont.syncRemoteAndGenerateAll')
   async syncRemoteAndGenerateAll() {
-    await showProgress('接口代码', async (report) => {
-      report('生成中...');
+    await showProgress('生成所有origin接口代码', async (report) => {
+      report('执行中...');
       const currentManager = this.manager.getCurrentOriginManage();
-      await this.manager.generateAllCode();
-      currentManager.updateDiffs();
+      await this.manager.updateRemoteDataSourceAndGenerateAllCode();
+      await currentManager.updateDiffs();
       getPontOriginsProvider().refresh(this.manager);
       report('完成');
     });
@@ -238,24 +240,18 @@ export class CommandCenter {
   async updateMod(item: OriginTreeItem) {
     if (!item) return;
 
-    const currentManager = this.manager.getCurrentOriginManage();
-    const modName = item.label;
+    await showProgress('更新本地模块', async (report) => {
+      report('更新中...');
+      const currentManager = this.manager.getCurrentOriginManage();
+      const modName = item.label;
+      const oldFiles = await this.manager.getGeneratedFiles();
+      await currentManager.updateDataSourceMod(modName);
+      await currentManager.updateDiffs();
+      await this.manager.generateCode(oldFiles);
 
-    await showProgress(
-      '更新本地模块',
-      async (report) => {
-        report('更新中...');
-
-        currentManager.updateDataSourceMod(modName);
-        currentManager.updateDiffs();
-
-        await currentManager.generateCode(true);
-
-        getPontOriginsProvider().refreshNode(this.manager, item.parent);
-        report('更新成功');
-      },
-      ProgressLocation.SourceControl
-    );
+      getPontOriginsProvider().refreshNode(this.manager, item.parent);
+      report('更新成功');
+    });
   }
 
   @command('pont.qickPickMod')
@@ -278,23 +274,19 @@ export class CommandCenter {
   async updateBo(item: OriginTreeItem) {
     if (!item) return;
 
-    const currentManager = this.manager.getCurrentOriginManage();
-    const boName = item.label;
+    await showProgress('更新本地基类', async (report) => {
+      report('更新中...');
 
-    await showProgress(
-      '更新本地基类',
-      async (report) => {
-        report('更新中...');
+      const currentManager = this.manager.getCurrentOriginManage();
+      const boName = item.label;
+      const oldFiles = await this.manager.getGeneratedFiles();
+      await currentManager.updateDataSourceClass(boName);
+      await currentManager.updateDiffs();
+      await this.manager.generateCode(oldFiles);
 
-        currentManager.updateDataSourceClass(boName);
-        currentManager.updateDiffs();
-        await currentManager.generateCode(true);
-
-        getPontOriginsProvider().refreshNode(this.manager, item.parent);
-        report('更新成功');
-      },
-      ProgressLocation.SourceControl
-    );
+      getPontOriginsProvider().refreshNode(this.manager, item.parent);
+      report('更新成功');
+    });
   }
 
   @command('pont.qickPickBo')
@@ -367,46 +359,51 @@ export class CommandCenter {
 
   @command('pont.createManager')
   async createManager(configFilePath?: string) {
-    try {
-      const rootPath = workspace.rootPath;
-      const configPath = configFilePath || this.configPath || '';
-      Disposable.from(...managerCleanUps).dispose();
+    await showProgress('初始化 pont', async (report) => {
+      try {
+        report('进行中...');
+        const rootPath = workspace.rootPath;
+        const configPath = configFilePath || this.configPath || '';
+        Disposable.from(...managerCleanUps).dispose();
 
-      const config = Config.createFromConfigPath(configPath);
-      const errMsg = config.validate();
+        const config = Config.createFromConfigPath(configPath);
+        const errMsg = config.validate();
 
-      if (errMsg) {
-        throw new Error(errMsg);
+        if (errMsg) {
+          throw new Error(errMsg);
+        }
+
+        const manager = new Manager(rootPath, config, path.dirname(configPath));
+        Logger.setLog((...info) => this.outputChannel.appendLine(info.join(' ')));
+        this.setManage(manager);
+
+        if (config.mocks && config.mocks.enable) {
+          const closeServer = await MocksServer.getSingleInstance(manager).run();
+          managerCleanUps.push({ dispose: closeServer });
+        }
+
+        manager.init(rootPath, path.dirname(configPath));
+        await manager.changeOrigin();
+
+        pollingManage.setCallback(async () => {
+          await manager.getCurrentOriginManage().updateRemoteDataSource();
+        });
+        pollingManage.startPolling(config.pollingTime);
+        managerCleanUps.push({ dispose: pollingManage.stopPolling });
+
+        setContext('multipleOrigins', manager.getStandardOirginConfigs().length > 1);
+        setContext('initManager', true);
+        setContext('initError', false);
+        getPontOriginsProvider().refresh(manager);
+
+        report('完成');
+      } catch (e) {
+        window.showErrorMessage('Pont初始化失败');
+        setContext('initError', true);
+        setContext('initManager', false);
+        return Promise.reject(e);
       }
-
-      const manager = new Manager(rootPath, config, path.dirname(configPath));
-      Logger.setLog((...info) => this.outputChannel.appendLine(info.join(' ')));
-      this.setManage(manager);
-
-      if (config.mocks && config.mocks.enable) {
-        const closeServer = await MocksServer.getSingleInstance(manager).run();
-        managerCleanUps.push({ dispose: closeServer });
-      }
-
-      manager.init(rootPath, path.dirname(configPath));
-      await manager.changeOrigin();
-
-      pollingManage.setCallback(async () => {
-        await manager.getCurrentOriginManage().updateRemoteDataSource();
-      });
-      pollingManage.startPolling(config.pollingTime);
-      managerCleanUps.push({ dispose: pollingManage.stopPolling });
-
-      setContext('multipleOrigins', manager.getStandardConfigs().length > 1);
-      setContext('initManager', true);
-      setContext('initError', false);
-      getPontOriginsProvider().refresh(manager);
-    } catch (e) {
-      window.showErrorMessage('Pont初始化失败');
-      setContext('initError', true);
-      setContext('initManager', false);
-      return Promise.reject(e);
-    }
+    });
   }
 
   @command('pont.installPontEngine')

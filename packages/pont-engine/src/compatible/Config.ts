@@ -2,13 +2,12 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 
 import { OriginType, Surrounding } from '../types/pontConfig';
-import type { IDataSourceConfig, IOriginConfig } from '../types/pontConfig';
 import { getTemplate } from '../utils/templateHelp';
 import { defaultFetchMethodCode, defaultTransformCode } from '../constants/defaultCode';
 import { Mocks } from './Mocks';
 
 /** @deprecated */
-export class DataSourceConfig implements IDataSourceConfig {
+export class DataSourceConfig  {
   rootDir = '';
   originUrl? = '';
   originType = OriginType.SwaggerV2;
@@ -47,7 +46,7 @@ export class DataSourceConfig implements IDataSourceConfig {
 /** @deprecated */
 export class Config extends DataSourceConfig {
   origins: Array<{
-    originType: IOriginConfig;
+    originType: OriginType;
     originUrl: string;
     name: string;
     usingOperationId: boolean;

@@ -15,7 +15,7 @@
       "default": "SwaggerV2",
       "enum": ["SwaggerV2", "SwaggerV3"]
     },
-    "customTemplatePath": {
+    "commonTemplatePath": {
       "description": "自定义模板文件路径",
       "type": "string"
     },
@@ -105,18 +105,11 @@
             "description": "自定义模板文件路径",
             "type": "string"
           },
-          "templatePath": {
-            "description": "the code generator template, a ts file",
+          "originType": {
+            "description": "数据源类型",
             "type": "string",
-            "default": "./template"
-          },
-          "transformPath": {
-            "description": "自定义标准数据源转化文件路径",
-            "type": "string"
-          },
-          "fetchMethodPath": {
-            "description": "自定义数据源请求文件路径",
-            "type": "string"
+            "default": "SwaggerV2",
+            "enum": ["SwaggerV2", "SwaggerV3"]
           }
         }
       }

@@ -10,7 +10,7 @@ import { Logger } from '../main/Logger';
 
 interface TemplateInfo {
   name: string;
-  templateType: 'customTemplate' | 'template' | 'transform' | 'fetchMethod';
+  templateType: 'commonTemplate' | 'customTemplate' | 'template' | 'transform' | 'fetchMethod';
   templatePath: string;
   defaultCode?: string;
 }

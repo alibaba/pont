@@ -1,5 +1,5 @@
 import type { StandardDataSource } from '../main/StandardDataSource';
-import type { IStandardConfig } from './pontConfig';
+import type { IStandardOirginConfig } from './pontConfig';
 
 export interface IOriginReader {
   /** 获取远程数据 */
@@ -9,7 +9,7 @@ export interface IOriginReader {
   translate(jsonString: string): Promise<string>;
 
   /** 将远程数据转化成 pont 标准数据模型 */
-  transform2StandardDataSource<T>(json: T, config: IStandardConfig): Promise<StandardDataSource>;
+  transform2StandardDataSource<T>(json: T, config: IStandardOirginConfig): Promise<StandardDataSource>;
 
   /** 二次加工标准数据模型 */
   transformStandardDataSource(dataSource: StandardDataSource): Promise<StandardDataSource>;

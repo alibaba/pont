@@ -80,7 +80,7 @@ export async function translate(rootDir, text: string, engineIndex = 0) {
 }
 
 /** 翻译中文类名等 */
-export async function translateChinese(jsonString: string) {
+export async function translateChinese(jsonString: string, rootDir: string) {
   let retString = jsonString;
   try {
     const matchItems = jsonString
@@ -99,12 +99,11 @@ export async function translateChinese(jsonString: string) {
     // 例如: 请求参数vo, 请求参数, 替换时先替换 请求参数vo, 后替换请求参数
     chineseKeyCollect.sort((pre, next) => next.length - pre.length);
 
-    let result = await Promise.all(chineseKeyCollect.map((text) => translate(this.config.rootDir, text)));
+    let result = await Promise.all(chineseKeyCollect.map((text) => translate(rootDir, text)));
     // const normalizeRegStr = (str: string) => str.replace(/(\W)/g, '$1');
     const toRegStr = (str) => str.replace(/(\W)/g, '\\$1');
     result.forEach((enKey: string, index) => {
       const chineseKey = chineseKeyCollect[index];
-      // this.report(chineseKey + ' ==> ' + enKey);
       if (enKey) {
         retString = retString.replace(eval(`/${toRegStr(chineseKey)}/g`), enKey);
       }

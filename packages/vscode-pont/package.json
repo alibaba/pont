@@ -92,7 +92,7 @@
       },
       {
         "command": "pont.syncRemoteAndGenerate",
-        "title": "拉取数据并生成接口代码"
+        "title": "生成当前origin接口代码"
       },
       {
         "command": "pont.syncRemoteAndGenerateAll",

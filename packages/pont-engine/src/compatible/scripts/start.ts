@@ -10,9 +10,9 @@ import * as debugLog from '../debugLog';
 import { lookForFiles, judgeIsVaildUrl } from '../utils';
 import { templateRegistion } from '../templates';
 import { Surrounding } from '../../types/pontConfig';
-import type { IDataSourceConfig } from '../../types/pontConfig';
 import type { IMocks } from '../../types/mocks';
 import { CONFIG_FILE } from '../../constants';
+import type { Config } from '../Config';
 
 const promptList = [
   {
@@ -99,7 +99,7 @@ export async function generatePontConfig() {
 function generateConfig(configPath: string, answers: any) {
   const { originUrl, templatePath, outDir, enableMocks, surrounding } = answers;
   const dirName = path.join(process.cwd(), '/pont-config.json');
-  let config = {} as IDataSourceConfig;
+  let config = {} as Config;
   if (configPath) {
     try {
       const content = fs.readFileSync(configPath, 'utf8');

@@ -1,9 +1,8 @@
-import { FilesManager as OldFilesManager } from '../../compatible/generators/generate';
 import * as _ from 'lodash';
 
-export class FilesManager extends OldFilesManager {
-  prevFiles: any;
+import { FilesManager as OldFilesManager } from '../../compatible/generators/generate';
 
+export class FilesManager extends OldFilesManager {
   private dispatch(files: {}) {
     return _.mapValues(files, (value: Function | {}) => {
       if (typeof value === 'function') {
@@ -17,12 +16,7 @@ export class FilesManager extends OldFilesManager {
       return value;
     });
   }
-
-  initPrevFiles(files: any) {
-    this.prevFiles = files;
-  }
-
-  private getGeneratedFiles() {
+  getGeneratedFiles() {
     const files = this.fileStructures.getFileStructures();
     try {
       return this.dispatch(files);
@@ -31,9 +25,8 @@ export class FilesManager extends OldFilesManager {
     }
   }
 
-  async generateCode(update = false) {
+  async generateCode(oldFiles = {}) {
     const files = this.getGeneratedFiles();
-    await this.regenerate(files, update ? this.prevFiles : null);
-    this.prevFiles = files;
+    await this.regenerate(files, oldFiles);
   }
 }

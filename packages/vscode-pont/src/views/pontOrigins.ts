@@ -40,14 +40,17 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
   getChildren(element?: OriginTreeItem): Thenable<any[]> {
     if (!this.manager) return null;
 
-    const allConfigs = this.manager.getStandardConfigs();
+    const allConfigs = this.manager.getStandardOirginConfigs();
+    const baseConfig = this.manager.getStandardBaseConfig();
     const currentManager = this.manager.getCurrentOriginManage();
 
     const { modDiffs, boDiffs } = currentManager.getDiffs() || { modDiffs: [], boDiffs: [] };
     const currConfig = currentManager.getConfig();
 
     if (!element && allConfigs.length > 0) {
-      const { name, originUrl, templatePath, transformPath } = currConfig;
+      const { name, originUrl } = currConfig;
+      const { templatePath, transformPath } = baseConfig;
+
       const items: OriginTreeItem[] = [];
 
       if (allConfigs.length > 1) {
@@ -57,8 +60,8 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
         items.push(originItem);
       }
 
-      if (currConfig.configDir) {
-        items.push(new OriginTreeItemFile(path.join(currConfig.configDir, CONFIG_FILE)));
+      if (baseConfig.configDir) {
+        items.push(new OriginTreeItemFile(path.join(baseConfig.configDir, CONFIG_FILE)));
       }
 
       if (templatePath) {

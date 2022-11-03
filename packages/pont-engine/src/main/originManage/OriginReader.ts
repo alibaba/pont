@@ -1,6 +1,6 @@
 import fetch from 'node-fetch';
 
-import type { IStandardConfig } from '../../types/pontConfig';
+import type { IStandardOirginConfig } from '../../types/pontConfig';
 import type { IOriginReader } from '../../types/generate';
 import type { StandardDataSource } from '../../main/StandardDataSource';
 
@@ -9,15 +9,21 @@ import { transformSwaggerV3Data2Standard, transformSwaggerData2Standard } from '
 import { OriginType } from '../../types/pontConfig';
 
 export class OriginReader implements IOriginReader {
+  private config: IStandardOirginConfig;
+
+  setConfig(config: IStandardOirginConfig) {
+    this.config = config;
+  }
+
   fetchMethod(originUrl: string): Promise<string> {
     return fetch(originUrl).then((res) => res.text());
   }
 
   translate(jsonString: string): Promise<string> {
-    return translateChinese(jsonString);
+    return translateChinese(jsonString, this.config.rootDir);
   }
 
-  async transform2StandardDataSource(json: any, config: IStandardConfig): Promise<StandardDataSource> {
+  async transform2StandardDataSource(json: any, config: IStandardOirginConfig): Promise<StandardDataSource> {
     const { name, usingOperationId } = config;
 
     switch (config.originType) {

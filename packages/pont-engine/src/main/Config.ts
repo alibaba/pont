@@ -1,6 +1,6 @@
 import * as path from 'path';
 
-import type { IPontConfig, IStandardConfig } from '../types/pontConfig';
+import type { IPontConfig, IStandardBaseConfig, IStandardOirginConfig } from '../types/pontConfig';
 
 import { DataSourceConfig as OldDataSourceConfig, Config as OldConfig } from '../compatible/Config';
 import { PontFileManager } from '../utils/PontFileManager';
@@ -24,23 +24,31 @@ export class Config extends OldConfig {
     return path.join(fileDir, filePath);
   }
 
-  static getStandardConfig(rootDir: string, configDir: string, pontConfig: IPontConfig): IStandardConfig[] {
-    if (!pontConfig) return [];
-    const { origins, usingMultipleOrigins, ...rest } = pontConfig;
+  static getStandardConfig(
+    rootDir: string,
+    configDir: string,
+    pontConfig: IPontConfig
+  ): {
+    standardBaseConfig: IStandardBaseConfig;
+    standardOirginConfigs: IStandardOirginConfig[];
+  } {
+    if (!pontConfig) return { standardBaseConfig: null, standardOirginConfigs: [] };
 
-    const commonConfig: IStandardConfig = {
-      ...rest,
+    const { origins, ...baseConfig } = pontConfig;
+
+    const standardBaseConfig: IStandardBaseConfig = {
+      ...baseConfig,
       rootDir,
       configDir,
       hasOrigins: origins?.length > 0,
-      usingMultipleOrigins: origins?.length > 0 ? usingMultipleOrigins : false,
+      usingMultipleOrigins: origins?.length > 0 ? baseConfig.usingMultipleOrigins : false,
       outDir: Config.getAbsolutePath(configDir, pontConfig.outDir),
-      customTemplatePath: Config.getAbsolutePath(configDir, pontConfig.customTemplatePath),
+      commonTemplatePath: Config.getAbsolutePath(configDir, baseConfig.commonTemplatePath),
       templatePath: Config.getAbsolutePath(configDir, pontConfig.templatePath),
       transformPath: Config.getAbsolutePath(configDir, pontConfig.transformPath),
       fetchMethodPath: Config.getAbsolutePath(configDir, pontConfig.fetchMethodPath),
       templateOriginalPath: {
-        customTemplatePath: pontConfig.customTemplatePath,
+        commonTemplatePath: pontConfig.commonTemplatePath,
         templatePath: pontConfig.templatePath,
         transformPath: pontConfig.transformPath,
         fetchMethodPath: pontConfig.fetchMethodPath
@@ -50,36 +58,47 @@ export class Config extends OldConfig {
         : []
     };
 
+    let standardOirginConfigs: IStandardOirginConfig[] = [];
+
     if (Array.isArray(origins) && origins.length > 0) {
-      return origins.map((origin) => {
-        const customTemplatePath =
-          Config.getAbsolutePath(configDir, origin.customTemplatePath) ?? commonConfig.customTemplatePath;
-        const templatePath = Config.getAbsolutePath(configDir, origin.templatePath) ?? commonConfig.templatePath;
-        const transformPath = Config.getAbsolutePath(configDir, origin.transformPath) ?? commonConfig.transformPath;
-        const fetchMethodPath =
-          Config.getAbsolutePath(configDir, origin.fetchMethodPath) ?? commonConfig.fetchMethodPath;
+      standardOirginConfigs = origins.map((origin) => {
+        const customTemplatePath = Config.getAbsolutePath(configDir, origin.customTemplatePath);
 
         return {
-          ...commonConfig,
           ...origin,
+          rootDir: standardBaseConfig.rootDir,
+          originType: standardBaseConfig.originType,
           customTemplatePath,
-          templatePath,
-          transformPath,
-          fetchMethodPath,
           templateOriginalPath: {
-            customTemplatePath: origin.customTemplatePath ?? pontConfig.customTemplatePath,
-            templatePath: origin.templatePath ?? pontConfig.templatePath,
-            transformPath: origin.transformPath ?? pontConfig.transformPath,
-            fetchMethodPath: origin.fetchMethodPath ?? pontConfig.fetchMethodPath
+            customTemplatePath: origin.customTemplatePath
           }
         };
       });
+    } else {
+      standardOirginConfigs = [
+        {
+          name: '',
+          rootDir: standardBaseConfig.rootDir,
+          originType: standardBaseConfig.originType,
+          originUrl: standardBaseConfig.originUrl,
+          customTemplatePath: null,
+          templateOriginalPath: {
+            customTemplatePath: null
+          }
+        }
+      ];
     }
 
-    return [commonConfig];
+    return { standardBaseConfig, standardOirginConfigs };
   }
 
-  static getStandardConfigFromPath(rootPath: string, configDir: string): IStandardConfig[] {
+  static getStandardConfigFromPath(
+    rootPath: string,
+    configDir: string
+  ): {
+    standardBaseConfig: IStandardBaseConfig;
+    standardOirginConfigs: IStandardOirginConfig[];
+  } {
     const pontConfig = Config.getPontConfigFromPath(configDir);
 
     return Config.getStandardConfig(rootPath, configDir, pontConfig);
