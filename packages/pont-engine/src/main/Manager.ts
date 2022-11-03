@@ -78,14 +78,17 @@ export class Manager extends OldManager {
 
   /** 切换数据源 */
   async changeOrigin(name?: string) {
-    this.currentOriginManage = name
+    const currentOriginManage = name
       ? this.originManages.find((item) => item.getName() === name)
       : this.originManages[0];
 
-    if (this.currentOriginManage) {
-      await Promise.all([this.currentOriginManage.initDataSource(), this.currentOriginManage.updateRemoteDataSource()]);
-      await this.currentOriginManage.updateDiffs();
+    if (currentOriginManage) {
+      await Promise.all([currentOriginManage.initDataSource(), currentOriginManage.updateRemoteDataSource()]);
+      await currentOriginManage.updateDiffs();
+      this.currentOriginManage = currentOriginManage;
       this.log(`切换数据源:${this.currentOriginManage.getName() ?? 'default'}`);
+    } else {
+      this.log(`不存在数据源 ${name}`);
     }
   }
 
