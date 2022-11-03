@@ -182,7 +182,7 @@ export class Manager extends OldManager {
 
   /** 更新所有远程数据源 */
   updateAllRemoteDataSource() {
-    return this.originManages.map((item) => item.updateRemoteDataSource());
+    return Promise.all(this.originManages.map((item) => item.updateRemoteDataSource()));
   }
 
   /** 拉取远程数据源，并生成所有代码 */
