@@ -1,5 +1,5 @@
 export const defaultTemplateCode = `
-import * as Pont from 'pont-engine';
+import Pont from 'pont-engine';
 import { CodeGenerator, Interface } from "pont-engine";
 
 export class FileStructures extends Pont.FileStructures {

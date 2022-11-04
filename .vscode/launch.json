@@ -51,7 +51,7 @@
       "type": "node",
       "request": "launch",
       "name": "debug:pont-engine",
-      "program": "${workspaceFolder}/packages/pont-engine/lib/cmd.js",
+      "program": "${workspaceFolder}/packages/pont-engine/lib/compatible/cmd.js",
       "args": [""],
       "cwd": "${workspaceFolder}/packages/pont-engine/",
       "console": "integratedTerminal",

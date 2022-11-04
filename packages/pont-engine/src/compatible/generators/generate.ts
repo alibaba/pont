@@ -8,19 +8,14 @@
  */
 
 import * as _ from 'lodash';
-import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
 import * as fs from 'fs-extra';
 import * as path from 'path';
-import {
-  format,
-  reviseModName,
-  getFileName,
-  getTemplatesDirFile,
-  judgeTemplatesDirFileExists
-} from '../utils';
+
+import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
+import { format, reviseModName, getFileName, getTemplatesDirFile, judgeTemplatesDirFileExists } from '../utils';
 import { info } from '../debugLog';
 import { templateRegistion } from '../templates';
-import { Surrounding } from '../types/pontConfig';
+import { Surrounding } from '../../types/pontConfig';
 
 export class FileStructures {
   constructor(
@@ -385,7 +380,7 @@ export class CodeGenerator {
   /** 获取接口类和基类的总的 index 入口文件代码 */
   getIndex() {
     let conclusion = `
-      import * as defs from './baseClass';
+      import defs from './baseClass';
       import './mods/';
 
       ${this.surrounding === Surrounding.typeScript ? '(window as any)' : 'window'}.defs = defs;
@@ -441,7 +436,7 @@ export class CodeGenerator {
      * @desc ${inter.description}
      */
 
-    import * as defs from '../../baseClass';
+    import defs from '../../baseClass';
     import { pontCore } from '../../pontCore';
 
     export ${inter.getParamsCode('Params', this.surrounding)}
@@ -466,7 +461,7 @@ export class CodeGenerator {
        */
       ${mod.interfaces
         .map((inter) => {
-          return `import * as ${inter.name} from './${inter.name}';`;
+          return `import ${inter.name} from './${inter.name}';`;
         })
         .join('\n')}
 
@@ -497,7 +492,7 @@ export class CodeGenerator {
       ${this.dataSource.mods
         .map((mod) => {
           const modName = reviseModName(mod.name);
-          return `import * as ${modName} from './${modName}';`;
+          return `import ${modName} from './${modName}';`;
         })
         .join('\n')}
 
@@ -573,6 +568,7 @@ export class FilesManager {
         this.fileStructures.spiltApiLock && this.fileStructures.usingMultipleOrigins ? generator : null
       );
       if (lockContent !== newLockContent) {
+        await fs.ensureFile(lockFilePath);
         await fs.writeFile(lockFilePath, newLockContent);
       }
     };
@@ -681,8 +677,11 @@ export class FilesManager {
     await Promise.all(
       _.map(files, async (value: string, filePath) => {
         if (value === undefined) {
-          return fs.mkdir(filePath);
+          return fs.ensureDir(filePath);
         }
+
+        await fs.ensureFile(filePath);
+
         if (filePath.endsWith('.json')) {
           return fs.writeFile(filePath, value);
         }
@@ -704,18 +703,21 @@ export class FilesManager {
 
           if (state.isDirectory()) {
             await fs.unlink(currPath);
+            await fs.ensureFile(currPath);
             return fs.writeFile(currPath, this.formatFile(value, name));
           } else {
-            const newValue = this.formatFile(value);
+            const newValue = this.formatFile(value, name);
             const currValue = await fs.readFile(currPath, 'utf8');
 
             if (newValue !== currValue) {
+              await fs.ensureFile(currPath);
               return fs.writeFile(currPath, this.formatFile(value, name));
             }
 
             return;
           }
         } else {
+          await fs.ensureFile(currPath);
           return fs.writeFile(currPath, this.formatFile(value, name));
         }
       }
@@ -728,12 +730,12 @@ export class FilesManager {
           return this.generateFiles(files[name], currPath);
         } else {
           await fs.unlink(currPath);
-          await fs.mkdir(currPath);
+          await fs.ensureDir(currPath);
 
           return this.generateFiles(files[name], currPath);
         }
       } else {
-        await fs.mkdir(currPath);
+        await fs.ensureDir(currPath);
 
         return this.generateFiles(files[name], currPath);
       }

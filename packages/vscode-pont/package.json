@@ -44,6 +44,12 @@
         "contents": "请安装或升级pont-engine \n [yarn add pont-engine](command:pont.installPontEngine?%7B%22type%22%3A%22yarn%22%7D) \n [npm i -D pont-engine](command:pont.installPontEngine?%7B%22type%22%3A%22npm%22%7D)",
         "when": "pontContext.versionError",
         "enablement": "pontContext.isInit"
+      },
+      {
+        "view": "pontOrigins",
+        "contents": "[忽略](command:pont.createManager)",
+        "when": "pontContext.versionError",
+        "enablement": "pontContext.isInit"
       }
     ],
     "jsonValidation": [
@@ -83,6 +89,14 @@
         "command": "pont.makeAllSame",
         "title": "更新全部数据源",
         "icon": "$(refresh)"
+      },
+      {
+        "command": "pont.syncRemoteAndGenerate",
+        "title": "生成当前origin接口代码"
+      },
+      {
+        "command": "pont.syncRemoteAndGenerateAll",
+        "title": "生成所有origin接口代码"
       },
       {
         "command": "pont.createManager",
@@ -156,19 +170,24 @@
           "group": "navigation@2"
         },
         {
-          "command": "pont.makeAllSame",
+          "command": "pont.regenerate",
           "when": "pontContext.initManager&&!pontContext.initError&&view == pontOrigins",
           "group": "navigation@3"
         },
         {
-          "command": "pont.regenerate",
+          "command": "pont.syncRemoteAndGenerate",
           "when": "pontContext.initManager&&!pontContext.initError&&view == pontOrigins",
-          "group": "navigation@4"
+          "group": "secondary@1"
+        },
+        {
+          "command": "pont.syncRemoteAndGenerateAll",
+          "when": "pontContext.initManager&&!pontContext.initError&&view == pontOrigins&&pontContext.multipleOrigins",
+          "group": "secondary@2"
         },
         {
           "command": "pont.createManager",
           "when": "pontContext.isInit&&view == pontOrigins",
-          "group": "secondary"
+          "group": "secondary@3"
         }
       ],
       "view/item/context": [
@@ -210,7 +229,7 @@
     "fs-extra": "^7.0.1",
     "mockjs": "^1.0.1-beta3",
     "pont-engine": "1.4.0",
-    "typescript": "4.3.5"
+    "typescript": "^4.8.3"
   },
   "devDependencies": {
     "rimraf": "^3.0.2",

@@ -2,15 +2,14 @@ import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as prettier from 'prettier';
 
-import { error } from '../debugLog';
-import { Mod, StandardDataSource, StandardDataType } from '../standard';
-import { diff } from '../diff';
-import { Manager } from '../main/Manager';
+import type { Mod, StandardDataSource, StandardDataType } from './standard';
+
+import { error } from './debugLog';
+import { diff } from './diff';
 import { CONFIG_FILE } from '../constants';
-import { Config } from '../main/Config';
 import { Surrounding, SurroundingFileName } from '../types/pontConfig';
 
-export { getTemplate } from './templateHelp';
+export { getTemplate } from '../utils/templateHelp';
 
 export { CONFIG_FILE };
 
@@ -23,7 +22,7 @@ export function format(fileContent: string, prettierOpts = {}) {
       ...prettierOpts
     });
   } catch (e) {
-    error(`代码格式化报错！${e.toString()}\n代码为：${fileContent}`);
+    error(`代码格式化错误！${e.toString()}`);
     return fileContent;
   }
 }
@@ -241,23 +240,6 @@ export function hasChinese(str: string) {
       /[\u4E00-\u9FCC\u3400-\u4DB5\uFA0E\uFA0F\uFA11\uFA13\uFA14\uFA1F\uFA21\uFA23\uFA24\uff1a\uff0c\uFA27-\uFA29]|[\ud840-\ud868][\udc00-\udfff]|\ud869[\udc00-\uded6\udf00-\udfff]|[\ud86a-\ud86c][\udc00-\udfff]|\ud86d[\udc00-\udf34\udf40-\udfff]|\ud86e[\udc00-\udc1d]|[\uff01-\uff5e\u3000-\u3009\u2026]/
     )
   );
-}
-
-const PROJECT_ROOT = process.cwd();
-
-export async function createManager(configFile = CONFIG_FILE) {
-  const configPath = await lookForFiles(PROJECT_ROOT, configFile);
-
-  if (!configPath) {
-    return;
-  }
-
-  const config = Config.createFromConfigPath(configPath);
-  const manager = new Manager(PROJECT_ROOT, config, path.dirname(configPath));
-
-  await manager.ready();
-
-  return manager;
 }
 
 export function diffDses(ds1: StandardDataSource, ds2: StandardDataSource) {

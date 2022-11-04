@@ -1,4 +1,5 @@
-import { ResolveConfigOptions } from 'prettier';
+import type { ResolveConfigOptions } from 'prettier';
+import type { IMocks } from './mocks';
 
 export enum OriginType {
   SwaggerV3 = 'SwaggerV3',
@@ -15,63 +16,67 @@ export enum SurroundingFileName {
   typeScript = 'ts'
 }
 
-export interface IMocks {
-  enable: boolean;
-  port: number;
-  basePath: string;
-  wrapper: string;
+interface IOriginConfig {
+  name: string;
+
+  originUrl: string;
+
+  customTemplatePath?: string;
+
+  originType?: OriginType;
 }
 
 export interface IBaseConfig {
-  name: string;
-  outDir?: string;
-  originUrl: string;
-  originType: OriginType;
-
-  fetchMethodPath?: string;
-  transformPath?: string;
-
-  usingOperationId: boolean;
-}
-
-export interface IDataSourceConfig {
-  name?: string;
-  rootDir: string;
   outDir: string;
   originUrl?: string;
   originType: OriginType;
   surrounding: Surrounding;
+  templateType: 'fetch' | 'hooks';
 
-  fetchMethodPath: string;
-  templateType: string;
-  templatePath: string;
-  transformPath: string;
-
-  usingOperationId: boolean;
   usingMultipleOrigins: boolean;
   spiltApiLock: boolean;
-  taggedByName: boolean;
+  usingOperationId?: boolean;
+
+  fetchMethodPath?: string;
+  templatePath?: string;
+  transformPath?: string;
+  commonTemplatePath?: string;
 
   scannedRange: string[];
+
   prettierConfig: ResolveConfigOptions;
+
   /** 单位为秒，默认 20 分钟 */
   pollingTime: number;
 
   mocks: IMocks;
 }
 
-export interface IOriginConfig {
-  name: string;
-  outDir?: string;
-  originUrl: string;
-  originType: OriginType;
-
-  fetchMethodPath?: string;
-  transformPath?: string;
-
-  usingOperationId: boolean;
+export interface IPontConfig extends IBaseConfig {
+  origins: IOriginConfig[];
 }
 
-export interface IPontConfig extends IDataSourceConfig {
-  origins: IOriginConfig[];
+export interface IStandardBaseConfig extends IBaseConfig {
+  rootDir: string;
+  configDir: string;
+  hasOrigins: boolean;
+
+  templateOriginalPath: {
+    fetchMethodPath?: string;
+    templatePath?: string;
+    transformPath?: string;
+    commonTemplatePath?: string;
+  };
+}
+
+export interface IStandardOirginConfig extends IOriginConfig {
+  rootDir: string;
+
+  originType: OriginType;
+
+  usingOperationId?: boolean;
+
+  templateOriginalPath: {
+    customTemplatePath?: string;
+  };
 }

@@ -1,17 +1,21 @@
-export { CONFIG_FILE } from './constants';
+/** new */
 
-export { Manager } from './main/Manager';
+export { CONFIG_FILE } from './constants';
+export { Surrounding } from './types/pontConfig';
+export { getTemplate } from './utils/templateHelp';
+export { PollingManage } from './utils/PollingManage';
 
 export { DataSourceConfig } from './main/Config';
-export { Surrounding } from './types/pontConfig';
-
-export { getTemplate } from './utils/templateHelp';
+export { Manager } from './main/Manager';
 export { Config } from './main/Config';
+export { OriginManage } from './main/originManage';
+export { Logger } from './main/Logger';
 
-export { BaseClass, Interface, Mod, PrimitiveType, Property, StandardDataSource, StandardDataType } from './standard';
+/** compatible */
+
+export { createManager } from './compatible/Manager';
 
 export {
-  createManager,
   format,
   getDuplicateById,
   getIdentifierFromOperatorId,
@@ -24,8 +28,21 @@ export {
   toUpperFirstLetter,
   transformCamelCase,
   transformDescription,
-  transformModsName
-} from './utils';
-export { CodeGenerator, FileStructures, FilesManager } from './generators/generate';
-export { diff, Model, removeCtx } from './diff';
-export { PontDictManager } from './LocalDictManager';
+  transformModsName,
+  getFileName
+} from './compatible/utils';
+export { diff, Model, removeCtx } from './compatible/diff';
+export {
+  BaseClass,
+  Interface,
+  Mod,
+  PrimitiveType,
+  Property,
+  StandardDataSource,
+  StandardDataType
+} from './compatible/standard';
+export { CodeGenerator, FileStructures, FilesManager } from './compatible/generators/generate';
+
+/** deprecated */
+
+export { PontDictManager } from './deprecated/LocalDictManager';

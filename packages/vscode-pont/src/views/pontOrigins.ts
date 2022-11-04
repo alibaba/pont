@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as path from 'path';
-import { Manager } from 'pont-engine';
-import { CONFIG_FILE, getFileName } from 'pont-engine/lib/utils';
+import { CONFIG_FILE, Manager, getFileName } from 'pont-engine';
 
 class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
   manager: Manager;
@@ -15,8 +14,10 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
   getTreeItem(element: OriginTreeItem): vscode.TreeItem {
     if (!this.manager) return null;
 
+    const currentManager = this.manager.getCurrentOriginManage();
+
     if (element.type == 'MOD') {
-      const modDiffs = this.manager.diffs?.modDiffs || [];
+      const modDiffs = currentManager.getDiffs().modDiffs || [];
       return {
         ...element,
         label: `更新本地模块(${modDiffs.length})`,
@@ -25,7 +26,7 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
     }
 
     if (element.type == 'BO') {
-      const boDiffs = this.manager.diffs?.boDiffs || [];
+      const boDiffs = currentManager.getDiffs().boDiffs || [];
       return {
         ...element,
         label: `更新本地基类(${boDiffs.length})`,
@@ -37,14 +38,19 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
   }
 
   getChildren(element?: OriginTreeItem): Thenable<any[]> {
-    if (!this.manager?.currConfig) return null;
+    if (!this.manager) return null;
 
-    const { currConfig, allConfigs, diffs, configDir } = this.manager;
+    const allConfigs = this.manager.getStandardOirginConfigs();
+    const baseConfig = this.manager.getStandardBaseConfig();
+    const currentManager = this.manager.getCurrentOriginManage();
 
-    const { modDiffs, boDiffs } = diffs || { modDiffs: [], boDiffs: [] };
+    const { modDiffs, boDiffs } = currentManager.getDiffs() || { modDiffs: [], boDiffs: [] };
+    const currConfig = currentManager.getConfig();
 
     if (!element && allConfigs.length > 0) {
-      const { name, originUrl, templatePath, transformPath } = currConfig;
+      const { name, originUrl } = currConfig;
+      const { templatePath, transformPath } = baseConfig;
+
       const items: OriginTreeItem[] = [];
 
       if (allConfigs.length > 1) {
@@ -54,8 +60,8 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
         items.push(originItem);
       }
 
-      if (configDir) {
-        items.push(new OriginTreeItemFile(path.join(configDir, CONFIG_FILE)));
+      if (baseConfig.configDir) {
+        items.push(new OriginTreeItemFile(path.join(baseConfig.configDir, CONFIG_FILE)));
       }
 
       if (templatePath) {
@@ -73,7 +79,7 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
           'MOD'
         );
         modTreeItem.tooltip = originUrl;
-        modTreeItem.contextValue = 'MODParent'
+        modTreeItem.contextValue = 'MODParent';
         items.push(modTreeItem);
       }
 
@@ -84,7 +90,7 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
           'BO'
         );
         boTreeItem.tooltip = originUrl;
-        boTreeItem.contextValue = 'BOParent'
+        boTreeItem.contextValue = 'BOParent';
         items.push(boTreeItem);
       }
 
@@ -142,12 +148,12 @@ class PontOriginsProvider implements vscode.TreeDataProvider<OriginTreeItem> {
     this._onDidChangeTreeData.fire(node != null ? node : undefined);
   }
 
-  refresh(manager): void {
+  refresh(manager: Manager): void {
     this.manager = manager;
     this.triggerNodeChange();
   }
 
-  refreshNode(manager, node: OriginTreeItem): void {
+  refreshNode(manager: Manager, node: OriginTreeItem): void {
     this.manager = manager;
     this.triggerNodeChange(node);
   }

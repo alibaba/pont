@@ -1,29 +1,28 @@
 {
   "compilerOptions": {
     "module": "commonjs",
+    "target": "es6",
+    "outDir": "lib",
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
     "noImplicitAny": false,
     "declaration": true,
-    "target": "es6",
-    "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
-    "outDir": "lib",
     "skipDefaultLibCheck": true,
     "skipLibCheck": true,
-    "moduleResolution": "node",
     "strictFunctionTypes": false,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
       "src": ["./src"]
     },
-    "allowSyntheticDefaultImports": true,
     "lib": ["dom", "es6", "es2017", "dom.iterable", "scripthost"],
     "types": ["node", "jest", "fs-extra"]
   },
   "include": ["./src/**/*"],
-  "exclude": ["node_modules", "build"]
+  "exclude": ["node_modules", "lib"]
 }

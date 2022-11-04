@@ -2,7 +2,8 @@ import * as fs from 'fs-extra';
 import * as path from 'path';
 import * as os from 'os';
 
-class LocalDictManager {
+/** @deprecated v1.4.1 废弃，请使用 PontFileManager */
+export class LocalDictManager {
   static singleInstance = null as LocalDictManager;
 
   static getSingleInstance() {
@@ -108,6 +109,7 @@ class LocalDictManager {
   }
 }
 
+/** @deprecated v1.4.1 废弃，请使用 PontFileManager */
 const PontDictManager = LocalDictManager.getSingleInstance();
 
 export { PontDictManager };

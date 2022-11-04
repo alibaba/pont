@@ -15,10 +15,22 @@
       "default": "SwaggerV2",
       "enum": ["SwaggerV2", "SwaggerV3"]
     },
+    "commonTemplatePath": {
+      "description": "自定义模板文件路径",
+      "type": "string"
+    },
     "templatePath": {
       "description": "the code generator template, a ts file",
       "type": "string",
       "default": "./template"
+    },
+    "transformPath": {
+      "description": "自定义标准数据源转化文件路径",
+      "type": "string"
+    },
+    "fetchMethodPath": {
+      "description": "自定义数据源请求文件路径",
+      "type": "string"
     },
     "outDir": {
       "description": "the directory code generated to, a relative path to the config file",
@@ -36,9 +48,13 @@
       "type": "boolean",
       "description": "是否开启多数据源模式"
     },
-    "spiltApiLock":{
-      "type":"boolean",
+    "spiltApiLock": {
+      "type": "boolean",
       "description": "是否拆分api-lock.json到具体数据源目录"
+    },
+    "usingOperationId": {
+      "type": "boolean",
+      "description": ""
     },
     "surrounding": {
       "type": "string",
@@ -88,6 +104,16 @@
           },
           "originUrl": {
             "$ref": "#/definitions/originUrl"
+          },
+          "customTemplatePath": {
+            "description": "自定义模板文件路径",
+            "type": "string"
+          },
+          "originType": {
+            "description": "数据源类型",
+            "type": "string",
+            "default": "SwaggerV2",
+            "enum": ["SwaggerV2", "SwaggerV3"]
           }
         }
       }

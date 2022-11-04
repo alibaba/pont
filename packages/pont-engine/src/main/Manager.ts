@@ -1,492 +1,202 @@
-import { StandardDataSource } from '../standard';
-import { hasChinese, diffDses, getRelatedBos } from '../utils';
-import * as fs from 'fs-extra';
-import * as path from 'path';
-import { diff, Model } from '../diff';
-import { CodeGenerator, FilesManager } from '../generators/generate';
-import { info as debugInfo } from '../debugLog';
-import { FileStructures } from '../generators/generate';
-import { readRemoteDataSource } from '../scripts';
-import * as _ from 'lodash';
-import { DsManager } from '../DsManager';
-import { getTemplateByTemplateType } from '../templates';
-import { IDataSourceConfig } from '../types/pontConfig';
+import { Manager as OldManager } from '../compatible/Manager';
+
+import type { IStandardBaseConfig, IStandardOirginConfig } from '../types/pontConfig';
+
 import { Config } from './Config';
-import { getTemplate } from '../utils/templateHelp';
+import { Logger } from './Logger';
+import { OriginManage } from './originManage';
+import { BaseTemplate, CustomTemplateManage } from './originManage/CustomTemplateManage';
+import { FilesManager } from './originManage/FilesManager';
 
-process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0 as any;
+(process.env['NODE_TLS_REJECT_UNAUTHORIZED'] as any) = 0;
 
-export class Manager {
-  readonly lockFilename = 'api-lock.json';
+export class Manager extends OldManager {
+  private standardBaseConfig: IStandardBaseConfig;
 
-  configDir: string;
-  allLocalDataSources: StandardDataSource[] = [];
-  allConfigs: IDataSourceConfig[];
-  remoteDataSource: StandardDataSource;
-  currConfig: IDataSourceConfig;
-  currLocalDataSource: StandardDataSource;
+  private standardOirginConfigs: IStandardOirginConfig[];
 
-  fileManager: FilesManager;
+  private originManages: OriginManage[] = [];
 
-  diffs = {
-    modDiffs: [] as Model[],
-    boDiffs: [] as Model[]
-  };
+  private currentOriginManage: OriginManage;
 
-  report = debugInfo;
+  private filesManager: FilesManager;
 
-  setReport(report: typeof debugInfo) {
-    this.report = report;
+  private baseTemplate: BaseTemplate;
 
-    if (this.fileManager) {
-      this.fileManager.report = report;
+  private log(message: string, ...optionalParams: any[]) {
+    Logger.log(`[Manager] ${message}`, ...optionalParams);
+  }
+
+  /** 初始 filesManager */
+  private initFilesManager() {
+    this.log(`initFilesManager start`);
+
+    const baseTemplate = this.baseTemplate;
+
+    const { surrounding, outDir, usingMultipleOrigins, templateType, spiltApiLock, prettierConfig } =
+      this.standardBaseConfig;
+
+    this.log(`初始化 fileStructures`);
+    const fileStructures = new baseTemplate.FileStructures(
+      [],
+      usingMultipleOrigins,
+      surrounding,
+      outDir,
+      templateType,
+      spiltApiLock
+    );
+
+    this.log(`初始化 filesManager`);
+    const filesManager = new baseTemplate.FilesManager(fileStructures, outDir);
+    filesManager.prettierConfig = prettierConfig;
+
+    this.filesManager = filesManager;
+
+    this.log(`initFilesManager end`);
+  }
+
+  private initBaseTemplate() {
+    this.baseTemplate = CustomTemplateManage.getBaseTemplate(this.standardBaseConfig);
+  }
+
+  init(rootPath: string, configDir: string) {
+    const { standardBaseConfig, standardOirginConfigs } = Config.getStandardConfigFromPath(rootPath, configDir);
+    this.standardBaseConfig = standardBaseConfig;
+    this.standardOirginConfigs = standardOirginConfigs;
+
+    this.initBaseTemplate();
+    this.initFilesManager();
+
+    this.originManages = standardOirginConfigs.map(
+      (config) => new OriginManage(config, standardBaseConfig, this.baseTemplate)
+    );
+
+    if (this.originManages.length === 0) {
+      this.log('数据源为空');
     }
   }
 
-  mapModel<T extends {}>(model: T): Model {
-    return Object.assign({}, model, { details: [] }) as any;
-  }
+  /** 切换数据源 */
+  async changeOrigin(name?: string) {
+    const currentOriginManage = name
+      ? this.originManages.find((item) => item.getName() === name)
+      : this.originManages[0];
 
-  async selectDataSource(name: string) {
-    this.currConfig = this.allConfigs.find((conf) => conf.name === name);
-
-    await this.readLocalDataSource();
-    await this.readRemoteDataSource();
-
-    if (this.pollingId) {
-      this.beginPolling(this.currConfig);
-    }
-  }
-
-  makeAllSame() {
-    if (this.allConfigs.length <= 1) {
-      // Compatible with single origin without origin name
-      this.allLocalDataSources[0] = this.remoteDataSource;
+    if (currentOriginManage) {
+      await Promise.all([currentOriginManage.initDataSource(), currentOriginManage.updateRemoteDataSource()]);
+      await currentOriginManage.updateDiffs();
+      this.currentOriginManage = currentOriginManage;
+      this.log(`切换数据源:${this.currentOriginManage.getName() ?? 'default'}`);
     } else {
-      const remoteName = this.remoteDataSource.name;
-
-      const remoteDsIndex = this.allLocalDataSources.findIndex((ds) => ds.name === remoteName);
-      if (remoteDsIndex === -1) {
-        this.allLocalDataSources.push(this.remoteDataSource);
-      } else {
-        this.allLocalDataSources[remoteDsIndex] = this.remoteDataSource;
-      }
+      this.log(`不存在数据源 ${name}`);
     }
-    this.currLocalDataSource = this.remoteDataSource;
-    this.setFilesManager();
   }
 
-  makeSameMod(modName: string) {
-    const isRemoteModExists = this.remoteDataSource.mods.find((iMod) => iMod.name === modName);
-    const isLocalModExists = this.currLocalDataSource.mods.find((iMod) => iMod.name === modName);
+  getStandardBaseConfig() {
+    return this.standardBaseConfig;
+  }
 
-    if (!isRemoteModExists) {
-      // 删除模块
-      this.currLocalDataSource.mods = this.currLocalDataSource.mods.filter((mod) => mod.name !== modName);
+  getStandardOirginConfigs() {
+    return this.standardOirginConfigs;
+  }
+
+  getCurrentOriginManage() {
+    return this.currentOriginManage;
+  }
+
+  getFilesManager() {
+    return this.filesManager;
+  }
+
+  updateRemoteDataSource() {
+    return this.currentOriginManage.updateRemoteDataSource();
+  }
+
+  async generateCode(oldFiles?: any) {
+    await this.currentOriginManage.setCodeGeneratorDataSource();
+    const codeGenerator = this.currentOriginManage.getCodeGenerator();
+
+    if (!codeGenerator.dataSource) {
       return;
     }
 
-    const remoteMod = this.remoteDataSource.mods.find((iMod) => iMod.name === modName);
-
-    if (isLocalModExists) {
-      // 模块已存在。更新该模块
-      const index = this.currLocalDataSource.mods.findIndex((iMod) => iMod.name === modName);
-
-      this.currLocalDataSource.mods[index] = remoteMod;
-    } else {
-      // 模块不存在。创建该模块
-
-      this.currLocalDataSource.mods.push(remoteMod);
-      this.currLocalDataSource.reOrder();
-    }
-
-    // 更新关联BaseClass
-    const relatedBos = getRelatedBos(remoteMod);
-    relatedBos.forEach((typeName) => this.makeSameBase(typeName));
-  }
-
-  makeSameBase(baseName: string) {
-    const isRemoteExists = this.remoteDataSource.baseClasses.find((base) => base.name === baseName);
-    const isLocalExists = this.currLocalDataSource.baseClasses.find((base) => base.name === baseName);
-
-    if (!isRemoteExists) {
-      // 删除基类
-      this.currLocalDataSource.baseClasses = this.currLocalDataSource.baseClasses.filter(
-        (base) => base.name !== baseName
+    let generators = this.filesManager.fileStructures.generators;
+    if (generators.length !== this.originManages.length) {
+      generators = await Promise.all(
+        this.originManages.map(async (item) => {
+          await item.setCodeGeneratorDataSource();
+          return item.getCodeGenerator();
+        })
       );
+    }
+
+    const index = generators.findIndex((item) => item.dataSource?.name === codeGenerator.dataSource.name);
+
+    if (index === -1) {
+      this.log('没有找到对应的 generators');
       return;
     }
 
-    const remoteBase = this.remoteDataSource.baseClasses.find((base) => base.name === baseName);
+    generators[index] = codeGenerator;
 
-    if (isLocalExists) {
-      // 基类已存在, 更新该基类
-      const index = this.currLocalDataSource.baseClasses.findIndex((base) => base.name === baseName);
-
-      this.currLocalDataSource.baseClasses[index] = remoteBase;
-    } else {
-      // 基类不存在, 创建该基类
-      this.currLocalDataSource.baseClasses.push(remoteBase);
-      this.currLocalDataSource.reOrder();
-    }
-  }
-
-  calDiffs() {
-    const modDiffs = diff(
-      this.currLocalDataSource.mods.map(this.mapModel),
-      this.remoteDataSource.mods.map(this.mapModel)
-    );
-    const boDiffs = diff(
-      this.currLocalDataSource.baseClasses.map(this.mapModel),
-      this.remoteDataSource.baseClasses.map(this.mapModel),
-      false
-    );
-
-    this.diffs = {
-      modDiffs,
-      boDiffs
-    };
-  }
-
-  constructor(private projectRoot: string, config: Config, configDir = process.cwd()) {
-    this.configDir = configDir;
-    this.allConfigs = config.getDataSourcesConfig(configDir, projectRoot);
-    this.currConfig = this.allConfigs[0];
-  }
-  pollingId = null;
-
-  private polling(currConfig: IDataSourceConfig) {
-    this.pollingId = setTimeout(() => {
-      this.readRemoteDataSource(currConfig);
-      this.polling(currConfig);
-    }, currConfig.pollingTime * 1000);
-  }
-
-  beginPolling(currConfig = this.currConfig) {
-    if (this.pollingId) {
-      clearTimeout(this.pollingId);
-    }
-    this.polling(currConfig);
-  }
-
-  stopPolling() {
-    if (this.pollingId) {
-      clearTimeout(this.pollingId);
-      this.pollingId = null;
-    }
-  }
-
-  async ready() {
-    if (this.existsLocal()) {
-      await this.readLocalDataSource();
-      await this.initRemoteDataSource();
-    } else {
-      const promises = this.allConfigs.map((config) => {
-        return this.readRemoteDataSource(config);
-      });
-      this.allLocalDataSources = await Promise.all(promises);
-      this.currLocalDataSource = this.allLocalDataSources[0];
-      this.remoteDataSource = this.currLocalDataSource;
-
-      await this.regenerateFiles();
-    }
-  }
-
-  existsLocal() {
-    return (
-      fs.existsSync(path.join(this.currConfig.outDir, this.lockFilename)) ||
-      _.some(
-        this.allConfigs.map((config) => fs.existsSync(path.join(config.outDir, config.name ?? '', this.lockFilename)))
-      )
-    );
-  }
-
-  async readLockFile(): Promise<Array<StandardDataSource>> {
-    try {
-      let lockFile = path.join(this.currConfig.outDir, this.lockFilename);
-      const isExists = fs.existsSync(lockFile);
-      /** 兼容上一版本数据源根目录生成api-lock.json的场景 */
-      if (isExists) {
-        const localDataStr = await fs.readFile(lockFile, {
-          encoding: 'utf8'
-        });
-        if (this.allConfigs.length > 1 && this.currConfig.spiltApiLock) {
-          /** 多数据源的场景，删除原来的lock文件 */
-          this.regenerateFiles().then(() => fs.rename(lockFile, `${lockFile}.bak`));
-        }
-        return JSON.parse(localDataStr);
-      } else {
-        const allFilePromises = this.allConfigs.map(async (config) => {
-          const filePath = path.join(config.outDir, config.name ?? '', this.lockFilename);
-          const localDataStr = await fs.readFile(filePath, {
-            encoding: 'utf8'
-          });
-          return JSON.parse(localDataStr);
-        });
-        return Promise.all(allFilePromises);
-      }
-    } catch (error) {
-      this.report(error);
-      return [];
-    }
-  }
-
-  async readLocalDataSource() {
-    this.report('[readLocalDataSource]:开始');
-    this.report('读取本地数据中...');
-    const localDataObjects = await this.readLockFile();
-    if (!localDataObjects.length) {
-      return;
-    }
-
-    this.report('读取本地完成');
-
-    this.allLocalDataSources = localDataObjects.map((ldo) => {
-      return StandardDataSource.constructorFromLock(ldo, ldo.name);
+    this.filesManager.fileStructures.generators = generators.filter((item) => {
+      return item.dataSource.mods.length > 0 || item.dataSource.baseClasses.length > 0;
     });
 
-    // Filter name changed origin
-    this.allLocalDataSources = this.allLocalDataSources.filter((ldo) => {
-      return Boolean(this.allConfigs.find((config) => config.name === ldo.name));
+    this.log('开始生成代码');
+    await this.filesManager.generateCode(oldFiles);
+    this.log('开始生成代码完成');
+  }
+
+  async updateRemoteDataSourceAndGenerateCode() {
+    await this.updateRemoteDataSource();
+    this.currentOriginManage.updateDataSourceByRemoteDataSource();
+    await this.generateCode();
+  }
+
+  async getGeneratedFiles() {
+    let generators = this.filesManager.fileStructures.generators;
+    if (generators.length !== this.originManages.length) {
+      generators = await Promise.all(
+        this.originManages.map(async (item) => {
+          await item.setCodeGeneratorDataSource();
+          return item.getCodeGenerator();
+        })
+      );
+    }
+    this.filesManager.fileStructures.generators = generators.filter((item) => {
+      return item.dataSource.mods.length > 0 || item.dataSource.baseClasses.length > 0;
     });
 
-    // 本地数据源和远程数据源不一致
-    if (this.allLocalDataSources.length < this.allConfigs.length) {
-      this.allConfigs.forEach((config) => {
-        if (!this.allLocalDataSources.find((ds) => ds.name === config.name)) {
-          this.allLocalDataSources.push(
-            new StandardDataSource({
-              mods: [],
-              name: config.name,
-              baseClasses: []
-            })
-          );
-        }
-      });
-    }
-
-    this.currLocalDataSource = this.allLocalDataSources[0];
-
-    if (this.currConfig.name && this.allLocalDataSources.length > 1) {
-      this.currLocalDataSource =
-        this.allLocalDataSources.find((ds) => ds.name === this.currConfig.name) ||
-        new StandardDataSource({
-          mods: [],
-          name: this.currConfig.name,
-          baseClasses: []
-        });
-    }
-
-    this.setFilesManager();
-    this.report('[readLocalDataSource]:结束');
+    return this.filesManager.getGeneratedFiles();
   }
 
-  checkDataSource(dataSource: StandardDataSource) {
-    const { mods, baseClasses } = dataSource;
-
-    const errorModNames = [] as string[];
-    const errorBaseNames = [] as string[];
-
-    mods.forEach((mod) => {
-      if (hasChinese(mod.name)) {
-        errorModNames.push(mod.name);
-      }
-    });
-
-    baseClasses.forEach((base) => {
-      if (hasChinese(base.name)) {
-        errorBaseNames.push(base.name);
-      }
-    });
-
-    if (errorBaseNames.length && errorModNames.length) {
-      const errMsg = ['当前数据源有如下项不符合规范，需要后端修改'];
-      errorModNames.forEach((modName) => errMsg.push(`模块名${modName}应该改为英文名！`));
-      errorBaseNames.forEach((baseName) => errMsg.push(`基类名${baseName}应该改为英文名！`));
-
-      throw new Error(errMsg.join('\n'));
-    }
-  }
-
-  async initRemoteDataSource(config = this.currConfig) {
-    const projName = this.projectRoot;
-    const currProj = {
-      originUrl: this.currConfig.originUrl,
-      projectName: projName
-    } as any;
-
-    // 只查询当前数据源，用户只关心当前数据源。
-    let oldRemoteSource = DsManager.getLatestDsInProject(currProj);
-
-    if (oldRemoteSource) {
-      this.remoteDataSource = StandardDataSource.constructorFromLock(oldRemoteSource, oldRemoteSource.name);
-    } else {
-      const remoteDataSource = await readRemoteDataSource(config, this.report);
-      this.remoteDataSource = remoteDataSource;
-      await DsManager.saveDataSource(currProj, this.remoteDataSource);
-    }
-  }
-
-  async readRemoteDataSource(config = this.currConfig) {
-    const projName = this.projectRoot;
-    const currProj = {
-      originUrl: this.currConfig.originUrl,
-      projectName: projName
-    } as any;
-
-    // 只查询当前数据源，用户只关心当前数据源。
-    let oldRemoteSource = DsManager.getLatestDsInProject(currProj);
-
-    if (!oldRemoteSource) {
-      if (this.remoteDataSource) {
-        DsManager.saveDataSource(currProj, this.remoteDataSource);
-        oldRemoteSource = this.remoteDataSource;
-      } else {
-        const remoteDataSource = await readRemoteDataSource(config, this.report);
-        this.remoteDataSource = remoteDataSource;
-        DsManager.saveDataSource(currProj, this.remoteDataSource);
-        return remoteDataSource;
-      }
-    }
-
-    const remoteDataSource = await readRemoteDataSource(config, this.report);
-    this.remoteDataSource = remoteDataSource;
-
-    const { modDiffs, boDiffs } = diffDses(oldRemoteSource, this.remoteDataSource);
-
-    if (modDiffs.length || boDiffs.length) {
-      DsManager.saveDataSource(currProj, this.remoteDataSource);
-    }
-
-    return remoteDataSource;
-  }
-
-  async lock() {
-    await this.fileManager.saveLock(this.currConfig.name);
-  }
-
-  dispatch(files: {}) {
-    return _.mapValues(files, (value: Function | {}) => {
-      if (typeof value === 'function') {
-        return value();
-      }
-
-      if (typeof value === 'object') {
-        return this.dispatch(value);
-      }
-
-      return value;
-    });
-  }
-
-  getGeneratedFiles() {
-    this.setFilesManager();
-
-    const files = this.fileManager.fileStructures.getFileStructures();
-
-    try {
-      return this.dispatch(files);
-    } catch (err) {
-      return {};
-    }
-  }
-
-  async update(oldFiles: {}) {
-    const files = this.getGeneratedFiles();
-
-    try {
-      await this.fileManager.regenerate(files, oldFiles);
-    } catch (e) {
-      console.log(e.stack);
-      throw new Error(e);
-    }
-  }
-
-  async regenerateFiles() {
-    const files = this.getGeneratedFiles();
-    await this.fileManager.regenerate(files);
-  }
-
-  setFilesManager() {
-    this.report('文件生成器创建中...');
-    const { default: Generator, FileStructures: MyFileStructures } = getTemplate(
-      this.currConfig.rootDir,
-      {
-        templateType:'template',
-        templatePath: this.currConfig.templatePath,
-        name:this.currConfig.name,
-        defaultCode: getTemplateByTemplateType(this.currConfig.templateType)
-      }
+  /** 生成所有代码 */
+  async generateAllCode() {
+    const generators = await Promise.all(
+      this.originManages.map(async (item) => {
+        await item.setCodeGeneratorDataSource();
+        return item.getCodeGenerator();
+      })
     );
 
-    const generators = this.allLocalDataSources.map((dataSource) => {
-      const config = this.getConfigByDataSourceName(dataSource.name);
-      const generator: CodeGenerator = new Generator(this.currConfig.surrounding, config?.outDir, this.lockFilename);
-      generator.setDataSource(dataSource);
-      generator.usingMultipleOrigins = this.currConfig.usingMultipleOrigins;
-
-      if (_.isFunction(generator.getDataSourceCallback)) {
-        generator.getDataSourceCallback(dataSource);
-      }
-      return generator;
+    this.filesManager.fileStructures.generators = generators.filter((item) => {
+      return item.dataSource.mods.length > 0 || item.dataSource.baseClasses.length > 0;
     });
-    let FileStructuresClazz = FileStructures as any;
-
-    if (MyFileStructures) {
-      FileStructuresClazz = MyFileStructures;
-    }
-
-    this.fileManager = new FilesManager(
-      new FileStructuresClazz(
-        generators,
-        this.currConfig.usingMultipleOrigins,
-        this.currConfig.surrounding,
-        this.currConfig.outDir,
-        this.currConfig.templateType,
-        this.currConfig.spiltApiLock
-      ),
-      this.currConfig.outDir
-    );
-    this.fileManager.prettierConfig = this.currConfig.prettierConfig;
-
-    this.fileManager.report = this.report;
-    this.report('文件生成器创建成功！');
+    await this.filesManager.generateCode();
   }
 
-  /** 获取报表数据 */
-  getReportData() {
-    const currProj = {
-      originUrl: this.currConfig.originUrl,
-      projectName: this.projectRoot
-    } as any;
-
-    return DsManager.getReportData(currProj);
+  /** 更新所有远程数据源 */
+  updateAllRemoteDataSource() {
+    return Promise.all(this.originManages.map((item) => item.updateRemoteDataSource()));
   }
 
-  /** 获取当前dataSource对应的config */
-  getConfigByDataSourceName(name: string) {
-    if (name) {
-      return this.allConfigs.find((config) => config.name === name) || this.currConfig;
-    }
-
-    // 没有name时，表示是单数据源
-    return this.currConfig;
-  }
-
-  /** 打开接口变更报表 */
-  openReport() {
-    const currProj = {
-      originUrl: this.currConfig.originUrl,
-      projectName: this.projectRoot
-    } as any;
-    DsManager.openReport(currProj);
-  }
-
-  getCodeSnippet() {
-    const generator = this.fileManager.fileStructures.generators.find((g) => {
-      return g.dataSource.name === this.currLocalDataSource.name;
+  /** 拉取远程数据源，并生成所有代码 */
+  async updateRemoteDataSourceAndGenerateAllCode() {
+    await this.updateAllRemoteDataSource();
+    this.originManages.forEach((item) => {
+      item.updateDataSourceByRemoteDataSource();
     });
-
-    return generator.codeSnippet.bind(generator);
+    await this.generateAllCode();
   }
 }
