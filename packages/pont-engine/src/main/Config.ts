@@ -42,6 +42,7 @@ export class Config extends OldConfig {
       configDir,
       hasOrigins: origins?.length > 0,
       usingMultipleOrigins: origins?.length > 0 ? baseConfig.usingMultipleOrigins : false,
+      usingOperationId: !!baseConfig.usingOperationId,
       outDir: Config.getAbsolutePath(configDir, pontConfig.outDir),
       commonTemplatePath: Config.getAbsolutePath(configDir, baseConfig.commonTemplatePath),
       templatePath: Config.getAbsolutePath(configDir, pontConfig.templatePath),
@@ -68,6 +69,7 @@ export class Config extends OldConfig {
           ...origin,
           rootDir: standardBaseConfig.rootDir,
           originType: standardBaseConfig.originType,
+          usingOperationId: standardBaseConfig.usingOperationId,
           customTemplatePath,
           templateOriginalPath: {
             customTemplatePath: origin.customTemplatePath

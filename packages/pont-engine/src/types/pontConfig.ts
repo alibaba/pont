@@ -35,6 +35,7 @@ export interface IBaseConfig {
 
   usingMultipleOrigins: boolean;
   spiltApiLock: boolean;
+  usingOperationId?: boolean;
 
   fetchMethodPath?: string;
   templatePath?: string;

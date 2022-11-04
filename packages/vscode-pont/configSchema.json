@@ -52,6 +52,10 @@
       "type": "boolean",
       "description": "是否拆分api-lock.json到具体数据源目录"
     },
+    "usingOperationId": {
+      "type": "boolean",
+      "description": ""
+    },
     "surrounding": {
       "type": "string",
       "description": "pont生成代码的运行环境（无需更改）",
