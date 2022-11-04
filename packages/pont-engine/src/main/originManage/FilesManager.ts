@@ -1,6 +1,7 @@
 import * as _ from 'lodash';
 
 import { FilesManager as OldFilesManager } from '../../compatible/generators/generate';
+import { Logger } from '../Logger';
 
 export class FilesManager extends OldFilesManager {
   private dispatch(files: {}) {
@@ -21,6 +22,7 @@ export class FilesManager extends OldFilesManager {
     try {
       return this.dispatch(files);
     } catch (err) {
+      Logger.log(err)
       return {};
     }
   }
