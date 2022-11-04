@@ -139,7 +139,9 @@ export class Manager extends OldManager {
 
     generators[index] = codeGenerator;
 
-    this.filesManager.fileStructures.generators = generators.filter((item) => !!item.dataSource);
+    this.filesManager.fileStructures.generators = generators.filter((item) => {
+      return item.dataSource.mods.length > 0 || item.dataSource.baseClasses.length > 0;
+    });
 
     this.log('开始生成代码');
     await this.filesManager.generateCode(oldFiles);
@@ -162,7 +164,9 @@ export class Manager extends OldManager {
         })
       );
     }
-    this.filesManager.fileStructures.generators = generators.filter((item) => !!item.dataSource);
+    this.filesManager.fileStructures.generators = generators.filter((item) => {
+      return item.dataSource.mods.length > 0 || item.dataSource.baseClasses.length > 0;
+    });
 
     return this.filesManager.getGeneratedFiles();
   }
@@ -176,7 +180,9 @@ export class Manager extends OldManager {
       })
     );
 
-    this.filesManager.fileStructures.generators = generators.filter((item) => !!item.dataSource);
+    this.filesManager.fileStructures.generators = generators.filter((item) => {
+      return item.dataSource.mods.length > 0 || item.dataSource.baseClasses.length > 0;
+    });
     await this.filesManager.generateCode();
   }
 
