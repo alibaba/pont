@@ -1,3 +1,40 @@
+v1.5.0 / 2022-11-04
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - 修复生成单个数据源时会生成其他数据源文件
+  - 修复 usingOperationId 丢失问题
+  - 修复多数据源更新问题
+  - 修复 JSON 会被格式化问题
+  - 完善代码
+  - 修复 templatePath和transformPath 不存在时,没有默认值
+  - 修复自定义模板文件缓存问题
+  - 修复远程数据源不存在时代码生成问题
+  - 修复自定义代码块获取问题
+  - 完善template编译路径
+
+
+### 🚀 Features
+
+- `general`
+  - GetGeneratedFiles 添加错误日志上报
+  - Yarn lock
+  - 优化数据源切换逻辑
+  - 添加数据源不存在时提示
+  - 新增忽略 pont 升级按钮
+  - To#优化轮训逻辑
+  - Pont 支持从 node_modules 读取自定义模板文件
+  - Pont 功能优化
+  - 初步完成 pont 升级优化
+  - To#优化本地缓存逻辑
+
+
+### 💖 Thanks to
+
+- fuying.yfy
+
 v1.4.0 / 2022-09-05
 ===================
 
