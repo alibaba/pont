@@ -243,6 +243,8 @@ export class OriginManage {
 
   /** 计算当前 dataSource 和 remoteDataSource 差异 */
   updateDiffs() {
+    if (!this.remoteDataSource) return;
+
     if (this.dataSource === this.remoteDataSource) {
       this.diffs = { modDiffs: [], boDiffs: [] };
       return;
