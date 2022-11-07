@@ -108,6 +108,10 @@ export class Manager extends OldManager {
     return this.filesManager;
   }
 
+  getOriginManages() {
+    return this.originManages;
+  }
+
   updateRemoteDataSource() {
     return this.currentOriginManage.updateRemoteDataSource();
   }

@@ -347,8 +347,10 @@ export class CommandCenter {
   @command('pont.visitMocks', 'TextEditorCommand')
   async visitMocks(textEditor) {
     const manager = this.manager;
+    const baseConfig = manager.getStandardBaseConfig()
+
     const { foundInterface } = await findInterface(textEditor, manager);
-    const { port, basePath } = manager.currConfig?.mocks || {};
+    const { port, basePath } = baseConfig.mocks || {};
 
     const url = `http://127.0.0.1:${port}${basePath}${foundInterface.path.replace(/\{.+?\}/g, 'paramInPath')}`;
 
@@ -377,19 +379,21 @@ export class CommandCenter {
         Logger.setLog((...info) => this.outputChannel.appendLine(info.join(' ')));
         this.setManage(manager);
 
-        if (config.mocks && config.mocks.enable) {
-          const closeServer = await MocksServer.getSingleInstance(manager).run();
-          managerCleanUps.push({ dispose: closeServer });
-        }
-
         manager.init(rootPath, path.dirname(configPath));
         await manager.changeOrigin();
 
+        /** 初始化轮询 */
         pollingManage.setCallback(async () => {
           await manager.getCurrentOriginManage().updateRemoteDataSource();
         });
         pollingManage.startPolling(config.pollingTime);
         managerCleanUps.push({ dispose: pollingManage.stopPolling });
+
+        /** 初始化 mocks */
+        if (config.mocks && config.mocks.enable) {
+          const closeServer = await MocksServer.getSingleInstance(manager).run();
+          managerCleanUps.push({ dispose: closeServer });
+        }
 
         setContext('multipleOrigins', manager.getStandardOirginConfigs().length > 1);
         setContext('initManager', true);
