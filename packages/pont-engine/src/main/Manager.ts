@@ -155,9 +155,9 @@ export class Manager extends OldManager {
       return item.dataSource.mods.length > 0 || item.dataSource.baseClasses.length > 0;
     });
 
-    if (generators.length === 0) {
+    if(generators.length === 0){
       this.log('dataSource 为空数据，停止生成代码');
-      return;
+      return ;
     }
 
     this.filesManager.fileStructures.generators = generators;
