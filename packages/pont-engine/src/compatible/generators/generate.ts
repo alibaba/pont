@@ -53,31 +53,34 @@ export class FileStructures {
         };
   }
 
-  getBaseClassesInDeclaration(originCode: string, usingMultipleOrigins: boolean) {
+  getBaseClassesInDeclaration(originCode: string | (() => string), usingMultipleOrigins: boolean) {
+    const codeStr = typeof originCode === 'function' ? originCode() : originCode;
+
     if (usingMultipleOrigins) {
       return `
       declare namespace defs {
-        export ${originCode}
+        export ${codeStr}
       };
       `;
     }
 
     return `
-      declare ${originCode}
+      declare ${codeStr}
     `;
   }
 
-  getModsDeclaration(originCode: string, usingMultipleOrigins: boolean) {
+  getModsDeclaration(originCode: string | (() => string), usingMultipleOrigins: boolean) {
+    const codeStr = typeof originCode === 'function' ? originCode() : originCode;
     if (usingMultipleOrigins) {
       return `
       declare namespace API {
-        export ${originCode}
+        export ${codeStr}
       };
       `;
     }
 
     return `
-      declare ${originCode}
+      declare ${codeStr}
     `;
   }
 
@@ -103,12 +106,12 @@ export class FileStructures {
     if (!generator.hasContextBund) {
       generator.getBaseClassesInDeclaration = this.getBaseClassesInDeclaration.bind(
         this,
-        generator.getBaseClassesInDeclaration(),
+        generator.getBaseClassesInDeclaration.bind(generator),
         usingMultipleOrigins
       );
       generator.getModsDeclaration = this.getModsDeclaration.bind(
         this,
-        generator.getModsDeclaration(),
+        generator.getModsDeclaration.bind(generator),
         usingMultipleOrigins
       );
       generator.hasContextBund = true;
