@@ -27,6 +27,10 @@ export class Manager extends OldManager {
     Logger.log(`[Manager] ${message}`, ...optionalParams);
   }
 
+  private error(message: string, ...optionalParams: any[]) {
+    Logger.error(`[Manager] ${message}`, ...optionalParams);
+  }
+
   /** 初始 filesManager */
   private initFilesManager() {
     this.log(`initFilesManager start`);
@@ -156,7 +160,7 @@ export class Manager extends OldManager {
     });
 
     if (generators.length === 0) {
-      this.log('dataSource 为空数据，停止生成代码');
+      this.error('dataSource 为空数据，停止生成代码');
       return;
     }
 
