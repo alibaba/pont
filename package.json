@@ -41,7 +41,7 @@
     "@types/chai": "^4.1.7",
     "@types/fs-extra": "^5.0.5",
     "@types/http-server": "^0.10.0",
-    "@types/jest": "latest",
+    "@types/jest": "^29.2.2",
     "@types/lodash": "^4.14.110",
     "@types/node": "^10.3.6",
     "@types/react": "^16.9.23",
