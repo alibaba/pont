@@ -461,7 +461,7 @@ export class CodeGenerator {
        */
       ${mod.interfaces
         .map((inter) => {
-          return `import ${inter.name} from './${inter.name}';`;
+          return `import * as ${inter.name} from './${inter.name}';`;
         })
         .join('\n')}
 
@@ -492,7 +492,7 @@ export class CodeGenerator {
       ${this.dataSource.mods
         .map((mod) => {
           const modName = reviseModName(mod.name);
-          return `import ${modName} from './${modName}';`;
+          return `import * as ${modName} from './${modName}';`;
         })
         .join('\n')}
 
