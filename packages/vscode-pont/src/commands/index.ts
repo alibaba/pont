@@ -347,7 +347,7 @@ export class CommandCenter {
   @command('pont.visitMocks', 'TextEditorCommand')
   async visitMocks(textEditor) {
     const manager = this.manager;
-    const baseConfig = manager.getStandardBaseConfig()
+    const baseConfig = manager.getStandardBaseConfig();
 
     const { foundInterface } = await findInterface(textEditor, manager);
     const { port, basePath } = baseConfig.mocks || {};
@@ -377,6 +377,7 @@ export class CommandCenter {
 
         const manager = new Manager(rootPath, config, path.dirname(configPath));
         Logger.setLog((...info) => this.outputChannel.appendLine(info.join(' ')));
+        Logger.setError((...info) => window.showErrorMessage(info.join(' '), { modal: false }));
         this.setManage(manager);
 
         manager.init(rootPath, path.dirname(configPath));

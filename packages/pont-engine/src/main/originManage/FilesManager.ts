@@ -22,7 +22,7 @@ export class FilesManager extends OldFilesManager {
     try {
       return this.dispatch(files);
     } catch (err) {
-      Logger.log(err)
+      Logger.error(err)
       return {};
     }
   }
