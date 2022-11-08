@@ -112,11 +112,19 @@ export class Manager extends OldManager {
     return this.originManages;
   }
 
-  updateRemoteDataSource() {
-    return this.currentOriginManage.updateRemoteDataSource();
+  async updateRemoteDataSource() {
+    if (!this.currentOriginManage) {
+      await this.changeOrigin();
+    }
+    
+    await this.currentOriginManage.updateRemoteDataSource();
   }
 
   async generateCode(oldFiles?: any) {
+    if (!this.currentOriginManage) {
+      await this.changeOrigin();
+    }
+
     await this.currentOriginManage.setCodeGeneratorDataSource();
     const codeGenerator = this.currentOriginManage.getCodeGenerator();
 
@@ -147,9 +155,9 @@ export class Manager extends OldManager {
       return item.dataSource.mods.length > 0 || item.dataSource.baseClasses.length > 0;
     });
 
-    if(generators.length === 0){
+    if (generators.length === 0) {
       this.log('dataSource 为空数据，停止生成代码');
-      return ;
+      return;
     }
 
     this.filesManager.fileStructures.generators = generators;
