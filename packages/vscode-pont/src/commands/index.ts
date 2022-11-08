@@ -2,13 +2,14 @@ import { Interface, Config, Manager, Logger, PollingManage } from 'pont-engine';
 import * as path from 'path';
 import * as fs from 'fs';
 import * as child_process from 'child_process';
+import open from 'open';
+
 import {
   commands,
   Disposable,
   MessageOptions,
   OutputChannel,
   Position,
-  ProgressLocation,
   QuickPickItem,
   Selection,
   Uri,
@@ -17,7 +18,6 @@ import {
 } from 'vscode';
 import { MocksServer } from '../mocks';
 import { findInterface, pontEngineVersion, showProgress } from '../utils';
-import { execSync } from 'child_process';
 import { OriginTreeItem, getPontOriginsProvider } from '../views/pontOrigins';
 import { setContext } from '../utils/setContext';
 
@@ -320,6 +320,10 @@ export class CommandCenter {
       throw new Error(`mocks文件不存在: ${mocksPath}`);
     }
 
+    if(!this.manager){
+      throw new Error('请先初始化 Pont')
+    }
+
     const { foundInterface } = await findInterface(textEditor, this.manager);
 
     const doc = await workspace.openTextDocument(Uri.file(mocksPath));
@@ -347,6 +351,11 @@ export class CommandCenter {
   @command('pont.visitMocks', 'TextEditorCommand')
   async visitMocks(textEditor) {
     const manager = this.manager;
+
+    if(!manager){
+      throw new Error('请先初始化 Pont')
+    }
+
     const baseConfig = manager.getStandardBaseConfig();
 
     const { foundInterface } = await findInterface(textEditor, manager);
@@ -356,7 +365,7 @@ export class CommandCenter {
 
     this.outputChannel.appendLine(`[open url]: ${url}`);
 
-    execSync(`open ${url}`);
+    open(url);
   }
 
   @command('pont.createManager')

@@ -228,6 +228,7 @@
     "@types/fs-extra": "^5.1.0",
     "fs-extra": "^7.0.1",
     "mockjs": "^1.0.1-beta3",
+    "open": "^8.4.0",
     "pont-engine": "1.4.0",
     "typescript": "^4.8.3"
   },
