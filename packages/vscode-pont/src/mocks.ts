@@ -188,12 +188,18 @@ export class MocksServer {
     return currMocksData;
   }
 
-  getMocksCode() {
-    const wrapper = this.manager.currConfig.mocks.wrapper;
+  async getMocksCode() {
+    const baseConfig = this.manager.getStandardBaseConfig();
+    const currentManager = this.manager.getCurrentOriginManage();
+    const dataSource = await currentManager.getDataSource();
+
+    const wrapper = baseConfig.mocks.wrapper;
+    const prettierConfig = baseConfig.prettierConfig;
+
     const wrapperFn = wrapper ? (dataCode) => wrapper.replace(/{response}/g, dataCode) : (data) => data;
 
-    const code = new Mocks(this.manager.currLocalDataSource).getMocksCode(wrapperFn);
-    return format(code, this.manager.currConfig.prettierConfig);
+    const code = new Mocks(dataSource).getMocksCode(wrapperFn);
+    return format(code, prettierConfig);
   }
 
   async refreshMocksCode() {
@@ -201,7 +207,7 @@ export class MocksServer {
     const mockDir = path.join(rootPath, '.mocks');
     const mockPath = path.join(rootPath, '.mocks/mocks.ts');
 
-    const code = this.getMocksCode();
+    const code = await this.getMocksCode();
     fs.removeSync(mockDir);
     fs.mkdirSync(mockDir);
 
@@ -213,7 +219,7 @@ export class MocksServer {
     const mockPath = path.join(rootPath, '.mocks/mocks.ts');
 
     if (!fs.existsSync(mockPath)) {
-      const code = this.getMocksCode();
+      const code = await this.getMocksCode();
       if (!fs.existsSync(path.join(rootPath, '.mocks'))) {
         fs.mkdirSync(path.join(rootPath, '.mocks'));
       }
@@ -223,9 +229,12 @@ export class MocksServer {
     }
   }
 
-  createServer() {
-    const ds = this.manager.currLocalDataSource;
-    const port = this.manager.currConfig.mocks.port;
+  async createServer() {
+    const baseConfig = this.manager.getStandardBaseConfig();
+    const currentManager = this.manager.getCurrentOriginManage();
+
+    const ds = await currentManager.getDataSource();
+    const port = baseConfig.mocks.port;
 
     return http
       .createServer(async (req, res) => {
@@ -258,7 +267,7 @@ export class MocksServer {
 
   async run() {
     await this.checkMocksPath();
-    const server = this.createServer();
+    const server = await this.createServer();
 
     return () => {
       server.close();

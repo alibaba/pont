@@ -80,10 +80,14 @@ export async function findInterface(editor: vscode.TextEditor, manager: Manager)
   const justWords = [words[wordIndex - 1], words[wordIndex]];
   const matchedWords = [];
   let foundInterface = null as Interface;
+  const allConfigs = manager.getStandardOirginConfigs();
+  const hasName = allConfigs.map((config) => config.name).includes(wordsWithOrigin[0]);
+  const allLocalDataSources = await Promise.all(manager.getOriginManages().map((item) => item.getDataSource()));
+  const currLocalDataSource = await manager.getCurrentOriginManage().getDataSource();
 
-  if (manager.allConfigs.map((config) => config.name).includes(wordsWithOrigin[0])) {
+  if (hasName) {
     const dsName = wordsWithOrigin[0];
-    const foundDs = manager.allLocalDataSources.find((ds) => ds.name === dsName);
+    const foundDs = allLocalDataSources.find((ds) => ds.name === dsName);
 
     if (foundDs) {
       const foundMod = foundDs.mods.find((mod) => mod.name === wordsWithOrigin[1]);
@@ -101,7 +105,7 @@ export async function findInterface(editor: vscode.TextEditor, manager: Manager)
 
   // 没有数据源名的情况
   if (!matchedWords.length) {
-    const foundMod = manager.currLocalDataSource.mods.find((mod) => mod.name === justWords[0]);
+    const foundMod = currLocalDataSource.mods.find((mod) => mod.name === justWords[0]);
 
     if (foundMod) {
       const foundInter = foundMod.interfaces.find((inter) => inter.name === justWords[1]);

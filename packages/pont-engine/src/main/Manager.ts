@@ -108,11 +108,23 @@ export class Manager extends OldManager {
     return this.filesManager;
   }
 
-  updateRemoteDataSource() {
-    return this.currentOriginManage.updateRemoteDataSource();
+  getOriginManages() {
+    return this.originManages;
+  }
+
+  async updateRemoteDataSource() {
+    if (!this.currentOriginManage) {
+      await this.changeOrigin();
+    }
+    
+    await this.currentOriginManage.updateRemoteDataSource();
   }
 
   async generateCode(oldFiles?: any) {
+    if (!this.currentOriginManage) {
+      await this.changeOrigin();
+    }
+
     await this.currentOriginManage.setCodeGeneratorDataSource();
     const codeGenerator = this.currentOriginManage.getCodeGenerator();
 
@@ -139,9 +151,16 @@ export class Manager extends OldManager {
 
     generators[index] = codeGenerator;
 
-    this.filesManager.fileStructures.generators = generators.filter((item) => {
+    generators = generators.filter((item) => {
       return item.dataSource.mods.length > 0 || item.dataSource.baseClasses.length > 0;
     });
+
+    if (generators.length === 0) {
+      this.log('dataSource 为空数据，停止生成代码');
+      return;
+    }
+
+    this.filesManager.fileStructures.generators = generators;
 
     this.log('开始生成代码');
     await this.filesManager.generateCode(oldFiles);

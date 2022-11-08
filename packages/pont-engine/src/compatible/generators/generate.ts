@@ -380,7 +380,7 @@ export class CodeGenerator {
   /** 获取接口类和基类的总的 index 入口文件代码 */
   getIndex() {
     let conclusion = `
-      import defs from './baseClass';
+      import * as defs from './baseClass';
       import './mods/';
 
       ${this.surrounding === Surrounding.typeScript ? '(window as any)' : 'window'}.defs = defs;
@@ -436,7 +436,7 @@ export class CodeGenerator {
      * @desc ${inter.description}
      */
 
-    import defs from '../../baseClass';
+    import * as defs from '../../baseClass';
     import { pontCore } from '../../pontCore';
 
     export ${inter.getParamsCode('Params', this.surrounding)}
