@@ -15,6 +15,10 @@ export class OriginReader implements IOriginReader {
     this.config = config;
   }
 
+  getConfig(config: IStandardOirginConfig) {
+    this.config = config;
+  }
+
   fetchMethod(originUrl: string): Promise<string> {
     return fetch(originUrl).then((res) => res.text());
   }

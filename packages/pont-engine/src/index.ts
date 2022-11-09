@@ -8,8 +8,15 @@ export { PollingManage } from './utils/PollingManage';
 export { DataSourceConfig } from './main/Config';
 export { Manager } from './main/Manager';
 export { Config } from './main/Config';
-export { OriginManage } from './main/originManage';
 export { Logger } from './main/Logger';
+
+export { OriginManage } from './main/originManage';
+export { OriginReader } from './main/originManage/OriginReader';
+export { CodeGenerator } from './main/originManage/CodeGenerator';
+export { FileStructures } from './main/originManage/FileStructures';
+export { FilesManager } from './main/originManage/FilesManager';
+
+export * from './types';
 
 /** compatible */
 
@@ -41,7 +48,6 @@ export {
   StandardDataSource,
   StandardDataType
 } from './compatible/standard';
-export { CodeGenerator, FileStructures, FilesManager } from './compatible/generators/generate';
 
 /** deprecated */
 
