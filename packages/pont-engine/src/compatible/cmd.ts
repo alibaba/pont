@@ -1,4 +1,4 @@
-import program from 'commander';
+import * as program from 'commander';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as debugLog from './debugLog';
@@ -6,7 +6,7 @@ import { main } from './scan';
 import { generatePontConfig } from './scripts/start';
 import { createManager } from './Manager';
 
-const packageFilePath = path.join(__dirname, '..', 'package.json');
+const packageFilePath = path.join(__dirname, '../..', 'package.json');
 const packageInfo = JSON.parse(fs.readFileSync(packageFilePath, 'utf8'));
 
 const currentVersion = packageInfo.version;

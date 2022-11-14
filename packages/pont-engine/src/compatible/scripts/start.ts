@@ -3,7 +3,7 @@
  * @description pont配置生成
  */
 
-import inquirer from 'inquirer';
+import * as inquirer from 'inquirer';
 import * as path from 'path';
 import * as fs from 'fs-extra';
 import * as debugLog from '../debugLog';
