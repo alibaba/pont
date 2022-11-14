@@ -2,4 +2,4 @@
 
 "use strict";
 
-require("../lib/cmd");
+require("../lib/compatible/cmd");
