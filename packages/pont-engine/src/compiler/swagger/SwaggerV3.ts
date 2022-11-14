@@ -54,7 +54,7 @@ function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: string[], us
             in: 'body',
             description: inter.requestBody.description,
             required: inter.requestBody.required,
-            schema: _.get(requestBodyContent, `${requestFormat}.schema`, {})
+            schema: _.get(requestBodyContent, `${requestFormat}.schema`, {}) as any
           }
         ];
       }

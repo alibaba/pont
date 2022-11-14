@@ -544,6 +544,7 @@ export class StandardDataSource {
   static constructorFromLock(localDataObject: StandardDataSource, originName) {
     let currentInter: Interface;
     try {
+      let { name, baseClasses, mods, ...rest } = localDataObject;
       // 兼容性代码，将老的数据结构转换为新的。
       const defNames = localDataObject.baseClasses.map((base) => {
         if (base.name.includes('<')) {
@@ -551,7 +552,7 @@ export class StandardDataSource {
         }
         return base.name;
       });
-      const baseClasses = localDataObject.baseClasses.map((base) => {
+      baseClasses = localDataObject.baseClasses.map((base) => {
         const props = base.properties.map((prop) => {
           return new Property({
             ...prop,
@@ -577,7 +578,7 @@ export class StandardDataSource {
           properties: _.unionBy(props, 'name')
         });
       });
-      const mods = localDataObject.mods.map((mod) => {
+      mods = localDataObject.mods.map((mod) => {
         const interfaces = mod.interfaces.map((inter) => {
           const response = StandardDataType.constructorFromJSON(inter.response, localDataObject.name, defNames);
 
@@ -607,11 +608,13 @@ export class StandardDataSource {
         });
       });
 
-      return new StandardDataSource({
+      const newStandardDataSource = new StandardDataSource({
         baseClasses,
         mods,
-        name: localDataObject.name
+        name
       });
+
+      return Object.assign(newStandardDataSource, rest ?? {});
     } catch (e) {
       const errArray: string[] = [];
       if (currentInter) {
