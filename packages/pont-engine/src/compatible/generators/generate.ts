@@ -264,15 +264,60 @@ export class CodeGenerator {
 
   /** 获取某个基类的类型定义代码 */
   getBaseClassInDeclaration(base: BaseClass) {
+
     if (base.templateArgs && base.templateArgs.length) {
       return `class ${base.name}<${base.templateArgs.map((_, index) => `T${index} = any`).join(', ')}> {
-        ${base.properties.map((prop) => prop.toPropertyCode(Surrounding.typeScript, true)).join('\n')}
+        ${base.properties.map(
+          (prop) => {
+            const index = base.templateArgs.findIndex(ele => ele.typeName === prop.dataType.typeName)
+            if (index !== -1) {
+              // 复写这个部分
+              // 直接判断是否相等 相等然后找到匹配的泛型，放进去
+              let fieldTypeDeclaration = `: T${index}`
+              return `
+              /** ${prop.description || prop.name} */
+              ${prop.name}${fieldTypeDeclaration};`;
+            }
+            // 等于-1可能是array套嵌
+            const deepArgs = function (deepProp: StandardDataType) {
+              const index = base.templateArgs.findIndex(ele => ele.typeName === deepProp.typeName)
+              if (index !== -1) {
+                return `Array<T${index}>`
+              }
+              if (deepProp.typeName === 'Array') {
+                const len = deepProp.typeArgs.length
+                for (let i = 0; i < len; i++) {
+                  const arg = deepProp.typeArgs[i]
+                  const result = deepArgs(arg)
+                  if (result) {
+                    return result
+                  }
+                }
+              }
+              return false
+            }
+
+            if (prop.dataType.typeName === 'Array') {
+              let len = prop.dataType.typeArgs.length
+              for (let i = 0; i < len; i++) {
+                const arg = prop.dataType.typeArgs[i]
+                const result = deepArgs(arg)
+                if (result) {
+                  return `
+                  /** ${prop.description || prop.name} */
+                  ${prop.name}: ${result};`;
+                }
+              }
+            }
+            return prop.toPropertyCode(Surrounding.typeScript, true)
+          }
+          ).join('\n')}
       }
       `;
     }
     return `class ${base.name} {
-      ${base.properties.map((prop) => prop.toPropertyCode(Surrounding.typeScript, true)).join('\n')}
-    }
+        ${base.properties.map((prop) => prop.toPropertyCode(Surrounding.typeScript, true)).join('\n')}
+      }
     `;
   }
 
