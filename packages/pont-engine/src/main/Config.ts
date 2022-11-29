@@ -66,14 +66,14 @@ export class Config extends OldConfig {
         const customTemplatePath = Config.getAbsolutePath(configDir, origin.customTemplatePath);
 
         return {
-          ...origin,
           rootDir: standardBaseConfig.rootDir,
           originType: standardBaseConfig.originType,
           usingOperationId: standardBaseConfig.usingOperationId,
           customTemplatePath,
           templateOriginalPath: {
             customTemplatePath: origin.customTemplatePath
-          }
+          },
+          ...origin
         };
       });
     } else {
