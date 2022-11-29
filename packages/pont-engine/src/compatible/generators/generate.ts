@@ -11,7 +11,7 @@ import * as _ from 'lodash';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-import { StandardDataSource, Interface, Mod, BaseClass } from '../standard';
+import { StandardDataSource, Interface, Mod, BaseClass, StandardDataType } from '../standard';
 import { format, reviseModName, getFileName, getTemplatesDirFile, judgeTemplatesDirFileExists } from '../utils';
 import { info } from '../debugLog';
 import { templateRegistion } from '../templates';
