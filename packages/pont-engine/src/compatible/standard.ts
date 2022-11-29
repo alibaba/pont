@@ -78,10 +78,10 @@ function dataType2StandardDataType(
   let standardDataType = null as StandardDataType;
 
   if (dataType.enum && dataType.enum.length) {
-    standardDataType = new StandardDataType([], '', false, -1, compileTemplateKeyword);
+    standardDataType = new StandardDataType([], '', false, -1, dataType, compileTemplateKeyword);
     standardDataType.setEnum(dataType.enum);
   } else if (dataType.primitiveType) {
-    standardDataType = new StandardDataType([], dataType.primitiveType, false, -1, compileTemplateKeyword);
+    standardDataType = new StandardDataType([], dataType.primitiveType, false, -1, dataType, compileTemplateKeyword);
   } else if (dataType.reference) {
     const ast = dateTypeRefs2Ast(dataType.reference, originName, compileTemplateKeyword);
     standardDataType = parseAst2StandardDataType(ast, defNames, []);
@@ -92,7 +92,7 @@ function dataType2StandardDataType(
       standardDataType = new StandardDataType();
     }
 
-    return new StandardDataType([standardDataType], 'Array', false, -1, compileTemplateKeyword);
+    return new StandardDataType([standardDataType], 'Array', false, -1, dataType, compileTemplateKeyword);
   }
 
   if (!standardDataType) {
@@ -130,9 +130,17 @@ export class StandardDataType<T = any> extends Contextable<T> {
     public isDefsType = false,
     /** 指向类的第几个模板，-1 表示没有 */
     public templateIndex = -1,
+    /** 其他的任意参数 */
+    public anyProps: Record<string, any> = {},
     public compileTemplateKeyword = '#/definitions/'
   ) {
     super();
+    if (anyProps) {
+      Object.keys(
+        _.omit(anyProps, ['typeArgs', 'typeName', 'isDefsType', 'templateIndex', 'compileTemplateKeyword'])
+      ).forEach((key) => (this[key] = anyProps[key]));
+    }
+    Reflect.deleteProperty(this, 'anyProps');
   }
 
   static constructorWithEnum(enums: Array<string | number> = []) {
@@ -147,20 +155,21 @@ export class StandardDataType<T = any> extends Contextable<T> {
       return dataType2StandardDataType(dataType as any, originName, defNames, dataType.compileTemplateKeyword);
     }
 
-    const { isDefsType, templateIndex, typeArgs = [], typeName, typeProperties } = dataType;
+    const { isDefsType, templateIndex, typeArgs = [], typeName, typeProperties, ...restProps } = dataType;
 
     if (typeArgs.length) {
       const instance: StandardDataType = new StandardDataType(
         typeArgs.map((arg) => StandardDataType.constructorFromJSON(arg, originName, defNames)),
         typeName,
         isDefsType,
-        templateIndex
+        templateIndex,
+        restProps
       );
       instance.setEnum(dataType.enum);
       return instance;
     }
 
-    const result = new StandardDataType([], typeName, isDefsType, templateIndex);
+    const result = new StandardDataType([], typeName, isDefsType, templateIndex, restProps);
     result.setEnum(dataType.enum);
     result.typeProperties = (typeProperties || []).map((prop) => new Property(prop));
 
@@ -530,29 +539,33 @@ export class StandardDataSource {
     this.mods.forEach((mod) => mod.setContext({ dataSource: this }));
   }
 
-  constructor(standard: { mods: Mod[]; name: string; baseClasses: BaseClass[] }) {
+  constructor(standard: { mods: Mod[]; name: string; baseClasses: BaseClass[] }, restProps?: Record<string, any>) {
     this.mods = standard.mods;
     if (standard.name) {
       this.name = standard.name;
     }
     this.baseClasses = standard.baseClasses;
 
+    if (restProps) {
+      Object.keys(restProps).forEach((key) => (this[key] = restProps[key]));
+    }
+
     this.reOrder();
     this.setContext();
   }
 
   static constructorFromLock(localDataObject: StandardDataSource, originName) {
+    const { baseClasses: originalBaseClasses, mods: originalMods, name, ...restProps } = localDataObject;
     let currentInter: Interface;
     try {
-      let { name, baseClasses, mods, ...rest } = localDataObject;
       // 兼容性代码，将老的数据结构转换为新的。
-      const defNames = localDataObject.baseClasses.map((base) => {
+      const defNames = originalBaseClasses.map((base) => {
         if (base.name.includes('<')) {
           return base.name.slice(0, base.name.indexOf('<'));
         }
         return base.name;
       });
-      baseClasses = localDataObject.baseClasses.map((base) => {
+      const baseClasses = originalBaseClasses.map((base) => {
         const props = base.properties.map((prop) => {
           return new Property({
             ...prop,
@@ -564,7 +577,7 @@ export class StandardDataSource {
 
         if (!templateArgs && base.name.includes('<')) {
           // 兼容性代码，将老的数据结构转换为新的。
-          const defNameAst = dateTypeRefs2Ast(base.name, localDataObject.name);
+          const defNameAst = dateTypeRefs2Ast(base.name, name);
           const dataType = parseAst2StandardDataType(defNameAst, defNames, []);
 
           templateArgs = dataType.typeArgs;
@@ -578,14 +591,14 @@ export class StandardDataSource {
           properties: _.unionBy(props, 'name')
         });
       });
-      mods = localDataObject.mods.map((mod) => {
+      const mods = originalMods.map((mod) => {
         const interfaces = mod.interfaces.map((inter) => {
-          const response = StandardDataType.constructorFromJSON(inter.response, localDataObject.name, defNames);
+          const response = StandardDataType.constructorFromJSON(inter.response, name, defNames);
 
           currentInter = inter;
           const parameters = inter.parameters
             .map((param) => {
-              const dataType = StandardDataType.constructorFromJSON(param.dataType, localDataObject.name, defNames);
+              const dataType = StandardDataType.constructorFromJSON(param.dataType, name, defNames);
 
               return new Property({
                 ...param,
@@ -608,13 +621,14 @@ export class StandardDataSource {
         });
       });
 
-      const newStandardDataSource = new StandardDataSource({
-        baseClasses,
-        mods,
-        name
-      });
-
-      return Object.assign(newStandardDataSource, rest ?? {});
+      return new StandardDataSource(
+        {
+          baseClasses,
+          mods,
+          name
+        },
+        restProps
+      );
     } catch (e) {
       const errArray: string[] = [];
       if (currentInter) {
