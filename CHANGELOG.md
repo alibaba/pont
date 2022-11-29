@@ -1,3 +1,29 @@
+v1.5.4 / 2022-11-29
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - 修复类型未引入问题
+  - Origin 配置中的 originType 属性被覆盖
+  - Generate中getBaseClassInDeclaration函数解析泛型问题
+  - 修复扩展的dataSource数据丢失
+  - 修复cmd 问题
+
+
+### 🚀 Features
+
+- `general`
+  - 修复对DataSource或者BassClass DataType扩展无效的问题
+
+
+### 💖 Thanks to
+
+- FrozenQ
+- fuying.yfy
+- liuwei
+- 芒星
+
 v1.5.3 / 2022-11-14
 ===================
 
