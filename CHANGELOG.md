@@ -1,3 +1,63 @@
+v1.4.1 / 2022-12-01
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - 修复对DataSource或者BassClass DataType扩展无效的问题
+  - 修复类型未引入问题
+  - Origin 配置中的 originType 属性被覆盖
+  - Generate中getBaseClassInDeclaration函数解析泛型问题
+  - 修复扩展的dataSource数据丢失
+  - 修复cmd 问题
+  - 修复cmd路径问题
+  - 修复 api.d.ts 没有重新生成问题
+  - 修复 currentOriginManage 为空时错误
+  - 修复不存在 dataSource 时,代码生成报错
+  - 修复 modName 导出问题
+  - 修复 currentOriginManage 为空时错误
+  - 修复不存在 dataSource 时,代码生成报错
+  - 修复 baseClasss 导出问题
+  - 修复  usingOperationId 默认值问题
+  - 修复 mock 问题
+  - 修复远程数据源解析失败时,diff问题
+  - 修复生成单个数据源时会生成其他数据源文件
+  - 修复 usingOperationId 丢失问题
+  - 修复多数据源更新问题
+  - 修复 JSON 会被格式化问题
+  - 完善代码
+  - 修复 templatePath和transformPath 不存在时,没有默认值
+  - 修复自定义模板文件缓存问题
+  - 修复远程数据源不存在时代码生成问题
+  - 修复自定义代码块获取问题
+  - 完善template编译路径
+
+
+### 🚀 Features
+
+- `general`
+  - 修复对DataSource或者BassClass DataType扩展无效的问题
+  - 添加vscode抛出报错信息
+  - GetGeneratedFiles 添加错误日志上报
+  - Yarn lock
+  - 优化数据源切换逻辑
+  - 添加数据源不存在时提示
+  - 新增忽略 pont 升级按钮
+  - To#优化轮训逻辑
+  - Pont 支持从 node_modules 读取自定义模板文件
+  - Pont 功能优化
+  - 初步完成 pont 升级优化
+  - To#优化本地缓存逻辑
+
+
+### 💖 Thanks to
+
+- FrozenQ
+- fuying
+- fuying.yfy
+- liuwei
+- 芒星
+
 v1.4.0 / 2022-09-05
 ===================
 
