@@ -14,6 +14,7 @@ var __assign = (this && this.__assign) || function () {
     return __assign.apply(this, arguments);
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.PontCore = void 0;
 var PontCoreManager = /** @class */ (function () {
     function PontCoreManager() {
     }
@@ -60,12 +61,12 @@ var PontCoreManager = /** @class */ (function () {
         });
         var paramStr = Object.keys(params)
             .map(function (key) {
-            return params[key] === undefined ? '' : key + "=" + params[key];
+            return params[key] === undefined ? '' : "".concat(key, "=").concat(params[key]);
         })
             .filter(function (id) { return id; })
             .join('&');
         if (paramStr) {
-            return url + "?" + paramStr;
+            return "".concat(url, "?").concat(paramStr);
         }
         return url;
     };
