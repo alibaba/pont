@@ -8,7 +8,7 @@ import { OriginManage } from './originManage';
 import { BaseTemplate, CustomTemplateManage } from './originManage/CustomTemplateManage';
 import { FilesManager } from './originManage/FilesManager';
 
-(process.env['NODE_TLS_REJECT_UNAUTHORIZED'] as any) = 0;
+process.env['NODE_TLS_REJECT_UNAUTHORIZED'] = 0 as any;
 
 export class Manager extends OldManager {
   private standardBaseConfig: IStandardBaseConfig;
