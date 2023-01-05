@@ -2,7 +2,7 @@
  * @description 翻译中文名称
  */
 
-import assert from 'assert';
+import * as assert from 'assert';
 import * as _ from 'lodash';
 
 import { PontFileManager } from './PontFileManager';

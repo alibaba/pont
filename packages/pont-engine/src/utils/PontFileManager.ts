@@ -56,6 +56,8 @@ export class PontFileManager {
   static appendFile(filePath: string, content: string) {
     if (fs.existsSync(filePath)) {
       return fs.appendFile(filePath, content);
+    }else{
+      return PontFileManager.saveFile(filePath,content)
     }
   }
 
