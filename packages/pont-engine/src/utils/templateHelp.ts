@@ -31,17 +31,9 @@ export function getTemplate<T = any>(rootPath: string, templateInfo: TemplateInf
       writeFileSync(templateFileName, templateInfo.defaultCode);
     }
 
-    /** 配置文件相对于rootPath的文件夹路径 */
-    const relativeDir = path.parse(path.relative(rootPath, templateInfo.templatePath)).dir;
+    const outDir = path.resolve(rootPath, LOCAL_DICT_DIR, templateInfo.templateType, templateInfo.name || 'default');
 
-    const outDir = path.resolve(
-      rootPath,
-      `${LOCAL_DICT_DIR}/${relativeDir ? `${relativeDir}/` : ''}${templateInfo.templateType}/${
-        templateInfo.name || 'default'
-      }`
-    );
-
-    const outFile = `${outDir}${templateInfo.templatePath.split(rootPath)[1]}`;
+    const outFile = path.resolve(outDir, path.relative(rootPath, templateInfo.templatePath));
 
     const program = ts.createProgram([templateFileName], {
       outDir,
