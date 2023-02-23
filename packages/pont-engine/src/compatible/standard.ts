@@ -359,6 +359,7 @@ export class Interface<T = any> extends Contextable<T> {
   method: string;
   name: string;
   path: string;
+  operationId: string
 
   get responseType() {
     return this.response.generateCode(this.getDsName());

@@ -285,6 +285,7 @@ class SwaggerInterface {
       name,
       method: inter.method,
       path: inter.path,
+      operationId: inter.operationId,
       response,
       /** 后端返回的参数可能重复 */
       parameters: _.unionBy(parameters, 'name')
@@ -351,6 +352,7 @@ class SwaggerInterface {
       name,
       method: inter.method,
       path: inter.path,
+      operationId: inter.operationId,
       response,
       /** 后端返回的参数可能重复 */
       parameters: _.unionBy(parameters, 'name')
