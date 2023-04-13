@@ -182,25 +182,7 @@ class Schema {
 }
 
 export function parseSwaggerEnumType(enumStrs: string[]) {
-  let enums = enumStrs as Array<string | number>;
-
-  enumStrs.forEach((str) => {
-    if (!Number.isNaN(Number(str))) {
-      enums.push(Number(str));
-    }
-  });
-
-  return enums
-    .filter((str) => {
-      return String(str).match(/^[0-9a-zA-Z\_\-\$]+$/);
-    })
-    .map((numOrStr) => {
-      if (typeof numOrStr === 'string') {
-        return `'${numOrStr}'`;
-      }
-
-      return numOrStr;
-    });
+  return enumStrs
 }
 
 class SwaggerInterface {
