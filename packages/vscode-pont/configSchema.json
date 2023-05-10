@@ -117,6 +117,23 @@
           }
         }
       }
+    },
+    "baiduTranslateConfigs": {
+      "type": "array",
+      "description": "百度翻译配置信息",
+      "items": {
+        "type": "object",
+        "properties": {
+          "appId": {
+            "type": "string",
+            "description": "百度翻译开放平台 - APP ID"
+          },
+          "appSecret": {
+            "type": "string",
+            "description": "百度翻译开放平台 - 秘钥"
+          }
+        }
+      }
     }
   }
 }

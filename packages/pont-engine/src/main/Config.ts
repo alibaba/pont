@@ -73,6 +73,7 @@ export class Config extends OldConfig {
           templateOriginalPath: {
             customTemplatePath: origin.customTemplatePath
           },
+          baiduTranslateConfigs: standardBaseConfig.baiduTranslateConfigs,
           ...origin
         };
       });
@@ -86,7 +87,8 @@ export class Config extends OldConfig {
           customTemplatePath: null,
           templateOriginalPath: {
             customTemplatePath: null
-          }
+          },
+          baiduTranslateConfigs: standardBaseConfig.baiduTranslateConfigs
         }
       ];
     }

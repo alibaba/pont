@@ -1,13 +1,13 @@
 import * as fs from 'fs-extra';
 import * as path from 'path';
 
-import { OriginType, Surrounding } from '../types/pontConfig';
+import { IBaiduTranslateConfig, OriginType, Surrounding } from '../types/pontConfig';
 import { getTemplate } from '../utils/templateHelp';
 import { defaultFetchMethodCode, defaultTransformCode } from '../constants/defaultCode';
 import { Mocks } from './Mocks';
 
 /** @deprecated */
-export class DataSourceConfig  {
+export class DataSourceConfig {
   rootDir = '';
   originUrl? = '';
   originType = OriginType.SwaggerV2;
@@ -28,6 +28,7 @@ export class DataSourceConfig  {
   pollingTime = 60 * 20;
   mocks = new Mocks();
   customTemplatePath: string;
+  baiduTranslateConfigs: Array<IBaiduTranslateConfig> = null;
 
   constructor(config: DataSourceConfig) {
     Object.keys(config).forEach((key) => {

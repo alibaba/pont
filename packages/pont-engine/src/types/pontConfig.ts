@@ -16,6 +16,12 @@ export enum SurroundingFileName {
   typeScript = 'ts'
 }
 
+/** 百度翻译秘钥信息 */
+export interface IBaiduTranslateConfig {
+  appId: string;
+  appSecret: string;
+}
+
 interface IOriginConfig {
   name: string;
 
@@ -50,6 +56,9 @@ export interface IBaseConfig {
   pollingTime: number;
 
   mocks: IMocks;
+
+  /** 百度翻译秘钥信息 */
+  baiduTranslateConfigs?: Array<IBaiduTranslateConfig>;
 }
 
 export interface IPontConfig extends IBaseConfig {
@@ -79,4 +88,7 @@ export interface IStandardOirginConfig extends IOriginConfig {
   templateOriginalPath: {
     customTemplatePath?: string;
   };
+
+  /** 百度翻译秘钥信息 */
+  baiduTranslateConfigs?: Array<IBaiduTranslateConfig>;
 }
