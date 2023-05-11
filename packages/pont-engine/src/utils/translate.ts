@@ -10,7 +10,7 @@ import { IBaiduTranslateConfig } from 'src/types/pontConfig';
 import { youdao, baidu, google } from 'translation.js';
 import { GoogleTranslator } from '@translate-tools/core/translators/GoogleTranslator';
 import { translate as googleTranslate } from '@vitalets/google-translate-api';
-import baiduTranslator from 'baidu-translate';
+const baiduTranslator = require('baidu-translate');
 
 const googleTranslator = new GoogleTranslator();
 
