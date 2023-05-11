@@ -1,7 +1,7 @@
 cp -r packages/vscode-pont .
 cd vscode-pont
+cp ../yarn.lock .
 yarn
 npm run build
 vsce publish
-cd ..
-rm -rf vscode-pont
+rm -rf ../vscode-pont
