@@ -2,8 +2,8 @@
  * @description 翻译中文名称
  */
 
-import assert from 'assert';
-import _ from 'lodash';
+import * as assert from 'assert';
+import * as _ from 'lodash';
 import { PontFileManager } from './PontFileManager';
 import { TRANSLATE_DICT_NAME } from '../constants';
 import { IBaiduTranslateConfig } from 'src/types/pontConfig';
