@@ -1,3 +1,22 @@
+v1.5.8 / 2023-05-11
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - Fix translate import error
+
+
+### 🚀 Features
+
+- `general`
+  - Add some translate engines
+
+
+### 💖 Thanks to
+
+- 芒星
+
 v1.5.7 / 2023-02-07
 ===================
 
