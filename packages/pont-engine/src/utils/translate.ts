@@ -2,15 +2,45 @@
  * @description 翻译中文名称
  */
 
-import * as assert from 'assert';
-import * as _ from 'lodash';
-
+import assert from 'assert';
+import _ from 'lodash';
 import { PontFileManager } from './PontFileManager';
 import { TRANSLATE_DICT_NAME } from '../constants';
+import { IBaiduTranslateConfig } from 'src/types/pontConfig';
+import { youdao, baidu, google } from 'translation.js';
+import { GoogleTranslator } from '@translate-tools/core/translators/GoogleTranslator';
+import { translate as googleTranslate } from '@vitalets/google-translate-api';
+import baiduTranslator from 'baidu-translate';
 
-const { youdao, baidu, google } = require('translation.js');
+const googleTranslator = new GoogleTranslator();
 
-const engines = [google, youdao, baidu];
+const engines = [
+  {
+    name: 'baiduOpen',
+    translate: (text, appId?, secret?) =>
+      baiduTranslator(appId, secret)(text, { to: 'en' }).then((res) => {
+        if (res.error_msg) {
+          throw new Error(res.error_msg);
+        }
+        return _.get(res, 'trans_result.0.dst');
+      })
+  },
+  { name: 'google1', translate: (text) => googleTranslator.translate(text, 'zh-CN', 'en') },
+  { name: 'google2', translate: (text) => googleTranslate(text, { to: 'en' }).then((res) => res.text) },
+  {
+    name: 'google',
+    translate: (text) => google.translate(text).then((res) => res.result[0])
+  },
+  {
+    name: 'youdao',
+    translate: (text) => youdao.translate(text).then((res) => res.result[0])
+  },
+  {
+    name: 'baidu',
+    translate: (text) => baidu.translate(text).then((res) => res.result[0])
+  }
+];
+
 let dict: { [rootDir: string]: { [cn: string]: string } } = {};
 let dicPath: { [rootDir: string]: string } = {};
 
@@ -49,7 +79,12 @@ function startCaseClassName(result) {
   return wordArray.join('');
 }
 
-export async function translate(rootDir, text: string, engineIndex = 0) {
+export async function translate(
+  rootDir,
+  baiduTranslateConfigs: IBaiduTranslateConfig[],
+  text: string,
+  engineIndex = 0
+) {
   if (!dicPath[rootDir]) {
     init(rootDir);
   }
@@ -65,22 +100,52 @@ export async function translate(rootDir, text: string, engineIndex = 0) {
 
   let enKey: string;
   let index = engineIndex;
-
+  const translateEngine = engines[index];
   try {
-    let res = await engines[index].translate(text);
-    enKey = startCaseClassName(res.result[0]);
+    let res;
+    if (translateEngine.name === 'baiduOpen') {
+      const baiduOpenTranslate = async (level) => {
+        if (!baiduTranslateConfigs || level >= baiduTranslateConfigs.length) {
+          if (!baiduTranslateConfigs) {
+            throw new RangeError('no baiduTranslateConfigs, skip baiduOpen translate');
+          }
+          throw new RangeError('all of baidu appIds can not work');
+        }
+        const config = baiduTranslateConfigs[level];
+
+        try {
+          return await translateEngine.translate(text, config.appId, config.appSecret);
+        } catch (e) {
+          if (e instanceof RangeError) {
+            throw e;
+          } else {
+            console.error(`translateEngine:${translateEngine.name} appId:${config.appId} text:${text} err:${e}`);
+          }
+          return await baiduOpenTranslate(level + 1);
+        }
+      };
+      res = await baiduOpenTranslate(0);
+    } else {
+      res = await translateEngine.translate(text);
+    }
+    enKey = startCaseClassName(res);
 
     assert.ok(enKey);
 
     appendToDict(rootDir, { cn: text, en: enKey });
     return enKey;
   } catch (err) {
-    return translate(rootDir, text, index + 1);
+    console.error(`translateEngine:${translateEngine.name} text:${text} err:${err}`);
+    return translate(rootDir, baiduTranslateConfigs, text, index + 1);
   }
 }
 
 /** 翻译中文类名等 */
-export async function translateChinese(jsonString: string, rootDir: string) {
+export async function translateChinese(
+  jsonString: string,
+  rootDir: string,
+  baiduTranslateConfigs?: IBaiduTranslateConfig[]
+) {
   let retString = jsonString;
   try {
     const matchItems = jsonString
@@ -99,7 +164,7 @@ export async function translateChinese(jsonString: string, rootDir: string) {
     // 例如: 请求参数vo, 请求参数, 替换时先替换 请求参数vo, 后替换请求参数
     chineseKeyCollect.sort((pre, next) => next.length - pre.length);
 
-    let result = await Promise.all(chineseKeyCollect.map((text) => translate(rootDir, text)));
+    let result = await Promise.all(chineseKeyCollect.map((text) => translate(rootDir, baiduTranslateConfigs, text)));
     // const normalizeRegStr = (str: string) => str.replace(/(\W)/g, '$1');
     const toRegStr = (str) => str.replace(/(\W)/g, '\\$1');
     result.forEach((enKey: string, index) => {

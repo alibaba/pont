@@ -15,6 +15,9 @@
     "build": "rm -rf lib && npm run build-hooks-js && tsc"
   },
   "dependencies": {
+    "@translate-tools/core": "^0.2.14",
+    "@vitalets/google-translate-api": "^9.1.0",
+    "baidu-translate": "^1.3.0",
     "chalk": "^2.3.0",
     "commander": "^2.19.0",
     "fs-extra": "^5.0.0",
