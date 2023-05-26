@@ -6,14 +6,14 @@ import * as assert from 'assert';
 import * as _ from 'lodash';
 import { PontFileManager } from './PontFileManager';
 import { TRANSLATE_DICT_NAME } from '../constants';
-import { IBaiduTranslateConfig } from 'src/types/pontConfig';
+import { IBaiduTranslateConfig } from '../types/pontConfig';
 import { youdao, baidu, google } from 'translation.js';
+import pinyin from './pinyin';
 import { GoogleTranslator } from '@translate-tools/core/translators/GoogleTranslator';
 import { translate as googleTranslate } from '@vitalets/google-translate-api';
 const baiduTranslator = require('baidu-translate');
 
 const googleTranslator = new GoogleTranslator();
-
 const engines = [
   {
     name: 'baiduOpen',
@@ -38,6 +38,10 @@ const engines = [
   {
     name: 'baidu',
     translate: (text) => baidu.translate(text).then((res) => res.result[0])
+  },
+  {
+    name: 'pinyin',
+    translate: (text) => pinyin.getCamelChars(text)
   }
 ];
 

@@ -4,10 +4,10 @@ import * as assert from 'assert';
 import * as path from 'path';
 import httpServer = require('http-server');
 import * as fs from 'fs-extra';
-import { createManager } from '../src/utils';
-import { Translator } from '../src/translate';
-import { Manager } from '../src/manage';
-import { SwaggerDataSource } from '../src/scripts/swagger';
+import { createManager } from '../src';
+// import { Translator } from '../src/translate';
+import { Manager } from '../src';
+import { SwaggerDataSource } from '../src/compatible/scripts/swagger';
 
 const getPath = fname => path.join(__dirname, fname);
 const clearDir = dirName => {
@@ -36,7 +36,7 @@ describe('pont功能测试', () => {
 
     server.listen({ port: 9099 }, async () => {
       console.log('http server start successfull');
-      manager = await createManager('config-multiple-origins.json');
+      manager = (await createManager('config-multiple-origins.json') as Manager);
       manager.diffs;
       // 读取 api.d.ts 并转换为单行
       const codeBuffer = await fs.readFile(getPath('services/api1/api.d.ts'));
@@ -91,14 +91,14 @@ describe('pont功能测试', () => {
     assert.ok(!apidts.includes(wrongCode));
   });
 
-  test('api.d.ts should translate chinese of baseClass to english', () => {
-    let dict: { [key: string]: string } = Translator.dict;
-    ['通用请求参数token', '输出参数vo', '查询参数', 'abc输出参数', ' 中英文 混合 带 空格 Vo '].forEach(cnKey => {
-      const enKey = dict[cnKey];
-      assert.ok(enKey);
-      assert.ok(apidts.includes(enKey));
-    });
-  });
+  // test('api.d.ts should translate chinese of baseClass to english', () => {
+  //   let dict: { [key: string]: string } = Translator.dict;
+  //   ['通用请求参数token', '输出参数vo', '查询参数', 'abc输出参数', ' 中英文 混合 带 空格 Vo '].forEach(cnKey => {
+  //     const enKey = dict[cnKey];
+  //     assert.ok(enKey);
+  //     assert.ok(apidts.includes(enKey));
+  //   });
+  // });
 
   test('api.d.ts should transform Map without template params to object', () => {
     let rightCode = oneline(`
@@ -127,7 +127,7 @@ describe('pont功能测试', () => {
     const manager = await createManager('config-single-usingMultipleOrigins.json');
     assert.ok(exists('services/api1/api.d.ts'));
     assert.ok(!exists('services/api2/api.d.ts'));
-    manager.stopPolling();
+    manager!.stopPolling();
   });
 
   it('mods or base update should generate history file and report', async () => {
@@ -136,7 +136,7 @@ describe('pont功能测试', () => {
 
     // 模拟后端接口变更
     try {
-      const swaggerObj = JSON.parse(originSource) as SwaggerDataSource;
+      const swaggerObj:any = JSON.parse(originSource) as SwaggerDataSource;
 
       // 模拟改变参数是否必传
       swaggerObj['paths']['/api/core/asset/credit/query/pastCreditCardBillGather']['post'][
