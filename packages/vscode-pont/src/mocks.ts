@@ -92,7 +92,8 @@ class Mocks {
       ${classes.join(',\n\n')}
     }
 
-    const escapeDeadCycle = (fn, num = 30) => {
+    // pr 测试
+    const escapeDeadCycle = (fn, num = 300) => {
       let n = 0;
 
       return (...args) => {
