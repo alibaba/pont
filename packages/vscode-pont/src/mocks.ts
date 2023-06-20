@@ -124,7 +124,7 @@ class Mocks {
 
                 return `
                   /** ${inter.description} */
-                  ${interName}: () => ${wrapper(interRes)}
+                  ${interName}: () => (${wrapper(interRes)})
                 `;
               })
               .join(',\n')}
