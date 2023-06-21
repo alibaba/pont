@@ -302,9 +302,7 @@ export class OriginManage {
 
     // 更新关联BaseClass
     const relatedBos = getRelatedBos(remoteMod);
-    // Set对象不能做直接性的迭代行为，可以用Array.form转换成数组。
-    const relatedBosArr = Array.from(relatedBos)
-    await Promise.all(relatedBosArr.map((typeName) => this.updateDataSourceClass(typeName)));
+    await Promise.all([...relatedBos].map((typeName) => this.updateDataSourceClass(typeName)));
 
     this.dataSource = dataSource;
     this.setCodeGeneratorDataSource();
