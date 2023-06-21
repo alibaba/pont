@@ -807,7 +807,6 @@ const pinyin = (function () {
     getFullChars: function (str) {
       let result = '',
         name;
-      // let reg = new RegExp('[a-zA-Z0-9- ]');
       for (let i = 0, len = str.length; i < len; i++) {
         let ch = str.substr(i, 1),
           unicode = ch.charCodeAt(0);
@@ -835,7 +834,6 @@ const pinyin = (function () {
       for (let key in this.full_dict) {
         if (-1 !== this.full_dict[key].indexOf(str)) {
           return this._capitalize(key);
-          break;
         }
       }
       return false;

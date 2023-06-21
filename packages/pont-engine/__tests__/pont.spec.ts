@@ -5,7 +5,6 @@ import * as path from 'path';
 import httpServer = require('http-server');
 import * as fs from 'fs-extra';
 import { createManager } from '../src';
-// import { Translator } from '../src/translate';
 import { Manager } from '../src';
 import { SwaggerDataSource } from '../src/compatible/scripts/swagger';
 
@@ -90,15 +89,6 @@ describe('pont功能测试', () => {
 
     assert.ok(!apidts.includes(wrongCode));
   });
-
-  // test('api.d.ts should translate chinese of baseClass to english', () => {
-  //   let dict: { [key: string]: string } = Translator.dict;
-  //   ['通用请求参数token', '输出参数vo', '查询参数', 'abc输出参数', ' 中英文 混合 带 空格 Vo '].forEach(cnKey => {
-  //     const enKey = dict[cnKey];
-  //     assert.ok(enKey);
-  //     assert.ok(apidts.includes(enKey));
-  //   });
-  // });
 
   test('api.d.ts should transform Map without template params to object', () => {
     let rightCode = oneline(`
