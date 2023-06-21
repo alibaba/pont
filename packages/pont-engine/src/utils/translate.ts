@@ -6,7 +6,7 @@ import * as assert from 'assert';
 import * as _ from 'lodash';
 import { PontFileManager } from './PontFileManager';
 import { TRANSLATE_DICT_NAME } from '../constants';
-import { IBaiduTranslateConfig } from 'src/types/pontConfig';
+import { IBaiduTranslateConfig } from '../types/pontConfig';
 import { youdao, baidu, google } from 'translation.js';
 import { GoogleTranslator } from '@translate-tools/core/translators/GoogleTranslator';
 import { translate as googleTranslate } from '@vitalets/google-translate-api';
@@ -41,8 +41,8 @@ const engines = [
   }
 ];
 
-let dict: { [rootDir: string]: { [cn: string]: string } } = {};
-let dicPath: { [rootDir: string]: string } = {};
+export const dict: { [rootDir: string]: { [cn: string]: string } } = {};
+const dicPath: { [rootDir: string]: string } = {};
 
 function init(rootDir: string) {
   dicPath[rootDir] = PontFileManager.getLocalFilePath(rootDir, TRANSLATE_DICT_NAME);
