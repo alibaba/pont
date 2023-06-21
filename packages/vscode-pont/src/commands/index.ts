@@ -392,7 +392,11 @@ export class CommandCenter {
 
         /** 初始化 mocks */
         if (config.mocks && config.mocks.enable) {
-          const closeServer = await MocksServer.getSingleInstance(manager).run();
+          const mockeServer = MocksServer.getSingleInstance(manager);
+
+          // 先执行刷新，更新mock代码
+          await mockeServer.refreshMocksCode();
+          const closeServer = await mockeServer.run();
           managerCleanUps.push({ dispose: closeServer });
         }
 
