@@ -57,6 +57,10 @@ class Mocks {
   getDefaultMocks(response: StandardDataType): string {
     const { typeName, isDefsType, initialValue, typeArgs, templateIndex } = response;
 
+    if (templateIndex !== -1) {
+      return `typeArgs[${templateIndex}]`;
+    }
+
     if (isDefsType) {
       const defClass = this.bases.find((bs) => bs.name === typeName);
 
