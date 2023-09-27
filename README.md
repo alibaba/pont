@@ -14,11 +14,11 @@
 
 </div>
 
-pont 在法语中是“桥”的意思，寓意着前后端之间的桥梁。
-
-Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数据。Pont 利用接口元数据，可以高度定制化生成前端接口层代码，接口 mock 平台和接口测试平台。
+pont 在法语中是“桥”的意思，寓意着前后端之间的桥梁。Pont 把 swagger、rap、dip 等多种接口文档平台，转换成 Pont 元数据。Pont 利用接口元数据，可以高度定制化生成前端接口层代码，接口 mock 平台和接口测试平台。
 
 其中 swagger 数据源，Pont 已经完美支持。并在一些大型项目中使用了近两年，各种高度定制化需求都可以满足。
+
+Pontx 用户请访问[Pontx](https://github.com/pontjs/pontx)
 
 ## ✨特性
 
