@@ -18,7 +18,7 @@ pont 在法语中是“桥”的意思，寓意着前后端之间的桥梁。Pon
 
 其中 swagger 数据源，Pont 已经完美支持。并在一些大型项目中使用了近两年，各种高度定制化需求都可以满足。
 
-Pontx 用户请访问[Pontx](https://github.com/pontjs/pontx)
+Pontx 用户请访问 [Pontx](https://github.com/pontjs/pontx)
 
 ## ✨特性
 
