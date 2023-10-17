@@ -59,7 +59,23 @@ export class OriginBaseReader {
       return fetchMethod(url);
     }
 
-    return fetch(url).then((res) => res.text());
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return fetch(url, {}).then(res => res.json()).then((json) => JSON.text(json))
+    } else {
+      return new Promise((resolve, reject) => {
+        const fs = require('fs')
+        const path = require('path')
+        // 支持解析和pont-conf.json同目录级别的符合规范的json文件
+        fs.readFile(path.join(__dirname,...new Array(4).fill('..'),url), { encoding: 'utf-8' }, (err, data) => {
+            if (err) {
+              reject(err)
+              return
+            }
+            resolve(data)
+         })
+  
+      })
+    }
   }
 
   /** 获取远程数据源 */
