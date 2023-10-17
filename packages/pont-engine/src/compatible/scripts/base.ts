@@ -58,8 +58,24 @@ export class OriginBaseReader {
       const fetchMethod = Config.getFetchMethodFromConfig(this.config);
       return fetchMethod(url);
     }
-
-    return fetch(url).then((res) => res.text());
+    // 可以读取pont-config.json同级别的本地文件
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return fetch(url, {}).then(res => res.text())
+    } else {
+      return new Promise((resolve, reject) => {
+        const fs = require('fs')
+        const path = require('path')
+  
+        fs.readFile(path.join(__dirname,...new Array(4).fill('..'),url), { encoding: 'utf-8' }, (err, data) => {
+            if (err) {
+              reject(err)
+              return
+            }
+            resolve(data)
+         })
+  
+      })
+  }
   }
 
   /** 获取远程数据源 */
