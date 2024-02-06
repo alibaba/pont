@@ -49,6 +49,7 @@ function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: string[], us
         const requestBodyContent = _.get(inter, 'requestBody.content', {});
         const requestFormat = Object.keys(requestBodyContent)[0];
         inter.parameters = [
+          ...(inter.parameters ?? []),
           {
             name: 'requestBody',
             in: 'body',
