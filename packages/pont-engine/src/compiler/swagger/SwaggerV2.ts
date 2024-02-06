@@ -59,6 +59,15 @@ function parseSwaggerMods(
 
   if (!swagger.tags) {
     swagger.tags = [];
+    allSwaggerInterfaces.forEach(({ tags }) => {
+      if (tags && tags.length) {
+        tags.forEach((tag) => {
+          if (!swagger.tags.some((u) => u.name == tag)) {
+            swagger.tags.push({ name: tag, description: '' });
+          }
+        });
+      }
+    });
   }
 
   swagger.tags.push({
