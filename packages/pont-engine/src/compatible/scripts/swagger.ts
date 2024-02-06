@@ -439,7 +439,7 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
       if (tags && tags.length) {
         tags.forEach((tag) => {
           if (!swagger.tags.some((u) => u.name == tag)) {
-            swagger.tags.push({ name: tag, description: '' });
+            swagger.tags.push({ name: tag, description: tag });
           }
         });
       }
