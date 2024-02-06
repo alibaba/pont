@@ -6,12 +6,14 @@ const currentVersion = require('../package.json').version;
 const { prompt } = require('enquirer');
 const execa = require('execa');
 
+const rootDir = path.resolve(__dirname, '..');
+const mainPackagePath = path.resolve(rootDir, 'packages', 'pont-engine');
 const preId = args.preid || (semver.prerelease(currentVersion) && semver.prerelease(currentVersion)[0]) || 'alpha';
 const isDryRun = args.dry;
 const skipTests = args.skipTests;
 const skipBuild = args.skipBuild;
 const packages = fs
-  .readdirSync(path.resolve(__dirname, '../packages'))
+  .readdirSync(path.resolve(rootDir, 'packages'))
   .filter((p) => !p.endsWith('.ts') && !p.startsWith('.'));
 
 const versionIncrements = ['patch', 'minor', 'major', 'prepatch', 'preminor', 'premajor', 'prerelease'];
@@ -69,6 +71,10 @@ async function main() {
 
   // update all package versions and inter-dependencies
   updateVersions(targetVersion);
+
+  // copy README and docs to main package
+  run('cp', ['-f', `${rootDir}/README.md`, mainPackagePath]);
+  run('cp', ['-rf', `${rootDir}/docs`, mainPackagePath]);
 
   // build all packages with types
   if (!skipBuild) {
