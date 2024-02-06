@@ -75,7 +75,7 @@ function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: string[], us
       if (tags && tags.length) {
         tags.forEach((tag) => {
           if (!swagger.tags.some((u) => u.name == tag)) {
-            swagger.tags.push({ name: tag, description: '' });
+            swagger.tags.push({ name: tag, description: tag });
           }
         });
       }
