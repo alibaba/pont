@@ -30,7 +30,9 @@ export class OriginBaseReader {
       chineseKeyCollect.sort((pre, next) => next.length - pre.length);
 
       let result = await Promise.all(
-        chineseKeyCollect.map((text) => translate(this.config.rootDir, this.config.baiduTranslateConfigs, text))
+        chineseKeyCollect.map((text) =>
+          translate(this.config.rootDir, this.config.translatePath, this.config.baiduTranslateConfigs, text)
+        )
       );
       // const normalizeRegStr = (str: string) => str.replace(/(\W)/g, '$1');
       const toRegStr = (str) => str.replace(/(\W)/g, '\\$1');

@@ -59,6 +59,9 @@ export interface IBaseConfig {
 
   /** 百度翻译秘钥信息 */
   baiduTranslateConfigs?: Array<IBaiduTranslateConfig>;
+
+  /** 指定翻译文件的生成路径（相对路径） */
+  translatePath?: string;
 }
 
 export interface IPontConfig extends IBaseConfig {
@@ -91,4 +94,7 @@ export interface IStandardOirginConfig extends IOriginConfig {
 
   /** 百度翻译秘钥信息 */
   baiduTranslateConfigs?: Array<IBaiduTranslateConfig>;
+
+  /** 指定翻译文件的生成路径（相对路径） */
+  translatePath?: string;
 }

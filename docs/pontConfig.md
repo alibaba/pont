@@ -22,6 +22,7 @@
 | usingOperationId | 使用operationId作为方法名 | `boolean` | `true` |
 | usingMultipleOrigins | pont 支持一个项目中配置多个 Swagger 来源。此处配置是否启用多数据源 | `boolean` | `false` |
 | baiduTranslateConfigs | pont内置多种翻译引擎，用于转换非法类名（如包含特殊字符或者中文）。填写了此配置将优先使用百度开放翻译引擎。需填写APP_ID和APP_SECRET,详见https://fanyi-api.baidu.com/product/113 | `Array<{appId:string,appSecret:string}>` | null |
+| translatePath | 自定义翻译文件的生成路径,包含文件名（使用相对路径指定）| `string` | `"node_modules/.pont/translate-dict.txt"` |
 
 
 ## origins 配置项

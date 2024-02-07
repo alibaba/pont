@@ -5,7 +5,6 @@
 import * as assert from 'assert';
 import * as _ from 'lodash';
 import { PontFileManager } from './PontFileManager';
-import { TRANSLATE_DICT_NAME } from '../constants';
 import { IBaiduTranslateConfig } from '../types/pontConfig';
 import { youdao, baidu, google } from 'translation.js';
 import pinyin from './pinyin';
@@ -48,8 +47,8 @@ const engines = [
 export const dict: { [rootDir: string]: { [cn: string]: string } } = {};
 const dicPath: { [rootDir: string]: string } = {};
 
-function init(rootDir: string) {
-  dicPath[rootDir] = PontFileManager.getLocalFilePath(rootDir, TRANSLATE_DICT_NAME);
+function init(rootDir: string, translatePath: string) {
+  dicPath[rootDir] = PontFileManager.getLocalFilePath(rootDir, null, translatePath);
   const localDict = PontFileManager.loadFile(dicPath[rootDir]);
 
   if (localDict) {
@@ -85,12 +84,13 @@ function startCaseClassName(result) {
 
 export async function translate(
   rootDir,
+  translatePath,
   baiduTranslateConfigs: IBaiduTranslateConfig[],
   text: string,
   engineIndex = 0
 ) {
   if (!dicPath[rootDir]) {
-    init(rootDir);
+    init(rootDir, translatePath);
   }
 
   if (dict[rootDir]?.[text]) {
@@ -140,7 +140,7 @@ export async function translate(
     return enKey;
   } catch (err) {
     console.error(`translateEngine:${translateEngine.name} text:${text} err:${err}`);
-    return translate(rootDir, baiduTranslateConfigs, text, index + 1);
+    return translate(rootDir, translatePath, baiduTranslateConfigs, text, index + 1);
   }
 }
 
@@ -148,6 +148,7 @@ export async function translate(
 export async function translateChinese(
   jsonString: string,
   rootDir: string,
+  translatePath: string,
   baiduTranslateConfigs?: IBaiduTranslateConfig[]
 ) {
   let retString = jsonString;
@@ -168,7 +169,9 @@ export async function translateChinese(
     // 例如: 请求参数vo, 请求参数, 替换时先替换 请求参数vo, 后替换请求参数
     chineseKeyCollect.sort((pre, next) => next.length - pre.length);
 
-    let result = await Promise.all(chineseKeyCollect.map((text) => translate(rootDir, baiduTranslateConfigs, text)));
+    let result = await Promise.all(
+      chineseKeyCollect.map((text) => translate(rootDir, translatePath, baiduTranslateConfigs, text))
+    );
     // const normalizeRegStr = (str: string) => str.replace(/(\W)/g, '$1');
     const toRegStr = (str) => str.replace(/(\W)/g, '\\$1');
     result.forEach((enKey: string, index) => {
