@@ -11,6 +11,7 @@ import {
 import { SwaggerInterface, Schema } from './type';
 import type { SwaggerParameter, SwaggerReferenceObject, SwaggerProperty } from './type';
 import { compileTemplate, parseAst2StandardDataType } from './utils';
+import { DEFAULT_MODULE_NAME } from '../../constants/defaultModule';
 
 // TODO: $ref, options, head
 interface SwaggerPathItemObject {
@@ -60,8 +61,8 @@ function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: string[], us
         ];
       }
 
-      if (!inter.tags) {
-        inter.tags = ['defaultModule'];
+      if (_.isEmpty(inter.tags)) {
+        inter.tags = [DEFAULT_MODULE_NAME];
       }
 
       allSwaggerInterfaces.push(inter);
@@ -82,11 +83,14 @@ function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: string[], us
       }
     });
   }
-
-  swagger.tags.push({
-    name: 'defaultModule',
-    description: 'defaultModule'
-  });
+  
+  // 推入默认模块时进行是否已存在相同模块进行判断
+  if (!swagger.tags.some(tag => tag.name === DEFAULT_MODULE_NAME)) {
+    swagger.tags.push({
+      name: DEFAULT_MODULE_NAME,
+      description: DEFAULT_MODULE_NAME
+    });
+  }
 
   // swagger 2.0 中 tags属性是可选的
   const mods = (swagger.tags || [])

@@ -20,6 +20,7 @@ import {
 import { compileTemplate } from '../compiler';
 
 import { OriginBaseReader } from './base';
+import { DEFAULT_MODULE_NAME } from '../../constants/defaultModule';
 
 enum SwaggerType {
   integer = 'integer',
@@ -423,8 +424,8 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
         ];
       }
 
-      if (!inter.tags) {
-        inter.tags = ['defaultModule'];
+      if (_.isEmpty(inter.tags)) {
+        inter.tags = [DEFAULT_MODULE_NAME];
       }
 
       allSwaggerInterfaces.push(inter);
@@ -446,10 +447,13 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
     });
   }
 
-  swagger.tags.push({
-    name: 'defaultModule',
-    description: 'defaultModule'
-  });
+  // 推入默认模块时进行是否已存在相同模块进行判断
+  if (!swagger.tags.some(tag => tag.name === DEFAULT_MODULE_NAME)) {
+    swagger.tags.push({
+      name: DEFAULT_MODULE_NAME,
+      description: DEFAULT_MODULE_NAME
+    });
+  }
 
   // swagger 2.0 中 tags属性是可选的
   const mods = (swagger.tags || [])
@@ -538,8 +542,8 @@ export function parseSwaggerMods(
       inter.path = path;
       inter.method = method;
 
-      if (!inter.tags) {
-        inter.tags = ['defaultModule'];
+      if (_.isEmpty(inter.tags)) {
+        inter.tags = [DEFAULT_MODULE_NAME];
       }
 
       allSwaggerInterfaces.push(inter);
@@ -551,8 +555,8 @@ export function parseSwaggerMods(
   }
 
   swagger.tags.push({
-    name: 'defaultModule',
-    description: 'defaultModule'
+    name: DEFAULT_MODULE_NAME,
+    description: DEFAULT_MODULE_NAME
   });
 
   // swagger 2.0 中 tags属性是可选的
