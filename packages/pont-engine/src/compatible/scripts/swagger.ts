@@ -424,7 +424,7 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
         ];
       }
 
-      if (!inter.tags) {
+      if (_.isEmpty(inter.tags)) {
         inter.tags = [DEFAULT_MODULE_NAME];
       }
 
@@ -539,7 +539,7 @@ export function parseSwaggerMods(
       inter.path = path;
       inter.method = method;
 
-      if (!inter.tags) {
+      if (_.isEmpty(inter.tags)) {
         inter.tags = [DEFAULT_MODULE_NAME];
       }
 

@@ -61,7 +61,7 @@ function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: string[], us
         ];
       }
 
-      if (!inter.tags) {
+      if (_.isEmpty(inter.tags)) {
         inter.tags = [DEFAULT_MODULE_NAME];
       }
 

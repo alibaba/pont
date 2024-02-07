@@ -50,7 +50,7 @@ function parseSwaggerMods(
       inter.path = path;
       inter.method = method;
 
-      if (!inter.tags) {
+      if (_.isEmpty(inter.tags)) {
         inter.tags = [DEFAULT_MODULE_NAME];
       }
 
