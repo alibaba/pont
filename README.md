@@ -176,6 +176,10 @@ SwaggerModule.setup('/api', app, document);
 
 ## 🎉 谁在使用
 
-- 阿里巴巴
+- [阿里巴巴](https://www.alibabagroup.com/about-alibaba)
+- 北京知道创宇信息技术股份有限公司
+- 长沙蜜獾信息科技有限公司
+- [联众智慧科技股份有限公司](http://www.mediinfo.com.cn/)
+- 深圳万国游科技有限公司
 
 > 我们在这里列出了部分使用者，如果你的公司和产品使用了 Pont，欢迎到 [这里](https://github.com/alibaba/pont/issues/301) 留言。
