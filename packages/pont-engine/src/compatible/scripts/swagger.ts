@@ -185,7 +185,7 @@ export function parseSwaggerEnumType(enumStrs: string[]) {
   let enums = enumStrs as Array<string | number>;
 
   enumStrs.forEach((str) => {
-    if (!Number.isNaN(Number(str))) {
+    if (!_.isNumber(str) && !Number.isNaN(Number(str))) {
       enums.push(Number(str));
     }
   });
