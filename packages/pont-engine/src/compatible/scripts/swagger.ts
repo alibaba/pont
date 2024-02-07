@@ -447,10 +447,13 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
     });
   }
 
-  swagger.tags.push({
-    name: DEFAULT_MODULE_NAME,
-    description: DEFAULT_MODULE_NAME
-  });
+  // 推入默认模块时进行是否已存在相同模块进行判断
+  if (!swagger.tags.some(tag => tag.name === DEFAULT_MODULE_NAME)) {
+    swagger.tags.push({
+      name: DEFAULT_MODULE_NAME,
+      description: DEFAULT_MODULE_NAME
+    });
+  }
 
   // swagger 2.0 中 tags属性是可选的
   const mods = (swagger.tags || [])
