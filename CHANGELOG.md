@@ -1,3 +1,43 @@
+v1.6.0 / 2024-02-07
+===================
+
+### 🐛 Bug Fixes
+
+- `general`
+  - 在生成swagger tags的默认模块前增加已存在相同模块判断
+  - 修复api tags不存在或为空时补充默认tag的逻辑
+  - 提取默认模块名为常量
+  - #391 枚举包含数值时，生成的类型声明重复
+  - #378 修复surrounding为typeScript时不生成pontCore的问题
+  - #332 OpenAPI 下，POST 请求，同时存在路径参数与请求体参数时，路径参数丢失
+  - #182 Swagger中不存在顶层tags时根据interface自动生成
+  - #182 SwaggerV2根元素无tags时，mod生成失败
+
+
+### 🚀 Features
+
+- `general`
+  - #394 支持自定义翻译文件的生成路径
+  - #390, #403 Use tags in operation-object when global tags is empty
+
+
+### 🏡 Chore
+
+- `general`
+  - Copy readme when publish
+- `deps`
+  - Bump word-wrap from 1.2.3 to 1.2.4
+  - Bump semver from 6.0.0 to 6.3.1 in /examples/hooks-app
+- `deps-dev`
+  - Bump semver from 7.1.1 to 7.5.2
+
+
+### 💖 Thanks to
+
+- FrankCheung
+- dependabot[bot]
+- 芒星
+
 v1.5.12 / 2023-07-28
 ===================
 
