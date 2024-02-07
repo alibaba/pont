@@ -20,7 +20,12 @@ export class OriginReader implements IOriginReader {
   }
 
   translate(jsonString: string): Promise<string> {
-    return translateChinese(jsonString, this.config.rootDir, this.config.baiduTranslateConfigs);
+    return translateChinese(
+      jsonString,
+      this.config.rootDir,
+      this.config.translatePath,
+      this.config.baiduTranslateConfigs
+    );
   }
 
   async transform2StandardDataSource(json: any, config: IStandardOirginConfig): Promise<StandardDataSource> {

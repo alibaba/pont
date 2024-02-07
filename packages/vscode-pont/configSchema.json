@@ -134,6 +134,10 @@
           }
         }
       }
+    },
+    "translatePath": {
+      "description": "自定义翻译文件的生成路径,包含文件名（使用相对路径指定）",
+      "type": "string"
     }
   }
 }

@@ -8,7 +8,10 @@ import * as path from 'path';
 import { LOCAL_DICT_DIR } from '../constants';
 
 export class PontFileManager {
-  static getLocalFilePath(rootDir: string, filename: string): string {
+  static getLocalFilePath(rootDir: string, filename: string, customPath?: string): string {
+    if (customPath) {
+      return path.join(rootDir, customPath);
+    }
     return path.join(rootDir, LOCAL_DICT_DIR, filename);
   }
 
@@ -56,8 +59,8 @@ export class PontFileManager {
   static appendFile(filePath: string, content: string) {
     if (fs.existsSync(filePath)) {
       return fs.appendFile(filePath, content);
-    }else{
-      return PontFileManager.saveFile(filePath,content)
+    } else {
+      return PontFileManager.saveFile(filePath, content);
     }
   }
 
