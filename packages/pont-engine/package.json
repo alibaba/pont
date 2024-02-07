@@ -1,7 +1,9 @@
 {
   "name": "pont-engine",
   "version": "1.6.0",
+  "author": "jasonHzq",
   "description": "pont swagger typescript API",
+  "license": "MIT",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "bin": {
@@ -35,6 +37,7 @@
     "lib",
     "*.md",
     "bin",
+    "docs",
     "templates",
     "useRequest"
   ],
@@ -44,6 +47,9 @@
     "typescript",
     "API"
   ],
-  "author": "jasonHzq",
-  "license": "MIT"
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alibaba/pont.git"
+  },
+  "homepage": "https://github.com/alibaba/pont#readme"
 }
