@@ -20,6 +20,7 @@ import {
 import { compileTemplate } from '../compiler';
 
 import { OriginBaseReader } from './base';
+import { DEFAULT_MODULE_NAME } from '../../constants/defaultModule';
 
 enum SwaggerType {
   integer = 'integer',
@@ -424,7 +425,7 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
       }
 
       if (!inter.tags) {
-        inter.tags = ['defaultModule'];
+        inter.tags = [DEFAULT_MODULE_NAME];
       }
 
       allSwaggerInterfaces.push(inter);
@@ -447,8 +448,8 @@ export function parseSwaggerV3Mods(swagger: SwaggerV3DataSource, defNames: strin
   }
 
   swagger.tags.push({
-    name: 'defaultModule',
-    description: 'defaultModule'
+    name: DEFAULT_MODULE_NAME,
+    description: DEFAULT_MODULE_NAME
   });
 
   // swagger 2.0 中 tags属性是可选的
@@ -539,7 +540,7 @@ export function parseSwaggerMods(
       inter.method = method;
 
       if (!inter.tags) {
-        inter.tags = ['defaultModule'];
+        inter.tags = [DEFAULT_MODULE_NAME];
       }
 
       allSwaggerInterfaces.push(inter);
@@ -551,8 +552,8 @@ export function parseSwaggerMods(
   }
 
   swagger.tags.push({
-    name: 'defaultModule',
-    description: 'defaultModule'
+    name: DEFAULT_MODULE_NAME,
+    description: DEFAULT_MODULE_NAME
   });
 
   // swagger 2.0 中 tags属性是可选的

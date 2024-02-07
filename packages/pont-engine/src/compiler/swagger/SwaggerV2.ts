@@ -12,6 +12,7 @@ import {
 import { SwaggerInterface, Schema } from './type';
 import type { SwaggerParameter, SwaggerReferenceObject } from './type';
 import { compileTemplate, parseAst2StandardDataType } from './utils';
+import { DEFAULT_MODULE_NAME } from '../../constants/defaultModule';
 
 // TODO: $ref, options, head
 interface SwaggerPathItemObject {
@@ -50,7 +51,7 @@ function parseSwaggerMods(
       inter.method = method;
 
       if (!inter.tags) {
-        inter.tags = ['defaultModule'];
+        inter.tags = [DEFAULT_MODULE_NAME];
       }
 
       allSwaggerInterfaces.push(inter);
@@ -71,8 +72,8 @@ function parseSwaggerMods(
   }
 
   swagger.tags.push({
-    name: 'defaultModule',
-    description: 'defaultModule'
+    name: DEFAULT_MODULE_NAME,
+    description: DEFAULT_MODULE_NAME
   });
 
   // swagger 2.0 中 tags属性是可选的
