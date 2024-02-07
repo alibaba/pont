@@ -57,7 +57,7 @@ function parseSwaggerMods(
     });
   });
 
-  if (!swagger.tags) {
+  if (_.isEmpty(swagger.tags)) {
     swagger.tags = [];
     allSwaggerInterfaces.forEach(({ tags }) => {
       if (tags && tags.length) {
