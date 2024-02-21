@@ -192,7 +192,7 @@ export class StandardDataType<T = any> extends Contextable<T> {
   getDefName(originName) {
     let name = this.typeName;
 
-    if (this.isDefsType) {
+    if (this.isDefsType && this.typeName !== 'ObjectMap') {
       name = originName ? `defs.${originName}.${this.typeName}` : `defs.${this.typeName}`;
     }
 
