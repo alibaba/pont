@@ -10,6 +10,7 @@ import { youdao, baidu, google } from 'translation.js';
 import pinyin from './pinyin';
 import { GoogleTranslator } from '@translate-tools/core/translators/GoogleTranslator';
 import { translate as googleTranslate } from '@vitalets/google-translate-api';
+import { LOCAL_DICT_DIR, TRANSLATE_DICT_NAME } from '../constants';
 const baiduTranslator = require('baidu-translate');
 
 const googleTranslator = new GoogleTranslator();
@@ -47,7 +48,7 @@ const engines = [
 export const dict: { [rootDir: string]: { [cn: string]: string } } = {};
 const dicPath: { [rootDir: string]: string } = {};
 
-function init(rootDir: string, translatePath: string) {
+function init(rootDir: string, translatePath: string = `${LOCAL_DICT_DIR}/${TRANSLATE_DICT_NAME}`) {
   dicPath[rootDir] = PontFileManager.getLocalFilePath(rootDir, null, translatePath);
   const localDict = PontFileManager.loadFile(dicPath[rootDir]);
 
