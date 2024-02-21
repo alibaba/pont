@@ -5,7 +5,6 @@ import { IBaiduTranslateConfig, OriginType, Surrounding } from '../types/pontCon
 import { getTemplate } from '../utils/templateHelp';
 import { defaultFetchMethodCode, defaultTransformCode } from '../constants/defaultCode';
 import { Mocks } from './Mocks';
-import { LOCAL_DICT_DIR, TRANSLATE_DICT_NAME } from '../constants';
 
 /** @deprecated */
 export class DataSourceConfig {
@@ -31,7 +30,7 @@ export class DataSourceConfig {
   customTemplatePath: string;
   baiduTranslateConfigs: Array<IBaiduTranslateConfig> = null;
   /** 指定翻译文件的生成路径（相对路径） */
-  translatePath = `${LOCAL_DICT_DIR}/${TRANSLATE_DICT_NAME}`;
+  translatePath?: string;
 
   constructor(config: DataSourceConfig) {
     Object.keys(config).forEach((key) => {
