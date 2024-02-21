@@ -1,3 +1,22 @@
+v1.6.2 / 2024-02-21
+===================
+
+### 🐛 Bug Fixes
+
+- `pont-engine`
+  - 修复翻译报错([ERR_INVALID_ARG_TYPE]: The path argument must be of type string. Received null)的问题
+
+
+### 🏡 Chore
+
+- `general`
+  - Update user
+
+
+### 💖 Thanks to
+
+- 芒星
+
 v1.6.1 / 2024-02-07
 ===================
 
