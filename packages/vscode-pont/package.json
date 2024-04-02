@@ -2,7 +2,7 @@
   "name": "vscode-pont",
   "displayName": "pont",
   "description": "",
-  "version": "1.6.2",
+  "version": "1.6.3",
   "publisher": "jasonHzq",
   "license": "MIT",
   "engines": {
@@ -228,7 +228,7 @@
     "@types/fs-extra": "^5.1.0",
     "fs-extra": "^7.0.1",
     "mockjs": "^1.0.1-beta3",
-    "pont-engine": "1.6.2",
+    "pont-engine": "1.6.3",
     "typescript": "^4.8.3"
   },
   "devDependencies": {
