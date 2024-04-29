@@ -89,7 +89,7 @@ Pont 支持自定义**数据获取 、数据源预处理、自定义代码生成
 
 [标准数据源模型](./docs/standardDataSource.md)
 
-[pont-config.josn 配置项](./docs/pontConfig.md)
+[pont-config.json 配置项](./docs/pontConfig.md)
 
 [定制化 Pont](./docs/customizedPont.md)
 
