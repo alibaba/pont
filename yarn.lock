@@ -1133,12 +1133,12 @@
 
 "@tootallnate/once@1":
   version "1.1.2"
-  resolved "https://registry.npm.alibaba-inc.com/@tootallnate/once/download/@tootallnate/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
+  resolved "https://registry.npm.taobao.org/@tootallnate/once/download/@tootallnate/once-1.1.2.tgz#ccb91445360179a04e7fe6aff78c00ffc1eeaf82"
   integrity sha1-zLkURTYBeaBOf+av94wA/8Hur4I=
 
 "@translate-tools/core@^0.2.14":
   version "0.2.14"
-  resolved "https://registry.npm.alibaba-inc.com/@translate-tools/core/download/@translate-tools/core-0.2.14.tgz#79643403715a9f425e6f44ab3d088747ef4c044a"
+  resolved "https://registry.npm.taobao.org/@translate-tools/core/download/@translate-tools/core-0.2.14.tgz#79643403715a9f425e6f44ab3d088747ef4c044a"
   integrity sha512-/1h8ovE9olQP2culobz3HnbLEah9XLe1COHRyr/ZW1W6hm9Zz52beYH5BHkH9wcJ53MG/vTtBzNa6LaUOpFnnA==
   dependencies:
     "@xmldom/xmldom" "^0.8.1"
@@ -1225,7 +1225,7 @@
 
 "@types/http-errors@^1.8.2":
   version "1.8.2"
-  resolved "https://registry.npm.alibaba-inc.com/@types/http-errors/download/@types/http-errors-1.8.2.tgz#7315b4c4c54f82d13fa61c228ec5c2ea5cc9e0e1"
+  resolved "https://registry.npm.taobao.org/@types/http-errors/download/@types/http-errors-1.8.2.tgz#7315b4c4c54f82d13fa61c228ec5c2ea5cc9e0e1"
   integrity sha512-EqX+YQxINb+MeXaIqYDASb6U6FCHbWjkj4a1CKDBks3d/QiB2+PqBLyO72vLDgAO1wUI4O+9gweRcQK11bTL/w==
 
 "@types/http-server@^0.10.0":
@@ -1324,7 +1324,7 @@
 
 "@vitalets/google-translate-api@^9.1.0":
   version "9.1.0"
-  resolved "https://registry.npm.alibaba-inc.com/@vitalets/google-translate-api/download/@vitalets/google-translate-api-9.1.0.tgz#5a754d379553cc3b7ad741635c2349a6ae60c806"
+  resolved "https://registry.npm.taobao.org/@vitalets/google-translate-api/download/@vitalets/google-translate-api-9.1.0.tgz#5a754d379553cc3b7ad741635c2349a6ae60c806"
   integrity sha512-iA36eHfypNaYOHUjVoYcQ9Ro98WXHdBDgKNlWqn4MN4PA/R7bgccH4KlLWwuem5FjCSlRev27ZTUtyp/axgOVQ==
   dependencies:
     "@types/http-errors" "^1.8.2"
@@ -1333,7 +1333,7 @@
 
 "@xmldom/xmldom@^0.8.1":
   version "0.8.7"
-  resolved "https://registry.npm.alibaba-inc.com/@xmldom/xmldom/download/@xmldom/xmldom-0.8.7.tgz#8b1e39c547013941974d83ad5e9cf5042071a9a0"
+  resolved "https://registry.npm.taobao.org/@xmldom/xmldom/download/@xmldom/xmldom-0.8.7.tgz#8b1e39c547013941974d83ad5e9cf5042071a9a0"
   integrity sha512-sI1Ly2cODlWStkINzqGrZ8K6n+MTSbAeQnAipGyL+KZCXuHaRlj2gyyy8B/9MvsFFqN7XHryQnB2QwhzvJXovg==
 
 "@zkochan/cmd-shim@^3.1.0":
@@ -1395,7 +1395,7 @@ agent-base@4, agent-base@^4.3.0:
 
 agent-base@6:
   version "6.0.2"
-  resolved "https://registry.npm.alibaba-inc.com/agent-base/download/agent-base-6.0.2.tgz#49fff58577cfee3f37176feab4c22e00f86d7f77"
+  resolved "https://registry.npm.taobao.org/agent-base/download/agent-base-6.0.2.tgz#49fff58577cfee3f37176feab4c22e00f86d7f77"
   integrity sha1-Sf/1hXfP7j83F2/qtMIuAPhtf3c=
   dependencies:
     debug "4"
@@ -1660,7 +1660,7 @@ aws4@^1.8.0:
 
 axios@^0.23.0:
   version "0.23.0"
-  resolved "https://registry.npm.alibaba-inc.com/axios/download/axios-0.23.0.tgz#b0fa5d0948a8d1d75e3d5635238b6c4625b05149"
+  resolved "https://registry.npm.taobao.org/axios/download/axios-0.23.0.tgz#b0fa5d0948a8d1d75e3d5635238b6c4625b05149"
   integrity sha1-sPpdCUio0ddePVY1I4tsRiWwUUk=
   dependencies:
     follow-redirects "^1.14.4"
@@ -1715,7 +1715,7 @@ babel-preset-jest@^24.9.0:
 
 baidu-translate@^1.3.0:
   version "1.3.0"
-  resolved "https://registry.npm.alibaba-inc.com/baidu-translate/download/baidu-translate-1.3.0.tgz#b36746bfaeb3a8636ce74d80c8674be506ff31c5"
+  resolved "https://registry.npm.taobao.org/baidu-translate/download/baidu-translate-1.3.0.tgz#b36746bfaeb3a8636ce74d80c8674be506ff31c5"
   integrity sha1-s2dGv66zqGNs502AyGdL5Qb/McU=
   dependencies:
     querystring "^0.2.0"
@@ -2474,7 +2474,7 @@ debug@3.1.0:
 
 debug@4:
   version "4.3.3"
-  resolved "https://registry.npm.alibaba-inc.com/debug/download/debug-4.3.3.tgz#04266e0b70a98d4462e6e288e38259213332b664"
+  resolved "https://registry.npm.taobao.org/debug/download/debug-4.3.3.tgz#04266e0b70a98d4462e6e288e38259213332b664"
   integrity sha512-/zxw5+vh1Tfv+4Qn7a5nsbcJKPaSvCDhojn6FEl9vupwK2VCSDtEiEtqr8DFtzYFOdz63LBkxec7DYuc2jon6Q==
   dependencies:
     ms "2.1.2"
@@ -2600,7 +2600,7 @@ denodeify@^1.2.1:
 
 depd@2.0.0:
   version "2.0.0"
-  resolved "https://registry.npm.alibaba-inc.com/depd/download/depd-2.0.0.tgz#b696163cc757560d09cf22cc8fad1571b79e76df"
+  resolved "https://registry.npm.taobao.org/depd/download/depd-2.0.0.tgz#b696163cc757560d09cf22cc8fad1571b79e76df"
   integrity sha1-tpYWPMdXVg0JzyLMj60Vcbeedt8=
 
 deprecation@^2.0.0:
@@ -3154,7 +3154,7 @@ fill-range@^7.0.1:
 
 filter-obj@^1.1.0:
   version "1.1.0"
-  resolved "https://registry.npm.alibaba-inc.com/filter-obj/download/filter-obj-1.1.0.tgz#9b311112bc6c6127a16e016c6c5d7f19e0805c5b"
+  resolved "https://registry.npm.taobao.org/filter-obj/download/filter-obj-1.1.0.tgz#9b311112bc6c6127a16e016c6c5d7f19e0805c5b"
   integrity sha1-mzERErxsYSehbgFsbF1/GeCAXFs=
 
 find-up@^1.0.0:
@@ -3194,7 +3194,7 @@ follow-redirects@^1.0.0:
 
 follow-redirects@^1.14.4:
   version "1.15.2"
-  resolved "https://registry.npm.alibaba-inc.com/follow-redirects/download/follow-redirects-1.15.2.tgz#b460864144ba63f2681096f274c4e57026da2c13"
+  resolved "https://registry.npm.taobao.org/follow-redirects/download/follow-redirects-1.15.2.tgz#b460864144ba63f2681096f274c4e57026da2c13"
   integrity sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==
 
 for-in@^1.0.2:
@@ -3563,7 +3563,7 @@ har-validator@~5.1.0:
 
 har-validator@~5.1.3:
   version "5.1.5"
-  resolved "https://registry.npm.alibaba-inc.com/har-validator/download/har-validator-5.1.5.tgz#1f0803b9f8cb20c0fa13822df1ecddb36bde1efd"
+  resolved "https://registry.npm.taobao.org/har-validator/download/har-validator-5.1.5.tgz#1f0803b9f8cb20c0fa13822df1ecddb36bde1efd"
   integrity sha1-HwgDufjLIMD6E4It8ezds2veHv0=
   dependencies:
     ajv "^6.12.3"
@@ -3675,7 +3675,7 @@ http-cache-semantics@^3.8.1:
 
 http-errors@^2.0.0:
   version "2.0.0"
-  resolved "https://registry.npm.alibaba-inc.com/http-errors/download/http-errors-2.0.0.tgz#b7774a1486ef73cf7667ac9ae0858c012c57b9d3"
+  resolved "https://registry.npm.taobao.org/http-errors/download/http-errors-2.0.0.tgz#b7774a1486ef73cf7667ac9ae0858c012c57b9d3"
   integrity sha512-FtwrG/euBzaEjYeRqOgly7G0qviiXoJWnvEH2Z1plBdXgbyjv34pHTSb9zoeHMyDy33+DWy5Wt9Wo+TURtOYSQ==
   dependencies:
     depd "2.0.0"
@@ -3694,7 +3694,7 @@ http-proxy-agent@^2.1.0:
 
 http-proxy-agent@^4.0.1:
   version "4.0.1"
-  resolved "https://registry.npm.alibaba-inc.com/http-proxy-agent/download/http-proxy-agent-4.0.1.tgz#8a8c8ef7f5932ccf953c296ca8291b95aa74aa3a"
+  resolved "https://registry.npm.taobao.org/http-proxy-agent/download/http-proxy-agent-4.0.1.tgz#8a8c8ef7f5932ccf953c296ca8291b95aa74aa3a"
   integrity sha1-ioyO9/WTLM+VPClsqCkblap0qjo=
   dependencies:
     "@tootallnate/once" "1"
@@ -3743,7 +3743,7 @@ https-proxy-agent@^2.2.1:
 
 https-proxy-agent@^5.0.0:
   version "5.0.0"
-  resolved "https://registry.npm.alibaba-inc.com/https-proxy-agent/download/https-proxy-agent-5.0.0.tgz#e2a90542abb68a762e0a0850f6c9edadfd8506b2"
+  resolved "https://registry.npm.taobao.org/https-proxy-agent/download/https-proxy-agent-5.0.0.tgz#e2a90542abb68a762e0a0850f6c9edadfd8506b2"
   integrity sha1-4qkFQqu2inYuCghQ9sntrf2FBrI=
   dependencies:
     agent-base "6"
@@ -4974,7 +4974,7 @@ lodash@^4.15.0, lodash@^4.17.10, lodash@^4.17.12, lodash@^4.17.13, lodash@^4.17.
 
 lodash@^4.17.21:
   version "4.17.21"
-  resolved "https://registry.npm.alibaba-inc.com/lodash/download/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
+  resolved "https://registry.npm.taobao.org/lodash/download/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha1-Z5WRxWTDv/quhFTPCz3zcMPWkRw=
 
 log-symbols@^1.0.2:
@@ -6222,7 +6222,7 @@ qs@~6.5.2:
 
 query-string@^6.14.1:
   version "6.14.1"
-  resolved "https://registry.npm.alibaba-inc.com/query-string/download/query-string-6.14.1.tgz#7ac2dca46da7f309449ba0f86b1fd28255b0c86a"
+  resolved "https://registry.npm.taobao.org/query-string/download/query-string-6.14.1.tgz#7ac2dca46da7f309449ba0f86b1fd28255b0c86a"
   integrity sha1-esLcpG2n8wlEm6D4ax/SglWwyGo=
   dependencies:
     decode-uri-component "^0.2.0"
@@ -6232,7 +6232,7 @@ query-string@^6.14.1:
 
 querystring@^0.2.0:
   version "0.2.1"
-  resolved "https://registry.npm.alibaba-inc.com/querystring/download/querystring-0.2.1.tgz#40d77615bb09d16902a85c3e38aa8b5ed761c2dd"
+  resolved "https://registry.npm.taobao.org/querystring/download/querystring-0.2.1.tgz#40d77615bb09d16902a85c3e38aa8b5ed761c2dd"
   integrity sha1-QNd2FbsJ0WkCqFw+OKqLXtdhwt0=
 
 quick-lru@^1.0.0:
@@ -6439,7 +6439,7 @@ request-promise-native@^1.0.5:
 
 request@^2.85.0:
   version "2.88.2"
-  resolved "https://registry.npm.alibaba-inc.com/request/download/request-2.88.2.tgz#d73c918731cb5a87da047e207234146f664d12b3"
+  resolved "https://registry.npm.taobao.org/request/download/request-2.88.2.tgz#d73c918731cb5a87da047e207234146f664d12b3"
   integrity sha1-1zyRhzHLWofaBH4gcjQUb2ZNErM=
   dependencies:
     aws-sign2 "~0.7.0"
@@ -6733,7 +6733,7 @@ set-value@^2.0.0, set-value@^2.0.1:
 
 setprototypeof@1.2.0:
   version "1.2.0"
-  resolved "https://registry.npm.alibaba-inc.com/setprototypeof/download/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
+  resolved "https://registry.npm.taobao.org/setprototypeof/download/setprototypeof-1.2.0.tgz#66c9a24a73f9fc28cbe66b09fed3d33dcaf1b424"
   integrity sha1-ZsmiSnP5/CjL5msJ/tPTPcrxtCQ=
 
 shebang-command@^1.2.0:
@@ -6920,7 +6920,7 @@ spdx-license-ids@^3.0.0:
 
 split-on-first@^1.0.0:
   version "1.1.0"
-  resolved "https://registry.npm.alibaba-inc.com/split-on-first/download/split-on-first-1.1.0.tgz#f610afeee3b12bce1d0c30425e76398b78249a5f"
+  resolved "https://registry.npm.taobao.org/split-on-first/download/split-on-first-1.1.0.tgz#f610afeee3b12bce1d0c30425e76398b78249a5f"
   integrity sha1-9hCv7uOxK84dDDBCXnY5i3gkml8=
 
 split-string@^3.0.1, split-string@^3.0.2:
@@ -6986,7 +6986,7 @@ static-extend@^0.1.1:
 
 statuses@2.0.1:
   version "2.0.1"
-  resolved "https://registry.npm.alibaba-inc.com/statuses/download/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
+  resolved "https://registry.npm.taobao.org/statuses/download/statuses-2.0.1.tgz#55cb000ccf1d48728bd23c685a063998cf1a1b63"
   integrity sha1-VcsADM8dSHKL0jxoWgY5mM8aG2M=
 
 stealthy-require@^1.1.1:
@@ -7009,7 +7009,7 @@ stream-shift@^1.0.0:
 
 strict-uri-encode@^2.0.0:
   version "2.0.0"
-  resolved "https://registry.npm.alibaba-inc.com/strict-uri-encode/download/strict-uri-encode-2.0.0.tgz#b9c7330c7042862f6b142dc274bbcc5866ce3546"
+  resolved "https://registry.npm.taobao.org/strict-uri-encode/download/strict-uri-encode-2.0.0.tgz#b9c7330c7042862f6b142dc274bbcc5866ce3546"
   integrity sha1-ucczDHBChi9rFC3CdLvMWGbONUY=
 
 string-argv@^0.3.0:
@@ -7362,7 +7362,7 @@ to-regex@^3.0.1, to-regex@^3.0.2:
 
 toidentifier@1.0.1:
   version "1.0.1"
-  resolved "https://registry.npm.alibaba-inc.com/toidentifier/download/toidentifier-1.0.1.tgz#3be34321a88a820ed1bd80dfaa33e479fbb8dd35"
+  resolved "https://registry.npm.taobao.org/toidentifier/download/toidentifier-1.0.1.tgz#3be34321a88a820ed1bd80dfaa33e479fbb8dd35"
   integrity sha1-O+NDIaiKgg7RvYDfqjPkefu43TU=
 
 tough-cookie@^2.3.3, tough-cookie@^2.3.4, tough-cookie@~2.5.0:
@@ -7488,7 +7488,7 @@ typedarray@^0.0.6:
 
 typescript@^4.8.3:
   version "4.8.3"
-  resolved "https://registry.npm.alibaba-inc.com/typescript/download/typescript-4.8.3.tgz#d59344522c4bc464a65a730ac695007fdb66dd88"
+  resolved "https://registry.npm.taobao.org/typescript/download/typescript-4.8.3.tgz#d59344522c4bc464a65a730ac695007fdb66dd88"
   integrity sha512-goMHfm00nWPa8UvR/CPSvykqf6dVV8x/dp0c5mFTMTIu0u0FlGWRioyy7Nn0PGAdHxpJZnuO/ut+PpQ8UiHAig==
 
 uc.micro@^1.0.1, uc.micro@^1.0.5:
@@ -7682,7 +7682,7 @@ vscode-test@^0.4.1:
 
 vscode@^1.1.37:
   version "1.1.37"
-  resolved "https://registry.npm.alibaba-inc.com/vscode/download/vscode-1.1.37.tgz#c2a770bee4bb3fff765e2b72c7bcc813b8a6bb0a"
+  resolved "https://registry.npm.taobao.org/vscode/download/vscode-1.1.37.tgz#c2a770bee4bb3fff765e2b72c7bcc813b8a6bb0a"
   integrity sha1-wqdwvuS7P/92Xityx7zIE7imuwo=
   dependencies:
     glob "^7.1.2"
@@ -7899,7 +7899,7 @@ xml-name-validator@^3.0.0:
 
 xpath@^0.0.32:
   version "0.0.32"
-  resolved "https://registry.npm.alibaba-inc.com/xpath/download/xpath-0.0.32.tgz#1b73d3351af736e17ec078d6da4b8175405c48af"
+  resolved "https://registry.npm.taobao.org/xpath/download/xpath-0.0.32.tgz#1b73d3351af736e17ec078d6da4b8175405c48af"
   integrity sha1-G3PTNRr3NuF+wHjW2kuBdUBcSK8=
 
 xtend@~4.0.1:
