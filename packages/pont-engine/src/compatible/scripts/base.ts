@@ -14,8 +14,9 @@ export class OriginBaseReader {
     let retString = jsonString;
     try {
       const matchItems = jsonString
-        // 匹配中英文混合及包含 空格，«，»，-, (,) / 的情况
-        .match(/"[a-z0-9\s-\/]*[\u4e00-\u9fa5]+[a-z0-9\s-\/«»()\u4e00-\u9fa5]*":/gi);
+      // 匹配中英文混合及包含 空格，«，»，-, (,) /, _, ., 中文逗号的情况
+      .match(/"[^"]*[\u4e00-\u9fa5]+[^"]*":/gi);
+  
       if (!matchItems) {
         return retString;
       }
